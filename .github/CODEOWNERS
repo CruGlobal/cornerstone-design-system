@@ -1,0 +1,6 @@
+# Design System Code Owners
+* @rguinee
+*.md @rguinee
+/docs/ @rguinee
+/src/components/ @rguinee
+/tokens/ @rguinee
