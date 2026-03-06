@@ -25,21 +25,21 @@ Figma variables support four types: **Color**, **Number**, **String**, **Boolean
 
 | Domain | Figma construct | Why |
 |---|---|---|
-| color (ref + sys + cmp) | **Variable (Color)** | Single color value; supports aliasing and modes |
-| space | **Variable (Number)** | Single numeric value (px) |
-| size | **Variable (Number)** | Single numeric value (px) |
-| border-radius | **Variable (Number)** | Single numeric value (px) |
-| border-width | **Variable (Number)** | Single numeric value (px) |
-| opacity | **Variable (Number)** | Single numeric value (0–1) |
-| z-index | **Variable (Number)** | Single numeric value |
-| font-family | **Variable (String)** | Text value |
-| font-weight | **Variable (Number)** | Numeric weight (400, 700, etc.) |
-| font-size | **Variable (Number)** | Single numeric value (px) |
-| line-height | **Variable (Number)** | Single numeric value (px or %) |
-| letter-spacing | **Variable (Number)** | Single numeric value (px or %) |
-| typography (composite) | **Text Style** | Combines font-family, size, weight, line-height, letter-spacing — Figma variables cannot express composites |
-| elevation / shadow | **Effect Style** | Composite (x, y, blur, spread, color) — no variable equivalent |
-| gradient | **Color Style** | Figma variables don't support gradients |
+| [color (ref + sys + cmp)](#3a-collection-refcolor) | **Variable (Color)** | Single color value; supports aliasing and modes |
+| [space](#space-scale) | **Variable (Number)** | Single numeric value (px) |
+| [size](#size-scale) | **Variable (Number)** | Single numeric value (px) |
+| [border-radius](#border-radius-scale) | **Variable (Number)** | Single numeric value (px) |
+| [border-width](#border-width-scale) | **Variable (Number)** | Single numeric value (px) |
+| [opacity](#opacity-scale) | **Variable (Number)** | Single numeric value (0–1) |
+| [z-index](#z-index-scale) | **Variable (Number)** | Single numeric value |
+| [font-family](#3c-collection-refstring) | **Variable (String)** | Text value |
+| [font-weight](#typography-number-primitives) | **Variable (Number)** | Numeric weight (400, 700, etc.) |
+| [font-size](#typography-number-primitives) | **Variable (Number)** | Single numeric value (px) |
+| [line-height](#typography-number-primitives) | **Variable (Number)** | Single numeric value (px or %) |
+| [letter-spacing](#typography-number-primitives) | **Variable (Number)** | Single numeric value (px or %) |
+| [typography (composite)](#6-phase-4--figma-styles-non-variable) | **Text Style** | Combines font-family, size, weight, line-height, letter-spacing — Figma variables cannot express composites |
+| [elevation / shadow](#6-phase-4--figma-styles-non-variable) | **Effect Style** | Composite (x, y, blur, spread, color) — no variable equivalent |
+| [gradient](#6-phase-4--figma-styles-non-variable) | **Color Style** | Figma variables don't support gradients |
 | motion / easing | **Not in Figma** | Document in token JSON only; Figma has no motion primitive |
 | time / duration | **Not in Figma** | Document in token JSON only |
 | icons | **Not in Figma** | Handled via component instances, not variables or styles |
@@ -467,28 +467,46 @@ Each hue group below has 10 steps. Cru's values are defined; other brand modes p
 
 Raw spacing primitives in px. These are your base building blocks.
 
-- [ ] `ref/number/space/0` → 0
-- [ ] `ref/number/space/1` → 1
-- [ ] `ref/number/space/2` → 2
-- [ ] `ref/number/space/4` → 4
-- [ ] `ref/number/space/6` → 6
-- [ ] `ref/number/space/8` → 8
-- [ ] `ref/number/space/10` → 10
-- [ ] `ref/number/space/12` → 12
-- [ ] `ref/number/space/16` → 16
-- [ ] `ref/number/space/20` → 20
-- [ ] `ref/number/space/24` → 24
-- [ ] `ref/number/space/32` → 32
-- [ ] `ref/number/space/40` → 40
-- [ ] `ref/number/space/48` → 48
-- [ ] `ref/number/space/56` → 56
-- [ ] `ref/number/space/64` → 64
-- [ ] `ref/number/space/80` → 80
-- [ ] `ref/number/space/96` → 96
-- [ ] `ref/number/space/120` → 120
-- [ ] `ref/number/space/160` → 160
+- [x] `ref/number/space/0` → 0
+- [x] `ref/number/space/0` → 0
+- [x] `ref/number/space/1` → 1
+- [x] `ref/number/space/2` → 2
+- [x] `ref/number/space/4` → 4
+- [x] `ref/number/space/6` → 6
+- [x] `ref/number/space/8` → 8
+- [x] `ref/number/space/10` → 10
+- [x] `ref/number/space/12` → 12
+- [x] `ref/number/space/16` → 16
+- [x] `ref/number/space/20` → 20
+- [x] `ref/number/space/24` → 24
+- [x] `ref/number/space/32` → 32
+- [x] `ref/number/space/40` → 40
+- [x] `ref/number/space/48` → 48
+- [x] `ref/number/space/56` → 56
+- [x] `ref/number/space/64` → 64
+- [x] `ref/number/space/80` → 80
+- [x] `ref/number/space/96` → 96
+- [x] `ref/number/space/120` → 120
+- [x] `ref/number/space/160` → 160
 
 > **Scoping:** Gap, padding (all sides), item spacing.
+
+#### Negative space scale
+
+Raw negative spacing primitives for overlap layouts (e.g., stacked avatars, overlapping cards). Mirror of the positive scale with negative values.
+
+- [x] `ref/number/space/-2` → -2
+- [x] `ref/number/space/-4` → -4
+- [x] `ref/number/space/-6` → -6
+- [x] `ref/number/space/-8` → -8
+- [x] `ref/number/space/-10` → -10
+- [x] `ref/number/space/-12` → -12
+- [x] `ref/number/space/-16` → -16
+- [x] `ref/number/space/-20` → -20
+- [x] `ref/number/space/-24` → -24
+- [x] `ref/number/space/-32` → -32
+
+> **Scoping:** Gap, item spacing (negative values produce overlap).
 
 #### Size scale
 
@@ -522,34 +540,28 @@ Raw dimension primitives for widths, heights, icon sizes, control sizes.
 
 #### Border radius scale
 
-Per `csds.tokens.json`, uses semantic names rather than numeric steps.
+Uses scaled steps, includes 9999 for pill shape.
 
-- [ ] `ref/borderRadius/none` → 0
-- [ ] `ref/borderRadius/subtle` → 8
-- [ ] `ref/borderRadius/round` → 20
-- [ ] `ref/borderRadius/full` → 9999
-
-**Per-corner overrides** *(alias the base values for directional control)*
-
-- [ ] `ref/borderRadius/tl/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/tr/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/br/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/bl/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/t/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/r/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/b/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/l/none` → ref/borderRadius/none
+- [x] `ref/border-radius/0` → 0
+- [x] `ref/border-radius/2` → 2
+- [x] `ref/border-radius/4` → 4
+- [x] `ref/border-radius/8` → 8
+- [x] `ref/border-radius/12` → 12
+- [x] `ref/border-radius/16` → 16
+- [x] `ref/border-radius/20` → 20
+- [x] `ref/border-radius/24` → 24
+- [x] `ref/border-radius/9999` → 9999
 
 > **Scoping:** Corner radius.
-> **Note:** Add more per-corner aliases as needed (e.g., `tl/subtle`, `t/round`, etc.).
+> **Note:** Semantic corner radius sizes defined at system level. Per corner overrides defined at component level.
 
 #### Border width scale
 
-- [ ] `ref/number/border-width/0` → 0
-- [ ] `ref/number/border-width/1` → 1
-- [ ] `ref/number/border-width/2` → 2
-- [ ] `ref/number/border-width/3` → 3
-- [ ] `ref/number/border-width/4` → 4
+- [x] `ref/number/border-width/0` → 0
+- [x] `ref/number/border-width/1` → 1
+- [x] `ref/number/border-width/2` → 2
+- [x] `ref/number/border-width/3` → 3
+- [x] `ref/number/border-width/4` → 4
 
 > **Scoping:** Stroke weight (individual strokes).
 
@@ -557,17 +569,17 @@ Per `csds.tokens.json`, uses semantic names rather than numeric steps.
 
 Per `csds.tokens.json`, uses 0–10 steps with values 0–100.
 
-- [ ] `ref/opacity/0` → 0
-- [ ] `ref/opacity/1` → 10
-- [ ] `ref/opacity/2` → 20
-- [ ] `ref/opacity/3` → 30
-- [ ] `ref/opacity/4` → 40
-- [ ] `ref/opacity/5` → 50
-- [ ] `ref/opacity/6` → 60
-- [ ] `ref/opacity/7` → 70
-- [ ] `ref/opacity/8` → 80
-- [ ] `ref/opacity/9` → 90
-- [ ] `ref/opacity/10` → 100
+- [x] `ref/opacity/0` → 0
+- [x] `ref/opacity/1` → 10
+- [x] `ref/opacity/2` → 20
+- [x] `ref/opacity/3` → 30
+- [x] `ref/opacity/4` → 40
+- [x] `ref/opacity/5` → 50
+- [x] `ref/opacity/6` → 60
+- [x] `ref/opacity/7` → 70
+- [x] `ref/opacity/8` → 80
+- [x] `ref/opacity/9` → 90
+- [x] `ref/opacity/10` → 100
 
 > **Scoping:** Opacity.
 
@@ -577,75 +589,63 @@ Raw type scale values. These feed into `sys/number` semantic tokens and ultimate
 
 **Font size (px):**
 
-- [ ] `ref/number/font-size/10` → 10
-- [ ] `ref/number/font-size/11` → 11
-- [ ] `ref/number/font-size/12` → 12
-- [ ] `ref/number/font-size/14` → 14
-- [ ] `ref/number/font-size/16` → 16
-- [ ] `ref/number/font-size/18` → 18
-- [ ] `ref/number/font-size/20` → 20
-- [ ] `ref/number/font-size/22` → 22
-- [ ] `ref/number/font-size/24` → 24
-- [ ] `ref/number/font-size/28` → 28
-- [ ] `ref/number/font-size/32` → 32
-- [ ] `ref/number/font-size/36` → 36
-- [ ] `ref/number/font-size/40` → 40
-- [ ] `ref/number/font-size/48` → 48
-- [ ] `ref/number/font-size/56` → 56
-- [ ] `ref/number/font-size/64` → 64
-- [ ] `ref/number/font-size/72` → 72
+- [x] `ref/number/font-size/10` → 10
+- [x] `ref/number/font-size/11` → 11
+- [x] `ref/number/font-size/12` → 12
+- [x] `ref/number/font-size/14` → 14
+- [x] `ref/number/font-size/16` → 16
+- [x] `ref/number/font-size/18` → 18
+- [x] `ref/number/font-size/20` → 20
+- [x] `ref/number/font-size/22` → 22
+- [x] `ref/number/font-size/24` → 24
+- [x] `ref/number/font-size/28` → 28
+- [x] `ref/number/font-size/32` → 32
+- [x] `ref/number/font-size/36` → 36
+- [x] `ref/number/font-size/40` → 40
+- [x] `ref/number/font-size/48` → 48
+- [x] `ref/number/font-size/56` → 56
+- [x] `ref/number/font-size/64` → 64
+- [x] `ref/number/font-size/72` → 72
 
 > **Scoping:** Font size (if supported; otherwise leave unscoped).
 
-**Line height (px or %):**
-
-- [ ] `ref/number/line-height/100` → 1.0 (100%)
-- [ ] `ref/number/line-height/110` → 1.1
-- [ ] `ref/number/line-height/120` → 1.2
-- [ ] `ref/number/line-height/125` → 1.25
-- [ ] `ref/number/line-height/130` → 1.3
-- [ ] `ref/number/line-height/140` → 1.4
-- [ ] `ref/number/line-height/150` → 1.5
-- [ ] `ref/number/line-height/160` → 1.6
-- [ ] `ref/number/line-height/175` → 1.75
-- [ ] `ref/number/line-height/200` → 2.0
+**Line height (unitless number intended to be %):**
+x
+- [x] `ref/number/line-height/100` → 100 (100%)
+- [x] `ref/number/line-height/110` → 110
+- [x] `ref/number/line-height/120` → 120
+- [x] `ref/number/line-height/125` → 125
+- [x] `ref/number/line-height/130` → 130
+- [x] `ref/number/line-height/140` → 140
+- [x] `ref/number/line-height/150` → 150
+- [x] `ref/number/line-height/160` → 160
+- [x] `ref/number/line-height/175` → 175
+- [x] `ref/number/line-height/200` → 200
 
 > **Scoping:** Line height.
+> **Note**: Figma doesn't allow unit suffixes. For now, we must represent the % as a number until they add support.
 
 **Font weight:**
 
-- [ ] `ref/number/font-weight/100` → 100 (Thin)
-- [ ] `ref/number/font-weight/200` → 200 (Extra Light)
-- [ ] `ref/number/font-weight/300` → 300 (Light)
-- [ ] `ref/number/font-weight/400` → 400 (Regular)
-- [ ] `ref/number/font-weight/500` → 500 (Medium)
-- [ ] `ref/number/font-weight/600` → 600 (Semi Bold)
-- [ ] `ref/number/font-weight/700` → 700 (Bold)
-- [ ] `ref/number/font-weight/800` → 800 (Extra Bold)
-- [ ] `ref/number/font-weight/900` → 900 (Black)
+- [x] `ref/number/font-weight/100` → 100 (Thin)
+- [x] `ref/number/font-weight/200` → 200 (Extra Light)
+- [x] `ref/number/font-weight/300` → 300 (Light)
+- [x] `ref/number/font-weight/400` → 400 (Regular)
+- [x] `ref/number/font-weight/500` → 500 (Medium)
+- [x] `ref/number/font-weight/600` → 600 (Semi Bold)
+- [x] `ref/number/font-weight/700` → 700 (Bold)
+- [x] `ref/number/font-weight/800` → 800 (Extra Bold)
+- [x] `ref/number/font-weight/900` → 900 (Black)
 
-> **Scoping note:** Figma doesn't natively bind font-weight to a number variable on the canvas. These exist for documentation parity and code export. Text Styles handle the actual weight in Figma.
+> **Scoping note:** Text Styles consume the weight variable. Results may vary depending on the font family selected.
 
 **Letter spacing (px):**
 
-- [ ] `ref/number/letter-spacing/tight` → -0.5
-- [ ] `ref/number/letter-spacing/normal` → 0
-- [ ] `ref/number/letter-spacing/wide` → 0.5
-- [ ] `ref/number/letter-spacing/wider` → 1.0
+- [x] `ref/number/letter-spacing/tight` → -0.5
+- [x] `ref/number/letter-spacing/wide` → 0.5
+- [x] `ref/number/letter-spacing/wider` → 1.0
 
 > **Scoping:** Letter spacing (if supported).
-
-#### Z-index scale
-
-- [ ] `ref/number/z/0` → 0
-- [ ] `ref/number/z/1` → 1
-- [ ] `ref/number/z/10` → 10
-- [ ] `ref/number/z/20` → 20
-- [ ] `ref/number/z/30` → 30
-- [ ] `ref/number/z/40` → 40
-- [ ] `ref/number/z/50` → 50
-
-> **Scoping note:** Z-index has no Figma canvas equivalent. These exist for token export to code only.
 
 ---
 
@@ -658,41 +658,41 @@ Per `csds.tokens.json`, font families are organized into tiers: system-ui fallba
 
 #### Font family — system-ui (fallbacks)
 
-- [ ] `ref/font-family/system-ui/sans` → `ui-sans-serif`
-- [ ] `ref/font-family/system-ui/serif` → `ui-serif`
-- [ ] `ref/font-family/system-ui/mono` → `ui-monospace`
+- [x] `ref/font-family/system-ui/sans` → `ui-sans-serif`
+- [x] `ref/font-family/system-ui/serif` → `ui-serif`
+- [x] `ref/font-family/system-ui/mono` → `ui-monospace`
 
 #### Font family — web-safe (fallbacks)
 
-- [ ] `ref/font-family/web-safe/sans` → `Arial`
-- [ ] `ref/font-family/web-safe/serif` → `Times New Roman`
-- [ ] `ref/font-family/web-safe/mono` → `Courier New`
+- [x] `ref/font-family/web-safe/sans` → `Arial`
+- [x] `ref/font-family/web-safe/serif` → `Times New Roman`
+- [x] `ref/font-family/web-safe/mono` → `Courier New`
 
 #### Font family — plain (default cross-brand)
 
-- [ ] `ref/font-family/plain/sans` → `Noto Sans`
-- [ ] `ref/font-family/plain/serif` → `Noto Serif`
-- [ ] `ref/font-family/plain/mono` → `Roboto Mono`
+- [x] `ref/font-family/plain/sans` → `Noto Sans`
+- [x] `ref/font-family/plain/serif` → `Noto Serif`
+- [x] `ref/font-family/plain/mono` → `Roboto Mono`
 
 #### Font family — brand (per-brand primary typefaces)
 
 These are empty by default and populated per brand mode.
 
-- [ ] `ref/font-family/brand/sans-primary`
-- [ ] `ref/font-family/brand/sans-secondary`
-- [ ] `ref/font-family/brand/serif-primary`
-- [ ] `ref/font-family/brand/serif-secondary`
-- [ ] `ref/font-family/brand/mono-primary`
-- [ ] `ref/font-family/brand/mono-secondary`
+- [x] `ref/font-family/brand/sans-primary`
+- [x] `ref/font-family/brand/sans-secondary`
+- [x] `ref/font-family/brand/serif-primary`
+- [x] `ref/font-family/brand/serif-secondary`
+- [x] `ref/font-family/brand/mono-primary`
+- [x] `ref/font-family/brand/mono-secondary`
 
 #### Font family — brand product (product/app-specific overrides)
 
-- [ ] `ref/font-family/brand/product/sans-primary`
-- [ ] `ref/font-family/brand/product/sans-secondary`
-- [ ] `ref/font-family/brand/product/serif-primary`
-- [ ] `ref/font-family/brand/product/serif-secondary`
-- [ ] `ref/font-family/brand/product/mono-primary`
-- [ ] `ref/font-family/brand/product/mono-secondary`
+- [x] `ref/font-family/brand/product/sans-primary`
+- [x] `ref/font-family/brand/product/sans-secondary`
+- [x] `ref/font-family/brand/product/serif-primary`
+- [x] `ref/font-family/brand/product/serif-secondary`
+- [x] `ref/font-family/brand/product/mono-primary`
+- [x] `ref/font-family/brand/product/mono-secondary`
 
 > **Scoping note:** Figma doesn't allow binding a string variable to font-family on the canvas. These exist for code export and documentation. Actual font binding happens through Text Styles.
 
@@ -708,15 +708,15 @@ These are empty by default and populated per brand mode.
 
 #### Primary
 
-- [ ] `sys/color/primary`
-- [ ] `sys/color/primary/hover`
-- [ ] `sys/color/primary/pressed`
-- [ ] `sys/color/primary/focus`
-- [ ] `sys/color/primary/disabled`
-- [ ] `sys/color/on-primary`
-- [ ] `sys/color/on-primary/hover`
-- [ ] `sys/color/primary-container`
-- [ ] `sys/color/on-primary-container`
+- [x] `sys/color/primary`
+- [x] `sys/color/primary/hover`
+- [x] `sys/color/primary/pressed`
+- [x] `sys/color/primary/focus`
+- [x] `sys/color/primary/disabled`
+- [x] `sys/color/on-primary`
+- [x] `sys/color/on-primary/hover`
+- [x] `sys/color/primary-container`
+- [x] `sys/color/on-primary-container`
 
 #### Secondary
 
@@ -777,27 +777,27 @@ These are empty by default and populated per brand mode.
 
 #### Surface
 
-- [ ] `sys/color/surface`
-- [ ] `sys/color/surface/dim`
-- [ ] `sys/color/surface/bright`
-- [ ] `sys/color/surface-variant`
-- [ ] `sys/color/on-surface`
-- [ ] `sys/color/on-surface/hover`
-- [ ] `sys/color/on-surface/disabled`
-- [ ] `sys/color/on-surface-variant`
-- [ ] `sys/color/on-surface-variant/hover`
-- [ ] `sys/color/surface-container/lowest`
-- [ ] `sys/color/surface-container/low`
-- [ ] `sys/color/surface-container`
-- [ ] `sys/color/surface-container/high`
-- [ ] `sys/color/surface-container/highest`
-- [ ] `sys/color/inverse-surface`
-- [ ] `sys/color/inverse-on-surface`
+- [x] `sys/color/surface`
+- [x] `sys/color/surface/dim`
+- [x] `sys/color/surface/bright`
+- [x] `sys/color/surface-variant`
+- [x] `sys/color/on-surface`
+- [x] `sys/color/on-surface/hover`
+- [x] `sys/color/on-surface/disabled`
+- [x] `sys/color/on-surface-variant`
+- [x] `sys/color/on-surface-variant/hover`
+- [x] `sys/color/surface-container/lowest`
+- [x] `sys/color/surface-container/low`
+- [x] `sys/color/surface-container`
+- [x] `sys/color/surface-container/high`
+- [x] `sys/color/surface-container/highest`
+- [x] `sys/color/inverse-surface`
+- [x] `sys/color/inverse-on-surface`
 
 #### Background
 
-- [ ] `sys/color/background`
-- [ ] `sys/color/on-background`
+- [x] `sys/color/background`
+- [x] `sys/color/on-background`
 
 #### Outline
 
@@ -844,15 +844,15 @@ A single role-agnostic scale using t-shirt sizes. Values alias the raw `ref/numb
 
 | Token | Value | Ref alias |
 |---|---|---|
-| - [ ] `sys/number/space/3xs` | 2px | `ref/number/space/2` |
-| - [ ] `sys/number/space/2xs` | 4px | `ref/number/space/4` |
-| - [ ] `sys/number/space/xs` | 8px | `ref/number/space/8` |
-| - [ ] `sys/number/space/sm` | 12px | `ref/number/space/12` |
-| - [ ] `sys/number/space/md` | 16px | `ref/number/space/16` |
-| - [ ] `sys/number/space/lg` | 24px | `ref/number/space/24` |
-| - [ ] `sys/number/space/xl` | 32px | `ref/number/space/32` |
-| - [ ] `sys/number/space/2xl` | 40px | `ref/number/space/40` |
-| - [ ] `sys/number/space/3xl` | 56px | `ref/number/space/56` |
+| - [x] `sys/number/space/3xs` | 2px | `ref/number/space/2` |
+| - [x] `sys/number/space/2xs` | 4px | `ref/number/space/4` |
+| - [x] `sys/number/space/xs` | 8px | `ref/number/space/8` |
+| - [x] `sys/number/space/sm` | 12px | `ref/number/space/12` |
+| - [x] `sys/number/space/md` | 16px | `ref/number/space/16` |
+| - [x] `sys/number/space/lg` | 24px | `ref/number/space/24` |
+| - [x] `sys/number/space/xl` | 32px | `ref/number/space/32` |
+| - [x] `sys/number/space/2xl` | 40px | `ref/number/space/40` |
+| - [x] `sys/number/space/3xl` | 56px | `ref/number/space/56` |
 
 **Scoping:** Gap, padding (all sides), item spacing.
 
@@ -860,15 +860,15 @@ A single role-agnostic scale using t-shirt sizes. Values alias the raw `ref/numb
 
 | Token | Value | Mirrors |
 |---|---|---|
-| - [ ] `sys/number/space/neg/3xs` | -2px | `sys/number/space/3xs` |
-| - [ ] `sys/number/space/neg/2xs` | -4px | `sys/number/space/2xs` |
-| - [ ] `sys/number/space/neg/xs` | -8px | `sys/number/space/xs` |
-| - [ ] `sys/number/space/neg/sm` | -12px | `sys/number/space/sm` |
-| - [ ] `sys/number/space/neg/md` | -16px | `sys/number/space/md` |
-| - [ ] `sys/number/space/neg/lg` | -24px | `sys/number/space/lg` |
-| - [ ] `sys/number/space/neg/xl` | -32px | `sys/number/space/xl` |
-| - [ ] `sys/number/space/neg/2xl` | -40px | `sys/number/space/2xl` |
-| - [ ] `sys/number/space/neg/3xl` | -56px | `sys/number/space/3xl` |
+| - [x] `sys/number/space/neg/3xs` | -2px | `sys/number/space/3xs` |
+| - [x] `sys/number/space/neg/2xs` | -4px | `sys/number/space/2xs` |
+| - [x] `sys/number/space/neg/xs` | -8px | `sys/number/space/xs` |
+| - [x] `sys/number/space/neg/sm` | -12px | `sys/number/space/sm` |
+| - [x] `sys/number/space/neg/md` | -16px | `sys/number/space/md` |
+| - [x] `sys/number/space/neg/lg` | -24px | `sys/number/space/lg` |
+| - [x] `sys/number/space/neg/xl` | -32px | `sys/number/space/xl` |
+| - [x] `sys/number/space/neg/2xl` | -40px | `sys/number/space/2xl` |
+| - [x] `sys/number/space/neg/3xl` | -56px | `sys/number/space/3xl` |
 
 **Scoping:** Gap, padding (all sides), item spacing.
 
@@ -878,47 +878,47 @@ A single role-agnostic scale using t-shirt sizes. Values alias the raw `ref/numb
 
 **Icon sizes**
 
-- [ ] `sys/number/size/icon/xs` (12)
-- [ ] `sys/number/size/icon/sm` (16)
-- [ ] `sys/number/size/icon/md` (20)
-- [ ] `sys/number/size/icon/lg` (24)
-- [ ] `sys/number/size/icon/xl` (32)
-- [ ] `sys/number/size/icon/2xl` (40)
+- [x] `sys/number/size/icon/xs` (12)
+- [x] `sys/number/size/icon/sm` (16)
+- [x] `sys/number/size/icon/md` (20)
+- [x] `sys/number/size/icon/lg` (24)
+- [x] `sys/number/size/icon/xl` (32)
+- [x] `sys/number/size/icon/2xl` (40)
 
 **Control heights** *(buttons, inputs, etc.)*
 
-- [ ] `sys/number/size/control/xs` (24)
-- [ ] `sys/number/size/control/sm` (32)
-- [ ] `sys/number/size/control/md` (40)
-- [ ] `sys/number/size/control/lg` (48)
-- [ ] `sys/number/size/control/xl` (56)
+- [x] `sys/number/size/control/xs` (24)
+- [x] `sys/number/size/control/sm` (32)
+- [x] `sys/number/size/control/md` (40)
+- [x] `sys/number/size/control/lg` (48)
+- [x] `sys/number/size/control/xl` (56)
 
 **Avatar sizes**
 
-- [ ] `sys/number/size/avatar/xs` (24)
-- [ ] `sys/number/size/avatar/sm` (32)
-- [ ] `sys/number/size/avatar/md` (40)
-- [ ] `sys/number/size/avatar/lg` (56)
-- [ ] `sys/number/size/avatar/xl` (80)
-- [ ] `sys/number/size/avatar/2xl` (120)
+- [x] `sys/number/size/avatar/xs` (24)
+- [x] `sys/number/size/avatar/sm` (32)
+- [x] `sys/number/size/avatar/md` (40)
+- [x] `sys/number/size/avatar/lg` (56)
+- [x] `sys/number/size/avatar/xl` (80)
+- [x] `sys/number/size/avatar/2xl` (120)
 
 #### Semantic border radius
 
-- [ ] `sys/number/radius/none` → ref 0
-- [ ] `sys/number/radius/xs` → ref 2
-- [ ] `sys/number/radius/sm` → ref 4
-- [ ] `sys/number/radius/md` → ref 8
-- [ ] `sys/number/radius/lg` → ref 12
-- [ ] `sys/number/radius/xl` → ref 16
-- [ ] `sys/number/radius/2xl` → ref 24
-- [ ] `sys/number/radius/full` → ref 9999
+- [x] `sys/number/radius/none` → ref 0
+- [x] `sys/number/radius/xs` → ref 2
+- [x] `sys/number/radius/sm` → ref 4
+- [x] `sys/number/radius/md` → ref 8
+- [x] `sys/number/radius/lg` → ref 12
+- [x] `sys/number/radius/xl` → ref 16
+- [x] `sys/number/radius/2xl` → ref 24
+- [x] `sys/number/radius/full` → ref 9999
 
 #### Semantic border width
 
-- [ ] `sys/number/border-width/none` → 0
-- [ ] `sys/number/border-width/thin` → 1
-- [ ] `sys/number/border-width/medium` → 2
-- [ ] `sys/number/border-width/thick` → 3
+- [x] `sys/number/border-width/none` → 0
+- [x] `sys/number/border-width/thin` → 1
+- [x] `sys/number/border-width/medium` → 2
+- [x] `sys/number/border-width/thick` → 3
 
 #### Semantic typography numbers
 
@@ -1011,21 +1011,12 @@ These are the individual numeric properties that compose each text style. They a
 
 #### Semantic opacity
 
-- [ ] `sys/number/opacity/disabled` → 0.38
-- [ ] `sys/number/opacity/hover-overlay` → 0.08
-- [ ] `sys/number/opacity/pressed-overlay` → 0.12
-- [ ] `sys/number/opacity/focus-overlay` → 0.12
-- [ ] `sys/number/opacity/dragged-overlay` → 0.16
-- [ ] `sys/number/opacity/scrim` → 0.32
-
-#### Semantic z-index
-
-- [ ] `sys/number/z/base` → 0
-- [ ] `sys/number/z/dropdown` → 10
-- [ ] `sys/number/z/sticky` → 20
-- [ ] `sys/number/z/overlay` → 30
-- [ ] `sys/number/z/modal` → 40
-- [ ] `sys/number/z/toast` → 50
+- [x] `sys/number/opacity/disabled` → 0.38
+- [x] `sys/number/opacity/hover-overlay` → 0.08
+- [x] `sys/number/opacity/pressed-overlay` → 0.12
+- [x] `sys/number/opacity/focus-overlay` → 0.12
+- [x] `sys/number/opacity/dragged-overlay` → 0.16
+- [x] `sys/number/opacity/scrim` → 0.32
 
 ---
 
