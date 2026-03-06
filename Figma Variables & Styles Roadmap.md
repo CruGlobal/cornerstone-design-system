@@ -511,29 +511,29 @@ Raw negative spacing primitives for overlap layouts (e.g., stacked avatars, over
 
 Raw dimension primitives for widths, heights, icon sizes, control sizes.
 
-- [ ] `ref/number/size/0` → 0
-- [ ] `ref/number/size/4` → 4
-- [ ] `ref/number/size/8` → 8
-- [ ] `ref/number/size/12` → 12
-- [ ] `ref/number/size/16` → 16
-- [ ] `ref/number/size/20` → 20
-- [ ] `ref/number/size/24` → 24
-- [ ] `ref/number/size/28` → 28
-- [ ] `ref/number/size/32` → 32
-- [ ] `ref/number/size/36` → 36
-- [ ] `ref/number/size/40` → 40
-- [ ] `ref/number/size/44` → 44
-- [ ] `ref/number/size/48` → 48
-- [ ] `ref/number/size/56` → 56
-- [ ] `ref/number/size/64` → 64
-- [ ] `ref/number/size/72` → 72
-- [ ] `ref/number/size/80` → 80
-- [ ] `ref/number/size/96` → 96
-- [ ] `ref/number/size/120` → 120
-- [ ] `ref/number/size/160` → 160
-- [ ] `ref/number/size/240` → 240
-- [ ] `ref/number/size/320` → 320
-- [ ] `ref/number/size/480` → 480
+- [x] `ref/number/size/0` → 0
+- [x] `ref/number/size/4` → 4
+- [x] `ref/number/size/8` → 8
+- [x] `ref/number/size/12` → 12
+- [x] `ref/number/size/16` → 16
+- [x] `ref/number/size/20` → 20
+- [x] `ref/number/size/24` → 24
+- [x] `ref/number/size/28` → 28
+- [x] `ref/number/size/32` → 32
+- [x] `ref/number/size/36` → 36
+- [x] `ref/number/size/40` → 40
+- [x] `ref/number/size/44` → 44
+- [x] `ref/number/size/48` → 48
+- [x] `ref/number/size/56` → 56
+- [x] `ref/number/size/64` → 64
+- [x] `ref/number/size/72` → 72
+- [x] `ref/number/size/80` → 80
+- [x] `ref/number/size/96` → 96
+- [x] `ref/number/size/120` → 120
+- [x] `ref/number/size/160` → 160
+- [x] `ref/number/size/240` → 240
+- [x] `ref/number/size/320` → 320
+- [x] `ref/number/size/480` → 480
 
 > **Scoping:** Width, height.
 
@@ -541,32 +541,32 @@ Raw dimension primitives for widths, heights, icon sizes, control sizes.
 
 Per `csds.tokens.json`, uses semantic names rather than numeric steps.
 
-- [ ] `ref/borderRadius/none` → 0
-- [ ] `ref/borderRadius/subtle` → 8
-- [ ] `ref/borderRadius/round` → 20
-- [ ] `ref/borderRadius/full` → 9999
+- [x] `ref/borderRadius/none` → 0
+- [x] `ref/borderRadius/subtle` → 8
+- [x] `ref/borderRadius/round` → 20
+- [x] `ref/borderRadius/full` → 9999
 
 **Per-corner overrides** *(alias the base values for directional control)*
 
-- [ ] `ref/borderRadius/tl/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/tr/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/br/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/bl/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/t/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/r/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/b/none` → ref/borderRadius/none
-- [ ] `ref/borderRadius/l/none` → ref/borderRadius/none
+- [x] `ref/borderRadius/tl/none` → ref/borderRadius/none
+- [x] `ref/borderRadius/tr/none` → ref/borderRadius/none
+- [x] `ref/borderRadius/br/none` → ref/borderRadius/none
+- [x] `ref/borderRadius/bl/none` → ref/borderRadius/none
+- [x] `ref/borderRadius/t/none` → ref/borderRadius/none
+- [x] `ref/borderRadius/r/none` → ref/borderRadius/none
+- [x] `ref/borderRadius/b/none` → ref/borderRadius/none
+- [x] `ref/borderRadius/l/none` → ref/borderRadius/none
 
 > **Scoping:** Corner radius.
 > **Note:** Add more per-corner aliases as needed (e.g., `tl/subtle`, `t/round`, etc.).
 
 #### Border width scale
 
-- [ ] `ref/number/border-width/0` → 0
-- [ ] `ref/number/border-width/1` → 1
-- [ ] `ref/number/border-width/2` → 2
-- [ ] `ref/number/border-width/3` → 3
-- [ ] `ref/number/border-width/4` → 4
+- [x] `ref/number/border-width/0` → 0
+- [x] `ref/number/border-width/1` → 1
+- [x] `ref/number/border-width/2` → 2
+- [x] `ref/number/border-width/3` → 3
+- [x] `ref/number/border-width/4` → 4
 
 > **Scoping:** Stroke weight (individual strokes).
 
