@@ -574,17 +574,17 @@ Per `csds.tokens.json`, uses semantic names rather than numeric steps.
 
 Per `csds.tokens.json`, uses 0–10 steps with values 0–100.
 
-- [ ] `ref/opacity/0` → 0
-- [ ] `ref/opacity/1` → 10
-- [ ] `ref/opacity/2` → 20
-- [ ] `ref/opacity/3` → 30
-- [ ] `ref/opacity/4` → 40
-- [ ] `ref/opacity/5` → 50
-- [ ] `ref/opacity/6` → 60
-- [ ] `ref/opacity/7` → 70
-- [ ] `ref/opacity/8` → 80
-- [ ] `ref/opacity/9` → 90
-- [ ] `ref/opacity/10` → 100
+- [x] `ref/opacity/0` → 0
+- [x] `ref/opacity/1` → 10
+- [x] `ref/opacity/2` → 20
+- [x] `ref/opacity/3` → 30
+- [x] `ref/opacity/4` → 40
+- [x] `ref/opacity/5` → 50
+- [x] `ref/opacity/6` → 60
+- [x] `ref/opacity/7` → 70
+- [x] `ref/opacity/8` → 80
+- [x] `ref/opacity/9` → 90
+- [x] `ref/opacity/10` → 100
 
 > **Scoping:** Opacity.
 
@@ -594,52 +594,52 @@ Raw type scale values. These feed into `sys/number` semantic tokens and ultimate
 
 **Font size (px):**
 
-- [ ] `ref/number/font-size/10` → 10
-- [ ] `ref/number/font-size/11` → 11
-- [ ] `ref/number/font-size/12` → 12
-- [ ] `ref/number/font-size/14` → 14
-- [ ] `ref/number/font-size/16` → 16
-- [ ] `ref/number/font-size/18` → 18
-- [ ] `ref/number/font-size/20` → 20
-- [ ] `ref/number/font-size/22` → 22
-- [ ] `ref/number/font-size/24` → 24
-- [ ] `ref/number/font-size/28` → 28
-- [ ] `ref/number/font-size/32` → 32
-- [ ] `ref/number/font-size/36` → 36
-- [ ] `ref/number/font-size/40` → 40
-- [ ] `ref/number/font-size/48` → 48
-- [ ] `ref/number/font-size/56` → 56
-- [ ] `ref/number/font-size/64` → 64
-- [ ] `ref/number/font-size/72` → 72
+- [x] `ref/number/font-size/10` → 10
+- [x] `ref/number/font-size/11` → 11
+- [x] `ref/number/font-size/12` → 12
+- [x] `ref/number/font-size/14` → 14
+- [x] `ref/number/font-size/16` → 16
+- [x] `ref/number/font-size/18` → 18
+- [x] `ref/number/font-size/20` → 20
+- [x] `ref/number/font-size/22` → 22
+- [x] `ref/number/font-size/24` → 24
+- [x] `ref/number/font-size/28` → 28
+- [x] `ref/number/font-size/32` → 32
+- [x] `ref/number/font-size/36` → 36
+- [x] `ref/number/font-size/40` → 40
+- [x] `ref/number/font-size/48` → 48
+- [x] `ref/number/font-size/56` → 56
+- [x] `ref/number/font-size/64` → 64
+- [x] `ref/number/font-size/72` → 72
 
 > **Scoping:** Font size (if supported; otherwise leave unscoped).
 
 **Line height (px or %):**
 
-- [ ] `ref/number/line-height/100` → 1.0 (100%)
-- [ ] `ref/number/line-height/110` → 1.1
-- [ ] `ref/number/line-height/120` → 1.2
-- [ ] `ref/number/line-height/125` → 1.25
-- [ ] `ref/number/line-height/130` → 1.3
-- [ ] `ref/number/line-height/140` → 1.4
-- [ ] `ref/number/line-height/150` → 1.5
-- [ ] `ref/number/line-height/160` → 1.6
-- [ ] `ref/number/line-height/175` → 1.75
-- [ ] `ref/number/line-height/200` → 2.0
+- [x] `ref/number/line-height/100` → 1.0 (100%)
+- [x] `ref/number/line-height/110` → 1.1
+- [x] `ref/number/line-height/120` → 1.2
+- [x] `ref/number/line-height/125` → 1.25
+- [x] `ref/number/line-height/130` → 1.3
+- [x] `ref/number/line-height/140` → 1.4
+- [x] `ref/number/line-height/150` → 1.5
+- [x] `ref/number/line-height/160` → 1.6
+- [x] `ref/number/line-height/175` → 1.75
+- [x] `ref/number/line-height/200` → 2.0
 
 > **Scoping:** Line height.
 
 **Font weight:**
 
-- [ ] `ref/number/font-weight/100` → 100 (Thin)
-- [ ] `ref/number/font-weight/200` → 200 (Extra Light)
-- [ ] `ref/number/font-weight/300` → 300 (Light)
-- [ ] `ref/number/font-weight/400` → 400 (Regular)
-- [ ] `ref/number/font-weight/500` → 500 (Medium)
-- [ ] `ref/number/font-weight/600` → 600 (Semi Bold)
-- [ ] `ref/number/font-weight/700` → 700 (Bold)
-- [ ] `ref/number/font-weight/800` → 800 (Extra Bold)
-- [ ] `ref/number/font-weight/900` → 900 (Black)
+- [x] `ref/number/font-weight/100` → 100 (Thin)
+- [x] `ref/number/font-weight/200` → 200 (Extra Light)
+- [x] `ref/number/font-weight/300` → 300 (Light)
+- [x] `ref/number/font-weight/400` → 400 (Regular)
+- [x] `ref/number/font-weight/500` → 500 (Medium)
+- [x] `ref/number/font-weight/600` → 600 (Semi Bold)
+- [x] `ref/number/font-weight/700` → 700 (Bold)
+- [x] `ref/number/font-weight/800` → 800 (Extra Bold)
+- [x] `ref/number/font-weight/900` → 900 (Black)
 
 > **Scoping note:** Figma doesn't natively bind font-weight to a number variable on the canvas. These exist for documentation parity and code export. Text Styles handle the actual weight in Figma.
 
