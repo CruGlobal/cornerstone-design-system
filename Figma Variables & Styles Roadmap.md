@@ -467,28 +467,45 @@ Each hue group below has 10 steps. Cru's values are defined; other brand modes p
 
 Raw spacing primitives in px. These are your base building blocks.
 
-- [ ] `ref/number/space/0` → 0
-- [ ] `ref/number/space/1` → 1
-- [ ] `ref/number/space/2` → 2
-- [ ] `ref/number/space/4` → 4
-- [ ] `ref/number/space/6` → 6
-- [ ] `ref/number/space/8` → 8
-- [ ] `ref/number/space/10` → 10
-- [ ] `ref/number/space/12` → 12
-- [ ] `ref/number/space/16` → 16
-- [ ] `ref/number/space/20` → 20
-- [ ] `ref/number/space/24` → 24
-- [ ] `ref/number/space/32` → 32
-- [ ] `ref/number/space/40` → 40
-- [ ] `ref/number/space/48` → 48
-- [ ] `ref/number/space/56` → 56
-- [ ] `ref/number/space/64` → 64
-- [ ] `ref/number/space/80` → 80
-- [ ] `ref/number/space/96` → 96
-- [ ] `ref/number/space/120` → 120
-- [ ] `ref/number/space/160` → 160
+- [x] `ref/number/space/0` → 0
+- [x] `ref/number/space/1` → 1
+- [x] `ref/number/space/2` → 2
+- [x] `ref/number/space/4` → 4
+- [x] `ref/number/space/6` → 6
+- [x] `ref/number/space/8` → 8
+- [x] `ref/number/space/10` → 10
+- [x] `ref/number/space/12` → 12
+- [x] `ref/number/space/16` → 16
+- [x] `ref/number/space/20` → 20
+- [x] `ref/number/space/24` → 24
+- [x] `ref/number/space/32` → 32
+- [x] `ref/number/space/40` → 40
+- [x] `ref/number/space/48` → 48
+- [x] `ref/number/space/56` → 56
+- [x] `ref/number/space/64` → 64
+- [x] `ref/number/space/80` → 80
+- [x] `ref/number/space/96` → 96
+- [x] `ref/number/space/120` → 120
+- [x] `ref/number/space/160` → 160
 
 > **Scoping:** Gap, padding (all sides), item spacing.
+
+#### Negative space scale
+
+Raw negative spacing primitives for overlap layouts (e.g., stacked avatars, overlapping cards). Mirror of the positive scale with negative values.
+
+- [x] `ref/number/space/-2` → -2
+- [x] `ref/number/space/-4` → -4
+- [x] `ref/number/space/-6` → -6
+- [x] `ref/number/space/-8` → -8
+- [x] `ref/number/space/-10` → -10
+- [x] `ref/number/space/-12` → -12
+- [x] `ref/number/space/-16` → -16
+- [x] `ref/number/space/-20` → -20
+- [x] `ref/number/space/-24` → -24
+- [x] `ref/number/space/-32` → -32
+
+> **Scoping:** Gap, item spacing (negative values produce overlap).
 
 #### Size scale
 
@@ -879,6 +896,20 @@ Uses t-shirt sizing for the scale. Values alias the raw `ref/number/space/*` ste
 - [ ] `sys/number/space/gap/lg`
 - [ ] `sys/number/space/gap/xl`
 - [ ] `sys/number/space/gap/2xl`
+
+**Negative inline spacing** *(negative horizontal offset for overlap, e.g., horizontally stacked avatars)*
+
+- [ ] `sys/number/space/inline/negative/xs`
+- [ ] `sys/number/space/inline/negative/sm`
+- [ ] `sys/number/space/inline/negative/md`
+- [ ] `sys/number/space/inline/negative/lg`
+
+**Negative stack spacing** *(negative vertical offset for overlap, e.g., vertically stacked avatars, layered cards)*
+
+- [ ] `sys/number/space/stack/negative/xs`
+- [ ] `sys/number/space/stack/negative/sm`
+- [ ] `sys/number/space/stack/negative/md`
+- [ ] `sys/number/space/stack/negative/lg`
 
 #### Semantic sizing
 
