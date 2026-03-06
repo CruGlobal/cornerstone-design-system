@@ -25,21 +25,21 @@ Figma variables support four types: **Color**, **Number**, **String**, **Boolean
 
 | Domain | Figma construct | Why |
 |---|---|---|
-| color (ref + sys + cmp) | **Variable (Color)** | Single color value; supports aliasing and modes |
-| space | **Variable (Number)** | Single numeric value (px) |
-| size | **Variable (Number)** | Single numeric value (px) |
-| border-radius | **Variable (Number)** | Single numeric value (px) |
-| border-width | **Variable (Number)** | Single numeric value (px) |
-| opacity | **Variable (Number)** | Single numeric value (0–1) |
-| z-index | **Variable (Number)** | Single numeric value |
-| font-family | **Variable (String)** | Text value |
-| font-weight | **Variable (Number)** | Numeric weight (400, 700, etc.) |
-| font-size | **Variable (Number)** | Single numeric value (px) |
-| line-height | **Variable (Number)** | Single numeric value (px or %) |
-| letter-spacing | **Variable (Number)** | Single numeric value (px or %) |
-| typography (composite) | **Text Style** | Combines font-family, size, weight, line-height, letter-spacing — Figma variables cannot express composites |
-| elevation / shadow | **Effect Style** | Composite (x, y, blur, spread, color) — no variable equivalent |
-| gradient | **Color Style** | Figma variables don't support gradients |
+| [color (ref + sys + cmp)](#3a-collection-refcolor) | **Variable (Color)** | Single color value; supports aliasing and modes |
+| [space](#space-scale) | **Variable (Number)** | Single numeric value (px) |
+| [size](#size-scale) | **Variable (Number)** | Single numeric value (px) |
+| [border-radius](#border-radius-scale) | **Variable (Number)** | Single numeric value (px) |
+| [border-width](#border-width-scale) | **Variable (Number)** | Single numeric value (px) |
+| [opacity](#opacity-scale) | **Variable (Number)** | Single numeric value (0–1) |
+| [z-index](#z-index-scale) | **Variable (Number)** | Single numeric value |
+| [font-family](#3c-collection-refstring) | **Variable (String)** | Text value |
+| [font-weight](#typography-number-primitives) | **Variable (Number)** | Numeric weight (400, 700, etc.) |
+| [font-size](#typography-number-primitives) | **Variable (Number)** | Single numeric value (px) |
+| [line-height](#typography-number-primitives) | **Variable (Number)** | Single numeric value (px or %) |
+| [letter-spacing](#typography-number-primitives) | **Variable (Number)** | Single numeric value (px or %) |
+| [typography (composite)](#6-phase-4--figma-styles-non-variable) | **Text Style** | Combines font-family, size, weight, line-height, letter-spacing — Figma variables cannot express composites |
+| [elevation / shadow](#6-phase-4--figma-styles-non-variable) | **Effect Style** | Composite (x, y, blur, spread, color) — no variable equivalent |
+| [gradient](#6-phase-4--figma-styles-non-variable) | **Color Style** | Figma variables don't support gradients |
 | motion / easing | **Not in Figma** | Document in token JSON only; Figma has no motion primitive |
 | time / duration | **Not in Figma** | Document in token JSON only |
 | icons | **Not in Figma** | Handled via component instances, not variables or styles |
