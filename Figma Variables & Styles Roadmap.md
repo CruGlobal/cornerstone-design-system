@@ -25,21 +25,21 @@ Figma variables support four types: **Color**, **Number**, **String**, **Boolean
 
 | Domain | Figma construct | Why |
 |---|---|---|
-| [color (ref + sys + cmp)](#3a-collection-refcolor) | **Variable (Color)** | Single color value; supports aliasing and modes |
-| [space](#space-scale) | **Variable (Number)** | Single numeric value (px) |
-| [size](#size-scale) | **Variable (Number)** | Single numeric value (px) |
-| [border-radius](#border-radius-scale) | **Variable (Number)** | Single numeric value (px) |
-| [border-width](#border-width-scale) | **Variable (Number)** | Single numeric value (px) |
-| [opacity](#opacity-scale) | **Variable (Number)** | Single numeric value (0–1) |
-| [z-index](#z-index-scale) | **Variable (Number)** | Single numeric value |
-| [font-family](#3c-collection-refstring) | **Variable (String)** | Text value |
-| [font-weight](#typography-number-primitives) | **Variable (Number)** | Numeric weight (400, 700, etc.) |
-| [font-size](#typography-number-primitives) | **Variable (Number)** | Single numeric value (px) |
-| [line-height](#typography-number-primitives) | **Variable (Number)** | Single numeric value (px or %) |
-| [letter-spacing](#typography-number-primitives) | **Variable (Number)** | Single numeric value (px or %) |
-| [typography (composite)](#6-phase-4--figma-styles-non-variable) | **Text Style** | Combines font-family, size, weight, line-height, letter-spacing — Figma variables cannot express composites |
-| [elevation / shadow](#6-phase-4--figma-styles-non-variable) | **Effect Style** | Composite (x, y, blur, spread, color) — no variable equivalent |
-| [gradient](#6-phase-4--figma-styles-non-variable) | **Color Style** | Figma variables don't support gradients |
+| color (ref + sys + cmp) | **Variable (Color)** | Single color value; supports aliasing and modes |
+| space | **Variable (Number)** | Single numeric value (px) |
+| size | **Variable (Number)** | Single numeric value (px) |
+| border-radius | **Variable (Number)** | Single numeric value (px) |
+| border-width | **Variable (Number)** | Single numeric value (px) |
+| opacity | **Variable (Number)** | Single numeric value (0–1) |
+| z-index | **Variable (Number)** | Single numeric value |
+| font-family | **Variable (String)** | Text value |
+| font-weight | **Variable (Number)** | Numeric weight (400, 700, etc.) |
+| font-size | **Variable (Number)** | Single numeric value (px) |
+| line-height | **Variable (Number)** | Single numeric value (px or %) |
+| letter-spacing | **Variable (Number)** | Single numeric value (px or %) |
+| typography (composite) | **Text Style** | Combines font-family, size, weight, line-height, letter-spacing — Figma variables cannot express composites |
+| elevation / shadow | **Effect Style** | Composite (x, y, blur, spread, color) — no variable equivalent |
+| gradient | **Color Style** | Figma variables don't support gradients |
 | motion / easing | **Not in Figma** | Document in token JSON only; Figma has no motion primitive |
 | time / duration | **Not in Figma** | Document in token JSON only |
 | icons | **Not in Figma** | Handled via component instances, not variables or styles |
@@ -467,73 +467,56 @@ Each hue group below has 10 steps. Cru's values are defined; other brand modes p
 
 Raw spacing primitives in px. These are your base building blocks.
 
-- [x] `ref/number/space/0` → 0
-- [x] `ref/number/space/1` → 1
-- [x] `ref/number/space/2` → 2
-- [x] `ref/number/space/4` → 4
-- [x] `ref/number/space/6` → 6
-- [x] `ref/number/space/8` → 8
-- [x] `ref/number/space/10` → 10
-- [x] `ref/number/space/12` → 12
-- [x] `ref/number/space/16` → 16
-- [x] `ref/number/space/20` → 20
-- [x] `ref/number/space/24` → 24
-- [x] `ref/number/space/32` → 32
-- [x] `ref/number/space/40` → 40
-- [x] `ref/number/space/48` → 48
-- [x] `ref/number/space/56` → 56
-- [x] `ref/number/space/64` → 64
-- [x] `ref/number/space/80` → 80
-- [x] `ref/number/space/96` → 96
-- [x] `ref/number/space/120` → 120
-- [x] `ref/number/space/160` → 160
+- [ ] `ref/number/space/0` → 0
+- [ ] `ref/number/space/1` → 1
+- [ ] `ref/number/space/2` → 2
+- [ ] `ref/number/space/4` → 4
+- [ ] `ref/number/space/6` → 6
+- [ ] `ref/number/space/8` → 8
+- [ ] `ref/number/space/10` → 10
+- [ ] `ref/number/space/12` → 12
+- [ ] `ref/number/space/16` → 16
+- [ ] `ref/number/space/20` → 20
+- [ ] `ref/number/space/24` → 24
+- [ ] `ref/number/space/32` → 32
+- [ ] `ref/number/space/40` → 40
+- [ ] `ref/number/space/48` → 48
+- [ ] `ref/number/space/56` → 56
+- [ ] `ref/number/space/64` → 64
+- [ ] `ref/number/space/80` → 80
+- [ ] `ref/number/space/96` → 96
+- [ ] `ref/number/space/120` → 120
+- [ ] `ref/number/space/160` → 160
 
 > **Scoping:** Gap, padding (all sides), item spacing.
-
-#### Negative space scale
-
-Raw negative spacing primitives for overlap layouts (e.g., stacked avatars, overlapping cards). Mirror of the positive scale with negative values.
-
-- [x] `ref/number/space/-2` → -2
-- [x] `ref/number/space/-4` → -4
-- [x] `ref/number/space/-6` → -6
-- [x] `ref/number/space/-8` → -8
-- [x] `ref/number/space/-10` → -10
-- [x] `ref/number/space/-12` → -12
-- [x] `ref/number/space/-16` → -16
-- [x] `ref/number/space/-20` → -20
-- [x] `ref/number/space/-24` → -24
-- [x] `ref/number/space/-32` → -32
-
-> **Scoping:** Gap, item spacing (negative values produce overlap).
 
 #### Size scale
 
 Raw dimension primitives for widths, heights, icon sizes, control sizes.
 
-- [x] `ref/number/size/0` → 0
-- [x] `ref/number/size/4` → 4
-- [x] `ref/number/size/8` → 8
-- [x] `ref/number/size/12` → 12
-- [x] `ref/number/size/16` → 16
-- [x] `ref/number/size/20` → 20
-- [x] `ref/number/size/24` → 24
-- [x] `ref/number/size/28` → 28
-- [x] `ref/number/size/32` → 32
-- [x] `ref/number/size/36` → 36
-- [x] `ref/number/size/40` → 40
-- [x] `ref/number/size/44` → 44
-- [x] `ref/number/size/48` → 48
-- [x] `ref/number/size/56` → 56
-- [x] `ref/number/size/64` → 64
-- [x] `ref/number/size/72` → 72
-- [x] `ref/number/size/80` → 80
-- [x] `ref/number/size/96` → 96
-- [x] `ref/number/size/120` → 120
-- [x] `ref/number/size/160` → 160
-- [x] `ref/number/size/240` → 240
-- [x] `ref/number/size/320` → 320
-- [x] `ref/number/size/480` → 480
+- [ ] `ref/number/size/0` → 0
+- [ ] `ref/number/size/4` → 4
+- [ ] `ref/number/size/8` → 8
+- [ ] `ref/number/size/12` → 12
+- [ ] `ref/number/size/16` → 16
+- [ ] `ref/number/size/20` → 20
+- [ ] `ref/number/size/24` → 24
+- [ ] `ref/number/size/28` → 28
+- [ ] `ref/number/size/32` → 32
+- [ ] `ref/number/size/36` → 36
+- [ ] `ref/number/size/40` → 40
+- [ ] `ref/number/size/44` → 44
+- [ ] `ref/number/size/48` → 48
+- [ ] `ref/number/size/56` → 56
+- [ ] `ref/number/size/64` → 64
+- [ ] `ref/number/size/72` → 72
+- [ ] `ref/number/size/80` → 80
+- [ ] `ref/number/size/96` → 96
+- [ ] `ref/number/size/120` → 120
+- [ ] `ref/number/size/160` → 160
+- [ ] `ref/number/size/240` → 240
+- [ ] `ref/number/size/320` → 320
+- [ ] `ref/number/size/480` → 480
 
 > **Scoping:** Width, height.
 
@@ -541,32 +524,32 @@ Raw dimension primitives for widths, heights, icon sizes, control sizes.
 
 Per `csds.tokens.json`, uses semantic names rather than numeric steps.
 
-- [x] `ref/borderRadius/none` → 0
-- [x] `ref/borderRadius/subtle` → 8
-- [x] `ref/borderRadius/round` → 20
-- [x] `ref/borderRadius/full` → 9999
+- [ ] `ref/borderRadius/none` → 0
+- [ ] `ref/borderRadius/subtle` → 8
+- [ ] `ref/borderRadius/round` → 20
+- [ ] `ref/borderRadius/full` → 9999
 
 **Per-corner overrides** *(alias the base values for directional control)*
 
-- [x] `ref/borderRadius/tl/none` → ref/borderRadius/none
-- [x] `ref/borderRadius/tr/none` → ref/borderRadius/none
-- [x] `ref/borderRadius/br/none` → ref/borderRadius/none
-- [x] `ref/borderRadius/bl/none` → ref/borderRadius/none
-- [x] `ref/borderRadius/t/none` → ref/borderRadius/none
-- [x] `ref/borderRadius/r/none` → ref/borderRadius/none
-- [x] `ref/borderRadius/b/none` → ref/borderRadius/none
-- [x] `ref/borderRadius/l/none` → ref/borderRadius/none
+- [ ] `ref/borderRadius/tl/none` → ref/borderRadius/none
+- [ ] `ref/borderRadius/tr/none` → ref/borderRadius/none
+- [ ] `ref/borderRadius/br/none` → ref/borderRadius/none
+- [ ] `ref/borderRadius/bl/none` → ref/borderRadius/none
+- [ ] `ref/borderRadius/t/none` → ref/borderRadius/none
+- [ ] `ref/borderRadius/r/none` → ref/borderRadius/none
+- [ ] `ref/borderRadius/b/none` → ref/borderRadius/none
+- [ ] `ref/borderRadius/l/none` → ref/borderRadius/none
 
 > **Scoping:** Corner radius.
 > **Note:** Add more per-corner aliases as needed (e.g., `tl/subtle`, `t/round`, etc.).
 
 #### Border width scale
 
-- [x] `ref/number/border-width/0` → 0
-- [x] `ref/number/border-width/1` → 1
-- [x] `ref/number/border-width/2` → 2
-- [x] `ref/number/border-width/3` → 3
-- [x] `ref/number/border-width/4` → 4
+- [ ] `ref/number/border-width/0` → 0
+- [ ] `ref/number/border-width/1` → 1
+- [ ] `ref/number/border-width/2` → 2
+- [ ] `ref/number/border-width/3` → 3
+- [ ] `ref/number/border-width/4` → 4
 
 > **Scoping:** Stroke weight (individual strokes).
 
@@ -574,17 +557,17 @@ Per `csds.tokens.json`, uses semantic names rather than numeric steps.
 
 Per `csds.tokens.json`, uses 0–10 steps with values 0–100.
 
-- [x] `ref/opacity/0` → 0
-- [x] `ref/opacity/1` → 10
-- [x] `ref/opacity/2` → 20
-- [x] `ref/opacity/3` → 30
-- [x] `ref/opacity/4` → 40
-- [x] `ref/opacity/5` → 50
-- [x] `ref/opacity/6` → 60
-- [x] `ref/opacity/7` → 70
-- [x] `ref/opacity/8` → 80
-- [x] `ref/opacity/9` → 90
-- [x] `ref/opacity/10` → 100
+- [ ] `ref/opacity/0` → 0
+- [ ] `ref/opacity/1` → 10
+- [ ] `ref/opacity/2` → 20
+- [ ] `ref/opacity/3` → 30
+- [ ] `ref/opacity/4` → 40
+- [ ] `ref/opacity/5` → 50
+- [ ] `ref/opacity/6` → 60
+- [ ] `ref/opacity/7` → 70
+- [ ] `ref/opacity/8` → 80
+- [ ] `ref/opacity/9` → 90
+- [ ] `ref/opacity/10` → 100
 
 > **Scoping:** Opacity.
 
@@ -594,52 +577,52 @@ Raw type scale values. These feed into `sys/number` semantic tokens and ultimate
 
 **Font size (px):**
 
-- [x] `ref/number/font-size/10` → 10
-- [x] `ref/number/font-size/11` → 11
-- [x] `ref/number/font-size/12` → 12
-- [x] `ref/number/font-size/14` → 14
-- [x] `ref/number/font-size/16` → 16
-- [x] `ref/number/font-size/18` → 18
-- [x] `ref/number/font-size/20` → 20
-- [x] `ref/number/font-size/22` → 22
-- [x] `ref/number/font-size/24` → 24
-- [x] `ref/number/font-size/28` → 28
-- [x] `ref/number/font-size/32` → 32
-- [x] `ref/number/font-size/36` → 36
-- [x] `ref/number/font-size/40` → 40
-- [x] `ref/number/font-size/48` → 48
-- [x] `ref/number/font-size/56` → 56
-- [x] `ref/number/font-size/64` → 64
-- [x] `ref/number/font-size/72` → 72
+- [ ] `ref/number/font-size/10` → 10
+- [ ] `ref/number/font-size/11` → 11
+- [ ] `ref/number/font-size/12` → 12
+- [ ] `ref/number/font-size/14` → 14
+- [ ] `ref/number/font-size/16` → 16
+- [ ] `ref/number/font-size/18` → 18
+- [ ] `ref/number/font-size/20` → 20
+- [ ] `ref/number/font-size/22` → 22
+- [ ] `ref/number/font-size/24` → 24
+- [ ] `ref/number/font-size/28` → 28
+- [ ] `ref/number/font-size/32` → 32
+- [ ] `ref/number/font-size/36` → 36
+- [ ] `ref/number/font-size/40` → 40
+- [ ] `ref/number/font-size/48` → 48
+- [ ] `ref/number/font-size/56` → 56
+- [ ] `ref/number/font-size/64` → 64
+- [ ] `ref/number/font-size/72` → 72
 
 > **Scoping:** Font size (if supported; otherwise leave unscoped).
 
 **Line height (px or %):**
 
-- [x] `ref/number/line-height/100` → 1.0 (100%)
-- [x] `ref/number/line-height/110` → 1.1
-- [x] `ref/number/line-height/120` → 1.2
-- [x] `ref/number/line-height/125` → 1.25
-- [x] `ref/number/line-height/130` → 1.3
-- [x] `ref/number/line-height/140` → 1.4
-- [x] `ref/number/line-height/150` → 1.5
-- [x] `ref/number/line-height/160` → 1.6
-- [x] `ref/number/line-height/175` → 1.75
-- [x] `ref/number/line-height/200` → 2.0
+- [ ] `ref/number/line-height/100` → 1.0 (100%)
+- [ ] `ref/number/line-height/110` → 1.1
+- [ ] `ref/number/line-height/120` → 1.2
+- [ ] `ref/number/line-height/125` → 1.25
+- [ ] `ref/number/line-height/130` → 1.3
+- [ ] `ref/number/line-height/140` → 1.4
+- [ ] `ref/number/line-height/150` → 1.5
+- [ ] `ref/number/line-height/160` → 1.6
+- [ ] `ref/number/line-height/175` → 1.75
+- [ ] `ref/number/line-height/200` → 2.0
 
 > **Scoping:** Line height.
 
 **Font weight:**
 
-- [x] `ref/number/font-weight/100` → 100 (Thin)
-- [x] `ref/number/font-weight/200` → 200 (Extra Light)
-- [x] `ref/number/font-weight/300` → 300 (Light)
-- [x] `ref/number/font-weight/400` → 400 (Regular)
-- [x] `ref/number/font-weight/500` → 500 (Medium)
-- [x] `ref/number/font-weight/600` → 600 (Semi Bold)
-- [x] `ref/number/font-weight/700` → 700 (Bold)
-- [x] `ref/number/font-weight/800` → 800 (Extra Bold)
-- [x] `ref/number/font-weight/900` → 900 (Black)
+- [ ] `ref/number/font-weight/100` → 100 (Thin)
+- [ ] `ref/number/font-weight/200` → 200 (Extra Light)
+- [ ] `ref/number/font-weight/300` → 300 (Light)
+- [ ] `ref/number/font-weight/400` → 400 (Regular)
+- [ ] `ref/number/font-weight/500` → 500 (Medium)
+- [ ] `ref/number/font-weight/600` → 600 (Semi Bold)
+- [ ] `ref/number/font-weight/700` → 700 (Bold)
+- [ ] `ref/number/font-weight/800` → 800 (Extra Bold)
+- [ ] `ref/number/font-weight/900` → 900 (Black)
 
 > **Scoping note:** Figma doesn't natively bind font-weight to a number variable on the canvas. These exist for documentation parity and code export. Text Styles handle the actual weight in Figma.
 
@@ -853,63 +836,43 @@ These are empty by default and populated per brand mode.
 
 #### Semantic spacing
 
-Uses t-shirt sizing for the scale. Values alias the raw `ref/number/space/*` steps.
+A single role-agnostic scale using t-shirt sizes. Values alias the raw `ref/number/space/*` steps. The system tier does **not** encode spatial role (padding, gap, inset, etc.) — that responsibility belongs to the component tier, where `cmp/*/padding/*`, `cmp/*/gap`, etc. reference these tokens.
 
-**Inline spacing** *(horizontal: padding-left, padding-right, column-gap)*
+> **Rationale:** In Figma, designers apply these tokens to auto layout padding and gap fields. The role is implicit in *where* the token is applied, not in the token name itself. This keeps the sys scale simple and avoids duplicating the same values across inline/stack/inset/gap groups. Component tokens (`cmp` tier) name the role explicitly for code translation.
 
-- [ ] `sys/number/space/inline/3xs`
-- [ ] `sys/number/space/inline/2xs`
-- [ ] `sys/number/space/inline/xs`
-- [ ] `sys/number/space/inline/sm`
-- [ ] `sys/number/space/inline/md`
-- [ ] `sys/number/space/inline/lg`
-- [ ] `sys/number/space/inline/xl`
-- [ ] `sys/number/space/inline/2xl`
-- [ ] `sys/number/space/inline/3xl`
+**Space scale**
 
-**Stack spacing** *(vertical: padding-top, padding-bottom, row-gap)*
+| Token | Value | Ref alias |
+|---|---|---|
+| - [ ] `sys/number/space/3xs` | 2px | `ref/number/space/2` |
+| - [ ] `sys/number/space/2xs` | 4px | `ref/number/space/4` |
+| - [ ] `sys/number/space/xs` | 8px | `ref/number/space/8` |
+| - [ ] `sys/number/space/sm` | 12px | `ref/number/space/12` |
+| - [ ] `sys/number/space/md` | 16px | `ref/number/space/16` |
+| - [ ] `sys/number/space/lg` | 24px | `ref/number/space/24` |
+| - [ ] `sys/number/space/xl` | 32px | `ref/number/space/32` |
+| - [ ] `sys/number/space/2xl` | 40px | `ref/number/space/40` |
+| - [ ] `sys/number/space/3xl` | 56px | `ref/number/space/56` |
 
-- [ ] `sys/number/space/stack/3xs`
-- [ ] `sys/number/space/stack/2xs`
-- [ ] `sys/number/space/stack/xs`
-- [ ] `sys/number/space/stack/sm`
-- [ ] `sys/number/space/stack/md`
-- [ ] `sys/number/space/stack/lg`
-- [ ] `sys/number/space/stack/xl`
-- [ ] `sys/number/space/stack/2xl`
-- [ ] `sys/number/space/stack/3xl`
+**Scoping:** Gap, padding (all sides), item spacing.
 
-**Inset spacing** *(uniform padding)*
+**Negative space** *(for pull/overlap/negative margin use cases)*
 
-- [ ] `sys/number/space/inset/xs`
-- [ ] `sys/number/space/inset/sm`
-- [ ] `sys/number/space/inset/md`
-- [ ] `sys/number/space/inset/lg`
-- [ ] `sys/number/space/inset/xl`
-- [ ] `sys/number/space/inset/2xl`
+| Token | Value | Mirrors |
+|---|---|---|
+| - [ ] `sys/number/space/neg/3xs` | -2px | `sys/number/space/3xs` |
+| - [ ] `sys/number/space/neg/2xs` | -4px | `sys/number/space/2xs` |
+| - [ ] `sys/number/space/neg/xs` | -8px | `sys/number/space/xs` |
+| - [ ] `sys/number/space/neg/sm` | -12px | `sys/number/space/sm` |
+| - [ ] `sys/number/space/neg/md` | -16px | `sys/number/space/md` |
+| - [ ] `sys/number/space/neg/lg` | -24px | `sys/number/space/lg` |
+| - [ ] `sys/number/space/neg/xl` | -32px | `sys/number/space/xl` |
+| - [ ] `sys/number/space/neg/2xl` | -40px | `sys/number/space/2xl` |
+| - [ ] `sys/number/space/neg/3xl` | -56px | `sys/number/space/3xl` |
 
-**Gap spacing** *(flex/grid gap)*
+**Scoping:** Gap, padding (all sides), item spacing.
 
-- [ ] `sys/number/space/gap/xs`
-- [ ] `sys/number/space/gap/sm`
-- [ ] `sys/number/space/gap/md`
-- [ ] `sys/number/space/gap/lg`
-- [ ] `sys/number/space/gap/xl`
-- [ ] `sys/number/space/gap/2xl`
-
-**Negative inline spacing** *(negative horizontal offset for overlap, e.g., horizontally stacked avatars)*
-
-- [ ] `sys/number/space/inline/negative/xs`
-- [ ] `sys/number/space/inline/negative/sm`
-- [ ] `sys/number/space/inline/negative/md`
-- [ ] `sys/number/space/inline/negative/lg`
-
-**Negative stack spacing** *(negative vertical offset for overlap, e.g., vertically stacked avatars, layered cards)*
-
-- [ ] `sys/number/space/stack/negative/xs`
-- [ ] `sys/number/space/stack/negative/sm`
-- [ ] `sys/number/space/stack/negative/md`
-- [ ] `sys/number/space/stack/negative/lg`
+> **Note:** Figma variables support negative numbers. Negative space tokens are useful for overlapping elements, pull margins, and stack offsets in auto layout.
 
 #### Semantic sizing
 
@@ -1144,14 +1107,14 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/button/height` → sys/number/size/control/md
-- [ ] `cmp/button/padding-inline` → sys/number/space/inline/lg
-- [ ] `cmp/button/gap` → sys/number/space/gap/sm
+- [ ] `cmp/button/padding-inline` → sys/number/space/lg
+- [ ] `cmp/button/gap` → sys/number/space/sm
 - [ ] `cmp/button/radius` → sys/number/radius/full
 - [ ] `cmp/button/icon-size` → sys/number/size/icon/md
 - [ ] `cmp/button/sm/height` → sys/number/size/control/sm
-- [ ] `cmp/button/sm/padding-inline` → sys/number/space/inline/md
+- [ ] `cmp/button/sm/padding-inline` → sys/number/space/md
 - [ ] `cmp/button/lg/height` → sys/number/size/control/lg
-- [ ] `cmp/button/lg/padding-inline` → sys/number/space/inline/xl
+- [ ] `cmp/button/lg/padding-inline` → sys/number/space/xl
 - [ ] `cmp/button/border-width` → sys/number/border-width/thin
 
 ---
@@ -1195,12 +1158,12 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/textfield/height` → sys/number/size/control/lg
-- [ ] `cmp/textfield/padding-inline` → sys/number/space/inline/md
+- [ ] `cmp/textfield/padding-inline` → sys/number/space/md
 - [ ] `cmp/textfield/radius` → sys/number/radius/xs (top only for filled)
 - [ ] `cmp/textfield/outlined/radius` → sys/number/radius/sm
 - [ ] `cmp/textfield/border-width` → sys/number/border-width/thin
 - [ ] `cmp/textfield/border-width/focus` → sys/number/border-width/medium
-- [ ] `cmp/textfield/gap` → sys/number/space/gap/xs
+- [ ] `cmp/textfield/gap` → sys/number/space/xs
 
 ---
 
@@ -1222,7 +1185,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/card/radius` → sys/number/radius/lg
-- [ ] `cmp/card/padding` → sys/number/space/inset/md
+- [ ] `cmp/card/padding` → sys/number/space/md
 
 ---
 
@@ -1242,9 +1205,9 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/chip/height` → sys/number/size/control/sm
-- [ ] `cmp/chip/padding-inline` → sys/number/space/inline/md
+- [ ] `cmp/chip/padding-inline` → sys/number/space/md
 - [ ] `cmp/chip/radius` → sys/number/radius/sm
-- [ ] `cmp/chip/gap` → sys/number/space/gap/xs
+- [ ] `cmp/chip/gap` → sys/number/space/xs
 - [ ] `cmp/chip/border-width` → sys/number/border-width/thin
 - [ ] `cmp/chip/icon-size` → sys/number/size/icon/md
 
@@ -1395,7 +1358,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 - [ ] `cmp/tabs/height` (48)
 - [ ] `cmp/tabs/indicator-height` (3)
-- [ ] `cmp/tabs/padding-inline` → sys/number/space/inline/md
+- [ ] `cmp/tabs/padding-inline` → sys/number/space/md
 
 ---
 
@@ -1411,7 +1374,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/dialog/radius` → sys/number/radius/2xl
-- [ ] `cmp/dialog/padding` → sys/number/space/inset/xl
+- [ ] `cmp/dialog/padding` → sys/number/space/xl
 - [ ] `cmp/dialog/min-width` (280)
 - [ ] `cmp/dialog/max-width` (560)
 
@@ -1428,7 +1391,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/snackbar/radius` → sys/number/radius/sm
-- [ ] `cmp/snackbar/padding` → sys/number/space/inset/md
+- [ ] `cmp/snackbar/padding` → sys/number/space/md
 - [ ] `cmp/snackbar/min-width` (344)
 
 ---
@@ -1442,8 +1405,8 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 **Dimensions**
 
-- [ ] `cmp/tooltip/padding-inline` → sys/number/space/inline/sm
-- [ ] `cmp/tooltip/padding-block` → sys/number/space/stack/xs
+- [ ] `cmp/tooltip/padding-inline` → sys/number/space/sm
+- [ ] `cmp/tooltip/padding-block` → sys/number/space/xs
 - [ ] `cmp/tooltip/radius` → sys/number/radius/sm
 
 ---
@@ -1547,8 +1510,8 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 - [ ] `cmp/menu/min-width` (112)
 - [ ] `cmp/menu/max-width` (280)
 - [ ] `cmp/menu/item-height` (48)
-- [ ] `cmp/menu/padding-block` → sys/number/space/stack/xs
-- [ ] `cmp/menu/item-padding-inline` → sys/number/space/inline/md
+- [ ] `cmp/menu/padding-block` → sys/number/space/xs
+- [ ] `cmp/menu/item-padding-inline` → sys/number/space/md
 - [ ] `cmp/menu/radius` → sys/number/radius/sm
 
 ---
@@ -1594,9 +1557,9 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 **Dimensions**
 
-- [ ] `cmp/accordion/padding-inline` → sys/number/space/inline/md
-- [ ] `cmp/accordion/padding-block` → sys/number/space/stack/md
-- [ ] `cmp/accordion/gap` → sys/number/space/gap/sm
+- [ ] `cmp/accordion/padding-inline` → sys/number/space/md
+- [ ] `cmp/accordion/padding-block` → sys/number/space/md
+- [ ] `cmp/accordion/gap` → sys/number/space/sm
 - [ ] `cmp/accordion/icon-size` → sys/number/size/icon/md
 - [ ] `cmp/accordion/border-width` → sys/number/border-width/thin
 - [ ] `cmp/accordion/radius` → sys/number/radius/md
@@ -1625,9 +1588,9 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 **Dimensions**
 
-- [ ] `cmp/alert/padding-inline` → sys/number/space/inline/md
-- [ ] `cmp/alert/padding-block` → sys/number/space/stack/md
-- [ ] `cmp/alert/gap` → sys/number/space/gap/md
+- [ ] `cmp/alert/padding-inline` → sys/number/space/md
+- [ ] `cmp/alert/padding-block` → sys/number/space/md
+- [ ] `cmp/alert/gap` → sys/number/space/md
 - [ ] `cmp/alert/radius` → sys/number/radius/md
 - [ ] `cmp/alert/icon-size` → sys/number/size/icon/lg
 - [ ] `cmp/alert/border-width` → sys/number/border-width/thin
@@ -1681,14 +1644,14 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/autocomplete/height` → sys/number/size/control/lg
-- [ ] `cmp/autocomplete/padding-inline` → sys/number/space/inline/md
+- [ ] `cmp/autocomplete/padding-inline` → sys/number/space/md
 - [ ] `cmp/autocomplete/radius` → sys/number/radius/sm
 - [ ] `cmp/autocomplete/border-width` → sys/number/border-width/thin
 - [ ] `cmp/autocomplete/border-width/focus` → sys/number/border-width/medium
 - [ ] `cmp/autocomplete/listbox/max-height` (320)
 - [ ] `cmp/autocomplete/listbox/radius` → sys/number/radius/sm
 - [ ] `cmp/autocomplete/listbox/item-height` (48)
-- [ ] `cmp/autocomplete/listbox/padding-block` → sys/number/space/stack/xs
+- [ ] `cmp/autocomplete/listbox/padding-block` → sys/number/space/xs
 
 ---
 
@@ -1704,7 +1667,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 **Dimensions**
 
-- [ ] `cmp/breadcrumbs/gap` → sys/number/space/gap/xs
+- [ ] `cmp/breadcrumbs/gap` → sys/number/space/xs
 - [ ] `cmp/breadcrumbs/icon-size` → sys/number/size/icon/sm
 
 ---
@@ -1730,10 +1693,10 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/calendar/radius` → sys/number/radius/lg
-- [ ] `cmp/calendar/padding` → sys/number/space/inset/md
+- [ ] `cmp/calendar/padding` → sys/number/space/md
 - [ ] `cmp/calendar/day-size` (40)
 - [ ] `cmp/calendar/day-radius` → sys/number/radius/full
-- [ ] `cmp/calendar/gap` → sys/number/space/gap/xs
+- [ ] `cmp/calendar/gap` → sys/number/space/xs
 - [ ] `cmp/calendar/header-height` (48)
 
 ---
@@ -1750,11 +1713,11 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 **Dimensions**
 
-- [ ] `cmp/carousel/gap` → sys/number/space/gap/md
+- [ ] `cmp/carousel/gap` → sys/number/space/md
 - [ ] `cmp/carousel/radius` → sys/number/radius/lg
 - [ ] `cmp/carousel/indicator-size` (8)
 - [ ] `cmp/carousel/indicator-radius` → sys/number/radius/full
-- [ ] `cmp/carousel/indicator-gap` → sys/number/space/gap/xs
+- [ ] `cmp/carousel/indicator-gap` → sys/number/space/xs
 - [ ] `cmp/carousel/nav-button-size` (40)
 - [ ] `cmp/carousel/nav-button-radius` → sys/number/radius/full
 
@@ -1774,11 +1737,11 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 **Dimensions**
 
-- [ ] `cmp/chat/bubble/padding-inline` → sys/number/space/inline/md
-- [ ] `cmp/chat/bubble/padding-block` → sys/number/space/stack/sm
+- [ ] `cmp/chat/bubble/padding-inline` → sys/number/space/md
+- [ ] `cmp/chat/bubble/padding-block` → sys/number/space/sm
 - [ ] `cmp/chat/bubble/radius` → sys/number/radius/lg
 - [ ] `cmp/chat/bubble/max-width` (320)
-- [ ] `cmp/chat/gap` → sys/number/space/gap/sm
+- [ ] `cmp/chat/gap` → sys/number/space/sm
 - [ ] `cmp/chat/avatar-size` → sys/number/size/avatar/sm
 
 ---
@@ -1798,8 +1761,8 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 - [ ] `cmp/dock/height` (64)
 - [ ] `cmp/dock/icon-size` → sys/number/size/icon/lg
-- [ ] `cmp/dock/padding-inline` → sys/number/space/inline/md
-- [ ] `cmp/dock/gap` → sys/number/space/gap/lg
+- [ ] `cmp/dock/padding-inline` → sys/number/space/md
+- [ ] `cmp/dock/gap` → sys/number/space/lg
 
 ---
 
@@ -1817,9 +1780,9 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 - [ ] `cmp/dropdown/content/min-width` (192)
 - [ ] `cmp/dropdown/content/radius` → sys/number/radius/sm
-- [ ] `cmp/dropdown/content/padding-block` → sys/number/space/stack/xs
+- [ ] `cmp/dropdown/content/padding-block` → sys/number/space/xs
 - [ ] `cmp/dropdown/content/item-height` (40)
-- [ ] `cmp/dropdown/content/item-padding-inline` → sys/number/space/inline/md
+- [ ] `cmp/dropdown/content/item-padding-inline` → sys/number/space/md
 
 ---
 
@@ -1834,10 +1797,10 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 **Dimensions**
 
-- [ ] `cmp/fieldset/padding` → sys/number/space/inset/lg
+- [ ] `cmp/fieldset/padding` → sys/number/space/lg
 - [ ] `cmp/fieldset/radius` → sys/number/radius/md
 - [ ] `cmp/fieldset/border-width` → sys/number/border-width/thin
-- [ ] `cmp/fieldset/gap` → sys/number/space/gap/md
+- [ ] `cmp/fieldset/gap` → sys/number/space/md
 
 ---
 
@@ -1859,7 +1822,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 - [ ] `cmp/file-input/height` → sys/number/size/control/lg
 - [ ] `cmp/file-input/radius` → sys/number/radius/sm
 - [ ] `cmp/file-input/border-width` → sys/number/border-width/thin
-- [ ] `cmp/file-input/padding-inline` → sys/number/space/inline/md
+- [ ] `cmp/file-input/padding-inline` → sys/number/space/md
 
 ---
 
@@ -1876,10 +1839,10 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 **Dimensions**
 
-- [ ] `cmp/footer/padding-inline` → sys/number/space/inline/xl
-- [ ] `cmp/footer/padding-block` → sys/number/space/stack/2xl
-- [ ] `cmp/footer/gap` → sys/number/space/gap/xl
-- [ ] `cmp/footer/column-gap` → sys/number/space/gap/2xl
+- [ ] `cmp/footer/padding-inline` → sys/number/space/xl
+- [ ] `cmp/footer/padding-block` → sys/number/space/2xl
+- [ ] `cmp/footer/gap` → sys/number/space/xl
+- [ ] `cmp/footer/column-gap` → sys/number/space/2xl
 
 ---
 
@@ -1895,10 +1858,10 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/hero/min-height` (480)
-- [ ] `cmp/hero/padding-inline` → sys/number/space/inline/2xl
-- [ ] `cmp/hero/padding-block` → sys/number/space/stack/3xl
+- [ ] `cmp/hero/padding-inline` → sys/number/space/2xl
+- [ ] `cmp/hero/padding-block` → sys/number/space/3xl
 - [ ] `cmp/hero/content-max-width` (640)
-- [ ] `cmp/hero/gap` → sys/number/space/gap/lg
+- [ ] `cmp/hero/gap` → sys/number/space/lg
 
 ---
 
@@ -1914,7 +1877,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 - [ ] `cmp/kbd/min-width` (24)
 - [ ] `cmp/kbd/height` (24)
-- [ ] `cmp/kbd/padding-inline` → sys/number/space/inline/xs
+- [ ] `cmp/kbd/padding-inline` → sys/number/space/xs
 - [ ] `cmp/kbd/radius` → sys/number/radius/xs
 - [ ] `cmp/kbd/border-width` → sys/number/border-width/thin
 
@@ -1958,9 +1921,9 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 - [ ] `cmp/list/item/min-height/one-line` (48)
 - [ ] `cmp/list/item/min-height/two-line` (64)
 - [ ] `cmp/list/item/min-height/three-line` (88)
-- [ ] `cmp/list/item/padding-inline` → sys/number/space/inline/md
-- [ ] `cmp/list/item/padding-block` → sys/number/space/stack/sm
-- [ ] `cmp/list/item/gap` → sys/number/space/gap/md
+- [ ] `cmp/list/item/padding-inline` → sys/number/space/md
+- [ ] `cmp/list/item/padding-block` → sys/number/space/sm
+- [ ] `cmp/list/item/gap` → sys/number/space/md
 - [ ] `cmp/list/item/leading-size` → sys/number/size/icon/lg
 - [ ] `cmp/list/item/avatar-size` → sys/number/size/avatar/sm
 
@@ -2006,7 +1969,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 - [ ] `cmp/pagination/item-size` (40)
 - [ ] `cmp/pagination/item-radius` → sys/number/radius/sm
-- [ ] `cmp/pagination/gap` → sys/number/space/gap/xs
+- [ ] `cmp/pagination/gap` → sys/number/space/xs
 - [ ] `cmp/pagination/icon-size` → sys/number/size/icon/md
 
 ---
@@ -2023,9 +1986,9 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 - [ ] `cmp/popover/min-width` (200)
 - [ ] `cmp/popover/max-width` (360)
-- [ ] `cmp/popover/padding` → sys/number/space/inset/md
+- [ ] `cmp/popover/padding` → sys/number/space/md
 - [ ] `cmp/popover/radius` → sys/number/radius/md
-- [ ] `cmp/popover/gap` → sys/number/space/gap/sm
+- [ ] `cmp/popover/gap` → sys/number/space/sm
 
 ---
 
@@ -2064,7 +2027,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/rating/icon-size` → sys/number/size/icon/lg
-- [ ] `cmp/rating/gap` → sys/number/space/gap/xs
+- [ ] `cmp/rating/gap` → sys/number/space/xs
 
 ---
 
@@ -2094,7 +2057,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/select/height` → sys/number/size/control/lg
-- [ ] `cmp/select/padding-inline` → sys/number/space/inline/md
+- [ ] `cmp/select/padding-inline` → sys/number/space/md
 - [ ] `cmp/select/radius` → sys/number/radius/sm
 - [ ] `cmp/select/border-width` → sys/number/border-width/thin
 - [ ] `cmp/select/border-width/focus` → sys/number/border-width/medium
@@ -2119,8 +2082,8 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 **Dimensions**
 
-- [ ] `cmp/stat/padding` → sys/number/space/inset/md
-- [ ] `cmp/stat/gap` → sys/number/space/gap/xs
+- [ ] `cmp/stat/padding` → sys/number/space/md
+- [ ] `cmp/stat/gap` → sys/number/space/xs
 - [ ] `cmp/stat/icon-size` → sys/number/size/icon/xl
 
 ---
@@ -2146,7 +2109,7 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 - [ ] `cmp/stepper/step-size` (32)
 - [ ] `cmp/stepper/step-radius` → sys/number/radius/full
 - [ ] `cmp/stepper/connector-height` → sys/number/border-width/medium
-- [ ] `cmp/stepper/gap` → sys/number/space/gap/sm
+- [ ] `cmp/stepper/gap` → sys/number/space/sm
 - [ ] `cmp/stepper/icon-size` → sys/number/size/icon/sm
 
 ---
@@ -2171,11 +2134,11 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 
 - [ ] `cmp/table/header-height` (56)
 - [ ] `cmp/table/row-height` (52)
-- [ ] `cmp/table/cell-padding-inline` → sys/number/space/inline/md
-- [ ] `cmp/table/cell-padding-block` → sys/number/space/stack/sm
+- [ ] `cmp/table/cell-padding-inline` → sys/number/space/md
+- [ ] `cmp/table/cell-padding-block` → sys/number/space/sm
 - [ ] `cmp/table/border-width` → sys/number/border-width/thin
 - [ ] `cmp/table/radius` → sys/number/radius/md
-- [ ] `cmp/table/checkbox-padding` → sys/number/space/inline/sm
+- [ ] `cmp/table/checkbox-padding` → sys/number/space/sm
 
 ---
 
@@ -2201,8 +2164,8 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 **Dimensions**
 
 - [ ] `cmp/textarea/min-height` (120)
-- [ ] `cmp/textarea/padding-inline` → sys/number/space/inline/md
-- [ ] `cmp/textarea/padding-block` → sys/number/space/stack/md
+- [ ] `cmp/textarea/padding-inline` → sys/number/space/md
+- [ ] `cmp/textarea/padding-block` → sys/number/space/md
 - [ ] `cmp/textarea/radius` → sys/number/radius/sm
 - [ ] `cmp/textarea/border-width` → sys/number/border-width/thin
 - [ ] `cmp/textarea/border-width/focus` → sys/number/border-width/medium
@@ -2226,8 +2189,8 @@ Component tokens use the structure: `cmp/{component}/{variant?}/{part}` and opti
 - [ ] `cmp/timeline/dot-size` (32)
 - [ ] `cmp/timeline/dot-radius` → sys/number/radius/full
 - [ ] `cmp/timeline/connector-width` → sys/number/border-width/medium
-- [ ] `cmp/timeline/gap` → sys/number/space/gap/md
-- [ ] `cmp/timeline/content-padding` → sys/number/space/inline/md
+- [ ] `cmp/timeline/gap` → sys/number/space/md
+- [ ] `cmp/timeline/content-padding` → sys/number/space/md
 - [ ] `cmp/timeline/icon-size` → sys/number/size/icon/sm
 
 ---
