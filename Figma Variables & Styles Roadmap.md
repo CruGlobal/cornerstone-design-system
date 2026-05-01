@@ -46,23 +46,25 @@ Figma variables support four types: **Color**, **Number**, **String**, **Boolean
 
 ### Mode Strategy
 
-Figma allows one active mode per collection per frame. Because the token system needs **two dimensions** (brand + theme), we split them across chained collections:
+Figma allows one active mode per collection per frame. The token system needs **two dimensions** (brand + theme). We carry the brand dimension in two different ways depending on the tier:
 
 ```
 ┌──────────────────────────────┐
-│  ref/color                   │  Modes = Brands
-│  (raw hue palettes)          │  cru │ mil │ aia │ fl │ jfp │ unto │ josh
-│                              │
-│  Superset of ALL hue names   │  Each brand populates its own hues.
-│  across every brand.         │  Unused hues get a neutral fallback.
+│  ref/color                   │  1 default mode
+│  (raw hue palettes)          │  Brand carried in the GROUP path:
+│                              │    color/cru/yellow/500
+│                              │    color/fl/yellow/500
+│  Each brand owns its own     │  Includes brand-specific contrast
+│  groups (hues, contrast,     │  and neutrals — no shared neutral
+│  neutrals).                  │  family between brands.
 └──────────────┬───────────────┘
-               │ aliases ↓ (each brand mode picks different ref hues)
+               │ aliases ↓ (sys mode picks the right brand's ref group)
 ┌──────────────▼───────────────┐
 │  sys/color                   │  Modes = Brand × Theme
-│  (semantic roles)            │  cru-light │ cru-dark │ mil-light │ ...
-│                              │  (7 brands × 2 themes = 14 modes)
+│  (semantic roles)            │  cru-light │ cru-dark │ fl-light │ fl-dark
+│                              │  (currently 2 brands × 2 themes = 4 modes)
 │  "primary" aliases a         │
-│  DIFFERENT ref hue per       │
+│  DIFFERENT ref group per     │
 │  brand mode.                 │
 └──────────────┬───────────────┘
                │ aliases ↓
@@ -74,37 +76,39 @@ Figma allows one active mode per collection per frame. Because the token system 
 
 **How brand-switching works:**
 
-1. `ref/color` holds a **superset** of every hue palette across all brands (yellow, blue, red, green, charcoal, teal, etc.). Each brand mode populates the hues it actually owns with real values. Hues a brand doesn't use are filled with a neutral fallback so no variable is ever empty.
+1. `ref/color` is a single-mode collection where each brand has its own subtree. Cru's palette lives under `ref/color/cru/*` (lemon, yellow, orange, … plus its own gray/graphite neutrals and contrast/opacity group). FL's palette lives under `ref/color/fl/*` with FL's own hues, neutrals, and contrast group. Brand-specific naming and value sets live side-by-side without modes.
 
-2. `sys/color` has **brand×theme modes** (e.g., `cru-light`, `josh-dark`). Each mode aliases semantic roles (primary, secondary, surface…) to the specific `ref/color` hue that brand uses. This is where Cru's `sys/color/primary` → `ref/color/yellow/500` while Josh's `sys/color/primary` → `ref/color/blue/500`.
+2. `sys/color` carries the brand×theme dimension. Each mode aliases semantic roles to whichever `ref/color/{brand}/*` group is appropriate. So `cru-light` mode aliases `sys/color/primary/default` → `ref/color/cru/yellow/500`, while `fl-light` mode aliases the same role to an FL-owned hue.
 
 3. `cmp/color` has **no modes**. It aliases `sys/color`, so brand + theme changes cascade automatically.
 
-> **Why sys/color needs brand×theme modes:** Reference tokens are raw hue palettes — they carry no semantic meaning. Each brand maps different hues to roles like "primary" or "secondary." That mapping must live at the system tier, and since it varies per brand AND per theme (light primary ≠ dark primary), `sys/color` needs the full brand×theme matrix. With 7 brands × 2 themes = 14 modes. Figma Enterprise supports up to 40 modes per collection. Add high-contrast later as a third theme column if needed (21 modes).
+> **Why ref/color uses brand groups instead of brand modes:** Mode-based ref/color forced every brand mode to populate the full superset of hue names, with neutral fallbacks for hues a brand doesn't own. With brand-as-group, each brand's palette stands on its own with its own naming (e.g., FL has `dark-green`, `soft-black`, `off-white`, `cool-gray` — names Cru doesn't use). It also keeps the file lighter when reading/writing to Figma via the plugin, which matters during day-to-day token work.
+>
+> **Why sys/color still needs brand×theme modes:** Semantic roles like "primary" must alias different ref groups per brand AND per theme (light primary ≠ dark primary). 2 brands × 2 themes = 4 modes today. Adding a brand later is one new pair of modes; Figma Enterprise supports up to 40 modes per collection.
 
-### Alias Brands
+### Brands in scope
 
-Per the token rules, alias brands (ccci, camp, city) do **not** get their own modes. They resolve to `cru`. If an alias brand later needs a unique override, promote it to its own mode at that time.
+**Currently built:** `cru` · `fl`
 
-**Unique brand modes (7):** `cru` · `mil` · `aia` · `fl` · `jfp` · `unto` · `josh`
+**Deferred:** `mil` · `aia` · `jfp` · `unto` · `josh` — these were removed from the active build to keep token files small and reduce token consumption when reading/writing through the Figma plugin. They will be added back as new `ref/color/{brand}/*` groups and new `sys/color` mode pairs when their palettes are audited.
+
+**Alias brands (ccci, camp, city)** continue to resolve to `cru`; they do not get their own ref groups or sys modes unless a unique override emerges.
 
 ---
 
 ## 2. Collection & Mode Map
 
-Summary of every Figma variable collection to build.
+Summary of every Figma variable collection. Counts reflect brands currently in scope (cru, fl).
 
 | # | Collection name | Variable type | Modes | Description |
 |---|---|---|---|---|
-| 1 | `ref/color` | Color | 7 brands | Superset of all brand hue palettes (yellow, blue, red, etc. × scale). Each brand mode populates its hues; unused hues get neutral fallback. |
-| 2 | `ref/number` | Number | 7 brands (or 1 if shared) | Raw spacing steps, size steps, base radii, base border widths, base opacity, base z-index |
-| 3 | `ref/string` | String | 7 brands (or 1 if shared) | Font family names |
-| 4 | `sys/color` | Color | 14 (7 brands × 2 themes) | Semantic color roles aliasing ref/color |
-| 5 | `sys/number` | Number | 7 brands (or 1 if shared) | Semantic spacing, sizing, radius, border-width, typography numbers, z-index, opacity |
-| 6 | `sys/string` | String | 7 brands (or 1 if shared) | Semantic font-family aliases |
+| 1 | `ref/color` | Color | 1 default | Brand palettes organized into per-brand groups (`color/cru/*`, `color/fl/*`). Each brand owns its own hues, neutrals, and contrast/opacity groups. |
+| 2 | `ref/number` | Number | 1 default | Raw spacing steps (positive + negative), size steps, base radii, border widths, opacity, font-size, line-height, font-weight, letter-spacing. Shared across brands. |
+| 3 | `ref/string` | String | 1 default | Font family names organized into per-brand groups (`font-family/cru/*`, `font-family/fl/*`) plus shared `font-family/system/*` fallbacks. |
+| 4 | `sys/color` | Color | 4 (`cru-light`, `cru-dark`, `fl-light`, `fl-dark`) | Semantic color roles aliasing the appropriate `ref/color/{brand}/*` group. Two new modes added per future brand. |
+| 5 | `sys/number` | Number | 1 default | Semantic spacing (positive + negative), sizing, border-radius, border-width, typography numbers, opacity. Shared across brands. |
+| 6 | `sys/string` | String | 4 (matches `sys/color`) | Semantic font-family roles by typography role (display, headline, title, pretitle, label, body, button) aliasing `ref/string/font-family/{brand}/*`. |
 | 7 | `cmp` | Mixed (Color + Number) | None (1 default) | All component tokens — colors, dimensions, radii — organized by component. Brand-agnostic; aliases sys layer. |
-
-> **Simplification option:** If spacing, sizing, radii, and typography numbers are identical across all brands, `ref/number` and `sys/number` can use a single mode. Add brand modes later only when a brand diverges.
 
 ---
 
@@ -113,70 +117,59 @@ Summary of every Figma variable collection to build.
 ### 3A. Collection: `ref/color`
 
 **Type:** Color
-**Modes:** `cru` · `mil` · `aia` · `fl` · `jfp` · `unto` · `josh`
+**Modes:** 1 default
 **Scoping:** All scopes (fill, stroke, etc.) — primitives should be available everywhere for flexibility.
 
-This collection is a **superset of every hue palette across all brands**. Each brand mode populates the hues it owns with real values. Hues a brand doesn't use are filled with a neutral fallback (e.g., `ref/color/gray/500`) so no cell is empty.
+This collection is **single-mode**. Brand palettes are organized as **groups within the color group**: `ref/color/cru/*` and `ref/color/fl/*` live side-by-side. Each brand owns:
 
-> **Important:** These are raw, non-semantic hue names — the actual named colors from each brand's palette (lemon, yellow, cyan, navy, etc.), not roles like "primary." Semantic assignment happens at the `sys/color` tier.
+- Its **hue scales** (Cru's lemon/yellow/orange/…, FL's blue/dark-green/…)
+- Its **own neutrals** (e.g., Cru's `gray` and `graphite`; FL's `cool-gray` and `soft-black`/`off-white`) — neutrals are not shared between brands.
+- Its **own contrast group** (`ref/color/{brand}/contrast/{black,white}` plus the `contrast/opacity/{black,white}-{10..90}` ramps).
+
+> **Important:** These are raw, non-semantic hue names — the actual named colors from each brand's palette (lemon, yellow, cyan, navy, blue, dark-green, etc.), not roles like "primary." Semantic assignment happens at the `sys/color` tier.
 
 #### Color palette variables
 
-Each hue uses a **10-step scale: `50, 100, 200, 300, 400, 500, 600, 700, 800, 900`** — matching the structure already built in `csds.tokens.json`. Step 500 is the brand-specified source color; lighter steps (50–400) are tints, darker steps (600–900) are shades.
-
-Cru's 20 source colors (5 families × 4 hues each) have already been expanded into 10-step scales. Other brands will add their own hues to this superset. The full list below reflects the current Cru palette plus placeholders for other brands.
+Each hue uses a **10-step scale: `50, 100, 200, 300, 400, 500, 600, 700, 800, 900`**. Step 500 is the brand-specified source color; lighter steps (50–400) are tints, darker steps (600–900) are shades.
 
 #### Hue-to-brand usage map
 
-This table tracks which brands actually use each hue. Brands that don't use a hue get a neutral fallback value in that mode.
+Each row below is a hue group that exists under exactly one brand path (e.g., the "lemon" row only exists at `ref/color/cru/lemon/*` because FL doesn't use that hue). Adding a brand is purely additive — new groups appear under `ref/color/{brand}/*` without affecting existing brands.
 
-| Hue | Source family | cru | mil | aia | fl | jfp | unto | josh |
-|---|---|---|---|---|---|---|---|---|
-| lemon | warm | ✓ | | | | | | |
-| yellow | warm | ✓ | | | | | | |
-| orange | warm | ✓ | | | | | | |
-| vermilion | warm | ✓ | | | | | | |
-| rose | pink | ✓ | | | | | | |
-| pink | pink | ✓ | | | | | | |
-| cerise | pink | ✓ | | | | | | |
-| ruby | pink | ✓ | | | | | | |
-| sky | cool | ✓ | | | | | | |
-| cyan | cool | ✓ | | | | | | |
-| turquoise | cool | ✓ | | | | | | |
-| navy | cool | ✓ | | | | | | |
-| mint | green | ✓ | | | | | | |
-| green | green | ✓ | | | | | | |
-| moss | green | ✓ | | | | | | |
-| olive-drab | green | ✓ | | | | | | |
-| gray | neutral | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| graphite | neutral | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Brand | Hue groups present in `ref/color/{brand}/*` |
+|---|---|
+| `cru` | lemon, yellow, orange, vermilion, rose, pink, cerise, ruby, sky, cyan, turquoise, navy, mint, green, moss, olive-drab, gray, graphite, contrast |
+| `fl` | yellow, orange, pink, blue, dark-green, soft-black, off-white, cool-gray, contrast |
+| `mil` · `aia` · `jfp` · `unto` · `josh` | *deferred — palettes not yet audited or built* |
 
-> **Action item:** As each brand's palette is audited, add their hue rows (or mark ✓ on existing rows if they share a hue name). Other brands will add new rows for hues Cru doesn't have. This table is your source of truth for which cells need real values vs. fallbacks.
+> **Action item:** As each new brand's palette is audited, create `ref/color/{brand}/*` with the hues that brand actually owns. No fallback values are needed since each brand's groups are independent.
 
-#### Contrast colors (special group)
+#### Contrast colors (per brand)
 
-These are not hue scales — they are fixed contrast values with opacity variants, used for overlays, scrims, and text-on-image.
+Each brand owns its own contrast group at `ref/color/{brand}/contrast/*`. These are not hue scales — they are fixed black/white plus opacity ramps used for overlays, scrims, and text-on-image. The group repeats per brand so a brand can adjust its base black/white if needed without affecting other brands.
 
-- [ ] `ref/color/contrast/white` → #FFFFFF
-- [ ] `ref/color/contrast/black` → #000000
-- [ ] `ref/color/contrast/opacity/white-90` → #FFFFFF @ 90%
-- [ ] `ref/color/contrast/opacity/white-80` → #FFFFFF @ 80%
-- [ ] `ref/color/contrast/opacity/white-70` → #FFFFFF @ 70%
-- [ ] `ref/color/contrast/opacity/white-60` → #FFFFFF @ 60%
-- [ ] `ref/color/contrast/opacity/white-50` → #FFFFFF @ 50%
-- [ ] `ref/color/contrast/opacity/white-40` → #FFFFFF @ 40%
-- [ ] `ref/color/contrast/opacity/white-30` → #FFFFFF @ 30%
-- [ ] `ref/color/contrast/opacity/white-20` → #FFFFFF @ 20%
-- [ ] `ref/color/contrast/opacity/white-10` → #FFFFFF @ 10%
-- [ ] `ref/color/contrast/opacity/black-90` → #000000 @ 90%
-- [ ] `ref/color/contrast/opacity/black-80` → #000000 @ 80%
-- [ ] `ref/color/contrast/opacity/black-70` → #000000 @ 70%
-- [ ] `ref/color/contrast/opacity/black-60` → #000000 @ 60%
-- [ ] `ref/color/contrast/opacity/black-50` → #000000 @ 50%
-- [ ] `ref/color/contrast/opacity/black-40` → #000000 @ 40%
-- [ ] `ref/color/contrast/opacity/black-30` → #000000 @ 30%
-- [ ] `ref/color/contrast/opacity/black-20` → #000000 @ 20%
-- [ ] `ref/color/contrast/opacity/black-10` → #000000 @ 10%
+The structure below repeats under both `ref/color/cru/contrast/*` and `ref/color/fl/contrast/*`:
+
+- [x] `contrast/white` → #FFFFFF
+- [x] `contrast/black` → #000000
+- [x] `contrast/opacity/white-90` → #FFFFFF @ 90%
+- [x] `contrast/opacity/white-80` → #FFFFFF @ 80%
+- [x] `contrast/opacity/white-70` → #FFFFFF @ 70%
+- [x] `contrast/opacity/white-60` → #FFFFFF @ 60%
+- [x] `contrast/opacity/white-50` → #FFFFFF @ 50%
+- [x] `contrast/opacity/white-40` → #FFFFFF @ 40%
+- [x] `contrast/opacity/white-30` → #FFFFFF @ 30%
+- [x] `contrast/opacity/white-20` → #FFFFFF @ 20%
+- [x] `contrast/opacity/white-10` → #FFFFFF @ 10%
+- [x] `contrast/opacity/black-90` → #000000 @ 90%
+- [x] `contrast/opacity/black-80` → #000000 @ 80%
+- [x] `contrast/opacity/black-70` → #000000 @ 70%
+- [x] `contrast/opacity/black-60` → #000000 @ 60%
+- [x] `contrast/opacity/black-50` → #000000 @ 50%
+- [x] `contrast/opacity/black-40` → #000000 @ 40%
+- [x] `contrast/opacity/black-30` → #000000 @ 30%
+- [x] `contrast/opacity/black-20` → #000000 @ 20%
+- [x] `contrast/opacity/black-10` → #000000 @ 10%
 
 ---
 
@@ -184,20 +177,22 @@ These are not hue scales — they are fixed contrast values with opacity variant
 
 Each hue group below has 10 steps. Cru's values are defined; other brand modes populate their own values or get fallbacks.
 
-**Warm family**
+> **Path note:** Examples below show paths under `ref/color/cru/*`. The same hue may exist under `ref/color/fl/*` with FL's own values where the hue name overlaps (e.g., `yellow`, `orange`, `pink`).
+
+**Cru — Warm family**
 
 **lemon** *(Cru 500: #FFE378)*
 
-- [ ] `ref/color/lemon/50`
-- [ ] `ref/color/lemon/100`
-- [ ] `ref/color/lemon/200`
-- [ ] `ref/color/lemon/300`
-- [ ] `ref/color/lemon/400`
-- [ ] `ref/color/lemon/500` → #FFE378
-- [ ] `ref/color/lemon/600`
-- [ ] `ref/color/lemon/700`
-- [ ] `ref/color/lemon/800`
-- [ ] `ref/color/lemon/900`
+- [ ] `ref/color/cru/lemon/50`
+- [ ] `ref/color/cru/lemon/100`
+- [ ] `ref/color/cru/lemon/200`
+- [ ] `ref/color/cru/lemon/300`
+- [ ] `ref/color/cru/lemon/400`
+- [ ] `ref/color/cru/lemon/500` → #FFE378
+- [ ] `ref/color/cru/lemon/600`
+- [ ] `ref/color/cru/lemon/700`
+- [ ] `ref/color/cru/lemon/800`
+- [ ] `ref/color/cru/lemon/900`
 
 **yellow** *(Cru 500: #FFD000)*
 
@@ -436,24 +431,22 @@ Each hue group below has 10 steps. Cru's values are defined; other brand modes p
 - [ ] `ref/color/graphite/800`
 - [ ] `ref/color/graphite/900`
 
-> **Total ref/color variables:** 18 hue scales × 10 steps + 22 contrast colors = **202 variables** × 7 brand modes = **~1,414 cell values** to populate (many will be neutral fallbacks for hues a brand doesn't own).
+> **Total ref/color variables (current):** Cru: 18 hue scales × 10 steps + 22 contrast = **202 variables**. FL: 8 hue/neutral groups × 10 steps + 22 contrast = **~102 variables**. Single mode, so total cell count = total variables.
 >
-> **Naming note:** Use Figma's `/` group separator for hierarchy. `ref/color/yellow/500` displays as a nested group in the variables panel.
+> **Naming note:** Use Figma's `/` group separator for hierarchy. `ref/color/cru/yellow/500` displays as nested groups in the variables panel.
 >
-> **Fallback rule:** For any hue a brand doesn't use, set all 10 steps to `ref/color/gray/500` (or another obvious fallback). This makes it immediately visible if a sys token accidentally aliases an unused hue.
->
-> **Adding brand hues:** When a new brand is audited, its unique hues are added as new groups to this superset. For example, if Josh/Sightline uses "cobalt" and "slate" hues that Cru doesn't have, add `ref/color/cobalt/{50–900}` and `ref/color/slate/{50–900}` groups. All other brand modes get fallback values for the new hues.
+> **Adding a brand:** Create a new `ref/color/{brand}/*` subtree with the hues that brand owns, plus that brand's own contrast group. No fallbacks needed since brand groups are independent.
 
 #### Example: How sys/color aliases ref/color per brand
 
-| sys/color variable | cru-light mode aliases → | josh-light mode aliases → | aia-light mode aliases → |
-|---|---|---|---|
-| `sys/color/primary` | `ref/color/yellow/500` | *(e.g., ref/color/cobalt/500)* | *(e.g., ref/color/ruby/500)* |
-| `sys/color/primary/hover` | `ref/color/yellow/400` | *(e.g., ref/color/cobalt/400)* | *(e.g., ref/color/ruby/400)* |
-| `sys/color/secondary` | `ref/color/navy/500` | *(e.g., ref/color/slate/600)* | *(e.g., ref/color/navy/500)* |
-| `sys/color/surface` | `ref/color/gray/50` | `ref/color/gray/50` | `ref/color/gray/50` |
+| sys/color variable | `cru-light` mode aliases → | `fl-light` mode aliases → |
+|---|---|---|
+| `sys/color/primary/default` | `ref/color/cru/yellow/500` | `ref/color/fl/blue/500` |
+| `sys/color/primary/hover` | `ref/color/cru/yellow/400` | `ref/color/fl/blue/400` |
+| `sys/color/secondary/default` | `ref/color/cru/orange/500` | `ref/color/fl/orange/500` |
+| `sys/color/surface/default` | `ref/color/cru/gray/50` | `ref/color/fl/cool-gray/50` |
 
-> This table is illustrative. Each brand×theme mode in `sys/color` defines which `ref/color` hue+step maps to each semantic role.
+> Each brand×theme mode in `sys/color` defines which `ref/color/{brand}/*` group maps to each semantic role. Note that aliases include the brand segment, since `ref/color` no longer uses brand modes.
 
 ---
 
@@ -700,138 +693,192 @@ These are empty by default and populated per brand mode.
 
 ## 4. Phase 2 — System Variables
 
+> **Audit status (2026-05-01):** The sys tier has been built for `cru-light` · `cru-dark` · `fl-light` · `fl-dark` (4 modes). Counts below reflect actual JSON in `tokens/sys/*.json`: **214 sys tokens per mode**, broken down as 67 color + 140 number + 7 string. Items marked `[x]` are present in all 4 modes; `[ ]` are still missing or pending.
+>
+> Several roles have been **renamed** or restructured from earlier roadmap drafts. Where that's the case, an "Audit note" calls it out so we can decide whether to align the roadmap to the build or revise the build.
+
 ### 4A. Collection: `sys/color`
 
 **Type:** Color
-**Modes (full-control path):** `cru-light` · `cru-dark` · `mil-light` · `mil-dark` · `aia-light` · `aia-dark` · `fl-light` · `fl-dark` · `jfp-light` · `jfp-dark` · `unto-light` · `unto-dark` · `josh-light` · `josh-dark`
-**All values alias → `ref/color` variables.**
+**Modes (currently built):** `cru-light` · `cru-dark` · `fl-light` · `fl-dark`
+**All values alias → `ref/color/{brand}/*` variables.**
+
+> **Structural note:** Built tokens use a `default` slot for the base value of a role (e.g., `sys/color/primary/default`) rather than putting the base on the role itself. State variants (`hover`, `pressed`, `focus`, `disabled`) and "on-X" variants are siblings under the same role group. The roadmap below has been updated to match.
 
 #### Primary
 
-- [x] `sys/color/primary`
+- [x] `sys/color/primary/default`
 - [x] `sys/color/primary/hover`
 - [x] `sys/color/primary/pressed`
 - [x] `sys/color/primary/focus`
 - [x] `sys/color/primary/disabled`
-- [x] `sys/color/on-primary`
-- [x] `sys/color/on-primary/hover`
-- [x] `sys/color/primary-container`
-- [x] `sys/color/on-primary-container`
+- [x] `sys/color/primary/on-primary`
+- [x] `sys/color/primary/inverse-on-primary`
+- [x] `sys/color/primary/primary-container`
+- [x] `sys/color/primary/on-primary-container`
+
+> **Audit note:** `inverse-on-primary` (built) is non-standard relative to Material's role model — decide whether to keep it or fold it into a separate `inverse-primary` group.
 
 #### Secondary
 
-- [ ] `sys/color/secondary`
-- [ ] `sys/color/secondary/hover`
-- [ ] `sys/color/secondary/pressed`
-- [ ] `sys/color/secondary/focus`
-- [ ] `sys/color/secondary/disabled`
-- [ ] `sys/color/on-secondary`
-- [ ] `sys/color/on-secondary/hover`
-- [ ] `sys/color/secondary-container`
-- [ ] `sys/color/on-secondary-container`
+- [x] `sys/color/secondary/default`
+- [x] `sys/color/secondary/hover`
+- [x] `sys/color/secondary/pressed`
+- [x] `sys/color/secondary/focus`
+- [x] `sys/color/secondary/disabled`
+- [x] `sys/color/secondary/on-secondary`
+- [x] `sys/color/secondary/secondary-container`
+- [x] `sys/color/secondary/on-secondary-container`
 
 #### Tertiary
 
-- [ ] `sys/color/tertiary`
-- [ ] `sys/color/tertiary/hover`
-- [ ] `sys/color/tertiary/pressed`
-- [ ] `sys/color/tertiary/focus`
-- [ ] `sys/color/tertiary/disabled`
-- [ ] `sys/color/on-tertiary`
-- [ ] `sys/color/on-tertiary/hover`
-- [ ] `sys/color/tertiary-container`
-- [ ] `sys/color/on-tertiary-container`
+- [x] `sys/color/tertiary/default`
+- [x] `sys/color/tertiary/hover`
+- [x] `sys/color/tertiary/pressed`
+- [x] `sys/color/tertiary/focus`
+- [x] `sys/color/tertiary/disabled`
+- [x] `sys/color/tertiary/on-tertiary`
+- [x] `sys/color/tertiary/container`
+- [x] `sys/color/tertiary/on-tertiary-container`
 
-#### Error
+> **Audit note:** Container is named `tertiary/container` (no `tertiary-` prefix) while primary/secondary use `primary-container`/`secondary-container`. Inconsistency — recommend renaming to `tertiary/tertiary-container` to match.
 
-- [ ] `sys/color/error`
-- [ ] `sys/color/error/hover`
-- [ ] `sys/color/error/pressed`
-- [ ] `sys/color/on-error`
-- [ ] `sys/color/error-container`
-- [ ] `sys/color/on-error-container`
+#### Information *(was: Info)*
 
-#### Warning
+- [x] `sys/color/information/default`
+- [x] `sys/color/information/hover`
+- [x] `sys/color/information/pressed`
+- [x] `sys/color/information/focus`
+- [x] `sys/color/information/container`
+- [ ] `sys/color/information/on-information`
+- [ ] `sys/color/information/on-information-container`
 
-- [ ] `sys/color/warning`
-- [ ] `sys/color/warning/hover`
-- [ ] `sys/color/on-warning`
-- [ ] `sys/color/warning-container`
-- [ ] `sys/color/on-warning-container`
+> **Audit note:** Renamed `info` → `information` in the build. The container naming also drops the role prefix (`information/container` rather than `information/information-container`). Decide on final naming and align.
 
 #### Success
 
-- [ ] `sys/color/success`
-- [ ] `sys/color/success/hover`
-- [ ] `sys/color/on-success`
-- [ ] `sys/color/success-container`
-- [ ] `sys/color/on-success-container`
+- [x] `sys/color/success/default`
+- [x] `sys/color/success/hover`
+- [x] `sys/color/success/pressed`
+- [x] `sys/color/success/focus`
+- [x] `sys/color/success/container`
+- [ ] `sys/color/success/on-success`
+- [ ] `sys/color/success/on-success-container`
 
-#### Info
+#### Warning
 
-- [ ] `sys/color/info`
-- [ ] `sys/color/info/hover`
-- [ ] `sys/color/on-info`
-- [ ] `sys/color/info-container`
-- [ ] `sys/color/on-info-container`
+- [x] `sys/color/warning/default`
+- [x] `sys/color/warning/hover`
+- [x] `sys/color/warning/pressed`
+- [x] `sys/color/warning/focus`
+- [x] `sys/color/warning/error-container`
+- [ ] `sys/color/warning/on-warning`
+- [ ] `sys/color/warning/on-warning-container`
+
+> **Audit note (bug):** The container variable is mis-named `warning/error-container` — should be `warning/warning-container`. Fix in the build.
+
+#### Danger *(was: Error)*
+
+- [x] `sys/color/danger/default`
+- [x] `sys/color/danger/hover`
+- [x] `sys/color/danger/pressed`
+- [x] `sys/color/danger/focus`
+- [x] `sys/color/danger/error-container`
+- [ ] `sys/color/danger/on-danger`
+- [ ] `sys/color/danger/on-danger-container`
+
+> **Audit note:** Renamed `error` → `danger` in the build, but the container is still named `error-container` — pick one term (danger or error) and align everywhere.
 
 #### Surface
 
-- [x] `sys/color/surface`
+- [x] `sys/color/surface/default`
+- [x] `sys/color/surface/variant`
+- [x] `sys/color/surface/on-surface`
+- [x] `sys/color/surface/on-surface-variant`
+- [x] `sys/color/surface/container`
+- [x] `sys/color/surface/inverse-surface`
+- [x] `sys/color/surface/inverse-on-surface`
+- [x] `sys/color/surface/inverse-on-surface-variant`
 - [x] `sys/color/surface/dim`
 - [x] `sys/color/surface/bright`
-- [x] `sys/color/surface-variant`
-- [x] `sys/color/on-surface`
-- [x] `sys/color/on-surface/hover`
-- [x] `sys/color/on-surface/disabled`
-- [x] `sys/color/on-surface-variant`
-- [x] `sys/color/on-surface-variant/hover`
+- [x] `sys/color/surface/hover`
+- [x] `sys/color/surface/selected`
 - [x] `sys/color/surface-container/lowest`
 - [x] `sys/color/surface-container/low`
-- [x] `sys/color/surface-container`
 - [x] `sys/color/surface-container/high`
 - [x] `sys/color/surface-container/highest`
-- [x] `sys/color/inverse-surface`
-- [x] `sys/color/inverse-on-surface`
+- [ ] `sys/color/surface/on-surface/hover`
+- [ ] `sys/color/surface/on-surface/disabled`
+- [ ] `sys/color/surface/on-surface-variant/hover`
+
+> **Audit note:** `surface/container` (single) coexists with `surface-container/{lowest..highest}` (the M3 elevation ramp). `surface-container` is at the same level as `surface` rather than nested under it. Confirm intentional vs flatten.
+> Built `surface/selected` aliases `cyan.50` in `cru-light` — that's a primary-tinted selection, not a brand-neutral surface tint. Verify per brand mode.
 
 #### Background
 
-- [x] `sys/color/background`
-- [x] `sys/color/on-background`
+- [x] `sys/color/background/default`
+- [x] `sys/color/background/on-background`
 
-#### Outline
+#### Text *(new — not in original roadmap)*
 
-- [ ] `sys/color/outline`
+- [x] `sys/color/text/primary`
+- [x] `sys/color/text/secondary`
+- [x] `sys/color/text/disabled`
+
+> **Audit note:** Built `text/secondary` and `text/disabled` in `cru-light` alias `_ref.color.fl.contrast.opacity.black-60` and `black-40` — Cru tokens are pointing into FL's contrast group. **Bug to fix.** Each brand mode should alias its own brand's contrast group.
+
+#### Action *(new — not in original roadmap)*
+
+- [x] `sys/color/action`
+
+> **Audit note:** In `cru-light` aliases `_ref.color.fl.contrast.opacity.black-60` — same cross-brand alias bug as `text/*`. Also: a single `action` variable without states (hover/pressed/disabled) feels under-spec'd. Decide its purpose vs `primary` or expand it.
+
+#### Divider *(new — not in original roadmap)*
+
+- [x] `sys/color/divider`
+
+> **Audit note:** Same FL cross-alias bug in `cru-light` (`fl.contrast.opacity.black-10`). Also: this looks like the M3 `outline-variant` role — decide whether to keep `divider` as a separate token or merge with an `outline` group below.
+
+#### Transparent
+
+- [x] `sys/color/transparent` (`#ffffff00`)
+
+#### Outline *(not yet built)*
+
+- [ ] `sys/color/outline/default`
 - [ ] `sys/color/outline/hover`
 - [ ] `sys/color/outline/focus`
 - [ ] `sys/color/outline/disabled`
-- [ ] `sys/color/outline-variant`
+- [ ] `sys/color/outline-variant/default`
 - [ ] `sys/color/outline-variant/hover`
 
-#### Scrim & Shadow
+#### Scrim & Shadow *(not yet built)*
 
 - [ ] `sys/color/scrim`
 - [ ] `sys/color/shadow`
 
-#### Inverse
+#### Inverse *(not yet built as a separate group)*
 
 - [ ] `sys/color/inverse-primary`
 
-#### Link
+> Inverse-on-primary, inverse-surface, inverse-on-surface, and inverse-on-surface-variant are built **inside** their respective role groups. Decide whether to consolidate into a top-level `inverse/*` group.
 
-- [ ] `sys/color/link`
+#### Link *(not yet built)*
+
+- [ ] `sys/color/link/default`
 - [ ] `sys/color/link/hover`
 - [ ] `sys/color/link/visited`
 - [ ] `sys/color/link/focus`
 
-> **Total sys/color variables:** ~80+ variables × 14 brand-theme modes
+> **Currently built:** **67 color variables × 4 modes = 268 cell values.**
+> **Cross-cutting bugs to fix:** (1) `text/*`, `action`, and `divider` in `cru-*` modes alias FL's contrast group; (2) `warning/error-container` and `danger/error-container` use the `error-container` name even though the role was renamed; (3) container naming is inconsistent (some are `{role}-container`, some are `container`).
 
 ---
 
 ### 4B. Collection: `sys/number`
 
 **Type:** Number
-**Modes:** 7 brands (if brands differ in spacing/sizing), or 1 default mode if shared.
+**Modes:** 1 default (shared across brands — spacing, sizing, radii, and typography numbers are identical for cru and fl)
 **Values alias → `ref/number` variables.**
 
 #### Semantic spacing
@@ -842,33 +889,36 @@ A single role-agnostic scale using t-shirt sizes. Values alias the raw `ref/numb
 
 **Space scale**
 
-| Token | Value | Ref alias |
-|---|---|---|
-| - [x] `sys/number/space/3xs` | 2px | `ref/number/space/2` |
-| - [x] `sys/number/space/2xs` | 4px | `ref/number/space/4` |
-| - [x] `sys/number/space/xs` | 8px | `ref/number/space/8` |
-| - [x] `sys/number/space/sm` | 12px | `ref/number/space/12` |
-| - [x] `sys/number/space/md` | 16px | `ref/number/space/16` |
-| - [x] `sys/number/space/lg` | 24px | `ref/number/space/24` |
-| - [x] `sys/number/space/xl` | 32px | `ref/number/space/32` |
-| - [x] `sys/number/space/2xl` | 40px | `ref/number/space/40` |
-| - [x] `sys/number/space/3xl` | 56px | `ref/number/space/56` |
+| Token | Value | Ref alias | Built |
+|---|---|---|---|
+| `sys/number/space/none` | 0 | `ref/number/space/0` | [x] |
+| `sys/number/space/3xs` | 2 | `ref/number/space/2` | [x] |
+| `sys/number/space/2xs` | 4 | `ref/number/space/4` | [x] |
+| `sys/number/space/xs` | 8 | `ref/number/space/8` | [x] |
+| `sys/number/space/sm` | 12 | `ref/number/space/12` | [x] |
+| `sys/number/space/md` | 16 | `ref/number/space/16` | [x] |
+| `sys/number/space/lg` | 24 | `ref/number/space/24` | [x] |
+| `sys/number/space/xl` | 32 | `ref/number/space/32` | [x] |
+| `sys/number/space/2xl` | 40 | `ref/number/space/40` | [x] |
+| `sys/number/space/3xl` | 56 | `ref/number/space/56` | [x] |
 
 **Scoping:** Gap, padding (all sides), item spacing.
 
 **Negative space** *(for pull/overlap/negative margin use cases)*
 
-| Token | Value | Mirrors |
-|---|---|---|
-| - [x] `sys/number/space/neg/3xs` | -2px | `sys/number/space/3xs` |
-| - [x] `sys/number/space/neg/2xs` | -4px | `sys/number/space/2xs` |
-| - [x] `sys/number/space/neg/xs` | -8px | `sys/number/space/xs` |
-| - [x] `sys/number/space/neg/sm` | -12px | `sys/number/space/sm` |
-| - [x] `sys/number/space/neg/md` | -16px | `sys/number/space/md` |
-| - [x] `sys/number/space/neg/lg` | -24px | `sys/number/space/lg` |
-| - [x] `sys/number/space/neg/xl` | -32px | `sys/number/space/xl` |
-| - [x] `sys/number/space/neg/2xl` | -40px | `sys/number/space/2xl` |
-| - [x] `sys/number/space/neg/3xl` | -56px | `sys/number/space/3xl` |
+| Token | Expected value | Built alias | Status |
+|---|---|---|---|
+| `sys/number/space/neg/3xs` | -2 | `ref/number/space/-2` | [x] |
+| `sys/number/space/neg/2xs` | -4 | `ref/number/space/-4` | [x] |
+| `sys/number/space/neg/xs` | -8 | `ref/number/space/-8` | [x] |
+| `sys/number/space/neg/sm` | -12 | `ref/number/space/-16` | [x] **bug** |
+| `sys/number/space/neg/md` | -16 | `ref/number/space/-20` | [x] **bug** |
+| `sys/number/space/neg/lg` | -24 | `ref/number/space/-24` | [x] |
+| `sys/number/space/neg/xl` | -32 | `ref/number/space/-32` | [x] |
+| `sys/number/space/neg/2xl` | -40 | `ref/number/space/-40` | [x] |
+| `sys/number/space/neg/3xl` | -56 | `ref/number/space/-56` | [x] |
+
+> **Audit note (bug):** `neg/sm` and `neg/md` don't mirror their positive counterparts. `neg/sm` should alias `ref/number/space/-12` (currently `-16`); `neg/md` should alias `ref/number/space/-16` (currently `-20`). Fix in the build.
 
 **Scoping:** Gap, padding (all sides), item spacing.
 
@@ -904,134 +954,100 @@ A single role-agnostic scale using t-shirt sizes. Values alias the raw `ref/numb
 
 #### Semantic border radius
 
-- [x] `sys/number/radius/none` → ref 0
-- [x] `sys/number/radius/xs` → ref 2
-- [x] `sys/number/radius/sm` → ref 4
-- [x] `sys/number/radius/md` → ref 8
-- [x] `sys/number/radius/lg` → ref 12
-- [x] `sys/number/radius/xl` → ref 16
-- [x] `sys/number/radius/2xl` → ref 24
-- [x] `sys/number/radius/full` → ref 9999
+Built path is `sys/number/border-radius/*` (not `sys/number/radius/*`). Roadmap and existing component-level tokens (`cmp/*/radius`) need to align — pick one name and update the other side.
+
+- [x] `sys/number/border-radius/none` → `ref/number/border-radius/0`
+- [x] `sys/number/border-radius/xs` → `ref/number/border-radius/2`
+- [x] `sys/number/border-radius/sm` → `ref/number/border-radius/4`
+- [x] `sys/number/border-radius/md` → `ref/number/border-radius/8`
+- [x] `sys/number/border-radius/lg` → `ref/number/border-radius/12`
+- [x] `sys/number/border-radius/xl` → `ref/number/border-radius/16`
+- [x] `sys/number/border-radius/2xl` → `ref/number/border-radius/24`
+- [x] `sys/number/border-radius/full` → `ref/number/border-radius/9999`
 
 #### Semantic border width
 
 - [x] `sys/number/border-width/none` → 0
 - [x] `sys/number/border-width/thin` → 1
 - [x] `sys/number/border-width/medium` → 2
-- [x] `sys/number/border-width/thick` → 3
+- [x] `sys/number/border-width/thick` → 4
+
+> **Audit note:** `thick` aliases `ref/number/border-width/4` rather than `/3`. The ref scale has both 3 and 4 — verify which step `thick` should resolve to and remove the unused step (or keep both with semantic names like `thick`/`thicker`).
 
 #### Semantic typography numbers
 
-These are the individual numeric properties that compose each text style. They alias `ref/number/font-size/*`, `ref/number/line-height/*`, `ref/number/font-weight/*`, and `ref/number/letter-spacing/*`.
+Each typography role × scale exposes four numeric variables: `font-size`, `line-height`, `font-weight`, `letter-spacing`. They alias `ref/number/font-size/*`, `ref/number/line-height/*`, `ref/number/font-weight/*`, and `ref/number/letter-spacing/*`.
 
-**Display**
+**Built roles (7):** `display`, `headline`, `title`, `pretitle`, `label`, `body`, `button`. Each role has 3 scales (`lg`, `md`, `sm`) and 4 properties = **84 typography number variables.**
 
-| Variable | font-size | line-height | font-weight | letter-spacing |
-|---|---|---|---|---|
-| - [ ] `sys/number/typography/display/lg/font-size` | | | | |
-| - [ ] `sys/number/typography/display/lg/line-height` | | | | |
-| - [ ] `sys/number/typography/display/lg/font-weight` | | | | |
-| - [ ] `sys/number/typography/display/lg/letter-spacing` | | | | |
-| - [ ] `sys/number/typography/display/md/font-size` | | | | |
-| - [ ] `sys/number/typography/display/md/line-height` | | | | |
-| - [ ] `sys/number/typography/display/md/font-weight` | | | | |
-| - [ ] `sys/number/typography/display/md/letter-spacing` | | | | |
-| - [ ] `sys/number/typography/display/sm/font-size` | | | | |
-| - [ ] `sys/number/typography/display/sm/line-height` | | | | |
-| - [ ] `sys/number/typography/display/sm/font-weight` | | | | |
-| - [ ] `sys/number/typography/display/sm/letter-spacing` | | | | |
+| Role | Scale | font-size | line-height | font-weight | letter-spacing | Built |
+|---|---|---|---|---|---|---|
+| display | lg | 108 | 110 | 700 | tight | [x] |
+| display | md | 88 | 110 | 700 | tight | [x] |
+| display | sm | 72 | 110 | 700 | tight | [x] |
+| headline | lg | 60 | 110 | 700 | default | [x] |
+| headline | md | 48 | 110 | 700 | default | [x] |
+| headline | sm | 40 | 110 | 700 | default | [x] |
+| title | lg | 32 | 110 | 700 | default | [x] |
+| title | md | 24 | 110 | 500 | default | [x] |
+| title | sm | 20 | 110 | 500 | default | [x] |
+| pretitle | lg | 18 | 110 | 500 | default | [x] |
+| pretitle | md | 16 | 110 | 500 | default | [x] |
+| pretitle | sm | 14 | 110 | 500 | default | [x] |
+| label | lg | 20 | 110 | 500 | wider | [x] |
+| label | md | 16 | 110 | 500 | wider | [x] |
+| label | sm | 12 | 110 | 500 | wider | [x] |
+| body | lg | 18 | 175 | 400 | default | [x] |
+| body | md | 16 | 175 | 400 | default | [x] |
+| body | sm | 12 | 175 | 400 | default | [x] |
+| button | lg | 14 | 140 | 700 | default | [x] |
+| button | md | 12 | 140 | 700 | default | [x] |
+| button | sm | 12 | 140 | 700 | default | [x] |
 
-**Headline**
-
-| Variable |
-|---|
-| - [ ] `sys/number/typography/headline/lg/font-size` |
-| - [ ] `sys/number/typography/headline/lg/line-height` |
-| - [ ] `sys/number/typography/headline/lg/font-weight` |
-| - [ ] `sys/number/typography/headline/lg/letter-spacing` |
-| - [ ] `sys/number/typography/headline/md/font-size` |
-| - [ ] `sys/number/typography/headline/md/line-height` |
-| - [ ] `sys/number/typography/headline/md/font-weight` |
-| - [ ] `sys/number/typography/headline/md/letter-spacing` |
-| - [ ] `sys/number/typography/headline/sm/font-size` |
-| - [ ] `sys/number/typography/headline/sm/line-height` |
-| - [ ] `sys/number/typography/headline/sm/font-weight` |
-| - [ ] `sys/number/typography/headline/sm/letter-spacing` |
-
-**Title**
-
-| Variable |
-|---|
-| - [ ] `sys/number/typography/title/lg/font-size` |
-| - [ ] `sys/number/typography/title/lg/line-height` |
-| - [ ] `sys/number/typography/title/lg/font-weight` |
-| - [ ] `sys/number/typography/title/lg/letter-spacing` |
-| - [ ] `sys/number/typography/title/md/font-size` |
-| - [ ] `sys/number/typography/title/md/line-height` |
-| - [ ] `sys/number/typography/title/md/font-weight` |
-| - [ ] `sys/number/typography/title/md/letter-spacing` |
-| - [ ] `sys/number/typography/title/sm/font-size` |
-| - [ ] `sys/number/typography/title/sm/line-height` |
-| - [ ] `sys/number/typography/title/sm/font-weight` |
-| - [ ] `sys/number/typography/title/sm/letter-spacing` |
-
-**Body**
-
-| Variable |
-|---|
-| - [ ] `sys/number/typography/body/lg/font-size` |
-| - [ ] `sys/number/typography/body/lg/line-height` |
-| - [ ] `sys/number/typography/body/lg/font-weight` |
-| - [ ] `sys/number/typography/body/lg/letter-spacing` |
-| - [ ] `sys/number/typography/body/md/font-size` |
-| - [ ] `sys/number/typography/body/md/line-height` |
-| - [ ] `sys/number/typography/body/md/font-weight` |
-| - [ ] `sys/number/typography/body/md/letter-spacing` |
-| - [ ] `sys/number/typography/body/sm/font-size` |
-| - [ ] `sys/number/typography/body/sm/line-height` |
-| - [ ] `sys/number/typography/body/sm/font-weight` |
-| - [ ] `sys/number/typography/body/sm/letter-spacing` |
-
-**Label**
-
-| Variable |
-|---|
-| - [ ] `sys/number/typography/label/lg/font-size` |
-| - [ ] `sys/number/typography/label/lg/line-height` |
-| - [ ] `sys/number/typography/label/lg/font-weight` |
-| - [ ] `sys/number/typography/label/lg/letter-spacing` |
-| - [ ] `sys/number/typography/label/md/font-size` |
-| - [ ] `sys/number/typography/label/md/line-height` |
-| - [ ] `sys/number/typography/label/md/font-weight` |
-| - [ ] `sys/number/typography/label/md/letter-spacing` |
-| - [ ] `sys/number/typography/label/sm/font-size` |
-| - [ ] `sys/number/typography/label/sm/line-height` |
-| - [ ] `sys/number/typography/label/sm/font-weight` |
-| - [ ] `sys/number/typography/label/sm/letter-spacing` |
+> **Audit notes:**
+> - **`pretitle` and `button` are new** roles not in the original roadmap. Decide whether to keep both at sys (versus folding `button` into a `label` style or moving it to cmp).
+> - `body/sm` font-size is **12px**, the same as `label/sm` and `button/md`/`button/sm` — `body/sm` text at 12px with 175% line-height is a tight read; verify intent.
+> - `letter-spacing/default` is 0 in ref but defined as a named token. Keep or use the literal 0 to avoid an alias hop.
+> - 3 scales per role × 7 roles = 21 text styles per brand at the styles tier (Section 6A still lists 5 roles × 3 scales = 15). Update Section 6A to match.
 
 #### Semantic opacity
 
-- [x] `sys/number/opacity/disabled` → 0.38
-- [x] `sys/number/opacity/hover-overlay` → 0.08
-- [x] `sys/number/opacity/pressed-overlay` → 0.12
-- [x] `sys/number/opacity/focus-overlay` → 0.12
-- [x] `sys/number/opacity/dragged-overlay` → 0.16
-- [x] `sys/number/opacity/scrim` → 0.32
+| Token | Built alias | Built value |
+|---|---|---|
+| `sys/number/opacity/disabled` | `ref/number/opacity/40` | 0.40 |
+| `sys/number/opacity/hover-overlay` | `ref/number/opacity/10` | 0.10 |
+| `sys/number/opacity/pressed-overlay` | `ref/number/opacity/20` | 0.20 |
+| `sys/number/opacity/focus-overlay` | `ref/number/opacity/10` | 0.10 |
+| `sys/number/opacity/dragged-overlay` | `ref/number/opacity/20` | 0.20 |
+| `sys/number/opacity/scrim` | `ref/number/opacity/30` | 0.30 |
+
+> **Audit note:** Built values diverge from Material 3's recommendations (0.38/0.08/0.12/0.12/0.16/0.32). The ref scale only has 0/10/20/…/100 — to match M3 exactly we'd need additional ref steps (8, 12, 16, 32, 38). Decide: round to the existing 10-step scale (current build) or extend the ref scale.
 
 ---
 
 ### 4C. Collection: `sys/string`
 
 **Type:** String
-**Modes:** 7 brands
+**Modes:** 4 (`cru-light`, `cru-dark`, `fl-light`, `fl-dark`) — same modes as `sys/color`. Each mode aliases `ref/string/font-family/{brand}/*`.
 
-#### Semantic font family
+#### Semantic font family — by typography role
 
-- [ ] `sys/string/font-family/brand` → aliases `ref/string/font-family/sans` (or whichever is the brand's primary typeface)
-- [ ] `sys/string/font-family/plain` → aliases `ref/string/font-family/sans` (UI / body typeface)
-- [ ] `sys/string/font-family/code` → aliases `ref/string/font-family/mono`
+Built by typography role (one per role) rather than by generic `brand`/`plain`/`code` slots. Each role can resolve to a different family per brand.
 
-> These exist for code export. In Figma, Text Styles handle the actual font-family.
+| Token | `cru-*` modes alias → | Built |
+|---|---|---|
+| `sys/string/font-family/display` | `ref/string/font-family/cru/brand/sans-primary` | [x] |
+| `sys/string/font-family/headline` | `ref/string/font-family/cru/brand/sans-primary` | [x] |
+| `sys/string/font-family/title` | `ref/string/font-family/cru/brand/sans-primary` | [x] |
+| `sys/string/font-family/pretitle` | `ref/string/font-family/cru/brand/sans-secondary` | [x] |
+| `sys/string/font-family/label` | `ref/string/font-family/cru/brand/sans-secondary` | [x] |
+| `sys/string/font-family/body` | `ref/string/font-family/cru/brand/sans-secondary` | [x] |
+| `sys/string/font-family/button` | `ref/string/font-family/cru/brand/sans-secondary` | [x] |
+
+> **Audit notes:**
+> - The role list mirrors `sys/number/typography/*` — keep the two in sync. If `pretitle`/`button` change at sys/number, change here too.
+> - In Figma, Text Styles set the actual font-family directly. These string variables exist for code export and to make per-role family swaps explicit per brand mode.
+> - Add `mono` (or similar) when a code-style role is needed.
 
 ---
 
