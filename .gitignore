@@ -8,3 +8,15 @@ desktop.ini
 .idea/
 *.swp
 *.swo
+
+# Claude Code — local secrets
+.claude/settings.local.json
+.claude/settings.json
+
+# Dependencies
+node_modules/
+
+# Build files
+build/
+storybook-static/
+*.log
