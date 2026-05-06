@@ -11,12 +11,6 @@ StyleDictionary.registerTransform({
   transform: (token) => stripUnderscore(token.path).join('-'),
 });
 
-// kebab-case key transform for JS/TS/JSON: slash-joined path matching the variable names.
-StyleDictionary.registerTransform({
-  name: 'name/kebab/cornerstone',
-  type: 'name',
-  transform: (token) => stripUnderscore(token.path).join('-'),
-});
 
 const PX_CATEGORIES = new Set([
   'space', 'size', 'border-radius', 'border-width', 'font-size',
@@ -27,55 +21,54 @@ StyleDictionary.registerTransform({
   type: 'value',
   filter: (token) => token.$type === 'number',
   transform: (token) => {
-    const v = token.$value;
+    const value = token.$value;
     const path = token.path;
-    if (path.some((p) => PX_CATEGORIES.has(p))) return `${v}px`;
-    if (path.includes('opacity')) return v / 100;
-    if (path.includes('line-height')) return v / 100;
-    if (path.includes('letter-spacing')) return v === 0 ? 0 : `${v}em`;
-    return v;
+    if (path.some((p) => PX_CATEGORIES.has(p))) return `${value}px`;
+    if (path.includes('opacity')) return value / 100;
+    if (path.includes('line-height')) return value / 100;
+    if (path.includes('letter-spacing')) return value === 0 ? 0 : `${value}em`;
+    return value;
   },
 });
 
-const CSS_TRANSFORMS  = ['name/css/cornerstone', 'value/number/unit', 'color/css'];
-const DATA_TRANSFORMS = ['name/css/cornerstone', 'value/number/unit', 'color/css'];
+const TRANSFORMS = ['name/css/cornerstone', 'value/number/unit', 'color/css'];
 
 // ─── Platform factories ───────────────────────────────────────────────────
 
 function platformsForRef() {
   return {
     css: {
-      transforms: CSS_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/css/',
       files: [{ destination: 'ref.css', format: 'css/variables', options: { selector: ':root' } }],
     },
     scss: {
-      transforms: CSS_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/scss/',
       files: [{ destination: '_ref.scss', format: 'scss/variables' }],
     },
     'js-esm': {
-      transforms: DATA_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/js/',
       files: [{ destination: 'ref.mjs', format: 'javascript/esm' }],
     },
     'js-cjs': {
-      transforms: DATA_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/js/',
       files: [{ destination: 'ref.cjs', format: 'javascript/module' }],
     },
     ts: {
-      transforms: DATA_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/js/',
       files: [{ destination: 'ref.d.ts', format: 'typescript/module-declarations' }],
     },
     'json-nested': {
-      transforms: DATA_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/json/',
       files: [{ destination: 'ref.json', format: 'json/nested' }],
     },
     'json-flat': {
-      transforms: DATA_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/json/',
       files: [{ destination: 'ref.flat.json', format: 'json/flat' }],
     },
@@ -85,37 +78,37 @@ function platformsForRef() {
 function platformsForMode(mode, selector) {
   return {
     css: {
-      transforms: CSS_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/css/',
       files: [{ destination: `${mode}.css`, format: 'css/variables', options: { selector } }],
     },
     scss: {
-      transforms: CSS_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/scss/',
       files: [{ destination: `_${mode}.scss`, format: 'scss/variables' }],
     },
     'js-esm': {
-      transforms: DATA_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/js/',
       files: [{ destination: `${mode}.mjs`, format: 'javascript/esm' }],
     },
     'js-cjs': {
-      transforms: DATA_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/js/',
       files: [{ destination: `${mode}.cjs`, format: 'javascript/module' }],
     },
     ts: {
-      transforms: DATA_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/js/',
       files: [{ destination: `${mode}.d.ts`, format: 'typescript/module-declarations' }],
     },
     'json-nested': {
-      transforms: DATA_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/json/',
       files: [{ destination: `${mode}.json`, format: 'json/nested' }],
     },
     'json-flat': {
-      transforms: DATA_TRANSFORMS,
+      transforms: TRANSFORMS,
       buildPath: 'build/json/',
       files: [{ destination: `${mode}.flat.json`, format: 'json/flat' }],
     },
@@ -125,12 +118,12 @@ function platformsForMode(mode, selector) {
 // ─── Build helpers ────────────────────────────────────────────────────────
 
 async function buildRef() {
-  const sd = new StyleDictionary({
+  const styleDictionary = new StyleDictionary({
     source: ['tokens/ref.json'],
     usesDtcg: true,
     platforms: platformsForRef(),
   });
-  await sd.buildAllPlatforms();
+  await styleDictionary.buildAllPlatforms();
 }
 
 const cmpFiles = readdirSync('tokens/cmp')
@@ -138,14 +131,14 @@ const cmpFiles = readdirSync('tokens/cmp')
   .map((f) => `tokens/cmp/${f}`);
 
 async function buildMode(mode, selector) {
-  const sd = new StyleDictionary({
+  const styleDictionary = new StyleDictionary({
     // ref tokens included for alias resolution but not output
     include: ['tokens/ref.json'],
     source: [`tokens/sys/${mode}.json`, ...cmpFiles],
     usesDtcg: true,
     platforms: platformsForMode(mode, selector),
   });
-  await sd.buildAllPlatforms();
+  await styleDictionary.buildAllPlatforms();
 }
 
 // ─── Run ──────────────────────────────────────────────────────────────────
