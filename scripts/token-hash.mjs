@@ -22,8 +22,8 @@ function flatten(obj, prefix = '', out = {}) {
     return out;
   }
   if (obj && typeof obj === 'object') {
-    for (const [k, v] of Object.entries(obj)) {
-      flatten(v, prefix ? `${prefix}.${k}` : k, out);
+    for (const [key, value] of Object.entries(obj)) {
+      flatten(value, prefix ? `${prefix}.${key}` : key, out);
     }
   }
   return out;
@@ -37,24 +37,28 @@ function flatten(obj, prefix = '', out = {}) {
 export function subtreeKey(file, leafPath) {
   const segs = leafPath.split('.');
   if (file.endsWith('/ref.json') || basename(file) === 'ref.json') {
-    if (segs[0] !== '_ref') return null;
-    if (segs[1] === 'color') return `ref/color/${segs[2]}`;
-    if (segs[1] === 'number') return 'ref/number';
-    if (segs[1] === 'string') return 'ref/string';
-    return null;
+    if (segs[0] !== '_ref') { return null; }
+    switch (segs[1]) {
+      case 'color': return `ref/color/${segs[2]}`;
+      case 'number': return 'ref/number';
+      case 'string': return 'ref/string';
+      default: return null;
+    }
   }
   if (file.includes('/sys/')) {
+    if (segs[0] !== '_sys') { return null; }
     const mode = basename(file, '.json');
-    if (segs[0] !== '_sys') return null;
-    if (segs[1] === 'color' || segs[1] === 'number' || segs[1] === 'string') {
-      return `sys/${segs[1]}/${mode}`;
+    switch (segs[1]) {
+      case 'color':
+      case 'number':
+      case 'string':
+        return `sys/${segs[1]}/${mode}`;
+      default: return null;
     }
-    return null;
   }
   if (file.includes('/cmp/')) {
-    const component = basename(file, '.json');
-    if (segs[0] !== '_cmp') return null;
-    return `cmp/${component}`;
+    if (segs[0] !== '_cmp') { return null; }
+    return `cmp/${basename(file, '.json')}`;
   }
   return null;
 }
@@ -65,43 +69,33 @@ export function leafRecord(name, $type, $value) {
   return `${name}\t${$type}\t${String($value)}\n`;
 }
 
+function hashFileIntoMap(file, push) {
+  const flat = flatten(JSON.parse(readFileSync(file, 'utf8')));
+  for (const [name, leaf] of Object.entries(flat)) {
+    push(subtreeKey(file, name), leafRecord(name, leaf.$type, leaf.$value));
+  }
+}
+
+function hashDirIntoMap(dir, push) {
+  if (!existsSync(dir)) { return; }
+  for (const filename of readdirSync(dir).filter(f => f.endsWith('.json'))) {
+    hashFileIntoMap(join(dir, filename), push);
+  }
+}
+
 export function subtreeHashesFromFiles(tokensDir) {
   // bucket: subtreeKey -> array of leaf records (we'll sort + hash at the end)
   const buckets = {};
   const push = (key, rec) => {
-    if (!key) return;
+    if (!key) { return; }
     (buckets[key] ||= []).push(rec);
   };
 
   const refFile = join(tokensDir, 'ref.json');
-  if (existsSync(refFile)) {
-    const flat = flatten(JSON.parse(readFileSync(refFile, 'utf8')));
-    for (const [name, leaf] of Object.entries(flat)) {
-      push(subtreeKey(refFile, name), leafRecord(name, leaf.$type, leaf.$value));
-    }
-  }
+  if (existsSync(refFile)) { hashFileIntoMap(refFile, push); }
 
-  const sysDir = join(tokensDir, 'sys');
-  if (existsSync(sysDir)) {
-    for (const f of readdirSync(sysDir).filter(f => f.endsWith('.json'))) {
-      const file = join(sysDir, f);
-      const flat = flatten(JSON.parse(readFileSync(file, 'utf8')));
-      for (const [name, leaf] of Object.entries(flat)) {
-        push(subtreeKey(file, name), leafRecord(name, leaf.$type, leaf.$value));
-      }
-    }
-  }
-
-  const cmpDir = join(tokensDir, 'cmp');
-  if (existsSync(cmpDir)) {
-    for (const f of readdirSync(cmpDir).filter(f => f.endsWith('.json'))) {
-      const file = join(cmpDir, f);
-      const flat = flatten(JSON.parse(readFileSync(file, 'utf8')));
-      for (const [name, leaf] of Object.entries(flat)) {
-        push(subtreeKey(file, name), leafRecord(name, leaf.$type, leaf.$value));
-      }
-    }
-  }
+  hashDirIntoMap(join(tokensDir, 'sys'), push);
+  hashDirIntoMap(join(tokensDir, 'cmp'), push);
 
   const out = {};
   for (const [key, recs] of Object.entries(buckets)) {
@@ -115,7 +109,7 @@ export function subtreeHashesFromFiles(tokensDir) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const tokensDir = join(process.argv[1], '..', '..', 'tokens');
   const manifest = subtreeHashesFromFiles(tokensDir);
-  for (const k of Object.keys(manifest).sort()) {
-    process.stdout.write(`${manifest[k]}  ${k}\n`);
+  for (const subtree of Object.keys(manifest).sort()) {
+    process.stdout.write(`${manifest[subtree]}  ${subtree}\n`);
   }
 }

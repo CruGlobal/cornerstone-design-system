@@ -4,9 +4,8 @@
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const ROOT = join(fileURLToPath(import.meta.url), '..', '..');
+const ROOT = new URL('..', import.meta.url).pathname;
 const TOKENS = join(ROOT, 'tokens');
 
 const HEX_RE = /^#[0-9a-fA-F]{3,8}$/;
@@ -33,8 +32,8 @@ function flatten(obj, prefix = '', out = {}) {
     return out;
   }
   if (obj && typeof obj === 'object') {
-    for (const [k, v] of Object.entries(obj)) {
-      flatten(v, prefix ? `${prefix}.${k}` : k, out);
+    for (const [key, value] of Object.entries(obj)) {
+      flatten(value, prefix ? `${prefix}.${key}` : key, out);
     }
   }
   return out;
@@ -50,8 +49,8 @@ function isRawColor(value) {
   return typeof value === 'string' && (HEX_RE.test(value) || RGB_RE.test(value));
 }
 
+// tokens/sys/cru-light.json -> 'cru'
 function brandFromSysFile(file) {
-  // tokens/sys/cru-light.json -> 'cru'
   const name = basename(file, '.json');
   return name.split('-')[0];
 }
@@ -100,7 +99,7 @@ function validateLeaf(file, path, leaf, namespace, mergedMap) {
       const m = aliasPath.match(/^_ref\.color\.([a-z-]+)\./);
       if (m) {
         const refBrand = m[1];
-        // Allow same brand, allow shared categories with no brand segment, allow contrast under any brand iff matches.
+        // Only warn when the alias explicitly names a different brand's color palette.
         if (refBrand !== brand) {
           warn(file, path, `W1 cross-brand alias: ${brand}-* mode aliases _ref.color.${refBrand}.*`);
         }
@@ -116,10 +115,7 @@ function validateLeaf(file, path, leaf, namespace, mergedMap) {
 
 // 1) Validate ref tokens (no rules other than no dangling self-refs)
 for (const [path, leaf] of Object.entries(refMap)) {
-  const aliasPath = resolveAlias(leaf.$value);
-  if (aliasPath && !(aliasPath in refMap)) {
-    err(join(TOKENS, 'ref.json'), path, `E4 dangling alias inside ref: \`{${aliasPath}}\``);
-  }
+  validateLeaf(join(TOKENS, 'ref.json'), path, leaf, '_ref', refMap);
 }
 
 // 2) Validate each sys mode file with merged map (ref + this sys file + cmp)
