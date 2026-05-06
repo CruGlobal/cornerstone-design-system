@@ -1,6 +1,14 @@
 ---
 description: Diff-pull design tokens from the linked Figma file — only re-fetches subtrees that actually changed.
-allowed-tools: Bash(node:*), Bash(npm:*), Bash(npx:*), Bash(grep:*), Bash(rm:*), Read, Write, Edit
+allowed-tools:
+  - Bash(node:*)
+  - Bash(npm:*)
+  - Bash(npx:*)
+  - Bash(grep:*)
+  - Bash(rm:*)
+  - Read
+  - Write
+  - Edit
 ---
 
 # Pull tokens from Figma (change-detecting)
@@ -40,11 +48,7 @@ If the file lacks the expected three collections (`Reference`, `System`, `Compon
 
 ## Step 2 — Local hash (no tool calls)
 
-```sh
-node scripts/token-hash.mjs
-```
-
-Or, more usefully, import it programmatically inside an inline node script that diffs Figma vs disk in one shot — see [#diff-recipe](#diff-recipe). The script is the source of truth for the canonical leaf record format; the discovery snippet must stay byte-identical or hashes drift.
+Import `subtreeHashesFromFiles` programmatically inside the inline diff script in [#diff-recipe](#diff-recipe) — that computes the local manifest and diffs it against Figma in one shot. The script is the source of truth for the canonical leaf record format; the discovery snippet must stay byte-identical or hashes drift.
 
 ## Step 3 — Diff
 
