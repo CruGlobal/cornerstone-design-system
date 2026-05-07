@@ -1,0 +1,30 @@
+{
+  "_cmp": {
+    "breadcrumb": {
+      "default": {
+        "$type": "color",
+        "$value": "{_sys.color.text.primary}"
+      },
+      "highlight": {
+        "$type": "color",
+        "$value": "{_sys.color.information.default}"
+      },
+      "highlight-hover": {
+        "$type": "color",
+        "$value": "{_sys.color.information.hover}"
+      },
+      "separator": {
+        "$type": "color",
+        "$value": "{_sys.color.action}"
+      },
+      "hover": {
+        "$type": "color",
+        "$value": "{_sys.color.action-hover}"
+      },
+      "surface-hover": {
+        "$type": "color",
+        "$value": "{_sys.color.surface.variant}"
+      }
+    }
+  }
+}

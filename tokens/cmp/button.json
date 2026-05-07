@@ -1,0 +1,272 @@
+{
+  "_cmp": {
+    "button": {
+      "primary": {
+        "filled": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.primary.on-primary}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.primary.default}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.primary.pressed}" },
+            "surface-focus": { "$type": "color", "$value": "{_sys.color.primary.focus}" },
+            "border": { "$type": "color", "$value": "{_sys.color.primary.default}" },
+            "border-hover": { "$type": "color", "$value": "{_sys.color.primary.hover}" },
+            "border-pressed": { "$type": "color", "$value": "{_sys.color.primary.pressed}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.primary.focus}" }
+          },
+          "border": {
+            "border-radius": { "$type": "number", "$value": "{_sys.number.border-radius.none}" },
+            "border-width": { "$type": "number", "$value": "{_sys.number.border-width.medium}" }
+          }
+        },
+        "outlined": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.primary.on-primary}" },
+            "text-pressed": { "$type": "color", "$value": "{_sys.color.primary.on-primary}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.primary.hover}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.primary.pressed}" },
+            "surface-focus": { "$type": "color", "$value": "{_sys.color.surface.default}" },
+            "border": { "$type": "color", "$value": "{_sys.color.primary.default}" },
+            "border-hover": { "$type": "color", "$value": "{_sys.color.primary.hover}" },
+            "border-pressed": { "$type": "color", "$value": "{_sys.color.primary.default}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.primary.focus}" }
+          },
+          "border": {
+            "border-radius": { "$type": "number", "$value": "{_sys.number.border-radius.none}" },
+            "border-width": { "$type": "number", "$value": "{_sys.number.border-width.medium}" }
+          }
+        },
+        "ghost": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
+            "text-pressed": { "$type": "color", "$value": "{_sys.color.primary.on-primary}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.primary.primary-container}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.primary.pressed}" },
+            "surface-focus": { "$type": "color", "$value": "{_sys.color.surface.default}" },
+            "border": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "border-hover": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "border-pressed": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.primary.primary-container}" }
+          },
+          "border": {
+            "border-radius": { "$type": "number", "$value": "{_sys.number.border-radius.none}" },
+            "border-width": { "$type": "number", "$value": "{_sys.number.border-width.medium}" }
+          }
+        }
+      },
+      "secondary": {
+        "filled": {
+          "color": {
+            "surface": { "$type": "color", "$value": "{_sys.color.primary.default}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.primary.hover}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.primary.pressed}" },
+            "surface-focsed": { "$type": "color", "$value": "{_sys.color.primary.focus}" }
+          },
+          "border": {
+            "border-radius": { "$type": "number", "$value": "{_sys.number.border-radius.none}" },
+            "border-width": { "$type": "number", "$value": "{_sys.number.border-width.medium}" }
+          }
+        }
+      },
+      "information": {
+        "filled": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.information.on-information}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.information.on-information}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.information.default}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.information.hover}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.information.pressed}" },
+            "surface-focus": { "$type": "color", "$value": "{_sys.color.information.focus}" },
+            "border": { "$type": "color", "$value": "{_sys.color.information.default}" },
+            "border-hover": { "$type": "color", "$value": "{_sys.color.information.hover}" },
+            "border-pressed": { "$type": "color", "$value": "{_sys.color.information.pressed}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.information.focus}" }
+          },
+          "border": {
+            "border-radius": { "$type": "number", "$value": "{_sys.number.border-radius.none}" },
+            "border-width": { "$type": "number", "$value": "{_sys.number.border-width.medium}" }
+          }
+        },
+        "outlined": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.information.on-information}" },
+            "text-pressed": { "$type": "color", "$value": "{_sys.color.information.on-information}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.information.hover}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.information.pressed}" },
+            "surface-focus": { "$type": "color", "$value": "{_sys.color.surface.default}" },
+            "border": { "$type": "color", "$value": "{_sys.color.information.default}" },
+            "border-hover": { "$type": "color", "$value": "{_sys.color.information.hover}" },
+            "border-pressed": { "$type": "color", "$value": "{_sys.color.information.pressed}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.information.focus}" }
+          },
+          "border": {
+            "border-radius": { "$type": "number", "$value": "{_sys.number.border-radius.none}" },
+            "border-width": { "$type": "number", "$value": "{_sys.number.border-width.medium}" }
+          }
+        },
+        "ghost": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.information.default}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
+            "text-pressed": { "$type": "color", "$value": "{_sys.color.primary.on-primary}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.information.container}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.information.container}" },
+            "surface-focus": { "$type": "color", "$value": "{_sys.color.surface.default}" },
+            "border": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "border-hover": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "border-pressed": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.information.default}" }
+          },
+          "border": {
+            "border-radius": { "$type": "number", "$value": "{_sys.number.border-radius.none}" },
+            "border-width": { "$type": "number", "$value": "{_sys.number.border-width.medium}" }
+          }
+        }
+      },
+      "disabled": {
+        "filled": {
+          "color": {
+            "surface": { "$type": "color", "$value": "{_sys.color.primary.disabled}" },
+            "border": { "$type": "color", "$value": "{_sys.color.primary.disabled}" }
+          }
+        },
+        "outlined": {
+          "color": {
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "border": { "$type": "color", "$value": "{_sys.color.primary.disabled}" }
+          }
+        },
+        "ghost": {
+          "color": {
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "border": { "$type": "color", "$value": "{_sys.color.primary.disabled}" }
+          }
+        },
+        "color": {
+          "text": { "$type": "color", "$value": "{_sys.color.text.disabled}" }
+        }
+      },
+      "space": {
+        "lg-x": { "$type": "number", "$value": "{_sys.number.space.lg}" },
+        "lg-y": { "$type": "number", "$value": "{_sys.number.space.sm}" },
+        "md-x": { "$type": "number", "$value": "{_sys.number.space.md}" },
+        "md-y": { "$type": "number", "$value": "{_sys.number.space.xs}" },
+        "sm-x": { "$type": "number", "$value": "{_sys.number.space.sm}" },
+        "sm-y": { "$type": "number", "$value": "{_sys.number.space.2xs}" }
+      },
+      "success": {
+        "filled": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.success.on-success}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.success.on-success}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.success.default}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.success.hover}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.success.pressed}" },
+            "surface-focus": { "$type": "color", "$value": "{_sys.color.success.focus}" },
+            "border-hover": { "$type": "color", "$value": "{_sys.color.success.hover}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.success.focus}" }
+          }
+        },
+        "outlined": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.success.on-success}" },
+            "text-pressed": { "$type": "color", "$value": "{_sys.color.success.on-success}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.success.hover}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.success.pressed}" },
+            "border": { "$type": "color", "$value": "{_sys.color.success.default}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.success.focus}" }
+          }
+        },
+        "ghost": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.success.default}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.success.container}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.success.container}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.success.default}" }
+          }
+        }
+      },
+      "warning": {
+        "filled": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.warning.on-warning}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.warning.on-warning}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.warning.default}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.warning.hover}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.warning.pressed}" },
+            "surface-focus": { "$type": "color", "$value": "{_sys.color.warning.focus}" },
+            "border-hover": { "$type": "color", "$value": "{_sys.color.warning.hover}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.warning.focus}" }
+          }
+        },
+        "outlined": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.warning.on-warning}" },
+            "text-pressed": { "$type": "color", "$value": "{_sys.color.warning.on-warning}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.warning.hover}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.warning.pressed}" },
+            "border": { "$type": "color", "$value": "{_sys.color.warning.default}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.warning.focus}" }
+          }
+        },
+        "ghost": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.warning.default}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.warning.error-container}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.warning.error-container}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.warning.default}" }
+          }
+        }
+      },
+      "danger": {
+        "filled": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.danger.on-danger}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.danger.on-danger}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.danger.default}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.danger.hover}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.danger.pressed}" },
+            "surface-focus": { "$type": "color", "$value": "{_sys.color.danger.focus}" },
+            "border-hover": { "$type": "color", "$value": "{_sys.color.danger.hover}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.danger.focus}" }
+          }
+        },
+        "outlined": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
+            "text-hover": { "$type": "color", "$value": "{_sys.color.danger.on-danger}" },
+            "text-pressed": { "$type": "color", "$value": "{_sys.color.danger.on-danger}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.danger.hover}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.danger.pressed}" },
+            "border": { "$type": "color", "$value": "{_sys.color.danger.default}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.danger.focus}" }
+          }
+        },
+        "ghost": {
+          "color": {
+            "text": { "$type": "color", "$value": "{_sys.color.danger.default}" },
+            "surface": { "$type": "color", "$value": "{_sys.color.transparent}" },
+            "surface-hover": { "$type": "color", "$value": "{_sys.color.danger.error-container}" },
+            "surface-pressed": { "$type": "color", "$value": "{_sys.color.danger.error-container}" },
+            "border-focus": { "$type": "color", "$value": "{_sys.color.danger.default}" }
+          }
+        }
+      }
+    }
+  }
+}

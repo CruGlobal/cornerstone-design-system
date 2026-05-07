@@ -1,0 +1,22 @@
+{
+  "_cmp": {
+    "accordion": {
+      "text": {
+        "color": {
+          "primary": {
+            "$type": "color",
+            "$value": "{_sys.color.text.primary}"
+          },
+          "secondary": {
+            "$type": "color",
+            "$value": "{_sys.color.information.default}"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{_sys.color.text.disabled}"
+          }
+        }
+      }
+    }
+  }
+}

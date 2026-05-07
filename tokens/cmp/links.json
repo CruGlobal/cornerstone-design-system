@@ -1,0 +1,26 @@
+{
+  "_cmp": {
+    "links": {
+      "default": {
+        "$type": "color",
+        "$value": "{_sys.color.action}"
+      },
+      "hover": {
+        "$type": "color",
+        "$value": "{_sys.color.action-hover}"
+      },
+      "disabled": {
+        "$type": "color",
+        "$value": "{_sys.color.text.disabled}"
+      },
+      "stylized": {
+        "$type": "color",
+        "$value": "{_sys.color.information.default}"
+      },
+      "highlight": {
+        "$type": "color",
+        "$value": "{_sys.color.surface.selected}"
+      }
+    }
+  }
+}

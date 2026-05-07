@@ -1,0 +1,54 @@
+{
+  "_cmp": {
+    "text-field": {
+      "input": {
+        "padding": {
+          "top-bottom": {
+            "medium": { "$type": "number", "$value": "{_sys.number.space.sm}" },
+            "small": { "$type": "number", "$value": "{_sys.number.space.2xs}" }
+          },
+          "left-right": { "$type": "number", "$value": "{_sys.number.space.sm}" }
+        },
+        "color": {
+          "text": {
+            "value": { "$type": "color", "$value": "{_sys.color.text.primary}" },
+            "placeholder-disabled": { "$type": "color", "$value": "{_sys.color.text.disabled}" }
+          },
+          "outline": {
+            "enabled": { "$type": "color", "$value": "{_sys.color.divider}" },
+            "hovered": { "$type": "color", "$value": "{_sys.color.action}" },
+            "focused": { "$type": "color", "$value": "{_sys.color.information.default}" },
+            "disabled": { "$type": "color", "$value": "{_sys.color.divider}" },
+            "danger": { "$type": "color", "$value": "{_sys.color.danger.default}" }
+          }
+        },
+        "border": {
+          "border-radius": { "$type": "number", "$value": "{_sys.number.border-radius.sm}" },
+          "border-width": { "$type": "number", "$value": "{_sys.number.border-width.thin}" }
+        }
+      },
+      "gap": { "$type": "number", "$value": "{_sys.number.space.xs}" },
+      "label": {
+        "padding": {
+          "bottom": { "$type": "number", "$value": "{_sys.number.space.xs}" }
+        },
+        "color": {
+          "text": {
+            "enabled": { "$type": "color", "$value": "{_sys.color.text.primary}" },
+            "disabled": { "$type": "color", "$value": "{_sys.color.text.disabled}" }
+          }
+        }
+      },
+      "helper": {
+        "padding": {
+          "top": { "$type": "number", "$value": "{_sys.number.space.3xs}" }
+        },
+        "color": {
+          "enabled": { "$type": "color", "$value": "{_sys.color.text.secondary}" },
+          "disabled": { "$type": "color", "$value": "{_sys.color.text.disabled}" },
+          "danger": { "$type": "color", "$value": "{_sys.color.danger.default}" }
+        }
+      }
+    }
+  }
+}
