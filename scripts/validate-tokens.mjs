@@ -21,10 +21,17 @@ const SHARED_REF_PREFIXES = [
 const errors = [];
 const warnings = [];
 
-function err(file, path, msg) { errors.push({ file, path, msg }); }
-function warn(file, path, msg) { warnings.push({ file, path, msg }); }
+function err(file, path, msg) {
+  errors.push({ file, path, msg });
+}
 
-function readJSON(p) { return JSON.parse(readFileSync(p, 'utf8')); }
+function warn(file, path, msg) {
+  warnings.push({ file, path, msg });
+}
+
+function readJSON(filePath) {
+  return JSON.parse(readFileSync(filePath, 'utf8'));
+}
 
 function flatten(obj, prefix = '', out = {}) {
   if (obj && typeof obj === 'object' && '$value' in obj && '$type' in obj) {
@@ -40,16 +47,18 @@ function flatten(obj, prefix = '', out = {}) {
 }
 
 function resolveAlias(value) {
-  if (typeof value !== 'string') return null;
-  const m = value.match(ALIAS_RE);
-  return m ? m[1] : null;
+  if (typeof value !== 'string') { return null; }
+  const match = value.match(ALIAS_RE);
+  return match ? match[1] : null;
 }
 
 function isRawColor(value) {
   return typeof value === 'string' && (HEX_RE.test(value) || RGB_RE.test(value));
 }
 
-// tokens/sys/cru-light.json -> 'cru'
+/**
+ * Converts a file name into a brand slug. Example: tokens/sys/cru-light.json -> 'cru'
+ */
 function brandFromSysFile(file) {
   const name = basename(file, '.json');
   return name.split('-')[0];
@@ -57,13 +66,15 @@ function brandFromSysFile(file) {
 
 // Load ref + all sys + all cmp.
 const refMap = flatten(readJSON(join(TOKENS, 'ref.json')));
-const cmpFiles = readdirSync(join(TOKENS, 'cmp')).filter(f => f.endsWith('.json'))
-  .map(f => join(TOKENS, 'cmp', f));
+const cmpFiles = readdirSync(join(TOKENS, 'cmp')).filter(filename => filename.endsWith('.json'))
+  .map(filename => join(TOKENS, 'cmp', filename));
 const cmpMap = {};
-for (const f of cmpFiles) Object.assign(cmpMap, flatten(readJSON(f)));
+for (const cmpFile of cmpFiles) {
+  Object.assign(cmpMap, flatten(readJSON(cmpFile)));
+}
 
-const sysFiles = readdirSync(join(TOKENS, 'sys')).filter(f => f.endsWith('.json'))
-  .map(f => join(TOKENS, 'sys', f));
+const sysFiles = readdirSync(join(TOKENS, 'sys')).filter(filename => filename.endsWith('.json'))
+  .map(filename => join(TOKENS, 'sys', filename));
 
 function validateLeaf(file, path, leaf, namespace, mergedMap) {
   const { $type, $value } = leaf;
@@ -96,9 +107,9 @@ function validateLeaf(file, path, leaf, namespace, mergedMap) {
     // W1 — cross-brand alias
     if (namespace === '_sys' && file.includes('/sys/')) {
       const brand = brandFromSysFile(file);
-      const m = aliasPath.match(/^_ref\.color\.([a-z-]+)\./);
-      if (m) {
-        const refBrand = m[1];
+      const match = aliasPath.match(/^_ref\.color\.([a-z-]+)\./);
+      if (match) {
+        const refBrand = match[1];
         // Only warn when the alias explicitly names a different brand's color palette.
         if (refBrand !== brand) {
           warn(file, path, `W1 cross-brand alias: ${brand}-* mode aliases _ref.color.${refBrand}.*`);
@@ -129,7 +140,9 @@ for (const sysFile of sysFiles) {
 
 // 3) Validate cmp files using ref + ALL sys merged (so any alias to _sys.* must exist in at least the union — same value across modes by convention).
 const allSys = {};
-for (const sysFile of sysFiles) Object.assign(allSys, flatten(readJSON(sysFile)));
+for (const sysFile of sysFiles) {
+  Object.assign(allSys, flatten(readJSON(sysFile)));
+}
 for (const cmpFile of cmpFiles) {
   const thisCmp = flatten(readJSON(cmpFile));
   const merged = { ...refMap, ...allSys, ...thisCmp };
@@ -139,15 +152,19 @@ for (const cmpFile of cmpFiles) {
 }
 
 // Report
-const rel = (f) => f.replace(ROOT + '/', '');
+const rel = (filePath) => filePath.replace(ROOT + '/', '');
 
 if (errors.length) {
   console.error('\nERRORS:');
-  for (const e of errors) console.error(`  ${rel(e.file)}  ${e.path}\n    ${e.msg}`);
+  for (const error of errors) {
+    console.error(`  ${rel(error.file)}  ${error.path}\n    ${error.msg}`);
+  }
 }
 if (warnings.length) {
   console.error('\nWARNINGS:');
-  for (const w of warnings) console.error(`  ${rel(w.file)}  ${w.path}\n    ${w.msg}`);
+  for (const warning of warnings) {
+    console.error(`  ${rel(warning.file)}  ${warning.path}\n    ${warning.msg}`);
+  }
 }
 
 console.error(`\n${errors.length} error${errors.length === 1 ? '' : 's'}, ${warnings.length} warning${warnings.length === 1 ? '' : 's'}`);
