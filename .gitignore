@@ -9,10 +9,6 @@ desktop.ini
 *.swp
 *.swo
 
-# Claude Code — local secrets
-.claude/settings.local.json
-.claude/settings.json
-
 # Dependencies
 node_modules/
 
