@@ -14,6 +14,8 @@ export default [
     rules: {
       curly: 'error',
       eqeqeq: 'error',
+      'no-var': 'error',
+      'prefer-const': 'error',
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-console': ['error', { allow: ['warn', 'error'] }],
       'import-x/no-duplicates': 'error',
