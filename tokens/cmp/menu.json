@@ -1,0 +1,84 @@
+{
+  "_cmp": {
+    "menu": {
+      "color": {
+        "surface": {
+          "default": {
+            "$type": "color",
+            "$value": "{_sys.color.surface.default}"
+          }
+        },
+        "divider": {
+          "$type": "color",
+          "$value": "{_sys.color.divider}"
+        }
+      },
+      "menu-item": {
+        "gap": {
+          "$type": "number",
+          "$value": "{_sys.number.space.xs}"
+        },
+        "color": {
+          "text": {
+            "default": {
+              "$type": "color",
+              "$value": "{_sys.color.text.primary}"
+            },
+            "disabled": {
+              "$type": "color",
+              "$value": "{_sys.color.text.disabled}"
+            }
+          },
+          "surface": {
+            "default": {
+              "$type": "color",
+              "$value": "{_sys.color.transparent}"
+            },
+            "hover": {
+              "$type": "color",
+              "$value": "{_sys.color.surface.variant}"
+            },
+            "selected": {
+              "$type": "color",
+              "$value": "{_sys.color.surface.selected}"
+            },
+            "disabled": {
+              "$type": "color",
+              "$value": "{_sys.color.primary.disabled}"
+            }
+          },
+          "divider": {
+            "$type": "color",
+            "$value": "{_sys.color.divider}"
+          }
+        },
+        "padding": {
+          "top-bottom": {
+            "default": {
+              "$type": "number",
+              "$value": "{_sys.number.space.xs}"
+            },
+            "condensed": {
+              "$type": "number",
+              "$value": "{_sys.number.space.2xs}"
+            }
+          },
+          "left-right": {
+            "$type": "number",
+            "$value": "{_sys.number.space.md}"
+          }
+        }
+      },
+      "border-radius": {
+        "none": {
+          "$type": "number",
+          "$value": "{_sys.number.border-radius.none}"
+        },
+        "rounded": {
+          "$type": "number",
+          "$value": "{_sys.number.border-radius.sm}"
+        }
+      }
+    }
+  }
+}

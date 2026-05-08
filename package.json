@@ -1,0 +1,66 @@
+{
+  "name": "@cruglobal/cornerstone-design-system",
+  "version": "0.1.0",
+  "description": "Design tokens and primitives for the Cornerstone Design System.",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CruGlobal/cornerstone-design-system.git"
+  },
+  "homepage": "https://github.com/CruGlobal/cornerstone-design-system#readme",
+  "type": "module",
+  "main": "./build/js/ref.cjs",
+  "types": "./build/js/ref.d.ts",
+  "sideEffects": [
+    "./build/css/*.css",
+    "./build/scss/*.scss"
+  ],
+  "exports": {
+    ".": {
+      "types": "./build/js/ref.d.ts",
+      "import": "./build/js/ref.mjs",
+      "require": "./build/js/ref.cjs"
+    },
+    "./tokens/*.json": "./tokens/*.json",
+    "./css/*": "./build/css/*.css",
+    "./scss/*": "./build/scss/*.scss",
+    "./js/*": {
+      "types": "./build/js/*.d.ts",
+      "import": "./build/js/*.mjs",
+      "require": "./build/js/*.cjs"
+    },
+    "./json/*": "./build/json/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "build/",
+    "tokens/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "lint": "eslint build.mjs scripts/",
+    "format": "prettier --write build.mjs scripts/",
+    "validate": "node scripts/validate-tokens.mjs",
+    "build": "node build.mjs",
+    "changeset": "changeset",
+    "version": "changeset version && npm run build",
+    "release": "changeset publish",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.5.0",
+    "@changesets/cli": "^2.27.9",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-import-x": "^4.16.2",
+    "globals": "^17.6.0",
+    "prettier": "^3.8.3",
+    "style-dictionary": "^4.0.0"
+  }
+}

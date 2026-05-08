@@ -1,0 +1,10 @@
+{
+  "_cmp": {
+    "paper": {
+      "surface": {
+        "$type": "color",
+        "$value": "{_sys.color.surface.default}"
+      }
+    }
+  }
+}
