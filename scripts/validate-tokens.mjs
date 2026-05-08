@@ -95,13 +95,13 @@ function validateLeaf(file, path, leaf, namespace, mergedMap) {
         err(
           file,
           path,
-          `E2 cmp may not alias other cmp tokens, got \`{${aliasPath}}\``
+          `E2 cmp may not alias other cmp tokens, got \`{${aliasPath}}\``,
         );
       } else if (aliasPath.startsWith('_ref.')) {
         warn(
           file,
           path,
-          `cmp aliases _ref directly (skipping _sys): \`{${aliasPath}}\``
+          `cmp aliases _ref directly (skipping _sys): \`{${aliasPath}}\``,
         );
       } else if (!aliasPath.startsWith('_sys.')) {
         err(file, path, `E2 cmp must alias _sys, got \`{${aliasPath}}\``);
@@ -113,7 +113,7 @@ function validateLeaf(file, path, leaf, namespace, mergedMap) {
       warn(
         file,
         path,
-        `W2 alias type mismatch: ${path} is ${$type} but target is ${target.$type}`
+        `W2 alias type mismatch: ${path} is ${$type} but target is ${target.$type}`,
       );
     }
     // W1 — cross-brand alias
@@ -127,7 +127,7 @@ function validateLeaf(file, path, leaf, namespace, mergedMap) {
           warn(
             file,
             path,
-            `W1 cross-brand alias: ${brand}-* mode aliases _ref.color.${refBrand}.*`
+            `W1 cross-brand alias: ${brand}-* mode aliases _ref.color.${refBrand}.*`,
           );
         }
       }
@@ -180,13 +180,13 @@ if (warnings.length) {
   console.error('\nWARNINGS:');
   for (const warning of warnings) {
     console.error(
-      `  ${rel(warning.file)}  ${warning.path}\n    ${warning.msg}`
+      `  ${rel(warning.file)}  ${warning.path}\n    ${warning.msg}`,
     );
   }
 }
 
 console.error(
-  `\n${errors.length} error${errors.length === 1 ? '' : 's'}, ${warnings.length} warning${warnings.length === 1 ? '' : 's'}`
+  `\n${errors.length} error${errors.length === 1 ? '' : 's'}, ${warnings.length} warning${warnings.length === 1 ? '' : 's'}`,
 );
 
 process.exit(errors.length > 0 ? 1 : 0);
