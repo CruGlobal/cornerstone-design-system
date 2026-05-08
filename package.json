@@ -45,7 +45,7 @@
   },
   "scripts": {
     "lint": "eslint build.mjs scripts/",
-    "format": "prettier --write build.mjs scripts/ tokens/",
+    "format": "prettier --write build.mjs scripts/",
     "validate": "node scripts/validate-tokens.mjs",
     "build": "node build.mjs",
     "changeset": "changeset",
