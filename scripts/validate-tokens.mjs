@@ -11,12 +11,6 @@ const TOKENS = join(ROOT, 'tokens');
 const HEX_RE = /^#[0-9a-fA-F]{3,8}$/;
 const RGB_RE = /^(rgb|rgba|hsl|hsla)\(/i;
 const ALIAS_RE = /^\{(.+)\}$/;
-const SHARED_REF_PREFIXES = [
-  // contrast and opacity ramps live per-brand under _ref.color.<brand>.contrast — those are safe.
-  // any non-color util namespace is also brand-agnostic.
-  '_ref.number.',
-  '_ref.string.font-family.system.',
-];
 
 const errors = [];
 const warnings = [];
@@ -47,13 +41,17 @@ function flatten(obj, prefix = '', out = {}) {
 }
 
 function resolveAlias(value) {
-  if (typeof value !== 'string') { return null; }
+  if (typeof value !== 'string') {
+    return null;
+  }
   const match = value.match(ALIAS_RE);
   return match ? match[1] : null;
 }
 
 function isRawColor(value) {
-  return typeof value === 'string' && (HEX_RE.test(value) || RGB_RE.test(value));
+  return (
+    typeof value === 'string' && (HEX_RE.test(value) || RGB_RE.test(value))
+  );
 }
 
 /**
@@ -66,15 +64,17 @@ function brandFromSysFile(file) {
 
 // Load ref + all sys + all cmp.
 const refMap = flatten(readJSON(join(TOKENS, 'ref.json')));
-const cmpFiles = readdirSync(join(TOKENS, 'cmp')).filter(filename => filename.endsWith('.json'))
-  .map(filename => join(TOKENS, 'cmp', filename));
+const cmpFiles = readdirSync(join(TOKENS, 'cmp'))
+  .filter((filename) => filename.endsWith('.json'))
+  .map((filename) => join(TOKENS, 'cmp', filename));
 const cmpMap = {};
 for (const cmpFile of cmpFiles) {
   Object.assign(cmpMap, flatten(readJSON(cmpFile)));
 }
 
-const sysFiles = readdirSync(join(TOKENS, 'sys')).filter(filename => filename.endsWith('.json'))
-  .map(filename => join(TOKENS, 'sys', filename));
+const sysFiles = readdirSync(join(TOKENS, 'sys'))
+  .filter((filename) => filename.endsWith('.json'))
+  .map((filename) => join(TOKENS, 'sys', filename));
 
 function validateLeaf(file, path, leaf, namespace, mergedMap) {
   const { $type, $value } = leaf;
@@ -92,9 +92,17 @@ function validateLeaf(file, path, leaf, namespace, mergedMap) {
     }
     if (namespace === '_cmp') {
       if (aliasPath.startsWith('_cmp.')) {
-        err(file, path, `E2 cmp may not alias other cmp tokens, got \`{${aliasPath}}\``);
+        err(
+          file,
+          path,
+          `E2 cmp may not alias other cmp tokens, got \`{${aliasPath}}\``
+        );
       } else if (aliasPath.startsWith('_ref.')) {
-        warn(file, path, `cmp aliases _ref directly (skipping _sys): \`{${aliasPath}}\``);
+        warn(
+          file,
+          path,
+          `cmp aliases _ref directly (skipping _sys): \`{${aliasPath}}\``
+        );
       } else if (!aliasPath.startsWith('_sys.')) {
         err(file, path, `E2 cmp must alias _sys, got \`{${aliasPath}}\``);
       }
@@ -102,7 +110,11 @@ function validateLeaf(file, path, leaf, namespace, mergedMap) {
     // W2 — alias type mismatch
     const target = mergedMap[aliasPath];
     if (target && target.$type !== $type) {
-      warn(file, path, `W2 alias type mismatch: ${path} is ${$type} but target is ${target.$type}`);
+      warn(
+        file,
+        path,
+        `W2 alias type mismatch: ${path} is ${$type} but target is ${target.$type}`
+      );
     }
     // W1 — cross-brand alias
     if (namespace === '_sys' && file.includes('/sys/')) {
@@ -112,7 +124,11 @@ function validateLeaf(file, path, leaf, namespace, mergedMap) {
         const refBrand = match[1];
         // Only warn when the alias explicitly names a different brand's color palette.
         if (refBrand !== brand) {
-          warn(file, path, `W1 cross-brand alias: ${brand}-* mode aliases _ref.color.${refBrand}.*`);
+          warn(
+            file,
+            path,
+            `W1 cross-brand alias: ${brand}-* mode aliases _ref.color.${refBrand}.*`
+          );
         }
       }
     }
@@ -163,10 +179,14 @@ if (errors.length) {
 if (warnings.length) {
   console.error('\nWARNINGS:');
   for (const warning of warnings) {
-    console.error(`  ${rel(warning.file)}  ${warning.path}\n    ${warning.msg}`);
+    console.error(
+      `  ${rel(warning.file)}  ${warning.path}\n    ${warning.msg}`
+    );
   }
 }
 
-console.error(`\n${errors.length} error${errors.length === 1 ? '' : 's'}, ${warnings.length} warning${warnings.length === 1 ? '' : 's'}`);
+console.error(
+  `\n${errors.length} error${errors.length === 1 ? '' : 's'}, ${warnings.length} warning${warnings.length === 1 ? '' : 's'}`
+);
 
 process.exit(errors.length > 0 ? 1 : 0);

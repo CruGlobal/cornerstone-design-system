@@ -37,27 +37,38 @@ function flatten(obj, prefix = '', out = {}) {
 export function subtreeKey(file, leafPath) {
   const segs = leafPath.split('.');
   if (file.endsWith('/ref.json') || basename(file) === 'ref.json') {
-    if (segs[0] !== '_ref') { return null; }
+    if (segs[0] !== '_ref') {
+      return null;
+    }
     switch (segs[1]) {
-      case 'color': return `ref/color/${segs[2]}`;
-      case 'number': return 'ref/number';
-      case 'string': return 'ref/string';
-      default: return null;
+      case 'color':
+        return `ref/color/${segs[2]}`;
+      case 'number':
+        return 'ref/number';
+      case 'string':
+        return 'ref/string';
+      default:
+        return null;
     }
   }
   if (file.includes('/sys/')) {
-    if (segs[0] !== '_sys') { return null; }
+    if (segs[0] !== '_sys') {
+      return null;
+    }
     const mode = basename(file, '.json');
     switch (segs[1]) {
       case 'color':
       case 'number':
       case 'string':
         return `sys/${segs[1]}/${mode}`;
-      default: return null;
+      default:
+        return null;
     }
   }
   if (file.includes('/cmp/')) {
-    if (segs[0] !== '_cmp') { return null; }
+    if (segs[0] !== '_cmp') {
+      return null;
+    }
     return `cmp/${basename(file, '.json')}`;
   }
   return null;
@@ -77,8 +88,10 @@ function hashFileIntoMap(file, push) {
 }
 
 function hashDirIntoMap(dir, push) {
-  if (!existsSync(dir)) { return; }
-  for (const filename of readdirSync(dir).filter(f => f.endsWith('.json'))) {
+  if (!existsSync(dir)) {
+    return;
+  }
+  for (const filename of readdirSync(dir).filter((f) => f.endsWith('.json'))) {
     hashFileIntoMap(join(dir, filename), push);
   }
 }
@@ -87,12 +100,16 @@ export function subtreeHashesFromFiles(tokensDir) {
   // bucket: subtreeKey -> array of leaf records (we'll sort + hash at the end)
   const buckets = {};
   const push = (key, rec) => {
-    if (!key) { return; }
+    if (!key) {
+      return;
+    }
     (buckets[key] ||= []).push(rec);
   };
 
   const refFile = join(tokensDir, 'ref.json');
-  if (existsSync(refFile)) { hashFileIntoMap(refFile, push); }
+  if (existsSync(refFile)) {
+    hashFileIntoMap(refFile, push);
+  }
 
   hashDirIntoMap(join(tokensDir, 'sys'), push);
   hashDirIntoMap(join(tokensDir, 'cmp'), push);
