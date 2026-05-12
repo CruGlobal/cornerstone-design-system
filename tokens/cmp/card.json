@@ -3,76 +3,157 @@
     "card": {
       "color": {
         "surface": {
-          "primary": { "$type": "color", "$value": "{_sys.color.surface.default}" }
+          "primary": {
+            "$type": "color",
+            "$value": "{_sys.color.surface.default}"
+          }
         },
         "shadow": {
-          "primary": { "$type": "color", "$value": "{_sys.color.primary.default}" }
+          "primary": {
+            "$type": "color",
+            "$value": "{_sys.color.primary.default}"
+          }
         }
       },
       "media": {
         "contained": {
           "padding": {
-            "top-bottom": { "$type": "number", "$value": "{_sys.number.space.lg}" },
-            "left-right": { "$type": "number", "$value": "{_sys.number.space.lg}" }
+            "top-bottom": {
+              "$type": "number",
+              "$value": "{_sys.number.space.lg}"
+            },
+            "left-right": {
+              "$type": "number",
+              "$value": "{_sys.number.space.lg}"
+            }
           }
         },
         "full-bleed": {
           "padding": {
-            "top-bottom": { "$type": "number", "$value": "{_sys.number.space.none}" },
-            "left-right": { "$type": "number", "$value": "{_sys.number.space.none}" }
+            "top-bottom": {
+              "$type": "number",
+              "$value": "{_sys.number.space.none}"
+            },
+            "left-right": {
+              "$type": "number",
+              "$value": "{_sys.number.space.none}"
+            }
           }
         }
       },
       "content": {
         "border-radius": {
-          "none": { "$type": "number", "$value": "{_sys.number.border-radius.none}" },
-          "rounded": { "$type": "number", "$value": "{_sys.number.border-radius.lg}" }
+          "none": {
+            "$type": "number",
+            "$value": "{_sys.number.border-radius.none}"
+          },
+          "rounded": {
+            "$type": "number",
+            "$value": "{_sys.number.border-radius.lg}"
+          }
         },
         "padding": {
-          "top-bottom": { "$type": "number", "$value": "{_sys.number.space.2xl}" },
-          "left-right": { "$type": "number", "$value": "{_sys.number.space.lg}" }
+          "top-bottom": {
+            "$type": "number",
+            "$value": "{_sys.number.space.2xl}"
+          },
+          "left-right": {
+            "$type": "number",
+            "$value": "{_sys.number.space.lg}"
+          }
         },
         "header": {
           "padding": {
-            "top": { "$type": "number", "$value": "{_sys.number.space.none}" },
-            "left-right": { "$type": "number", "$value": "{_sys.number.space.none}" },
-            "bottom": { "$type": "number", "$value": "{_sys.number.space.xl}" }
+            "top": {
+              "$type": "number",
+              "$value": "{_sys.number.space.none}"
+            },
+            "left-right": {
+              "$type": "number",
+              "$value": "{_sys.number.space.none}"
+            },
+            "bottom": {
+              "$type": "number",
+              "$value": "{_sys.number.space.xl}"
+            }
           },
           "gap": {
-            "vertical": { "$type": "number", "$value": "{_sys.number.space.md}" }
+            "vertical": {
+              "$type": "number",
+              "$value": "{_sys.number.space.md}"
+            }
           },
           "color": {
             "text": {
-              "primary": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
-              "secondary": { "$type": "color", "$value": "{_sys.color.surface.on-surface-variant}" },
-              "on-media": { "$type": "color", "$value": "{_sys.color.inverse-primary}" },
-              "on-media-secondary": { "$type": "color", "$value": "{_sys.color.surface.inverse-on-surface}" }
+              "primary": {
+                "$type": "color",
+                "$value": "{_sys.color.on-surface}"
+              },
+              "secondary": {
+                "$type": "color",
+                "$value": "{_sys.color.on-surface-variant}"
+              },
+              "on-media": {
+                "$type": "color",
+                "$value": "{_sys.color.inverse-primary}"
+              },
+              "on-media-secondary": {
+                "$type": "color",
+                "$value": "{_sys.color.surface.inverse-on-surface}"
+              }
             }
           }
         },
         "body": {
           "padding": {
-            "top-bottom": { "$type": "number", "$value": "{_sys.number.space.none}" },
-            "left-right": { "$type": "number", "$value": "{_sys.number.space.none}" }
+            "top-bottom": {
+              "$type": "number",
+              "$value": "{_sys.number.space.none}"
+            },
+            "left-right": {
+              "$type": "number",
+              "$value": "{_sys.number.space.none}"
+            }
           },
           "color": {
             "text": {
-              "primary": { "$type": "color", "$value": "{_sys.color.surface.on-surface}" },
-              "on-media": { "$type": "color", "$value": "{_sys.color.surface.inverse-on-surface}" }
+              "primary": {
+                "$type": "color",
+                "$value": "{_sys.color.on-surface}"
+              },
+              "on-media": {
+                "$type": "color",
+                "$value": "{_sys.color.surface.inverse-on-surface}"
+              }
             }
           }
         },
         "actions": {
           "padding": {
-            "top": { "$type": "number", "$value": "{_sys.number.space.xl}" },
-            "left-right": { "$type": "number", "$value": "{_sys.number.space.none}" },
-            "bottom": { "$type": "number", "$value": "{_sys.number.space.none}" }
+            "top": {
+              "$type": "number",
+              "$value": "{_sys.number.space.xl}"
+            },
+            "left-right": {
+              "$type": "number",
+              "$value": "{_sys.number.space.none}"
+            },
+            "bottom": {
+              "$type": "number",
+              "$value": "{_sys.number.space.none}"
+            }
           },
           "horizontal": {
-            "gap": { "$type": "number", "$value": "{_sys.number.space.md}" }
+            "gap": {
+              "$type": "number",
+              "$value": "{_sys.number.space.md}"
+            }
           },
           "vertical": {
-            "gap": { "$type": "number", "$value": "{_sys.number.space.md}" }
+            "gap": {
+              "$type": "number",
+              "$value": "{_sys.number.space.md}"
+            }
           }
         }
       }
