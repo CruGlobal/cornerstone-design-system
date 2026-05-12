@@ -201,7 +201,7 @@
       },
       "inverse-primary": {
         "$type": "color",
-        "$value": "{_ref.color.fl.dark-green.500}"
+        "$value": "{_ref.color.fl.dark-green.700}"
       },
       "on-surface": {
         "$type": "color",
