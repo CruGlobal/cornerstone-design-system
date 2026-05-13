@@ -24,9 +24,7 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
           registry-url: https://registry.npmjs.org
-      # Trusted Publishing requires npm CLI >= 11.5.1; node 22 ships an older npm,
-      # so upgrade explicitly before any npm ci/publish.
-      - run: npm install -g npm@latest
+      - run: npm install -g npm@11.5.1
       - run: npm ci
       - run: npm run validate
       - run: npm run build
