@@ -1,6 +1,6 @@
 {
   "name": "@cruglobal/cornerstone-design-system",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Design tokens and primitives for the Cornerstone Design System.",
   "license": "BSD-3-Clause",
   "repository": {
