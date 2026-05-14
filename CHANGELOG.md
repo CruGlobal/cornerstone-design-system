@@ -1,5 +1,11 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.2.1
+
+### Patch Changes
+
+- [#30](https://github.com/CruGlobal/cornerstone-design-system/pull/30) [`93b8adc`](https://github.com/CruGlobal/cornerstone-design-system/commit/93b8adcef838f6c033ad2b98ac846697e33dce54) Thanks [@rguinee](https://github.com/rguinee)! - Fix version script to update package-lock.json after changeset version bump.
+
 ## 0.2.0
 
 ### Minor Changes
