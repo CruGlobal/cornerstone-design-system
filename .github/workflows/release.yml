@@ -23,7 +23,6 @@ jobs:
         with:
           node-version-file: .tool-versions
           cache: npm
-          registry-url: https://registry.npmjs.org
       - run: npm install -g npm@11.5.1
       - run: npm ci
       - run: npm run validate
@@ -36,4 +35,3 @@ jobs:
           title: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
