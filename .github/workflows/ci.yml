@@ -38,7 +38,12 @@ jobs:
 
   changeset:
     name: Changeset present
-    if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'
+    # Skip the changeset gate for automated maintenance PRs (e.g. Dependabot)
+    # and the Changesets release PR — none of these touch the token API.
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.head_ref != 'changeset-release/main' &&
+      !startsWith(github.head_ref, 'dependabot/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
