@@ -1,5 +1,11 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.3.0
+
+### Minor Changes
+
+- [#35](https://github.com/CruGlobal/cornerstone-design-system/pull/35) [`a8a42b7`](https://github.com/CruGlobal/cornerstone-design-system/commit/a8a42b7d1d39e5a47b785e5a774d7dd22b751ac9) Thanks [@rguinee](https://github.com/rguinee)! - Add DaisyUI theme overrides for `cru-light` and `cru-dark` in `libraries/daisyui.css`
+
 ## 0.2.1
 
 ### Patch Changes
