@@ -23,7 +23,8 @@ jobs:
         with:
           node-version-file: .tool-versions
           cache: npm
-      - run: npm install -g npm@11.5.1
+      - run: npm install -g npm@latest
+      - run: node -v && npm -v
       - run: npm ci
       - run: npm run validate
       - run: npm run build
