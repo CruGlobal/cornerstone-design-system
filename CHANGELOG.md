@@ -1,5 +1,11 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.3.1
+
+### Patch Changes
+
+- [#38](https://github.com/CruGlobal/cornerstone-design-system/pull/38) [`b9f3dc8`](https://github.com/CruGlobal/cornerstone-design-system/commit/b9f3dc874c291e54a1ae7ffaf7c933c486138a75) Thanks [@rguinee](https://github.com/rguinee)! - Fix the release pipeline so the package publishes via npm trusted publishing (OIDC). The previous version was versioned but never published because the publish step failed authentication and an empty changeset then blocked the retry. This patch routes the release through the normal changesets flow.
+
 ## 0.3.0
 
 ### Minor Changes
