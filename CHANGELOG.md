@@ -1,5 +1,11 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.3.2
+
+### Patch Changes
+
+- [#40](https://github.com/CruGlobal/cornerstone-design-system/pull/40) [`6f78634`](https://github.com/CruGlobal/cornerstone-design-system/commit/6f786348014a21167afc70ec36feec63be5af45f) Thanks [@rguinee](https://github.com/rguinee)! - Upgrade the npm CLI used in the release workflow from the pinned 11.5.1 to the latest release. npm 11.5.1 is the GA-boundary version with known OIDC trusted-publishing bugs that surface as a misleading `ENEEDAUTH` error during publish; upgrading resolves the authentication failure so the package can publish via trusted publishing.
+
 ## 0.3.1
 
 ### Patch Changes
