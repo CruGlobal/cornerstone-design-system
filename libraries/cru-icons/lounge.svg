@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <polyline points="99.54 131.59 185.21 131.59 185.21 73.32 162.36 73.32" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <polyline points="99.54 106.84 160.17 106.84 160.17 39.78 99.54 39.78" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <line x1="99.54" y1="85.1" x2="162.8" y2="85.1" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <polyline points="100.13 131.59 14.79 131.59 14.79 73.32 37.31 73.32" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M36.87,85.1h63.26s0,23.5,0,21.74h-60.3V39.78h60.3" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <line x1="157.48" y1="129.89" x2="165.95" y2="165.16" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <line x1="42.19" y1="129.89" x2="34.42" y2="165.16" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+</svg>

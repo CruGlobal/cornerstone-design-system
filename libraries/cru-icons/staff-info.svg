@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g>
+    <path d="M178.77,54.67v90.67H21.23V54.67h157.55M191.4,42.04H8.6v115.93h182.81V42.04h0Z"/>
+    <line x1="18.57" y1="73.21" x2="182.29" y2="73.21" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.63"/>
+    <line x1="108.37" y1="102.41" x2="162.48" y2="102.41" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.28"/>
+    <line x1="108.44" y1="122.89" x2="162.3" y2="122.89" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.63"/>
+  </g>
+  <g>
+    <circle cx="60.78" cy="105.5" r="15.25" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="13.55"/>
+    <path d="M61.44,121.05c-1.55,0-27.77-.5-27.77,27.9" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="13.55"/>
+    <path d="M60.46,121.05c1.55,0,27.77-.5,27.77,27.9" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="13.55"/>
+    <rect x="52.24" y="133.1" width="17.14" height="15.85"/>
+  </g>
+  <line x1="53.32" y1="122.94" x2="60.49" y2="136.32" stroke="#000" stroke-miterlimit="10" stroke-width="5"/>
+  <line x1="67.28" y1="122.94" x2="60.46" y2="136.5" stroke="#000" stroke-miterlimit="10" stroke-width="5"/>
+</svg>
