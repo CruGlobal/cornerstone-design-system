@@ -1,5 +1,11 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.4.0
+
+### Minor Changes
+
+- [#43](https://github.com/CruGlobal/cornerstone-design-system/pull/43) [`ba80ca4`](https://github.com/CruGlobal/cornerstone-design-system/commit/ba80ca44719318a2af015502c7cc5791613f3455) Thanks [@rguinee](https://github.com/rguinee)! - Add Cru ministry icon library, `/onboard` and `/design-review` Claude commands, and improved consumer-facing README documentation.
+
 ## 0.3.2
 
 ### Patch Changes
