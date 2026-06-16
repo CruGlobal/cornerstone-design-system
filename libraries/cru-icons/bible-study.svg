@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <circle cx="131.69" cy="95.86" r="16.08" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M132.85,115.07c-1.63,0-29.28-3.2-29.28,52.57" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M132.6,115.07c1.42,0,22.53-2.43,28,33.66" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <circle cx="68.56" cy="95.86" r="16.08" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M69.72,115.07c-1.42,0-22.54-2.43-28,33.68" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M69.48,115.07c1.63,0,29.28-3.2,29.28,52.57" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <circle cx="99.4" cy="43.18" r="16.08" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M100.56,62.39c-1.41,0-22.15-.4-27.85,18.68" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M99.54,62.39c1.4,0,21.83-.39,27.71,18.25" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <line x1="17.26" y1="172.9" x2="182.74" y2="172.9" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M182.58,147.9s-50.5-.67-82.59,25" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M17.66,147.9s50.5-.67,82.59,25" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+</svg>

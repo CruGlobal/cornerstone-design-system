@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <circle cx="62.28" cy="126.8" r="17.21" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M63.52,147.36c-1.75,0-31.35-.57-31.35,31.49" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M62.42,147.36c1.75,0,31.35-.57,31.35,31.49" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <circle cx="131.55" cy="126.8" r="17.21" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M132.79,147.36c-1.75,0-31.35-.57-31.35,31.49" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M131.69,147.36c1.75,0,31.35-.57,31.35,31.49" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <polygon points="94.85 80.53 94.85 101.79 124.49 80.53 161.4 80.53 161.4 26.53 81.52 26.53 81.52 80.53 94.85 80.53" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+</svg>

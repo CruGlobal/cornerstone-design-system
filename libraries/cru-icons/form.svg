@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <line x1="74.54" y1="111.01" x2="133.15" y2="111.01" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <line x1="74.54" y1="58" x2="133.15" y2="58" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <line x1="74.54" y1="84.51" x2="133.15" y2="84.51" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <polygon points="33.84 76.24 50.2 72.22 58.31 105.28 53.26 119.25 41.92 109.12 33.84 76.24"/>
+  <path d="M48.51,66.11s-1.16-9.86-10.38-7.6c-9.22,2.26-5.68,11.54-5.68,11.54l16.05-3.94Z"/>
+  <line x1="76.77" y1="144.28" x2="131.67" y2="144.28" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <line x1="51.58" y1="127.83" x2="51.65" y2="143.66" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M147.87,165.28c-12.65-3.53-13.34-21.21-13.34-21.21H28.38s1.59,28.9,28.01,28.9h67.86c19.26,0,35.02-15.73,35.02-34.96V26.97H51.11l.09,23.07" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+</svg>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <path d="M178.77,54.67v90.67H21.23V54.67h157.55M191.4,42.04H8.6v115.93h182.81V42.04h0Z"/>
+  <line x1="18.57" y1="73.21" x2="182.29" y2="73.21" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.63"/>
+  <circle cx="62.15" cy="108.68" r="16.69" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.63"/>
+  <path d="M63.36,128.63c-1.46,0-23.01-.41-28.92,19.4" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.63"/>
+  <path d="M62.29,128.63c1.45,0,22.67-.4,28.78,18.95" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.63"/>
+  <line x1="108.37" y1="102.41" x2="162.48" y2="102.41" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.28"/>
+  <line x1="108.44" y1="122.89" x2="162.3" y2="122.89" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.63"/>
+</svg>

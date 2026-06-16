@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <ellipse cx="99.92" cy="122.83" rx="23.25" ry="23.05" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M97.88,150.38c-2.04,0-28.32-.57-36.56,26.8" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <path d="M96.39,150.38c2.02,0,35.3-.56,43.81,26.17" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <polyline points="121.75 129.01 144.13 129.01 144.13 26.9 55.87 26.9 55.87 129.14 74.86 129.14" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <line x1="74.4" y1="51.52" x2="125.33" y2="51.52" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  <line x1="74.29" y1="76.63" x2="125.2" y2="76.63" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+</svg>

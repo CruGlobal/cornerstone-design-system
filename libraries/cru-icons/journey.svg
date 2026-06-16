@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <polygon points="156.12 154.92 175.95 167.74 156.12 179.46 156.12 154.92"/>
+  <line x1="52.19" y1="166.88" x2="157.04" y2="166.88" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="13"/>
+  <polyline points="147.68 99.23 32.45 99.23 32.45 145.89" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="13"/>
+  <polyline points="52.17 32.92 167.37 32.92 167.37 79.1" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="13"/>
+  <ellipse cx="32.57" cy="32.8" rx="11.65" ry="11.87"/>
+  <ellipse cx="32.47" cy="167.06" rx="11.65" ry="11.87"/>
+  <ellipse cx="167.45" cy="98.88" rx="11.65" ry="11.87"/>
+</svg>

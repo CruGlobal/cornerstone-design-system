@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g>
+    <line x1="64.87" y1="20.45" x2="92.46" y2="68.74" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.15"/>
+    <line x1="96.95" y1="12.67" x2="92.08" y2="68.82" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12.15"/>
+    <path d="M117.96,60.25l-51.75,11.34,16.84,76.8,51.75-11.34-16.84-76.8ZM82.92,91.01l-1.96-8.96,27.44-6.02,1.96,8.96-27.44,6.02Z"/>
+  </g>
+  <ellipse cx="100" cy="100" rx="84.61" ry="84.8" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="13"/>
+</svg>

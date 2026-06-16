@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g>
+    <rect x="78.54" y="85.74" width="22.99" height="23.03" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="8"/>
+    <rect x="115.12" y="85.74" width="22.99" height="23.03" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="8"/>
+    <rect x="78.54" y="49.44" width="22.99" height="23.03" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="8"/>
+    <rect x="115.12" y="49.44" width="22.99" height="23.03" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="8"/>
+  </g>
+  <g>
+    <line x1="80.07" y1="144.47" x2="134.97" y2="144.47" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+    <path d="M151.18,165.47c-12.65-3.53-13.34-21.21-13.34-21.21H31.69s1.59,28.9,28.01,28.9h67.86c19.26,0,35.02-15.73,35.02-34.96V27.17H54.41l.54,116.69" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="12"/>
+  </g>
+</svg>
