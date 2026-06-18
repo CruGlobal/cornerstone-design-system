@@ -1,5 +1,11 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.4.1
+
+### Patch Changes
+
+- [#45](https://github.com/CruGlobal/cornerstone-design-system/pull/45) [`899379d`](https://github.com/CruGlobal/cornerstone-design-system/commit/899379d873ddf853fdb5af50bca2a7422cc41ccd) Thanks [@rguinee](https://github.com/rguinee)! - Add a Claude Code plugin (`cornerstone@cru`) bundling the `/onboard` and `/design-review` commands, distributed via the `cru` plugin marketplace. Consumers install it with `/plugin marketplace add CruGlobal/cornerstone-design-system` then `/plugin install cornerstone@cru`.
+
 ## 0.4.0
 
 ### Minor Changes
