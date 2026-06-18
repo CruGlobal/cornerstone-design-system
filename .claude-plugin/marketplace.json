@@ -1,0 +1,15 @@
+{
+  "name": "cru",
+  "description": "Cru's catalog of Claude Code plugins, including the Cornerstone Design System.",
+  "owner": {
+    "name": "Cru Global",
+    "url": "https://github.com/CruGlobal"
+  },
+  "plugins": [
+    {
+      "name": "cornerstone",
+      "source": "./plugins/cornerstone",
+      "description": "Onboarding and design-review commands for the Cru Cornerstone Design System."
+    }
+  ]
+}

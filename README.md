@@ -112,9 +112,19 @@ import bibleStudyIcon from '@cruglobal/cornerstone-design-system/libraries/cru-i
 
 ## Get set up faster with Claude Code
 
-If you're using [Claude Code](https://claude.ai/code), run `/onboard` from within your project to get personalized setup instructions for your framework and build tooling. Run `/design-review` to audit any UI against Cornerstone standards and UX heuristics.
+If you're using [Claude Code](https://claude.ai/code), Cornerstone ships a plugin with two commands. Install it once:
 
-> **Note:** `/pull-tokens` is an internal command for syncing tokens from Figma into this repository. It is not needed when consuming Cornerstone in your project.
+```sh
+/plugin marketplace add CruGlobal/cornerstone-design-system
+/plugin install cornerstone@cru
+```
+
+Then, from within your project:
+
+- `/onboard` — personalized setup instructions for your framework and build tooling.
+- `/design-review` — audit any UI against Cornerstone token standards, Nielsen's usability heuristics, and WCAG 2.2 AA.
+
+> **Note:** `/pull-tokens` is an internal command for syncing tokens from Figma into this repository. It is not part of the consumer plugin.
 
 ---
 

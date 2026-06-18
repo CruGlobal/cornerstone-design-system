@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "cornerstone",
+  "displayName": "Cornerstone Design System",
+  "version": "0.1.0",
+  "description": "Onboarding and design-review commands for the Cru Cornerstone Design System.",
+  "author": {
+    "name": "Cru Global",
+    "url": "https://github.com/CruGlobal"
+  },
+  "homepage": "https://github.com/CruGlobal/cornerstone-design-system#readme",
+  "repository": "https://github.com/CruGlobal/cornerstone-design-system",
+  "license": "BSD-3-Clause",
+  "keywords": ["design-system", "design-tokens", "cru", "cornerstone"]
+}
