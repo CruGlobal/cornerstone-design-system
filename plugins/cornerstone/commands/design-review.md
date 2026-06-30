@@ -1,46 +1,85 @@
 ---
-description: Audit UI against Cornerstone design standards and UX heuristics.
+description: Audit UI against Cornerstone design standards and UX heuristics — configurable passes, scope, output, and severity.
 allowed-tools:
   - Read
+  - Glob
+  - Write
   - Bash(find:*)
   - Bash(grep:*)
   - Bash(ls:*)
+  - Bash(git status:*)
+  - Bash(git diff:*)
+  - Bash(bin/rails ui_audit:*)
+  - Bash(bundle exec rails ui_audit:*)
+  - Bash(mise exec*)
   - mcp__plugin_figma_figma__get_screenshot
   - mcp__plugin_figma_figma__get_design_context
 ---
 
 # Design Review
 
-Goal: produce a structured audit of the provided UI against three frameworks — Cornerstone token compliance, Nielsen's 10 usability heuristics, and WCAG 2.2 AA accessibility guidelines — with actionable, prioritized findings.
+Goal: produce a structured audit of the provided UI against three frameworks — Cornerstone token
+compliance, Nielsen's 10 usability heuristics, and WCAG 2.2 AA accessibility — with actionable,
+prioritized findings.
 
-## What to accept as input (`$ARGUMENTS`)
+The review is **configurable** via the flags below: pick which passes run, what to review, how the
+findings are delivered, and the minimum severity to surface. Defaults reproduce the classic
+full-report behavior, so `/design-review <path>` with no flags Just Works.
 
-Accept any of the following; adapt gracefully if multiple are provided:
+## Options (`$ARGUMENTS`)
 
-- **File path(s)**: One or more component files (HTML, JSX, TSX, ERB, PHP, CSS, SCSS). Read them directly.
-- **Directory or repo path**: A folder. Glob it for UI files (HTML, JSX, TSX, ERB, PHP, CSS, SCSS) and review the set. For a large repo, scope to the most relevant components and state which files you covered.
-- **Figma URL**: A `figma.com` frame or component URL. Use `get_screenshot` and `get_design_context` to inspect it visually.
-- **Screenshot path**: A local image path. Read it as an image.
-- **Description**: A written description of the UI if no artifact is provided. Ask a brief clarifying question if critical details are missing (e.g. brand, interaction state, target user).
-- **No argument**: Ask the user what they'd like reviewed before proceeding.
+`$ARGUMENTS` may contain an **artifact reference** (a path, Figma URL, or screenshot path) and/or any
+of the flags below. Parse the flags, apply the defaults shown for anything omitted, and only ask the
+user when a default genuinely can't be inferred.
 
-## Step 1 — Gather context
+| Flag | Values | Default | Effect |
+| --- | --- | --- | --- |
+| `--passes` | `tokens`, `heuristics`, `wcag`, `all` (comma-separated) | `all` | Which Step 2 review passes to run. |
+| `--scope` | `diff`, a path/glob, a Figma URL, or a screenshot path | inferred (see below) | What to review. |
+| `--output` | `report`, `overlay`, `apply` | `report` | What to do with the findings (Step 3). |
+| `--severity` | `blocker`, `major`, `minor`, `suggestion` | `suggestion` | Minimum severity to report; lower-ranked findings are dropped. |
 
-Before reviewing, collect:
+**Scope inference when `--scope` is omitted:** if the arguments contain a path / Figma URL /
+screenshot, review that. Otherwise, if the working directory is a git repo with uncommitted UI
+changes, default to `diff`. Otherwise ask the user what to review before proceeding.
 
-1. **The UI artifact** — read any provided files or fetch any Figma/image content.
-2. **The token reference** — grep for CSS custom property usage (`var(--`) in the provided files and note which tokens are used, if any.
-3. **The brand/theme** — infer from `data-brand` / `data-theme` attributes, filename conventions (`cru-`, `fl-`), or ask if unclear.
+Severity ordering (high → low): `blocker` > `major` > `minor` > `suggestion`.
 
-Do not make assumptions about correctness before examining the artifact.
+## Step 1 — Resolve scope & gather context
 
-## Step 2 — Run three review passes
+Resolve the artifact set from `--scope` (or the inference above), then collect context. Do not make
+assumptions about correctness before examining the artifact.
 
-Work through each pass in order. Document findings as you go — do not summarize until all three passes are complete.
+**By scope kind:**
+
+- **`diff`** — run `git status --short` + `git diff` and collect changed UI files
+  (`*.html.erb`, `*.jsx`, `*.tsx`, `*.vue`, `*.php`, `*.css`, `*.scss`). For Rails ERB views, map each
+  changed `app/views/**/<controller>/<action>.html.erb` to its `controller#action`. If no UI files
+  changed, say so and stop.
+- **File path(s)** — one or more component files. Read them directly.
+- **Directory or repo path** — glob it for UI files and review the set. For a large repo, scope to the
+  most relevant components and state which files you covered.
+- **Figma URL** — a `figma.com` frame or component URL. Use `get_screenshot` and `get_design_context`
+  to inspect it visually.
+- **Screenshot path** — a local image path. Read it as an image.
+- **No artifact and not a git repo** — ask the user what they'd like reviewed.
+
+**Then collect, for every scope:**
+
+1. **The token reference** — grep for CSS custom property usage (`var(--`) in the files and note which
+   tokens are used, if any.
+2. **The brand/theme** — infer from `data-brand` / `data-theme` attributes, filename conventions
+   (`cru-`, `fl-`), or ask if unclear.
+
+## Step 2 — Run the selected review passes
+
+Run **only** the passes named in `--passes` (default `all`), in the order below. Document findings as
+you go — do not summarize until every selected pass is complete. Tag each finding with a severity
+(`blocker` / `major` / `minor` / `suggestion`) so Step 3 can filter it.
 
 ---
 
-### Pass 1: Cornerstone Token Compliance
+### Pass 1: Cornerstone Token Compliance — run when `--passes` includes `tokens` (or `all`)
 
 Check whether the UI is using the design system correctly.
 
@@ -67,7 +106,7 @@ Severity scale for this pass:
 
 ---
 
-### Pass 2: Nielsen's 10 Usability Heuristics
+### Pass 2: Nielsen's 10 Usability Heuristics — run when `--passes` includes `heuristics` (or `all`)
 
 Evaluate the UI against each heuristic. Only report heuristics where there is a real finding — do not force a finding for each.
 
@@ -92,7 +131,7 @@ Severity scale for this pass:
 
 ---
 
-### Pass 3: WCAG 2.2 AA Accessibility
+### Pass 3: WCAG 2.2 AA Accessibility — run when `--passes` includes `wcag` (or `all`)
 
 Assess against the four WCAG principles: Perceivable, Operable, Understandable, Robust.
 
@@ -120,9 +159,15 @@ Severity scale for this pass:
 
 ---
 
-## Step 3 — Output the report
+## Step 3 — Filter by severity, then deliver
 
-Format the findings as a structured report. Omit sections that have zero findings.
+First, **drop every finding ranked below `--severity`** (default `suggestion` keeps everything). Then
+deliver according to `--output`.
+
+### `--output report` (default) — structured report
+
+Format the surviving findings as a structured report. Omit sections (and severity buckets) that have
+zero findings, and omit passes that weren't run.
 
 ```
 ## Design Review: <component or screen name>
@@ -169,9 +214,61 @@ Format the findings as a structured report. Omit sections that have zero finding
 - <positive observations — reinforce good patterns>
 ```
 
+### `--output overlay` — sync findings into the in-app audit overlay
+
+Push the findings into a project's in-app design-audit overlay so each one shows up on the actual
+screen, instead of (or in addition to) printing a report. **This mode is capability-gated and only
+applies to rendered Rails/ERB views** — it needs each finding mapped to a `controller#action` and a
+DOM selector.
+
+1. **Detect the capability.** Check for the sync task:
+   `ls lib/tasks/ui_audit.rake` (or `<rails> -T ui_audit`). If it's absent, tell the user this project
+   has no audit-overlay sync wired up and fall back to `--output report`. If the scope produced no
+   `controller#action`-mapped views (e.g. a Figma URL or React files), also fall back to `report`.
+2. **Shape the payload.** Build a JSON object the `ui_audit:add` task understands:
+
+   ```json
+   {
+     "source": "cornerstone-design-review",
+     "reviewed": ["roles#index", "roles#edit"],
+     "findings": [
+       { "controller_action": "roles#index", "selector": ".page-header .btn-primary",
+         "severity": "major", "message": "Hardcoded #1a73e8 — use var(--sys-color-primary)." }
+     ]
+   }
+   ```
+
+   - `source` — keep it stable (`cornerstone-design-review`) so a re-run self-heals **only** its own
+     findings and leaves findings from other sources on the same view intact.
+   - `reviewed` — every `controller#action` you examined, so fixed findings drop out on the next run.
+   - `selector` — a best-effort CSS selector for the offending element on the rendered page (an id, a
+     unique class, or a representative selector derived from the ERB).
+   - `severity` / `message` — the finding's severity and a concise "problem → fix" message.
+3. **Sync.** Write the payload to `tmp/ui_audit_payload.json` and run (use the project's usual Rails
+   invocation):
+
+   ```
+   bin/rails "ui_audit:add[tmp/ui_audit_payload.json]"
+   ```
+
+   This replaces this source's findings for each reviewed `controller#action` in
+   `docs/ui_audit_findings.json` (read by the overlay), so the toggle reflects it immediately.
+4. **Confirm & report.** Run `<rails> ui_audit:list` to confirm the per-view counts, show the merged
+   findings table (view · severity · fix), and remind the developer to open a flagged page and click
+   **⚑ Audit** (bottom-right) to see the findings in place. This mode reviews + visualizes; it does
+   **not** edit app code.
+
+### `--output apply` — apply the fixes
+
+Only valid when the scope is local source files (not Figma/screenshot). Apply the surviving findings'
+fixes directly — primarily the unambiguous Cornerstone token swaps, plus any other safe, mechanical
+corrections (missing `alt`, `aria-label`, label associations). Leave judgment-heavy heuristic findings
+as report notes rather than guessing. Afterward, show a short diff summary and offer to re-run the
+review (`--output report`) to confirm the fixes resolved the findings.
+
 ## Step 4 — Offer next steps
 
-After the report, offer:
-1. Apply the Cornerstone token fixes directly to the provided files (if code was supplied)
-2. Generate a corrected version of a specific section
-3. Re-run the review after fixes are applied
+After delivering, offer the follow-ups that fit the output mode used:
+1. Apply the Cornerstone token fixes directly to the provided files (if code was supplied and you ran `report`).
+2. Generate a corrected version of a specific section.
+3. Re-run the review after fixes are applied — or re-run scoped to a single pass (e.g. `--passes wcag`).
