@@ -1,8 +1,8 @@
 ---
-"@cruglobal/cornerstone-design-system": major
+"@cruglobal/cornerstone-design-system": minor
 ---
 
-**BREAKING:** restructure `_sys.color` surface and state tokens, flattening the nested `surface.*` group and removing the `surface-container.*` ramp. Syncs the MOA design-system work from Figma. The following 19 `_sys` tokens are **removed in all four modes** (`cru-light`, `cru-dark`, `fl-light`, `fl-dark`):
+**BREAKING CHANGE (shipped as `minor` — this package is still pre-1.0, where semver permits breaking changes in a minor release).** Restructure `_sys.color` surface and state tokens, flattening the nested `surface.*` group and removing the `surface-container.*` ramp. Syncs the MOA design-system work from Figma. The following 19 `_sys` tokens are **removed in all four modes** (`cru-light`, `cru-dark`, `fl-light`, `fl-dark`):
 
 | Removed | Replacement |
 | --- | --- |
