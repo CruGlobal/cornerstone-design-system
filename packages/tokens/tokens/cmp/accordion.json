@@ -1,19 +1,41 @@
 {
   "_cmp": {
     "accordion": {
-      "text": {
+      "tab": {
+        "border-width": {
+          "$type": "number",
+          "$value": "{_sys.number.border-width.thin}"
+        },
         "color": {
-          "primary": {
+          "on-surface-collapsed": {
             "$type": "color",
-            "$value": "{_sys.color.text.primary}"
+            "$value": "{_sys.color.action}"
           },
-          "secondary": {
+          "on-surface-expanded": {
             "$type": "color",
-            "$value": "{_sys.color.information.default}"
+            "$value": "{_sys.color.on-surface}"
           },
-          "disabled": {
+          "on-surface-disabled": {
             "$type": "color",
             "$value": "{_sys.color.text.disabled}"
+          },
+          "surface": {
+            "$type": "color",
+            "$value": "{_sys.color.surface-bright}"
+          },
+          "border": {
+            "$type": "color",
+            "$value": "{_sys.color.outline.default}"
+          }
+        },
+        "space": {
+          "top-bottom": {
+            "$type": "number",
+            "$value": "{_sys.number.space.md}"
+          },
+          "gap": {
+            "$type": "number",
+            "$value": "{_sys.number.space.md}"
           }
         }
       }
