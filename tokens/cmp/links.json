@@ -19,7 +19,7 @@
       },
       "highlight": {
         "$type": "color",
-        "$value": "{_sys.color.surface.selected}"
+        "$value": "{_sys.color.action-surface.selected}"
       }
     }
   }
