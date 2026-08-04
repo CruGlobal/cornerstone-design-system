@@ -1,8 +1,8 @@
 ---
-"@cruglobal/cornerstone-design-system": major
+"@cruglobal/cornerstone-design-system": minor
 ---
 
-**BREAKING:** restructure `_cmp.accordion` around a `tab` group, syncing the current Figma definition.
+**BREAKING CHANGE (shipped as `minor` — this package is still pre-1.0, where semver permits breaking changes in a minor release).** Restructure `_cmp.accordion` around a `tab` group, syncing the current Figma definition.
 
 Removed:
 
