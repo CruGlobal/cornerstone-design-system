@@ -990,15 +990,15 @@
         },
         "label": {
           "$type": "string",
-          "$value": "{_ref.string.font-family.cru.brand.sans-primary}"
+          "$value": "{_ref.string.font-family.cru.brand.sans-secondary}"
         },
         "body": {
           "$type": "string",
-          "$value": "{_ref.string.font-family.cru.brand.sans-primary}"
+          "$value": "{_ref.string.font-family.cru.brand.sans-secondary}"
         },
         "button": {
           "$type": "string",
-          "$value": "{_ref.string.font-family.cru.brand.sans-primary}"
+          "$value": "{_ref.string.font-family.cru.brand.sans-secondary}"
         }
       }
     }
