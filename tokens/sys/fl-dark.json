@@ -370,7 +370,7 @@
       "space": {
         "none": {
           "$type": "number",
-          "$value": "{_ref.number.space.2}"
+          "$value": "{_ref.number.space.0}"
         },
         "3xs": {
           "$type": "number",
