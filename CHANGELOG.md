@@ -1,5 +1,23 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.5.1
+
+### Patch Changes
+
+- [#56](https://github.com/CruGlobal/cornerstone-design-system/pull/56) [`dbf7b8b`](https://github.com/CruGlobal/cornerstone-design-system/commit/dbf7b8bdcd81d83feb18eae0a04b0ef35a8319ee) Thanks [@rguinee](https://github.com/rguinee)! - Fix `cru-dark` font families for body, label and button text.
+
+  `_sys.string.font-family.{body,label,button}` aliased `_ref.string.font-family.cru.brand.sans-primary` (Sora, the display face) instead of `sans-secondary` (Inter). `cru-light` had the correct values, so only dark mode was affected — meaning published `cru-dark` rendered all body copy, form labels and button text in a display typeface.
+
+  Figma had the correct values throughout; the repo had drifted.
+
+- [#57](https://github.com/CruGlobal/cornerstone-design-system/pull/57) [`6868fe3`](https://github.com/CruGlobal/cornerstone-design-system/commit/6868fe312ff2c6ce2fb994ac77e3abbdb99ef2c7) Thanks [@rguinee](https://github.com/rguinee)! - Fix `_sys.number.space.none` and `cru-dark` body font weights.
+
+  **`space.none` was not zero.** It aliased `_ref.number.space.2` in `cru-dark`, `fl-light` and `fl-dark` — only `cru-light` was correct — so a token named `none` emitted `2px` in three of four modes. Any component using it for zero padding or gap picked up 2px instead. Now `_ref.number.space.0` everywhere, emitting `0px`.
+
+  **`cru-dark` body font weights** were `500` for `typography.body.{lg,md,sm}` where every other cru mode uses `400`, so dark-mode body copy rendered semi-bold. Now `400`, matching `cru-light`. The `500` weight remains correct for the `fl` modes, where Akkurat needs the extra weight at body sizes.
+
+  After this change all four `sys/number` subtrees match the Figma file exactly.
+
 ## 0.5.0
 
 ### Minor Changes
