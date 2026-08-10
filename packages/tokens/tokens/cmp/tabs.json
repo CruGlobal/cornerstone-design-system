@@ -17,7 +17,7 @@
           },
           "indicator": {
             "$type": "color",
-            "$value": "{_sys.color.primary.default}"
+            "$value": "{_sys.color.primary-strong.default}"
           },
           "label": {
             "$type": "color",

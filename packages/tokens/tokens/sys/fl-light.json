@@ -19,6 +19,12 @@
           "$value": "{_ref.color.fl.dark-green.400}"
         }
       },
+      "primary-strong": {
+        "default": {
+          "$type": "color",
+          "$value": "{_ref.color.fl.dark-green.500}"
+        }
+      },
       "secondary": {
         "default": {
           "$type": "color",
