@@ -17,39 +17,33 @@
         "focus": {
           "$type": "color",
           "$value": "{_ref.color.cru.yellow.400}"
-        },
-        "disabled": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.gray.500}"
         }
       },
       "secondary": {
         "default": {
           "$type": "color",
-          "$value": "{_ref.color.cru.orange.500}"
+          "$value": "{_ref.color.cru.graphite.900}"
         },
         "hover": {
           "$type": "color",
-          "$value": "{_ref.color.cru.orange.600}"
+          "$value": "{_ref.color.cru.graphite.800}"
         },
         "pressed": {
           "$type": "color",
-          "$value": "{_ref.color.cru.orange.700}"
+          "$value": "{_ref.color.cru.graphite.700}"
         },
         "focus": {
           "$type": "color",
-          "$value": "{_ref.color.cru.orange.600}"
-        },
-        "disabled": {
+          "$value": "{_ref.color.cru.graphite.800}"
+        }
+      },
+      "disabled": {
+        "default": {
           "$type": "color",
-          "$value": "{_ref.color.cru.orange.200}"
+          "$value": "{_ref.color.cru.gray.500}"
         }
       },
       "on-primary": {
-        "$type": "color",
-        "$value": "{_ref.color.cru.contrast.black}"
-      },
-      "on-secondary": {
         "$type": "color",
         "$value": "{_ref.color.cru.contrast.black}"
       },
@@ -57,17 +51,25 @@
         "$type": "color",
         "$value": "{_ref.color.cru.yellow.100}"
       },
-      "secondary-container": {
-        "$type": "color",
-        "$value": "{_ref.color.cru.orange.100}"
-      },
       "on-primary-container": {
         "$type": "color",
         "$value": "{_ref.color.cru.yellow.900}"
       },
+      "on-secondary": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.yellow.500}"
+      },
+      "secondary-container": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.graphite.500}"
+      },
       "on-secondary-container": {
         "$type": "color",
-        "$value": "{_ref.color.cru.orange.900}"
+        "$value": "{_ref.color.cru.graphite.50}"
+      },
+      "on-information": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.turquoise.50}"
       },
       "information": {
         "default": {
@@ -91,6 +93,18 @@
         "$type": "color",
         "$value": "{_ref.color.cru.turquoise.100}"
       },
+      "on-information-container": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.turquoise.600}"
+      },
+      "information-outline": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.turquoise.200}"
+      },
+      "on-success": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.green.900}"
+      },
       "success": {
         "default": {
           "$type": "color",
@@ -104,6 +118,10 @@
           "$type": "color",
           "$value": "{_ref.color.cru.green.700}"
         },
+        "on-pressed": {
+          "$type": "color",
+          "$value": "{_ref.color.cru.green.50}"
+        },
         "focus": {
           "$type": "color",
           "$value": "{_ref.color.cru.green.600}"
@@ -112,6 +130,18 @@
       "success-container": {
         "$type": "color",
         "$value": "{_ref.color.cru.green.100}"
+      },
+      "on-success-container": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.green.800}"
+      },
+      "success-outline": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.green.200}"
+      },
+      "on-warning": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.orange.900}"
       },
       "warning": {
         "default": {
@@ -126,6 +156,10 @@
           "$type": "color",
           "$value": "{_ref.color.cru.orange.700}"
         },
+        "on-pressed": {
+          "$type": "color",
+          "$value": "{_ref.color.cru.contrast.white}"
+        },
         "focus": {
           "$type": "color",
           "$value": "{_ref.color.cru.orange.600}"
@@ -134,6 +168,14 @@
       "warning-container": {
         "$type": "color",
         "$value": "{_ref.color.cru.orange.100}"
+      },
+      "on-warning-container": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.orange.800}"
+      },
+      "warning-outline": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.orange.200}"
       },
       "danger": {
         "default": {
@@ -153,44 +195,40 @@
           "$value": "{_ref.color.cru.cerise.600}"
         }
       },
+      "on-danger": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.cerise.50}"
+      },
       "danger-container": {
         "$type": "color",
         "$value": "{_ref.color.cru.cerise.100}"
       },
-      "surface": {
+      "on-danger-container": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.cerise.800}"
+      },
+      "danger-outline": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.cerise.200}"
+      },
+      "background": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.contrast.white}"
+      },
+      "surface-bright": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.contrast.white}"
+      },
+      "action-surface": {
         "default": {
           "$type": "color",
           "$value": "{_ref.color.cru.gray.50}"
         },
-        "variant": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.gray.200}"
-        },
-        "container": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.gray.100}"
-        },
-        "inverse-surface": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.graphite.800}"
-        },
-        "inverse-on-surface": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.contrast.white}"
-        },
-        "inverse-on-surface-variant": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.gray.100}"
-        },
-        "dim": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.gray.100}"
-        },
-        "bright": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.contrast.white}"
-        },
         "hover": {
+          "$type": "color",
+          "$value": "{_ref.color.cru.gray.400}"
+        },
+        "pressed": {
           "$type": "color",
           "$value": "{_ref.color.cru.gray.500}"
         },
@@ -199,9 +237,13 @@
           "$value": "{_ref.color.cru.cyan.50}"
         }
       },
-      "inverse-primary": {
+      "surface-dim": {
         "$type": "color",
-        "$value": "{_ref.color.cru.yellow.200}"
+        "$value": "{_ref.color.cru.gray.100}"
+      },
+      "surface-variant": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.gray.200}"
       },
       "on-surface": {
         "$type": "color",
@@ -211,29 +253,25 @@
         "$type": "color",
         "$value": "{_ref.color.cru.graphite.600}"
       },
-      "surface-container": {
-        "lowest": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.contrast.white}"
-        },
-        "low": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.gray.50}"
-        },
-        "high": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.gray.200}"
-        },
-        "highest": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.gray.300}"
-        }
+      "inverse-surface": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.graphite.800}"
       },
-      "background": {
-        "default": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.contrast.white}"
-        }
+      "inverse-surface-dim": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.graphite.600}"
+      },
+      "inverse-on-surface": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.contrast.white}"
+      },
+      "inverse-on-surface-variant": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.gray.100}"
+      },
+      "inverse-primary": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.yellow.200}"
       },
       "on-background": {
         "$type": "color",
@@ -269,26 +307,14 @@
           "$value": "{_ref.color.cru.contrast.opacity.black-40}"
         }
       },
-      "on-information": {
-        "$type": "color",
-        "$value": "{_ref.color.cru.contrast.white}"
-      },
-      "on-success": {
-        "$type": "color",
-        "$value": "{_ref.color.cru.contrast.white}"
-      },
-      "on-warning": {
-        "$type": "color",
-        "$value": "{_ref.color.cru.contrast.white}"
-      },
-      "on-danger": {
-        "$type": "color",
-        "$value": "{_ref.color.cru.contrast.white}"
-      },
       "outline": {
         "default": {
           "$type": "color",
           "$value": "{_ref.color.cru.graphite.300}"
+        },
+        "dark": {
+          "$type": "color",
+          "$value": "{_ref.color.cru.graphite.500}"
         },
         "hover": {
           "$type": "color",
@@ -303,16 +329,6 @@
           "$value": "{_ref.color.cru.graphite.200}"
         }
       },
-      "outline-variant": {
-        "default": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.graphite.200}"
-        },
-        "hover": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.graphite.300}"
-        }
-      },
       "scrim": {
         "$type": "color",
         "$value": "{_ref.color.cru.contrast.opacity.black-50}"
@@ -324,20 +340,36 @@
       "link": {
         "default": {
           "$type": "color",
-          "$value": "{_ref.color.cru.navy.600}"
+          "$value": "{_ref.color.cru.turquoise.500}"
         },
         "hover": {
           "$type": "color",
-          "$value": "{_ref.color.cru.navy.700}"
-        },
-        "visited": {
-          "$type": "color",
-          "$value": "{_ref.color.cru.ruby.600}"
+          "$value": "{_ref.color.cru.turquoise.700}"
         },
         "focus": {
           "$type": "color",
-          "$value": "{_ref.color.cru.navy.600}"
+          "$value": "{_ref.color.cru.turquoise.700}"
+        },
+        "visited": {
+          "$type": "color",
+          "$value": "{_ref.color.cru.ruby.400}"
         }
+      },
+      "information-on-inverse": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.turquoise.300}"
+      },
+      "success-on-inverse": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.green.500}"
+      },
+      "warning-on-inverse": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.orange.500}"
+      },
+      "danger-on-inverse": {
+        "$type": "color",
+        "$value": "{_ref.color.cru.cerise.300}"
       }
     },
     "number": {

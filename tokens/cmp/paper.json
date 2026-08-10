@@ -3,7 +3,7 @@
     "paper": {
       "surface": {
         "$type": "color",
-        "$value": "{_sys.color.surface.default}"
+        "$value": "{_sys.color.action-surface.default}"
       }
     }
   }

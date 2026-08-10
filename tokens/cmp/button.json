@@ -84,7 +84,7 @@
             },
             "surface-focus": {
               "$type": "color",
-              "$value": "{_sys.color.surface.default}"
+              "$value": "{_sys.color.action-surface.default}"
             },
             "border": {
               "$type": "color",
@@ -142,7 +142,7 @@
             },
             "surface-focus": {
               "$type": "color",
-              "$value": "{_sys.color.surface.default}"
+              "$value": "{_sys.color.action-surface.default}"
             },
             "border": {
               "$type": "color",
@@ -176,21 +176,45 @@
       "secondary": {
         "filled": {
           "color": {
+            "text": {
+              "$type": "color",
+              "$value": "{_sys.color.on-secondary}"
+            },
+            "text-hover": {
+              "$type": "color",
+              "$value": "{_sys.color.on-surface}"
+            },
             "surface": {
               "$type": "color",
-              "$value": "{_sys.color.primary.default}"
+              "$value": "{_sys.color.secondary.default}"
             },
             "surface-hover": {
               "$type": "color",
-              "$value": "{_sys.color.primary.hover}"
+              "$value": "{_sys.color.transparent}"
             },
             "surface-pressed": {
               "$type": "color",
-              "$value": "{_sys.color.primary.pressed}"
+              "$value": "{_sys.color.secondary.hover}"
             },
-            "surface-focused": {
+            "surface-focus": {
               "$type": "color",
-              "$value": "{_sys.color.primary.focus}"
+              "$value": "{_sys.color.secondary.pressed}"
+            },
+            "border": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.default}"
+            },
+            "border-hover": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.hover}"
+            },
+            "border-pressed": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.pressed}"
+            },
+            "border-focus": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.focus}"
             }
           },
           "border": {
@@ -203,6 +227,192 @@
               "$value": "{_sys.number.border-width.medium}"
             }
           }
+        },
+        "outlined": {
+          "color": {
+            "text": {
+              "$type": "color",
+              "$value": "{_sys.color.on-surface}"
+            },
+            "text-hover": {
+              "$type": "color",
+              "$value": "{_sys.color.on-secondary}"
+            },
+            "text-pressed": {
+              "$type": "color",
+              "$value": "{_sys.color.on-secondary}"
+            },
+            "surface": {
+              "$type": "color",
+              "$value": "{_sys.color.transparent}"
+            },
+            "surface-hover": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.hover}"
+            },
+            "surface-pressed": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.pressed}"
+            },
+            "surface-focus": {
+              "$type": "color",
+              "$value": "{_sys.color.transparent}"
+            },
+            "border": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.default}"
+            },
+            "border-hover": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.hover}"
+            },
+            "border-pressed": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.pressed}"
+            },
+            "border-focus": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.focus}"
+            }
+          },
+          "border": {
+            "border-radius": {
+              "$type": "number",
+              "$value": "{_sys.number.border-radius.none}"
+            },
+            "border-width": {
+              "$type": "number",
+              "$value": "{_sys.number.border-width.medium}"
+            }
+          }
+        },
+        "ghost": {
+          "color": {
+            "text": {
+              "$type": "color",
+              "$value": "{_sys.color.on-surface}"
+            },
+            "text-hover": {
+              "$type": "color",
+              "$value": "{_sys.color.on-secondary}"
+            },
+            "text-pressed": {
+              "$type": "color",
+              "$value": "{_sys.color.on-secondary}"
+            },
+            "surface": {
+              "$type": "color",
+              "$value": "{_sys.color.transparent}"
+            },
+            "surface-hover": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary-container}"
+            },
+            "surface-pressed": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary.pressed}"
+            },
+            "surface-focus": {
+              "$type": "color",
+              "$value": "{_sys.color.action-surface.default}"
+            },
+            "border": {
+              "$type": "color",
+              "$value": "{_sys.color.transparent}"
+            },
+            "border-hover": {
+              "$type": "color",
+              "$value": "{_sys.color.transparent}"
+            },
+            "border-pressed": {
+              "$type": "color",
+              "$value": "{_sys.color.transparent}"
+            },
+            "border-focus": {
+              "$type": "color",
+              "$value": "{_sys.color.secondary-container}"
+            }
+          },
+          "border": {
+            "border-radius": {
+              "$type": "number",
+              "$value": "{_sys.number.border-radius.none}"
+            },
+            "border-width": {
+              "$type": "number",
+              "$value": "{_sys.number.border-width.medium}"
+            }
+          }
+        }
+      },
+      "disabled": {
+        "filled": {
+          "color": {
+            "surface": {
+              "$type": "color",
+              "$value": "{_sys.color.disabled.default}"
+            },
+            "border": {
+              "$type": "color",
+              "$value": "{_sys.color.disabled.default}"
+            }
+          }
+        },
+        "outlined": {
+          "color": {
+            "surface": {
+              "$type": "color",
+              "$value": "{_sys.color.transparent}"
+            },
+            "border": {
+              "$type": "color",
+              "$value": "{_sys.color.disabled.default}"
+            }
+          }
+        },
+        "ghost": {
+          "color": {
+            "surface": {
+              "$type": "color",
+              "$value": "{_sys.color.transparent}"
+            },
+            "border": {
+              "$type": "color",
+              "$value": "{_sys.color.disabled.default}"
+            }
+          }
+        },
+        "color": {
+          "text": {
+            "$type": "color",
+            "$value": "{_sys.color.text.disabled}"
+          }
+        }
+      },
+      "space": {
+        "lg-x": {
+          "$type": "number",
+          "$value": "{_sys.number.space.lg}"
+        },
+        "lg-y": {
+          "$type": "number",
+          "$value": "{_sys.number.space.sm}"
+        },
+        "md-x": {
+          "$type": "number",
+          "$value": "{_sys.number.space.md}"
+        },
+        "md-y": {
+          "$type": "number",
+          "$value": "{_sys.number.space.xs}"
+        },
+        "sm-x": {
+          "$type": "number",
+          "$value": "{_sys.number.space.sm}"
+        },
+        "sm-y": {
+          "$type": "number",
+          "$value": "{_sys.number.space.2xs}"
         }
       },
       "information": {
@@ -288,7 +498,7 @@
             },
             "surface-focus": {
               "$type": "color",
-              "$value": "{_sys.color.surface.default}"
+              "$value": "{_sys.color.action-surface.default}"
             },
             "border": {
               "$type": "color",
@@ -346,7 +556,7 @@
             },
             "surface-focus": {
               "$type": "color",
-              "$value": "{_sys.color.surface.default}"
+              "$value": "{_sys.color.action-surface.default}"
             },
             "border": {
               "$type": "color",
@@ -377,76 +587,6 @@
           }
         }
       },
-      "disabled": {
-        "filled": {
-          "color": {
-            "surface": {
-              "$type": "color",
-              "$value": "{_sys.color.primary.disabled}"
-            },
-            "border": {
-              "$type": "color",
-              "$value": "{_sys.color.primary.disabled}"
-            }
-          }
-        },
-        "outlined": {
-          "color": {
-            "surface": {
-              "$type": "color",
-              "$value": "{_sys.color.transparent}"
-            },
-            "border": {
-              "$type": "color",
-              "$value": "{_sys.color.primary.disabled}"
-            }
-          }
-        },
-        "ghost": {
-          "color": {
-            "surface": {
-              "$type": "color",
-              "$value": "{_sys.color.transparent}"
-            },
-            "border": {
-              "$type": "color",
-              "$value": "{_sys.color.primary.disabled}"
-            }
-          }
-        },
-        "color": {
-          "text": {
-            "$type": "color",
-            "$value": "{_sys.color.text.disabled}"
-          }
-        }
-      },
-      "space": {
-        "lg-x": {
-          "$type": "number",
-          "$value": "{_sys.number.space.lg}"
-        },
-        "lg-y": {
-          "$type": "number",
-          "$value": "{_sys.number.space.sm}"
-        },
-        "md-x": {
-          "$type": "number",
-          "$value": "{_sys.number.space.md}"
-        },
-        "md-y": {
-          "$type": "number",
-          "$value": "{_sys.number.space.xs}"
-        },
-        "sm-x": {
-          "$type": "number",
-          "$value": "{_sys.number.space.sm}"
-        },
-        "sm-y": {
-          "$type": "number",
-          "$value": "{_sys.number.space.2xs}"
-        }
-      },
       "success": {
         "filled": {
           "color": {
@@ -457,6 +597,10 @@
             "text-hover": {
               "$type": "color",
               "$value": "{_sys.color.on-success}"
+            },
+            "text-pressed": {
+              "$type": "color",
+              "$value": "{_sys.color.success.on-pressed}"
             },
             "surface": {
               "$type": "color",
@@ -496,7 +640,7 @@
             },
             "text-pressed": {
               "$type": "color",
-              "$value": "{_sys.color.on-success}"
+              "$value": "{_sys.color.success.on-pressed}"
             },
             "surface": {
               "$type": "color",
@@ -524,6 +668,14 @@
           "color": {
             "text": {
               "$type": "color",
+              "$value": "{_sys.color.success.pressed}"
+            },
+            "text-hover": {
+              "$type": "color",
+              "$value": "{_sys.color.success.pressed}"
+            },
+            "text-pressed": {
+              "$type": "color",
               "$value": "{_sys.color.success.default}"
             },
             "surface": {
@@ -540,7 +692,7 @@
             },
             "border-focus": {
               "$type": "color",
-              "$value": "{_sys.color.success.default}"
+              "$value": "{_sys.color.success.pressed}"
             }
           }
         }
@@ -550,11 +702,19 @@
           "color": {
             "text": {
               "$type": "color",
-              "$value": "{_sys.color.on-warning}"
+              "$value": "{_sys.color.on-surface}"
             },
             "text-hover": {
               "$type": "color",
-              "$value": "{_sys.color.on-warning}"
+              "$value": "{_sys.color.warning.on-pressed}"
+            },
+            "text-focus": {
+              "$type": "color",
+              "$value": "{_sys.color.warning.on-pressed}"
+            },
+            "text-pressed": {
+              "$type": "color",
+              "$value": "{_sys.color.warning.on-pressed}"
             },
             "surface": {
               "$type": "color",
@@ -590,11 +750,11 @@
             },
             "text-hover": {
               "$type": "color",
-              "$value": "{_sys.color.on-warning}"
+              "$value": "{_sys.color.inverse-on-surface}"
             },
             "text-pressed": {
               "$type": "color",
-              "$value": "{_sys.color.on-warning}"
+              "$value": "{_sys.color.inverse-on-surface}"
             },
             "surface": {
               "$type": "color",

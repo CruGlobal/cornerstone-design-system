@@ -5,7 +5,7 @@
         "surface": {
           "default": {
             "$type": "color",
-            "$value": "{_sys.color.surface.default}"
+            "$value": "{_sys.color.action-surface.default}"
           }
         },
         "divider": {
@@ -36,15 +36,15 @@
             },
             "hover": {
               "$type": "color",
-              "$value": "{_sys.color.surface.variant}"
+              "$value": "{_sys.color.surface-variant}"
             },
             "selected": {
               "$type": "color",
-              "$value": "{_sys.color.surface.selected}"
+              "$value": "{_sys.color.action-surface.selected}"
             },
             "disabled": {
               "$type": "color",
-              "$value": "{_sys.color.primary.disabled}"
+              "$value": "{_sys.color.disabled.default}"
             }
           },
           "divider": {

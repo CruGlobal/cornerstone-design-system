@@ -23,7 +23,7 @@
       },
       "surface-hover": {
         "$type": "color",
-        "$value": "{_sys.color.surface.variant}"
+        "$value": "{_sys.color.surface-variant}"
       }
     }
   }
