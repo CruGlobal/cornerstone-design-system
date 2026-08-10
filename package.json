@@ -63,6 +63,6 @@
     "eslint-plugin-import-x": "^4.16.2",
     "globals": "^17.6.0",
     "prettier": "^3.8.3",
-    "style-dictionary": "^4.0.0"
+    "style-dictionary": "^5.5.1"
   }
 }
