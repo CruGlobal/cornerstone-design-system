@@ -10,6 +10,11 @@
       "name": "cornerstone",
       "source": "./plugins/cornerstone",
       "description": "Onboarding and design-review commands for the Cru Cornerstone Design System."
+    },
+    {
+      "name": "cornerstone-skills",
+      "source": "./plugins/cornerstone-skills",
+      "description": "General engineering and productivity skills for Cornerstone's contributor personas. Forked from mattpocock/skills (MIT) — see plugins/cornerstone-skills/NOTICE.md."
     }
   ]
 }
