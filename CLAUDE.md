@@ -40,7 +40,7 @@ All files use [W3C DTCG](https://design-tokens.github.io/community-group/format/
 
 ## Build Pipeline
 
-`build.mjs` runs Style Dictionary 4.x (`usesDtcg: true`) across five platform sets:
+`build.mjs` runs Style Dictionary 5.x (`usesDtcg: true`) across five platform sets:
 
 | Input | CSS selector |
 |---|---|
