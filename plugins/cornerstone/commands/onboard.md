@@ -101,8 +101,7 @@ Explicitly tell the developer: `/pull-tokens` is a contributor command for synci
 
 ## Step 4 — Offer next steps
 
-After the setup guide, offer three optional follow-ups the developer can ask for:
+After the setup guide, offer two optional follow-ups the developer can ask for:
 
 1. A sample component (button, card, form field) fully styled with Cornerstone tokens for their framework
-2. A `/design-review` audit of any existing UI they paste or point to
-3. A list of all available `--sys-*` token names for their chosen brand/theme
+2. A list of all available `--sys-*` token names for their chosen brand/theme

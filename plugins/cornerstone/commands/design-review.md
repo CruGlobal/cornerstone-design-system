@@ -1,5 +1,5 @@
 ---
-description: Audit UI against Cornerstone design standards and UX heuristics — configurable passes, scope, output, and severity.
+description: "DEPRECATED (see #75) — Audit UI against Cornerstone design standards and UX heuristics — configurable passes, scope, output, and severity."
 allowed-tools:
   - Read
   - Glob
@@ -15,6 +15,12 @@ allowed-tools:
   - mcp__plugin_figma_figma__get_screenshot
   - mcp__plugin_figma_figma__get_design_context
 ---
+
+> **Deprecated, 2026-08-10 (see [issue #75](https://github.com/CruGlobal/cornerstone-design-system/issues/75)).**
+> Retired, not maintained going forward. Its tokens-compliance and accessibility passes are being
+> replaced by deterministic CI checks (UIUX-93/96/97/98/100), not a skill-driven review. Esther
+> (the accessibility persona) no longer invokes this — she performs WCAG checks by hand until
+> those checks ship. Left in place as reference, not deleted.
 
 # Design Review
 
