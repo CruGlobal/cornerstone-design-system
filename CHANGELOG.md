@@ -1,5 +1,78 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.5.0
+
+### Minor Changes
+
+- [#76](https://github.com/CruGlobal/cornerstone-design-system/pull/76) [`1e3069d`](https://github.com/CruGlobal/cornerstone-design-system/commit/1e3069dcd21399aa02fd744816b67cf8a08d4a22) Thanks [@rguinee](https://github.com/rguinee)! - Add the `cornerstone-skills` plugin: 25 general-purpose engineering and productivity skills forked from mattpocock/skills (MIT), scoped to Cornerstone's contributor personas. Two skills renamed (`ask-matt` → `ask`, `setup-matt-pocock-skills` → `setup-cornerstone-skills`) with all cross-references updated.
+
+- [#49](https://github.com/CruGlobal/cornerstone-design-system/pull/49) [`c9d19b5`](https://github.com/CruGlobal/cornerstone-design-system/commit/c9d19b51c9fa9a7b198756f08f58eaa78245e4c4) Thanks [@rguinee](https://github.com/rguinee)! - Add a Material UI theme adapter under `libraries/mui` (new `./mui` export). `createCornerstoneTheme({ brand, mode })` and `cornerstoneThemeOptions()` map Cornerstone `_sys` tokens onto an MUI theme so MUI apps (mpdx-react, give-web) render with Cru / FamilyLife brand colors, typography, and radius. `@mui/material` is an optional peer dependency.
+
+- [#50](https://github.com/CruGlobal/cornerstone-design-system/pull/50) [`e0d0bd8`](https://github.com/CruGlobal/cornerstone-design-system/commit/e0d0bd8adf909f7157f00f33903a2e174de0a3cd) Thanks [@rguinee](https://github.com/rguinee)! - Add 28 new `_sys.color` tokens across all four modes.
+
+  **Status roles** — these complete the status families so components no longer have to reach for a neighbouring token:
+  - `on-{information,success,warning,danger}-container` — foreground for content sitting on a `*-container` surface.
+  - `{information,success,warning,danger}-outline` — border for a tinted container.
+  - `{information,success,warning,danger}-on-inverse` — status colour for use **on an inverted surface** (`inverse-surface`). Needed because `<status>/default` inverts the wrong way there and drops below 3:1 in the dark modes, while `<status>-container` inverts correctly but is too low-chroma to distinguish hues. Each value is the most chromatic ramp step that still clears 4.5:1 against that mode's `inverse-surface`.
+  - `success.on-pressed`, `warning.on-pressed` — foreground for the pressed state.
+
+  **Structural roles** introduced by the surface restructure (see the accompanying major changeset for the tokens they replace):
+  - `action-surface.{default,hover,pressed,selected}` — interactive surface states.
+  - `surface-bright`, `surface-dim`, `surface-variant`, `background` — flattened surface roles.
+  - `inverse-surface`, `inverse-surface-dim`, `inverse-on-surface`, `inverse-on-surface-variant`.
+  - `disabled.default` — single disabled colour replacing the per-family variants.
+  - `outline.dark`.
+
+- [#50](https://github.com/CruGlobal/cornerstone-design-system/pull/50) [`e0d0bd8`](https://github.com/CruGlobal/cornerstone-design-system/commit/e0d0bd8adf909f7157f00f33903a2e174de0a3cd) Thanks [@rguinee](https://github.com/rguinee)! - **BREAKING CHANGE (shipped as `minor` — this package is still pre-1.0, where semver permits breaking changes in a minor release).** Restructure `_sys.color` surface and state tokens, flattening the nested `surface.*` group and removing the `surface-container.*` ramp. Syncs the MOA design-system work from Figma. The following 19 `_sys` tokens are **removed in all four modes** (`cru-light`, `cru-dark`, `fl-light`, `fl-dark`):
+
+  | Removed                                                               | Replacement                                                     |
+  | --------------------------------------------------------------------- | --------------------------------------------------------------- |
+  | `_sys.color.surface.default`                                          | `_sys.color.action-surface.default`                             |
+  | `_sys.color.surface.hover`                                            | `_sys.color.action-surface.hover`                               |
+  | `_sys.color.surface.selected`                                         | `_sys.color.action-surface.selected`                            |
+  | `_sys.color.surface.bright`                                           | `_sys.color.surface-bright`                                     |
+  | `_sys.color.surface.dim`                                              | `_sys.color.surface-dim`                                        |
+  | `_sys.color.surface.variant`                                          | `_sys.color.surface-variant`                                    |
+  | `_sys.color.surface.inverse-surface`                                  | `_sys.color.inverse-surface`                                    |
+  | `_sys.color.surface.inverse-on-surface`                               | `_sys.color.inverse-on-surface`                                 |
+  | `_sys.color.surface.inverse-on-surface-variant`                       | `_sys.color.inverse-on-surface-variant`                         |
+  | `_sys.color.surface.container`                                        | none — use `surface-variant`                                    |
+  | `_sys.color.surface-container.lowest` / `.low` / `.high` / `.highest` | none — use `surface-bright` / `surface-dim` / `surface-variant` |
+  | `_sys.color.background.default`                                       | `_sys.color.background`                                         |
+  | `_sys.color.primary.disabled`                                         | `_sys.color.disabled.default`                                   |
+  | `_sys.color.secondary.disabled`                                       | `_sys.color.disabled.default`                                   |
+  | `_sys.color.outline-variant.default` / `.hover`                       | `_sys.color.outline.default` / `.hover`                         |
+
+  Also removes `_cmp.button.secondary.filled.color.surface-focused` (superseded by `surface-focus`).
+
+  Consumers referencing any removed token by its CSS custom property, SCSS variable, or JS export must migrate to the replacement above. `_cmp` tokens shipped in this package were updated in the same change, so components consuming only `_cmp` tokens need no action.
+
+### Patch Changes
+
+- [#78](https://github.com/CruGlobal/cornerstone-design-system/pull/78) [`8c7111a`](https://github.com/CruGlobal/cornerstone-design-system/commit/8c7111ae14953102cee94c6d5c252b54e95226c5) Thanks [@rguinee](https://github.com/rguinee)! - Bump js-yaml and brace-expansion (transitive dev dependencies) to patch Dependabot security advisories. No token API changes.
+
+- [#47](https://github.com/CruGlobal/cornerstone-design-system/pull/47) [`ddf0e1a`](https://github.com/CruGlobal/cornerstone-design-system/commit/ddf0e1a7b4599953085b3a8cf6dbd3412b205236) Thanks [@rguinee](https://github.com/rguinee)! - Make the `/design-review` command configurable via `$ARGUMENTS` flags: `--passes` (tokens/heuristics/wcag/all), `--scope` (diff/path/Figma/screenshot), `--output` (report/overlay/apply), and `--severity` (minimum severity to surface). Defaults reproduce the prior full-report behavior. `--output overlay` is capability-gated and syncs findings into a project's in-app audit overlay (via `ui_audit:add`) when available, falling back to a report otherwise.
+
+- [#77](https://github.com/CruGlobal/cornerstone-design-system/pull/77) [`0ccb863`](https://github.com/CruGlobal/cornerstone-design-system/commit/0ccb863795f77ff5192d8a33dcd7d537f47017f4) Thanks [@rguinee](https://github.com/rguinee)! - Mark the `/design-review` command deprecated (tokens/accessibility checks are moving to deterministic CI checks — see UIUX-93/96/97/98/100) and remove its now-dangling reference from `/onboard`'s follow-up suggestions. `design-review.md` stays in place for reference; no command is removed.
+
+- [#81](https://github.com/CruGlobal/cornerstone-design-system/pull/81) [`5b16f12`](https://github.com/CruGlobal/cornerstone-design-system/commit/5b16f12dd342ae42a14c2a0301d1e70d4780a8ec) Thanks [@rguinee](https://github.com/rguinee)! - Correct CLAUDE.md's build-pipeline documentation to say Style Dictionary 5.x, matching the dependency bump merged in #48. No functional change.
+
+- [#50](https://github.com/CruGlobal/cornerstone-design-system/pull/50) [`e0d0bd8`](https://github.com/CruGlobal/cornerstone-design-system/commit/e0d0bd8adf909f7157f00f33903a2e174de0a3cd) Thanks [@rguinee](https://github.com/rguinee)! - Retarget `_sys.color` values. No token names change; only what they alias.
+
+  **Status colour accessibility fixes.** Every status pair now meets WCAG AA in all four modes (previous minimums in brackets):
+  - `fl-light` / `fl-dark`: `on-<status>-container` had been aliased to the _same_ `_ref` as `<status>-container` for all four statuses, rendering text and icons invisible (1.00:1). Now 13.5–16:1.
+  - `fl-light`: `on-<status>` was `contrast/white` over pale mid-tones — danger measured 1.82:1. Now aliases the hue's `/900`, giving 5.8–8.3:1.
+  - `cru-dark`: `on-danger` was 3.78:1. Now 4.84:1.
+  - 11 `<status>-outline` tokens were aliased identically to their own container across `cru-dark`, `fl-light` and `fl-dark`, so the border was invisible.
+
+  **Dark-mode status retune.** `cru-dark` and `fl-dark` filled status colours were retargeted for consistent perceptual lightness — the L\* spread across the four statuses drops from 18 points to 7. `cru-dark` success moves off the pastel `cru/mint` ramp to `cru/green`, which is what made it read sage; its container and outline moved with it.
+
+  **FamilyLife retune.** `fl-dark` `<status>-container` sat at `hue/900` (L\* 6–15, effectively black) and is now `/800`, or `/600` for `dark-green`. `fl-dark` fills moved off the desaturated dark steps — FL ramps lose chroma as they darken, so anything past `/500` reads muddy. `fl-light` filled L\* spread drops from 37 to 15.
+
+  **MOA colour changes** carried over in the same sync: `cru-light` `secondary.*` moves from `orange` to `graphite`, `link.*` from `navy` to `turquoise`; `cru-dark` `link.*` to `sky`; plus `on-secondary`, `secondary-container` and `on-secondary-container` retargets.
+
+  `_cmp` tokens for `breadcrumb`, `button`, `card`, `links`, `menu` and `paper` were retargeted onto the renamed `_sys` roles in the same change — 18 aliases in total — which is what keeps `npm run validate` passing.
+
 ## 0.4.1
 
 ### Patch Changes
