@@ -402,7 +402,7 @@
       "space": {
         "none": {
           "$type": "number",
-          "$value": "{_ref.number.space.2}"
+          "$value": "{_ref.number.space.0}"
         },
         "3xs": {
           "$type": "number",
@@ -904,7 +904,7 @@
             },
             "font-weight": {
               "$type": "number",
-              "$value": "{_ref.number.font-weight.500}"
+              "$value": "{_ref.number.font-weight.400}"
             }
           },
           "md": {
@@ -922,7 +922,7 @@
             },
             "font-weight": {
               "$type": "number",
-              "$value": "{_ref.number.font-weight.500}"
+              "$value": "{_ref.number.font-weight.400}"
             }
           },
           "sm": {
@@ -940,7 +940,7 @@
             },
             "font-weight": {
               "$type": "number",
-              "$value": "{_ref.number.font-weight.500}"
+              "$value": "{_ref.number.font-weight.400}"
             }
           }
         },
