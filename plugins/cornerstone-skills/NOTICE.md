@@ -27,5 +27,13 @@ to track or merge upstream changes automatically.
 
 ## Status
 
-As forked, unreviewed. A skill-by-skill review (fit within Cornerstone's personas, which
-agent(s) use each one, possible renames) is separate, later work — see #72.
+Reviewed — see [issue #73](https://github.com/CruGlobal/cornerstone-design-system/issues/73)
+for the full mapping. Two skills were renamed as part of that review:
+
+- `ask-matt` → **`ask`**
+- `setup-matt-pocock-skills` → **`setup-cornerstone-skills`**
+
+Daniel (the front-door persona) owns 6 skills specifically (`ask`, `prototype`,
+`setup-cornerstone-skills`, `to-spec`, `to-tickets`, `wayfinder`); `codebase-design` is
+shared between Daniel and Joseph; the remaining 18 are Ambient — available to any persona,
+gated to none.
