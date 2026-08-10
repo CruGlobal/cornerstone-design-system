@@ -23,7 +23,9 @@ Element names match their Figma component names.
 
 ## 2. Variant axes
 
-Two attributes, used consistently across every component:
+These attributes work the way properties do on a Figma component: each one is a named axis, and every
+component exposes the subset of axes and values that actually apply to it. Two axes are defined so far —
+`size` and `state` are still to come:
 
 | Attribute | Values | Meaning |
 | --- | --- | --- |
@@ -31,7 +33,8 @@ Two attributes, used consistently across every component:
 | `appearance` | `filled` `subtle` `neutral` | Visual treatment |
 
 Each component supports the subset that applies — Alert takes `filled` and `subtle`; Toast takes `neutral`
-and `filled`.
+and `filled`. `variant`'s value set in particular skews toward status-style components (Alert, Toast); a
+component with no notion of semantic state simply doesn't expose that axis.
 
 **Figma's axes are named `Type` and `Style`. Neither maps through.** `style` is a global HTML attribute, so
 a `style` property would shadow `HTMLElement.style`. `type` is legal but carries baggage from `<input>` and
@@ -160,7 +163,7 @@ setup. `no-icon` suppresses them; slotting overrides them.
 <cs-alert variant="success"><svg slot="icon">…</svg>…</cs-alert>
 ```
 
-The interim glyphs are Material Symbols Outlined (Apache 2.0), matching Figma. When `<cs-icon>` ships they
+The interim glyphs are Material Symbols Sharp (Apache 2.0), matching Figma. When `<cs-icon>` ships they
 become `<cs-icon>` instances — the slot contract doesn't change, though rendered glyphs may shift slightly.
 
 ## 11. Framework consumption
