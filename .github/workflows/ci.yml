@@ -3,8 +3,11 @@ name: CI
 on:
   push:
     branches: [main]
+  # Deliberately unfiltered. A `branches: [main]` filter here meant a PR based
+  # on another feature branch — a stacked PR — ran no CI at all, rather than
+  # running it and failing. Push stays filtered to main so a branch with an
+  # open PR doesn't build twice.
   pull_request:
-    branches: [main]
 
 permissions:
   contents: read
@@ -54,4 +57,15 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
       - run: npm ci
-      - run: npx changeset status --since=origin/main
+      # Compare against the PR's own base, not a hardcoded main. On a stacked
+      # PR, --since=origin/main counts every changeset in the whole stack, so a
+      # PR that added none of its own still passed on an ancestor's. BASE_REF
+      # goes through env rather than inline interpolation because git allows
+      # `$` and `;` in ref names, which would otherwise be a shell-injection
+      # surface.
+      - name: Require a changeset for this PR's own diff
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
+          npx changeset status --since="origin/$BASE_REF"
