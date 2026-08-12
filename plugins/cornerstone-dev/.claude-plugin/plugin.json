@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "cornerstone-dev",
+  "displayName": "Cornerstone Design System — Contributors",
+  "version": "0.1.0",
+  "description": "The contributor tier of the Cornerstone Design System. Installs Cornerstone's front door plus the engineering skills and Figma tooling its contributor personas rely on. Install this if you work on Cornerstone itself; install `cornerstone` alone if you only consume the tokens.",
+  "author": {
+    "name": "Cru Global",
+    "url": "https://github.com/CruGlobal"
+  },
+  "homepage": "https://github.com/CruGlobal/cornerstone-design-system#readme",
+  "repository": "https://github.com/CruGlobal/cornerstone-design-system",
+  "license": "BSD-3-Clause",
+  "keywords": ["design-system", "design-tokens", "cru", "cornerstone", "contributors"],
+  "dependencies": [
+    "cornerstone@cru",
+    "cornerstone-skills@cru",
+    "figma@claude-plugins-official"
+  ]
+}
