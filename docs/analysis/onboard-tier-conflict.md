@@ -14,7 +14,7 @@
 The framing — "a skill living in a plugin consumers don't install" — is one of three independent reachability failures, and it is the only one anybody has written down. All three have to be true for consumer onboarding to work, and fixing the framed one alone leaves onboarding dead:
 
 | # | Reachability requirement | Status |
-|---|---|---|
+| --- | --- | --- |
 | 1 | **Installed** — the skill ships in a plugin a consumer actually has | Real conflict, **already conceded and half-fixed** by #75's own addendum (2026-08-10), which the framing doesn't account for |
 | 2 | **Invocable** — Daniel, or description-matching, can actually fire it | **Real, unrecorded, unresolved.** `setup-cornerstone-skills` carries `disable-model-invocation: true`. Nothing but a human typing its name can invoke it — not Daniel, not another skill |
 | 3 | **Routable** — a consumer's phrasing matches its `description` | **Real, unrecorded, unresolved.** Its description is about issue trackers and triage labels. No token-integration question matches it |
@@ -42,7 +42,7 @@ So the framed conflict was spotted by the author two days ago and answered at th
 
 Every claim below was checked against the running Claude Code environment or the current docs, not against a ticket's summary of them.
 
-### 1. Commands *are* skills. `onboard` is already a base-tier, model-invocable, namespaced skill today.
+### 1. Commands *are* skills — `onboard` is already a base-tier, model-invocable, namespaced skill today
 
 The docs are unambiguous: *"**Custom commands have been merged into skills.** A file at `.claude/commands/deploy.md` and a skill at `.claude/skills/deploy/SKILL.md` both create `/deploy` and work the same way."* The plugin-structure table lists `commands/` as *"Skills as flat Markdown files. Use `skills/` for new plugins."*
 
@@ -50,7 +50,7 @@ Live confirmation: this session's own skill roster contains `cornerstone:onboard
 
 **Consequence for #61:** the `commands/` → `skills/` migration is a directory-layout modernization, not a capability change. `onboard` already satisfies all three reachability requirements right now. The `skills/` layout buys a folder for supporting files and frontmatter invocation control — neither of which `onboard` needs today. This is the single most important fact for sequencing: **the status quo is already correct, and every proposed change risks regressing it.**
 
-### 2. `disable-model-invocation: true` removes the skill from the model's reach entirely.
+### 2. `disable-model-invocation: true` removes the skill from the model's reach entirely
 
 Docs, three separate statements:
 
@@ -93,10 +93,10 @@ The 11 unflagged names are an **exact set match** with the 11 the model can see.
 
 ### 4. The same defect hits Daniel five more times, and PR #83 ships it
 
-#73 assigned Daniel 7 skills. Five of them are user-invoked-only:
+Decision #73 assigned Daniel 7 skills. Five of them are user-invoked-only:
 
 | Daniel's skill (#73) | Model-reachable? |
-|---|---|
+| --- | --- |
 | `ask` | **No** |
 | `prototype` | Yes |
 | `setup-cornerstone-skills` | **No** |
@@ -168,7 +168,7 @@ None of these are style nits. Each one is an instruction Daniel will attempt and
 107 lines, four steps, plus a 7-entry `allowed-tools` list (`Read`, `Bash(find:*)`, `Bash(ls:*)`, `Bash(cat:*)`, `Bash(node:*)`, `Bash(npm:*)`). None of it is redundant with the fork skill; there is **zero content overlap** between the two "branches" #75 wants to merge.
 
 | Section | Content | Notes on relocation |
-|---|---|---|
+| --- | --- | --- |
 | Step 1 (`:18-28`) | Silent inspection: `package.json` for framework/build tool, CSS entry points, `tailwind.config.*`, whether Cornerstone is already a dependency. **Explicit no-`package.json` branch** → plain HTML/CSS site, favour the no-build `<link>`/`@import` path | The no-`package.json` branch is the *only* place in the system that handles a non-JS consumer. #61's context detection treats "no `package.json`" as consumer context and stops there; this is the follow-through. Easy to lose in a rewrite |
 | Step 2 (`:30-38`) | Five questions: brand (Cru/FL), theme (light/dark/both), CSS approach, framework, build tool | **Coupled to Daniel's escalation rule.** `daniel.md:60` escalates when "brand or theme is still ambiguous after you've asked directly" — this is the asking. The two must stay consistent or the escalation trigger has no antecedent |
 | Step 3a-d (`:44-81`) | Install; **`ref.css` first, then brand+theme**; the four mode files by exact path; `data-brand`/`data-theme` on the root incl. runtime switching; `var(--sys-*)` usage per stack (CSS/SCSS/Modules, styled-components/Emotion, Tailwind arbitrary values or `extend.colors`) | The import-order rule is load-bearing and stated nowhere else in the plugin. Verify the four `css/*.css` paths against the published package before any rewrite |
@@ -274,7 +274,7 @@ Not required, but decide deliberately: **`onboard.md:98-100` (Step 3f) duplicate
 ### Option 1 (recommended)
 
 | Edit | File | Change |
-|---|---|---|
+| --- | --- | --- |
 | 1 | `plugins/cornerstone/skills/onboard/SKILL.md` | **New.** Port `onboard.md`'s 107 lines verbatim in substance. Add `name: onboard`. **Omit `disable-model-invocation`.** Rewrite `description` into a rich, model-facing trigger description (install / import CSS / `data-brand` / `data-theme` / `--sys-*` / Cornerstone tokens in my app / brand and theme setup) so description-matching routes real consumer phrasings to it. Keep the existing `allowed-tools` list unchanged. Verify the four `css/*.css` paths and the Material Symbols axis string against the published package while porting |
 | 2 | `plugins/cornerstone/commands/onboard.md` | **Delete** (per #61: "deleting the old command files") |
 | 3 | `plugins/cornerstone/.claude-plugin/plugin.json` | **No change needed** for discovery. **Bump `version`** — see edit 6 |
