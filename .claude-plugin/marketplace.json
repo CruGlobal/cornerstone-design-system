@@ -21,6 +21,11 @@
       "name": "cornerstone-dev",
       "source": "./plugins/cornerstone-dev",
       "description": "The contributor tier — Cornerstone's front door plus the engineering skills and Figma tooling its contributor personas rely on. Install this if you work on Cornerstone itself."
+    },
+    {
+      "name": "cornerstone-designer",
+      "source": "./plugins/cornerstone-designer",
+      "description": "The designer tier — Cornerstone's front door plus Figma tooling and a Figma-only prototyping skill. Install this if you design with Cornerstone and don't write code."
     }
   ]
 }
