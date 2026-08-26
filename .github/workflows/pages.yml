@@ -15,7 +15,7 @@ name: Pages
 
 on:
   push:
-    branches: [main, monorepo-merge]
+    branches: [main]
   workflow_dispatch:
 
 # Read the repo, write the Pages deployment, mint the OIDC token deploy-pages needs.
