@@ -68,9 +68,10 @@ export default defineConfig({
   // and re-pointed by the port. A meta refresh is the wrong mechanism: the stub is a real page, so
   // Pagefind indexes it, it has no canonical, and a reader who lands on it sees a blank flash. Astro
   // emits a proper redirect for these instead, and they stop being content.
+  // Astro applies `base` to the route keys but not to the destinations, so those carry it explicitly.
   redirects: {
-    '/resources/agent-skills': '/ai/agent-skills',
-    '/resources/llms': '/ai/llms',
+    '/resources/agent-skills': `${DOCS_BASE_PATH}/ai/agent-skills`,
+    '/resources/llms': `${DOCS_BASE_PATH}/ai/llms`,
   },
   markdown: {
     // Off, because this site has its own highlighter. Astro's Shiki pass runs over every fence and bakes a

@@ -10,19 +10,34 @@
  * It is explicit rather than derived from `link`, because a section's pages do not all live under its
  * landing page: Getting Started owns `/usage` and `/frameworks`, which share no prefix with `/`.
  */
+/**
+ * The base the site is served under, without a trailing slash. `import.meta.env.BASE_URL` rather than
+ * `build-tools/site-url.js`: this module is imported by components that Vite bundles, and anything that
+ * derives a path from its own `import.meta.url` resolves against the bundle's location once bundled.
+ * Astro substitutes this at build time, so it survives.
+ */
+const BASE = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '');
+
+/** A site path, prefixed with the base. An empty base leaves it untouched. */
+export const path = (p) => `${BASE}${p}`;
+
+/** A pathname as the browser sees it, reduced to the shape `match` prefixes are written in. */
+export const stripBase = (pathname) =>
+  BASE && pathname.startsWith(BASE) ? pathname.slice(BASE.length) || '/' : pathname;
+
 export const siteSections = [
   {
     label: 'Getting Started',
-    link: '/',
+    link: path('/'),
     match: ['/usage', '/form-controls', '/frameworks', '/ai', '/ssr', '/localization'],
   },
-  { label: 'Components', link: '/components', match: ['/components'] },
+  { label: 'Components', link: path('/components'), match: ['/components'] },
   {
     label: 'Theming & Utilities',
-    link: '/themes',
+    link: path('/themes'),
     match: ['/themes', '/color-palettes', '/tokens', '/utilities', '/customizing', '/theming-overview'],
   },
-  { label: 'Resources', link: '/resources', match: ['/resources'] },
+  { label: 'Resources', link: path('/resources'), match: ['/resources'] },
 ];
 
 /**
@@ -32,7 +47,8 @@ export const siteSections = [
  * The root is special-cased: every path starts with `/`, so it can only match exactly.
  */
 export function sectionFor(pathname) {
-  const path = pathname.replace(/\/+$/, '') || '/';
+  // The browser's pathname includes the base path; `match` prefixes are written without it.
+  const path = stripBase(pathname).replace(/\/+$/, '') || '/';
 
   if (path === '/') {
     return siteSections[0];

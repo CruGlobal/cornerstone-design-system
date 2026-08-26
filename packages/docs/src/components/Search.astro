@@ -1,4 +1,5 @@
 ---
+import { path } from '../site-sections.js';
 /**
  * Site search: an icon button in the header that opens a `cs-dialog`.
  *
@@ -41,12 +42,12 @@ const t = Astro.locals.t;
 
 /** The sections worth offering before anything is typed. Icons are Material Symbols names. */
 const QUICK_LINKS = [
-  { label: 'Components', href: '/components', icon: 'deployed_code' },
-  { label: 'CSS Utilities', href: '/utilities', icon: 'brush' },
-  { label: 'Theming', href: '/themes', icon: 'palette' },
-  { label: 'Using with AI', href: '/ai', icon: 'wand_stars' },
-  { label: 'Changelog', href: '/resources/changelog', icon: 'book' },
-  { label: 'Help & Support', href: '/resources/support', icon: 'support' },
+  { label: 'Components', href: path('/components'), icon: 'deployed_code' },
+  { label: 'CSS Utilities', href: path('/utilities'), icon: 'brush' },
+  { label: 'Theming', href: path('/themes'), icon: 'palette' },
+  { label: 'Using with AI', href: path('/ai'), icon: 'wand_stars' },
+  { label: 'Changelog', href: path('/resources/changelog'), icon: 'book' },
+  { label: 'Help & Support', href: path('/resources/support'), icon: 'support' },
 ];
 ---
 

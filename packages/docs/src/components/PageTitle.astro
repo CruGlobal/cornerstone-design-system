@@ -1,4 +1,5 @@
 ---
+import { path } from '../site-sections.js';
 /**
  * The page's `<h1>`, with the narrow-width table of contents above it.
  *
@@ -92,7 +93,7 @@ if (showBreadcrumb) {
   });
 
   if (match) {
-    parent = { title: match.data.title, href: `/${dir}` };
+    parent = { title: match.data.title, href: path(`/${dir}`) };
   }
 }
 ---
