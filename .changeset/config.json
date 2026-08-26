@@ -2,7 +2,9 @@
   "$schema": "https://unpkg.com/@changesets/config@3.1.4/schema.json",
   "changelog": [
     "@changesets/changelog-github",
-    { "repo": "CruGlobal/cornerstone-design-system" }
+    {
+      "repo": "CruGlobal/cornerstone-design-system"
+    }
   ],
   "commit": false,
   "fixed": [],
@@ -10,5 +12,7 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": []
+  "ignore": [
+    "@cruglobal/cornerstone-components"
+  ]
 }
