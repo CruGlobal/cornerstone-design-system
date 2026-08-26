@@ -13,7 +13,7 @@ description: "Copy buttons copy text to the clipboard when the user activates th
 ---
 
 ```html {.example}
-<cs-copy-button value="https://github.com/CruGlobal/cornerstone-components"></cs-copy-button>
+<cs-copy-button value="https://github.com/CruGlobal/cornerstone-design-system"></cs-copy-button>
 ```
 
 :::info
@@ -51,7 +51,7 @@ By default `from` copies the target's [`textContent`](https://developer.mozilla.
 
   <!-- Copies the link's "href" attribute -->
   <div class="cs-cluster cs-align-items-center cs-gap-2xs">
-    <a id="my-link" href="https://github.com/CruGlobal/cornerstone-components">Cornerstone on GitHub</a>
+    <a id="my-link" href="https://github.com/CruGlobal/cornerstone-design-system">Cornerstone on GitHub</a>
     <cs-copy-button from="my-link[href]"></cs-copy-button>
   </div>
 </div>
@@ -92,7 +92,7 @@ By default the copy button renders an icon-only button. Slot in any clickable el
     <cs-button appearance="filled">Copy to Clipboard</cs-button>
   </cs-copy-button>
 
-  <cs-copy-button value="https://github.com/CruGlobal/cornerstone-components">
+  <cs-copy-button value="https://github.com/CruGlobal/cornerstone-design-system">
     <button type="button" class="cs-filled">Copy to Clipboard</button>
   </cs-copy-button>
 </div>

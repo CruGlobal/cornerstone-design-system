@@ -49,10 +49,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CruGlobal/cornerstone-components.git"
+    "url": "git+https://github.com/CruGlobal/cornerstone-design-system.git",
+    "directory": "packages/components"
   },
   "bugs": {
-    "url": "https://github.com/CruGlobal/cornerstone-components/issues"
+    "url": "https://github.com/CruGlobal/cornerstone-design-system/issues"
   },
   "scripts": {
     "start": "node scripts/build.js --develop --no-incremental",

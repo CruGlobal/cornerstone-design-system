@@ -13,7 +13,7 @@ process notes come first, and are short.
 ## Reporting a bug
 
 A bug is _a demonstrable problem_ caused by code in the library. Open an issue on the
-[issue tracker](https://github.com/CruGlobal/cornerstone-components/issues).
+[issue tracker](https://github.com/CruGlobal/cornerstone-design-system/issues).
 
 - **Do** search for an existing issue before opening a new one.
 - **Do** say which version you are on and which browser you saw it in.
@@ -138,7 +138,7 @@ This section can be a lot to digest in one sitting, so don't feel like you need 
 
 Cornerstone is built with accessibility in mind. Creating generic components that are fully accessible to users with varying capabilities across a multitude of circumstances is a daunting challenge. Oftentimes, the solution to an a11y problem is not written in black and white and, therefore, we may not get it right the first time around. There are, however, guidelines we can follow in our effort to make Cornerstone an accessible foundation from which applications and websites can be built.
 
-We take this commitment seriously, so please keep it in mind in what you write. If you find an accessibility problem in the library, file it on the [issue tracker](https://github.com/CruGlobal/cornerstone-components/issues).
+We take this commitment seriously, so please keep it in mind in what you write. If you find an accessibility problem in the library, file it on the [issue tracker](https://github.com/CruGlobal/cornerstone-design-system/issues).
 
 It's important to remember that, although accessibility starts with foundational components, it doesn't end with them. It everyone's responsibility to encourage best practices and ensure we're providing an optimal experience for all of our users.
 

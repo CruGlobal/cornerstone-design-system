@@ -172,4 +172,4 @@ If your AI tool supports Agent Skills, **we recommend using the skills** for bet
 
 ## Feedback
 
-Since this is experimental, we'd love to hear how it works for you! If you find issues with the generated content or have suggestions for improvement, please [open an issue on GitHub](https://github.com/CruGlobal/cornerstone-components/issues).
+Since this is experimental, we'd love to hear how it works for you! If you find issues with the generated content or have suggestions for improvement, please [open an issue on GitHub](https://github.com/CruGlobal/cornerstone-design-system/issues).

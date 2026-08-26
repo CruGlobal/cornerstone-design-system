@@ -93,7 +93,7 @@ Links and other interactive elements will still retain their behavior:
 <cs-details>
   <span slot="summary">
     Some text
-    <a href="https://github.com/CruGlobal/cornerstone-components" target="_blank">a link</a>
+    <a href="https://github.com/CruGlobal/cornerstone-design-system" target="_blank">a link</a>
     more text
   </span>
 

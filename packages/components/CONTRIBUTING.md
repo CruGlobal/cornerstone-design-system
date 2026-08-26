@@ -6,7 +6,7 @@ Cru design system team.
 ## Issues
 
 Bug reports and questions are welcome from anyone. Open an issue at
-[github.com/CruGlobal/cornerstone-components/issues](https://github.com/CruGlobal/cornerstone-components/issues).
+[github.com/CruGlobal/cornerstone-design-system/issues](https://github.com/CruGlobal/cornerstone-design-system/issues).
 
 A useful report says which component, which browser, and what you expected instead. A reduced test case
 is worth more than a description.

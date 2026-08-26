@@ -115,7 +115,7 @@ metadata:
   author: Cru Global
   version: "${packageData.version || '0.0.0'}"
   homepage: ${baseUrl}
-  repository: https://github.com/CruGlobal/cornerstone-components
+  repository: https://github.com/CruGlobal/cornerstone-design-system
 compatibility: Works in modern browsers. Requires no build tools when using CDN. Works with bundlers like Webpack and Vite when installed via npm.
 allowed-tools: Read
 ---
@@ -417,7 +417,7 @@ See framework-specific guides in [references/frameworks/](references/frameworks/
 
 ## Support
 
-- **GitHub Issues**: https://github.com/CruGlobal/cornerstone-components/issues
+- **GitHub Issues**: https://github.com/CruGlobal/cornerstone-design-system/issues
 
 See [Support Reference](references/support.md) for more details.
 
@@ -512,7 +512,7 @@ function generateSupportReference(baseUrl) {
 ### GitHub
 
 - **Issues**: Report bugs with clear reproduction steps
-  https://github.com/CruGlobal/cornerstone-components/issues
+  https://github.com/CruGlobal/cornerstone-design-system/issues
 `;
 }
 

@@ -11,7 +11,7 @@ Cru's web component library: 70 components built with [Lit](https://lit.dev/).
 
 Documentation: [cruglobal.github.io/cornerstone-design-system](https://cruglobal.github.io/cornerstone-design-system)
 
-Source: [github.com/CruGlobal/cornerstone-components](https://github.com/CruGlobal/cornerstone-components)
+Source: [github.com/CruGlobal/cornerstone-design-system](https://github.com/CruGlobal/cornerstone-design-system)
 
 ---
 
@@ -40,7 +40,7 @@ npm install -D prettier
 Clone the repo locally and install dependencies.
 
 ```bash
-git clone https://github.com/CruGlobal/cornerstone-components
+git clone https://github.com/CruGlobal/cornerstone-design-system
 cd cornerstone-components
 npm install
 ```

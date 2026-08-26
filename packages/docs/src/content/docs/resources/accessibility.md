@@ -81,4 +81,4 @@ visual order, and no focusable element is repositioned with `order`, `row-revers
 
 Accessibility problems are bugs, and the most useful ones name the component, the assistive technology or
 browser, and what you expected to happen. Open an issue on the
-[repository](https://github.com/CruGlobal/cornerstone-components/issues).
+[repository](https://github.com/CruGlobal/cornerstone-design-system/issues).

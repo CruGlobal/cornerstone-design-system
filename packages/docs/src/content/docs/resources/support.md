@@ -26,11 +26,11 @@ description: Where to report a bug or ask a question about Cornerstone Component
     <li>For a new component or a new option on an existing one, describe the case it has to serve rather than the API you would like.</li>
   </ul>
   <div class="cs-cluster cs-gap-s">
-    <cs-button appearance="filled" href="https://github.com/CruGlobal/cornerstone-components/issues/new">
+    <cs-button appearance="filled" href="https://github.com/CruGlobal/cornerstone-design-system/issues/new">
       <cs-icon slot="start" name="bug_report"></cs-icon>
       Open an issue
     </cs-button>
-    <cs-button href="https://github.com/CruGlobal/cornerstone-components/issues" appearance="outlined">
+    <cs-button href="https://github.com/CruGlobal/cornerstone-design-system/issues" appearance="outlined">
       <cs-icon slot="start" name="list"></cs-icon>
       Browse open issues
     </cs-button>
@@ -45,7 +45,7 @@ description: Where to report a bug or ask a question about Cornerstone Component
   </div>
 <div class="cs-cluster cs-caption-2xl">
     <h2 class="cs-visually-hidden">Cornerstone Components on GitHub</h2>
-    <a href="https://github.com/CruGlobal/cornerstone-components" rel="noopener noreferrer" target="_blank" class="appearance-plain">
+    <a href="https://github.com/CruGlobal/cornerstone-design-system" rel="noopener noreferrer" target="_blank" class="appearance-plain">
       <cs-icon name="github" label="GitHub" role="img" aria-label="GitHub" library="brands"></cs-icon>
     </a>
   </div>

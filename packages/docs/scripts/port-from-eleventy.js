@@ -115,9 +115,9 @@ const SITE_VALUES = {
   'site.company': 'Cru',
   'site.tagline': 'The custom-element library of the Cornerstone design system.',
   'site.domain': 'cornerstone.ustech.app',
-  'site.github.repo': 'https://github.com/CruGlobal/cornerstone-components',
-  'site.github.issues': 'https://github.com/CruGlobal/cornerstone-components/issues',
-  'site.github.discussions': 'https://github.com/CruGlobal/cornerstone-components/discussions',
+  'site.github.repo': 'https://github.com/CruGlobal/cornerstone-design-system',
+  'site.github.issues': 'https://github.com/CruGlobal/cornerstone-design-system/issues',
+  'site.github.discussions': 'https://github.com/CruGlobal/cornerstone-design-system/discussions',
   'site.siblings.fontAwesome.name': 'Font Awesome',
   'site.siblings.fontAwesome.url': 'https://fontawesome.com',
 };

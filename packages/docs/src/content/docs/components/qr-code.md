@@ -12,7 +12,7 @@ description: "QR codes encode a URL or other short text into a scannable image, 
 ---
 
 ```html {.example}
-<cs-qr-code value="https://github.com/CruGlobal/cornerstone-components" label="Scan to visit Cornerstone"></cs-qr-code>
+<cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" label="Scan to visit Cornerstone"></cs-qr-code>
 ```
 
 QR codes are useful for providing small pieces of information to users who can quickly scan them with a smartphone. Most smartphones have built-in QR code scanners, so pointing the camera at a QR code will decode it and allow the user to visit a website, dial a phone number, read a message, etc.
@@ -24,7 +24,7 @@ QR codes are useful for providing small pieces of information to users who can q
 Use the `size` attribute to change the size of the QR code.
 
 ```html {.example}
-<cs-qr-code value="https://github.com/CruGlobal/cornerstone-components" size="64"></cs-qr-code>
+<cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" size="64"></cs-qr-code>
 ```
 
 ### Colors
@@ -37,7 +37,7 @@ A _quiet zone_ is the blank space around a QR code that helps scanners detect it
 
 ```html {.example}
 <cs-qr-code
-  value="https://github.com/CruGlobal/cornerstone-components"
+  value="https://github.com/CruGlobal/cornerstone-design-system"
   style="
     color: var(--cs-color-purple-20);
     background-color: var(--cs-color-purple-90);
@@ -52,7 +52,7 @@ A _quiet zone_ is the blank space around a QR code that helps scanners detect it
 You can change the color of the corners to be different from the main element with the `--corner-color` custom property.
 
 ```html {.example}
-<cs-qr-code value="https://github.com/CruGlobal/cornerstone-components" style="--corner-color: var(--cs-color-brand)"></cs-qr-code>
+<cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" style="--corner-color: var(--cs-color-brand)"></cs-qr-code>
 ```
 
 ### Radius
@@ -60,7 +60,7 @@ You can change the color of the corners to be different from the main element wi
 Create a rounded effect with the `radius` attribute.
 
 ```html {.example}
-<cs-qr-code value="https://github.com/CruGlobal/cornerstone-components" radius="0.5"></cs-qr-code>
+<cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" radius="0.5"></cs-qr-code>
 ```
 
 ### Error Correction
@@ -69,10 +69,10 @@ QR codes can be rendered with various levels of [error correction](https://www.q
 
 ```html {.example}
 <div class="qr-error-correction">
-  <cs-qr-code value="https://github.com/CruGlobal/cornerstone-components" error-correction="L"></cs-qr-code>
-  <cs-qr-code value="https://github.com/CruGlobal/cornerstone-components" error-correction="M"></cs-qr-code>
-  <cs-qr-code value="https://github.com/CruGlobal/cornerstone-components" error-correction="Q"></cs-qr-code>
-  <cs-qr-code value="https://github.com/CruGlobal/cornerstone-components" error-correction="H"></cs-qr-code>
+  <cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" error-correction="L"></cs-qr-code>
+  <cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" error-correction="M"></cs-qr-code>
+  <cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" error-correction="Q"></cs-qr-code>
+  <cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" error-correction="H"></cs-qr-code>
 </div>
 
 <style>
@@ -89,7 +89,7 @@ QR codes can be rendered with various levels of [error correction](https://www.q
 Use the `image` attribute to add a logo or image to the center of the QR code. When using an image, the error correction level will automatically be set to `H` to ensure the code remains scannable.
 
 ```html {.example}
-<cs-qr-code value="https://github.com/CruGlobal/cornerstone-components" image="/assets/images/logos/cs-avatar4x.png"></cs-qr-code>
+<cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" image="/assets/images/logos/cs-avatar4x.png"></cs-qr-code>
 ```
 
 ### Image Coverage
@@ -106,7 +106,7 @@ The higher the `image-coverage` value, the harder it will be for QR readers to s
     image-coverage="0.3"
   ></cs-qr-code>
   <cs-qr-code
-    value="https://github.com/CruGlobal/cornerstone-components"
+    value="https://github.com/CruGlobal/cornerstone-design-system"
     image="/assets/images/logos/cs-avatar4x.png"
     image-coverage="0.6"
   ></cs-qr-code>
@@ -132,7 +132,7 @@ Bind an input to the `value` property to build a live generator that updates the
 
 ```html {.example}
 <div class="qr-generator">
-  <cs-qr-code value="https://github.com/CruGlobal/cornerstone-components" label="Scan this code to visit Cornerstone on the web!"></cs-qr-code>
+  <cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" label="Scan this code to visit Cornerstone on the web!"></cs-qr-code>
 
   <cs-divider></cs-divider>
 
