@@ -10,11 +10,11 @@
     "prebuild": "node scripts/link-library.js",
     "build": "ASTRO_CACHE_DIR=node_modules/.astro-build astro build --force",
     "preview": "astro preview",
-    "check": "astro check",
+    "prettier": "prettier --check --log-level=warn --ignore-path=\".prettierignore\" .",
+    "check": "npm run prettier && astro check",
     "check:pages": "node scripts/check-pages.js",
     "check:tokens": "node scripts/check-tokens.js",
     "check:components": "node scripts/check-components.js",
-    "port": "node scripts/port-from-eleventy.js",
     "postbuild": "node scripts/prune-pagefind.js"
   },
   "engines": {

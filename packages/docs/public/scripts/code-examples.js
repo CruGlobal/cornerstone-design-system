@@ -180,7 +180,7 @@ async function setCodeExampleOpen(codeExample, toggle, open) {
         { height: '0', opacity: '0' },
         { height: `${source.scrollHeight}px`, opacity: '1' },
       ],
-      { duration: showDuration, easing: 'linear' },
+      { duration: showDuration, easing: 'linear' }
     );
 
     if (getAnimationGeneration(codeExample) !== generation) {
@@ -209,7 +209,7 @@ async function setCodeExampleOpen(codeExample, toggle, open) {
       { height: `${startHeight}px`, opacity: '1' },
       { height: '0', opacity: '0' },
     ],
-    { duration: hideDuration, easing: 'linear' },
+    { duration: hideDuration, easing: 'linear' }
   );
 
   if (getAnimationGeneration(codeExample) !== generation) {

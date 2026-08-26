@@ -193,7 +193,11 @@ function uncategorized() {
     .sort(byName);
 
   return orphans.length
-    ? { label: 'Uncategorized', collapsed: false, items: orphans.map((o) => ({ label: o.title, link: o.link })) }
+    ? {
+        label: 'Uncategorized',
+        collapsed: false,
+        items: orphans.map((o) => ({ label: o.title, link: o.link })),
+      }
     : null;
 }
 

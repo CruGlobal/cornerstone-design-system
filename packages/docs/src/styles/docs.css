@@ -589,9 +589,7 @@ cs-page {
 /* The ring is on the card rather than the link, so it follows the card's own radius. */
 .hover-emphasize-border > cs-card {
   outline: var(--cs-border-width-s) solid transparent;
-  transition:
-    border-color var(--cs-transition-normal),
-    outline-color var(--cs-transition-normal);
+  transition: border-color var(--cs-transition-normal), outline-color var(--cs-transition-normal);
 }
 
 .hover-emphasize-border:is(:hover, :focus-visible) > cs-card {
@@ -1158,9 +1156,7 @@ cs-page[view='mobile'] .site-logo {
   flex: 0 0 auto;
   opacity: 0.6;
   color: var(--cs-color-text-quiet);
-  transition:
-    color var(--cs-transition-fast),
-    opacity var(--cs-transition-fast);
+  transition: color var(--cs-transition-fast), opacity var(--cs-transition-fast);
 }
 
 .site-search-details {

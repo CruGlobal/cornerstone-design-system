@@ -67,7 +67,10 @@ export function remarkMarkdownFeatures() {
       node.data = {
         ...node.data,
         hName: 'cs-callout',
-        hProperties: { variant: callout.variant, ...(callout.className ? { class: callout.className } : {}) },
+        hProperties: {
+          variant: callout.variant,
+          ...(callout.className ? { class: callout.className } : {}),
+        },
       };
 
       // The icon is a slotted child rather than an attribute, so it is prepended as an element.

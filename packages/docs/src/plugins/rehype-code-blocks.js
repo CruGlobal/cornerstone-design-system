@@ -42,7 +42,11 @@ export function rehypeCodeBlocks() {
       // example source — so a search for "callout" was returning the raw markup of a demo as its summary rather
       // than the sentence that describes the component. The API tables are real tables, not code blocks, so
       // attribute and property names stay findable; what stops being searchable is the inside of an example.
-      node.properties = { ...node.properties, id: preId, 'data-pagefind-ignore': true };
+      node.properties = {
+        ...node.properties,
+        id: preId,
+        'data-pagefind-ignore': true,
+      };
       code.properties = { ...code.properties, id: codeId };
 
       if (language) {

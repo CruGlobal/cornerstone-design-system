@@ -6,14 +6,14 @@
  * symlink because Astro's public/ handling does not follow symlinks reliably, and rather than a
  * `file:..` dependency because that symlinks the repo root back into its own subdirectory.
  */
-import { cpSync, existsSync, rmSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { componentsDir } from "@cruglobal/cornerstone-build-tools/workspace.js";
-import { fileURLToPath } from "node:url";
+import { cpSync, existsSync, rmSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { componentsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
+import { fileURLToPath } from 'node:url';
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
-const bundledDir = join(componentsDir(), "dist", "bundled");
-const target = join(siteDir, "public", "dist");
+const bundledDir = join(componentsDir(), 'dist', 'bundled');
+const target = join(siteDir, 'public', 'dist');
 
 if (!existsSync(bundledDir)) {
   console.error(

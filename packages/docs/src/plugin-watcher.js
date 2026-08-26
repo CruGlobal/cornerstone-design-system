@@ -100,7 +100,9 @@ export function pluginWatcher() {
     const pages = [];
 
     const walk = (relative) => {
-      for (const entry of readdirSync(join(CONTENT_DIR, relative), { withFileTypes: true })) {
+      for (const entry of readdirSync(join(CONTENT_DIR, relative), {
+        withFileTypes: true,
+      })) {
         const next = relative ? `${relative}/${entry.name}` : entry.name;
 
         if (entry.isDirectory()) {

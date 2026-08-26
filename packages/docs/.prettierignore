@@ -1,0 +1,18 @@
+# Paths are relative to this file, at the root of the package.
+# Mirrors the rules this site had while it lived inside the component library.
+
+*.md
+
+**/.cache
+.astro
+dist
+
+# The library's bundled build, copied in by scripts/link-library.js
+public/dist
+
+# Formatted by hand, or by the tool that owns them
+package.json
+package-lock.json
+tsconfig.json
+
+node_modules

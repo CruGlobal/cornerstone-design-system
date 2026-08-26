@@ -21,41 +21,30 @@
  * Run after `npm run build`. Exits non-zero on the first page that fails, listing every failure.
  */
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { basename, dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-import {
-  getApiSections,
-  getComponent,
-  loadComponents,
-} from "@cruglobal/cornerstone-build-tools/component-api.js";
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { getApiSections, getComponent, loadComponents } from '@cruglobal/cornerstone-build-tools/component-api.js';
 // `palettes` is still every palette: the showcase loads all of them, because each theme it previews imports
 // one. Only the reference page narrowed to the brand palette.
-import {
-  brandPalette,
-  brandTheme,
-  palettes,
-  variants,
-} from "../src/plugins/remark-theming.js";
-import { themes, tints } from "../src/themer.js";
+import { brandPalette, brandTheme, palettes, variants } from '../src/plugins/remark-theming.js';
+import { themes, tints } from '../src/themer.js';
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
-const contentDir = join(siteDir, "src", "content", "docs", "components");
-const builtDir = join(siteDir, "dist", "components");
-const distDir = join(siteDir, "dist");
+const contentDir = join(siteDir, 'src', 'content', 'docs', 'components');
+const builtDir = join(siteDir, 'dist', 'components');
+const distDir = join(siteDir, 'dist');
 
 /** Counts the authored live examples in a page's markdown. */
-const countFences = (markdown) =>
-  (markdown.match(/^```html \{[^}]*\.example[^}]*\}/gm) ?? []).length;
+const countFences = (markdown) => (markdown.match(/^```html \{[^}]*\.example[^}]*\}/gm) ?? []).length;
 
-const isDraft = (markdown) =>
-  /^draft:\s*true\s*$/m.test(markdown.split("---")[1] ?? "");
+const isDraft = (markdown) => /^draft:\s*true\s*$/m.test(markdown.split('---')[1] ?? '');
 
 /** Counts the body rows of the first table following a section heading. */
 function countRowsAfter(html, id) {
   const start = html.indexOf(`id="${id}"`);
   const body = html.slice(start, start === -1 ? 0 : undefined);
-  const table = body.slice(body.indexOf("<tbody>"), body.indexOf("</tbody>"));
+  const table = body.slice(body.indexOf('<tbody>'), body.indexOf('</tbody>'));
 
   // Rows in the CSS Parts table carry data-part-name, so the opening tag is not always bare.
   return start === -1 ? -1 : (table.match(/<tr[\s>]/g) ?? []).length;
@@ -63,16 +52,16 @@ function countRowsAfter(html, id) {
 
 /** Every Font Awesome Pro icon name the showcase used before the port, so none can come back. */
 const PRO_ICONS = [
-  "book-sparkles",
-  "chevrons-up",
-  "coin-vertical",
-  "egg-fried",
-  "moon-stars",
-  "robot-astromech",
-  "space-station-moon",
-  "starfighter-twin-ion-engine",
-  "sword-laser",
-  "user-bounty-hunter",
+  'book-sparkles',
+  'chevrons-up',
+  'coin-vertical',
+  'egg-fried',
+  'moon-stars',
+  'robot-astromech',
+  'space-station-moon',
+  'starfighter-twin-ion-engine',
+  'sword-laser',
+  'user-bounty-hunter',
 ];
 
 /** How many times `pattern` matches, for a pattern with the global flag. */
@@ -101,47 +90,39 @@ const count = (html, pattern) => (html.match(pattern) ?? []).length;
  * there leaves the page with no title at all rather than with two.
  */
 function checkBrowsePage(failures) {
-  const built = join(builtDir, "index.html");
+  const built = join(builtDir, 'index.html');
 
   if (!existsSync(built)) {
-    failures.push("components browse page: no page was built");
+    failures.push('components browse page: no page was built');
     return 0;
   }
 
   const expected = readdirSync(contentDir)
-    .filter((name) => name.endsWith(".md") && name !== "index.md")
-    .filter(
-      (name) => !isDraft(readFileSync(join(contentDir, name), "utf-8"))
-    ).length;
+    .filter((name) => name.endsWith('.md') && name !== 'index.md')
+    .filter((name) => !isDraft(readFileSync(join(contentDir, name), 'utf-8'))).length;
 
-  const html = readFileSync(built, "utf-8");
+  const html = readFileSync(built, 'utf-8');
   const cards = (html.match(/class="component-card-link/g) ?? []).length;
   const titles = (html.match(/<h1[\s>]/g) ?? []).length;
 
   if (cards !== expected) {
-    failures.push(
-      `components browse page: ${expected} published component pages, ${cards} cards on the page`
-    );
+    failures.push(`components browse page: ${expected} published component pages, ${cards} cards on the page`);
   }
 
   if (titles !== 1) {
-    failures.push(
-      `components browse page: ${titles} <h1> elements, expected exactly 1`
-    );
+    failures.push(`components browse page: ${titles} <h1> elements, expected exactly 1`);
   }
 
   if (!html.includes('id="_top"')) {
-    failures.push(
-      'components browse page: no id="_top", so the skip link has nowhere to land'
-    );
+    failures.push('components browse page: no id="_top", so the skip link has nowhere to land');
   }
 
   for (const [what, marker] of [
-    ["grid", "component-browser-grid"],
-    ["hero", "component-browser-hero"],
-    ["search field", "component-browser-search"],
-    ["category filter", "component-browser-category"],
-    ["sort control", "component-browser-sort"],
+    ['grid', 'component-browser-grid'],
+    ['hero', 'component-browser-hero'],
+    ['search field', 'component-browser-search'],
+    ['category filter', 'component-browser-category'],
+    ['sort control', 'component-browser-sort'],
   ]) {
     if (!html.includes(marker)) {
       failures.push(`components browse page: no ${what} rendered`);
@@ -153,9 +134,7 @@ function checkBrowsePage(failures) {
   const since = (html.match(/Since \d/g) ?? []).length;
 
   if (since !== expected) {
-    failures.push(
-      `components browse page: ${expected} cards, ${since} "Since" badges`
-    );
+    failures.push(`components browse page: ${expected} cards, ${since} "Since" badges`);
   }
 
   return 1;
@@ -165,97 +144,64 @@ function checkTheming(failures) {
   // The page documents one palette — the one the library applies at the document root — so every count comes
   // from that palette's own stylesheet: nineteen hues for Cru, eleven tints each, one key step per hue.
   const hues = brandPalette.hues;
-  const brandThemeName = brandTheme.filename.replace(/\.css$/, "");
+  const brandThemeName = brandTheme.filename.replace(/\.css$/, '');
 
   const pages = [
     {
-      label: "color-palettes",
-      path: join(distDir, "color-palettes", "index.html"),
+      label: 'color-palettes',
+      path: join(distDir, 'color-palettes', 'index.html'),
       checks: [
-        [
-          "swatches",
-          /class="palette-swatch-button"/g,
-          hues.length * tints.length,
-        ],
-        ["hue scales", /class="palette-swatches/g, hues.length],
+        ['swatches', /class="palette-swatch-button"/g, hues.length * tints.length],
+        ['hue scales', /class="palette-swatches/g, hues.length],
         // Exactly one key step marked per scale. The marker is emphasis on the tint label, so a scale with
         // none — or two — means the key map stopped matching the tints.
-        [
-          "marked key steps",
-          /cs-text-center cs-font-weight-bold/g,
-          hues.length,
-        ],
-        [
-          "palette stylesheets",
-          /<link rel="stylesheet" href="[^"]*\/dist\/styles\/color\/palettes\//g,
-          1,
-        ],
+        ['marked key steps', /cs-text-center cs-font-weight-bold/g, hues.length],
+        ['palette stylesheets', /<link rel="stylesheet" href="[^"]*\/dist\/styles\/color\/palettes\//g, 1],
         // One set of install instructions, and no picker: the three palettes that were tabs here are each
         // imported by the theme that ships them, so none of them is a choice.
-        ["install tab groups", /<cs-tab panel="npm">/g, 1],
-        ["pickers", /data-theming-picker/g, 0],
+        ['install tab groups', /<cs-tab panel="npm">/g, 1],
+        ['pickers', /data-theming-picker/g, 0],
       ],
     },
     {
-      label: "themes",
-      path: join(distDir, "themes", "index.html"),
+      label: 'themes',
+      path: join(distDir, 'themes', 'index.html'),
       checks: [
         // Two frames, one comparison, one theme. The frames are the same showcase under two colour schemes, so
         // both must carry the brand theme in their query string or the preview shows the showcase's default.
-        ["preview frames", /<cs-zoomable-frame/g, 2],
-        [
-          "frames on the brand theme",
-          new RegExp(`showcase\\?theme=${brandThemeName}&`, "g"),
-          2,
-        ],
-        ["install tab groups", /<cs-tab panel="npm">/g, 1],
-        ["pickers", /data-theming-picker/g, 0],
+        ['preview frames', /<cs-zoomable-frame/g, 2],
+        ['frames on the brand theme', new RegExp(`showcase\\?theme=${brandThemeName}&`, 'g'), 2],
+        ['install tab groups', /<cs-tab panel="npm">/g, 1],
+        ['pickers', /data-theming-picker/g, 0],
       ],
     },
     {
-      label: "tokens/color",
-      path: join(distDir, "tokens", "color", "index.html"),
+      label: 'tokens/color',
+      path: join(distDir, 'tokens', 'color', 'index.html'),
       checks: [
         // The three generated tables. Each was a Nunjucks loop over a hard-coded list, which is what kept this
         // page a draft — and the lists were upstream's, so they named hues and variants this fork does not have.
-        [
-          "core colour rows",
-          /<code>--cs-color-[a-z-]+-key<\/code>/g,
-          hues.length,
-        ],
+        ['core colour rows', /<code>--cs-color-[a-z-]+-key<\/code>/g, hues.length],
         // Matched on the variant names, because the hue table has an on-colour column too.
         [
-          "variant rows",
-          new RegExp(
-            `<code>--cs-color-(?:${variants
-              .map((variant) => variant.name)
-              .join("|")})-on</code>`,
-            "g"
-          ),
+          'variant rows',
+          new RegExp(`<code>--cs-color-(?:${variants.map((variant) => variant.name).join('|')})-on</code>`, 'g'),
           variants.length,
         ],
-        ["matrix rows", /id="token-color-/g, 9],
+        ['matrix rows', /id="token-color-/g, 9],
         // Two swatch grids: the palette's hues, and the variant scales.
-        [
-          "hue scales",
-          /class="palette-swatches/g,
-          hues.length + variants.length,
-        ],
+        ['hue scales', /class="palette-swatches/g, hues.length + variants.length],
         // Hues this fork does not define. The page named blue, indigo and red throughout, and every reference
         // resolved to nothing.
-        ["undefined hue references", /--cs-color-(?:blue|indigo|red)-/g, 0],
+        ['undefined hue references', /--cs-color-(?:blue|indigo|red)-/g, 0],
       ],
     },
     {
-      label: "examples/themes/showcase",
-      path: join(distDir, "examples", "themes", "showcase", "index.html"),
+      label: 'examples/themes/showcase',
+      path: join(distDir, 'examples', 'themes', 'showcase', 'index.html'),
       checks: [
-        ["theme stylesheets", /\/dist\/styles\/themes\//g, themes.length],
-        [
-          "palette stylesheets",
-          /\/dist\/styles\/color\/palettes\//g,
-          palettes.length,
-        ],
+        ['theme stylesheets', /\/dist\/styles\/themes\//g, themes.length],
+        ['palette stylesheets', /\/dist\/styles\/color\/palettes\//g, palettes.length],
       ],
     },
   ];
@@ -269,50 +215,35 @@ function checkTheming(failures) {
     }
 
     checked += 1;
-    const html = readFileSync(page.path, "utf-8");
+    const html = readFileSync(page.path, 'utf-8');
 
     for (const [what, pattern, expected] of page.checks) {
       const found = count(html, pattern);
 
       if (found !== expected) {
-        failures.push(
-          `${page.label}: ${expected} ${what} expected, ${found} on the page`
-        );
+        failures.push(`${page.label}: ${expected} ${what} expected, ${found} on the page`);
       }
     }
 
     // A palette whose stylesheet defines no `.cs-palette-*` class cannot be selected with one. Naming it
     // anyway is the bug that had this page showing a mix of Cru's hues and the default palette's.
-    if (page.label === "color-palettes") {
-      if (
-        !brandPalette.scoped &&
-        html.includes(`cs-palette-${brandPalette.slug}`)
-      ) {
-        failures.push(
-          `${page.label}: ${brandPalette.name} is not class-scoped, but the page uses a class for it`
-        );
+    if (page.label === 'color-palettes') {
+      if (!brandPalette.scoped && html.includes(`cs-palette-${brandPalette.slug}`)) {
+        failures.push(`${page.label}: ${brandPalette.name} is not class-scoped, but the page uses a class for it`);
       }
 
       const missing = hues.filter((hue) => !brandPalette.keys[hue]);
 
       if (missing.length) {
-        failures.push(
-          `${page.label}: ${
-            brandPalette.name
-          } declares no key step for ${missing.join(", ")}`
-        );
+        failures.push(`${page.label}: ${brandPalette.name} declares no key step for ${missing.join(', ')}`);
       }
 
       // Every swatch names its own value in the tooltip, which is also its accessible name.
-      const valued = hues.filter((hue) =>
-        tints.every((tint) => brandPalette.values[`${hue}-${tint}`])
-      );
+      const valued = hues.filter((hue) => tints.every((tint) => brandPalette.values[`${hue}-${tint}`]));
 
       if (valued.length !== hues.length) {
         failures.push(
-          `${page.label}: ${
-            hues.length - valued.length
-          } scales have steps with no value read from the stylesheet`
+          `${page.label}: ${hues.length - valued.length} scales have steps with no value read from the stylesheet`
         );
       }
     }
@@ -320,13 +251,7 @@ function checkTheming(failures) {
     const pro = PRO_ICONS.filter((icon) => html.includes(`name="${icon}"`));
 
     if (pro.length) {
-      failures.push(
-        `${
-          page.label
-        }: Font Awesome Pro icon names, which this fork cannot resolve: ${pro.join(
-          ", "
-        )}`
-      );
+      failures.push(`${page.label}: Font Awesome Pro icon names, which this fork cannot resolve: ${pro.join(', ')}`);
     }
   }
 
@@ -335,9 +260,7 @@ function checkTheming(failures) {
 
 function main() {
   if (!existsSync(builtDir)) {
-    console.error(
-      `No build found at ${builtDir}. Run \`npm run build\` first.`
-    );
+    console.error(`No build found at ${builtDir}. Run \`npm run build\` first.`);
     process.exitCode = 1;
     return;
   }
@@ -347,10 +270,10 @@ function main() {
   let checked = 0;
 
   for (const file of readdirSync(contentDir)
-    .filter((name) => name.endsWith(".md"))
+    .filter((name) => name.endsWith('.md'))
     .sort()) {
-    const name = basename(file, ".md");
-    const markdown = readFileSync(join(contentDir, file), "utf-8");
+    const name = basename(file, '.md');
+    const markdown = readFileSync(join(contentDir, file), 'utf-8');
 
     // A draft is deliberately absent from a production build, so its absence is not a failure.
     if (isDraft(markdown)) {
@@ -361,11 +284,11 @@ function main() {
     // to `components/index.html` rather than `components/index/index.html`. It gets its own check
     // below, because it has exactly the failure mode this script exists to catch: if
     // `remarkPageIndex` stops matching, the page still builds and simply has no grid on it.
-    if (name === "index") {
+    if (name === 'index') {
       continue;
     }
 
-    const builtPath = join(builtDir, name, "index.html");
+    const builtPath = join(builtDir, name, 'index.html');
 
     if (!existsSync(builtPath)) {
       failures.push(`${name}: no page was built`);
@@ -373,7 +296,7 @@ function main() {
     }
 
     checked += 1;
-    const html = readFileSync(builtPath, "utf-8");
+    const html = readFileSync(builtPath, 'utf-8');
     const expected = countFences(markdown);
     // Matched on a class-list prefix rather than the exact string: an anatomy-only card carries an
     // extra class, and an exact match silently counted those cards as missing.
@@ -392,20 +315,16 @@ function main() {
     }
 
     if (rendered !== expected) {
-      failures.push(
-        `${name}: ${expected} authored examples, ${rendered} rendered`
-      );
+      failures.push(`${name}: ${expected} authored examples, ${rendered} rendered`);
     }
 
-    for (const section of getApiSections(
-      getComponent(components, `cs-${name}`)
-    )) {
+    for (const section of getApiSections(getComponent(components, `cs-${name}`))) {
       if (!html.includes(`id="${section.id}"`)) {
         failures.push(`${name}: the ${section.heading} section is missing`);
         continue;
       }
 
-      if (section.type !== "table") {
+      if (section.type !== 'table') {
         continue;
       }
 

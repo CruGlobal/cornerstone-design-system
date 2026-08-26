@@ -25,18 +25,20 @@ Modifications
 The Web Awesome namespace has been renamed throughout: `wa-` element, class, cascade-layer and
 event names to `cs-`; `--wa-` custom properties to `--cs-`; exported `Wa*` classes to `Cs*`; and
 the package to `@cruglobal/cornerstone-components`. The fork's own commits are not in this
-repository's history: the library was imported as a single commit. They are kept on the
-`archive/fork-history` branch.
+repository's history: the library was imported as a single commit, so `git log` on these files
+begins at that import rather than at the fork point.
 
-Excluded from this fork
------------------------
+What is and is not carried over
+-------------------------------
 
-Web Awesome Pro is not part of the upstream public repository and is not included here. Font
-Awesome icon assets carry licensing separate from the Web Awesome source and are not vendored.
-Upstream documentation prose IS carried over. The documentation site was ported from upstream's
-`docs/` tree with the namespace rename applied and has been edited since; measured against the fork
-point, 72% of its substantial prose lines are still upstream's verbatim. It is covered by the same MIT
-licence and the attribution above.
+Not carried: Web Awesome Pro, which is not part of the upstream public repository. Not vendored:
+Font Awesome icon assets, which carry licensing separate from the Web Awesome source.
+
+Carried: upstream's documentation prose. The documentation site was ported from upstream's `docs/`
+tree with the namespace rename applied and has been edited since; measured against the fork point,
+72% of its substantial prose lines are still upstream's verbatim. It is covered by the same MIT
+licence and the attribution above. That site is no longer part of this package — it is
+`packages/docs` in this workspace — but the attribution travels with it.
 
 Inherited test failures
 -----------------------

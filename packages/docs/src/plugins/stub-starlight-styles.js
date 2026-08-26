@@ -109,7 +109,7 @@ export function stubStarlightStyles() {
             this.warn(
               `${chunk.fileName} still contains \`${signature}\` from ${file}: the stub did not ` +
                 `apply. Check whether @astrojs/starlight has moved it out of ${STYLE_DIR}. ` +
-                `Leaving it in place restores the site-wide margin suppression.`,
+                `Leaving it in place restores the site-wide margin suppression.`
             );
           }
         }

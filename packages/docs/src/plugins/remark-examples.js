@@ -50,7 +50,7 @@ export function remarkExamples() {
       }
 
       const flags = new Set(
-        [...node.meta.matchAll(/\.([a-z-]+)/g)].map((match) => match[1]).filter((flag) => FLAGS.includes(flag)),
+        [...node.meta.matchAll(/\.([a-z-]+)/g)].map((match) => match[1]).filter((flag) => FLAGS.includes(flag))
       );
 
       const isAnatomy = flags.has('anatomy') || flags.has('anatomy-only');
@@ -59,7 +59,9 @@ export function remarkExamples() {
       const sourceId = `code-example-${(counter += 1)}`;
 
       const buttons = [
-        `<button class="code-example-toggle" type="button" aria-expanded="${isOpen}" aria-controls="${sourceId}">Code ${icon('keyboard_arrow_down')}</button>`,
+        `<button class="code-example-toggle" type="button" aria-expanded="${isOpen}" aria-controls="${sourceId}">Code ${icon(
+          'keyboard_arrow_down'
+        )}</button>`,
         !framed &&
           !flags.has('no-color-scheme') &&
           `<button class="code-example-theme" type="button">` +
@@ -94,13 +96,15 @@ export function remarkExamples() {
             `<div class="code-example-content"${isAnatomy ? ' data-anatomy-subject="true"' : ''}>${node.value}</div>` +
             `<div class="code-example-resizer" aria-hidden="true">${icon('drag_indicator')}</div>` +
             `</div>` +
-            `<div class="code-example-source" id="${sourceId}" role="region" aria-label="Example source code"${isOpen ? '' : ' aria-hidden="true"'}>`,
+            `<div class="code-example-source" id="${sourceId}" role="region" aria-label="Example source code"${
+              isOpen ? '' : ' aria-hidden="true"'
+            }>`,
         },
         { ...node, meta: null },
         {
           type: 'html',
           value: `</div><div class="code-example-buttons">${buttons.join('')}</div></div>`,
-        },
+        }
       );
 
       // Skip the three nodes just spliced in, or the code node is visited again.

@@ -44,10 +44,7 @@
   border: none;
   border-radius: var(--cs-border-radius-s);
   cursor: pointer;
-  transition:
-    box-shadow var(--cs-transition-fast),
-    scale var(--cs-transition-fast),
-    translate var(--cs-transition-fast);
+  transition: box-shadow var(--cs-transition-fast), scale var(--cs-transition-fast), translate var(--cs-transition-fast);
 }
 
 @media (hover: hover) {
