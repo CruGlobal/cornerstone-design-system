@@ -1,0 +1,70 @@
+/**
+ * The Color Palettes and Built-in Themes pages.
+ *
+ * Nearly all of both pages is utilities and components — see src/plugins/remark-theming.js for the markup,
+ * where the layout is `cs-stack`, `cs-grid`, `cs-split` and the typography utilities. What is left here is
+ * the part no utility covers, and each rule is a note about the library rather than a preference.
+ *
+ * Three rules the Eleventy page had are gone because this fork's components already do the job: the theme
+ * comparison's `--handle-color` and `--divider-color` are not properties `cs-comparison` reads (its divider
+ * and handle are already on `--cs-color-surface-default`), and `cs-zoomable-frame` already sets its own
+ * aspect ratio and corner radius.
+ */
+
+/* A tint column is a fixed size, taken from the space scale rather than written as a length, so it tracks
+   `--cs-space-scale` like everything around it. `cs-gap-3xs` sets both axes; the rows need more than the
+   columns because every cell carries a label underneath. */
+.palette-swatches {
+  --min-column-size: var(--cs-space-3xl);
+  row-gap: var(--cs-space-s);
+}
+
+/**
+ * The swatch is the copy button's trigger — its documented default slot — but making a slotted trigger fill
+ * its host takes CSS no utility provides. `cs-frame` is the closest and cannot do it: it is `display: flex`,
+ * which leaves the shadow root's trigger wrapper content-sized and collapses the button inside it. So the
+ * host is a block that reserves the square, and the button is taken out of flow to fill it. It needs no
+ * positioned ancestor of its own — the wrapper inside the shadow root is already `position: relative`, and a
+ * slotted child resolves against it.
+ */
+.palette-swatch {
+  display: block;
+  aspect-ratio: 1;
+}
+
+/* `all: revert` drops native.css's button treatment in one declaration instead of unpicking it property by
+   property. The colour is the one thing that differs per swatch, so it stays inline on the element. */
+.palette-swatch-button {
+  all: revert;
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  border-radius: var(--cs-border-radius-s);
+  cursor: pointer;
+  transition:
+    box-shadow var(--cs-transition-fast),
+    scale var(--cs-transition-fast),
+    translate var(--cs-transition-fast);
+}
+
+@media (hover: hover) {
+  .palette-swatch-button:hover {
+    scale: 1 1.075;
+    box-shadow: var(--cs-shadow-s);
+    z-index: 1;
+  }
+}
+
+.palette-swatch-button:active {
+  translate: 0 1px;
+  box-shadow: none;
+}
+
+/* The preview belongs to the tabs above it, so it takes the same rhythm the prose scope would give a block —
+   which it does not get, being marked `cs-not-prose` so the swatch grid keeps its own spacing. */
+.theming-preview {
+  margin-block: var(--cs-space-l) var(--cs-content-spacing);
+}

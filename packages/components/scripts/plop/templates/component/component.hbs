@@ -1,0 +1,41 @@
+import { html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import CornerstoneElement from '../../internal/cornerstone-element.js';
+import { watch } from '../../internal/watch.js';
+import styles from './{{ tagWithoutPrefix tag }}.styles.js';
+
+/**
+ * @summary Short summary of the component's intended use.
+ * @documentation {{ docsUrl }}/{{ tagWithoutPrefix tag }}
+ * @status experimental
+ * @since 0.1
+ *
+ * @dependency cs-example
+ *
+ * @slot - The default slot.
+ * @slot example - An example slot.
+ *
+ * @cssproperty --example - An example CSS custom property.
+ */
+ @customElement("{{ tag }}")
+export default class {{ properCase tag }} extends CornerstoneElement {
+  static css = [styles];
+
+  /** An example attribute. */
+  @property() attr = 'example';
+
+  @watch('example')
+  handleExampleChange() {
+    // do something
+  }
+
+  render() {
+    return html` <slot></slot> `;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    '{{ tag }}': {{ properCase tag }};
+  }
+}

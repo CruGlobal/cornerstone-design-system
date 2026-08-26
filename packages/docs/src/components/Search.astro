@@ -1,0 +1,129 @@
+---
+/**
+ * Site search: an icon button in the header that opens a `cs-dialog`.
+ *
+ * This replaces Starlight's `Search`, which was the single largest piece of CSS left on the site — 22,363 bytes,
+ * 52% of all remaining Starlight CSS, made up of `@pagefind/default-ui`'s four Svelte-scoped stylesheets and a
+ * second full layer of `#starlight__search` rules re-skinning them. None of it survives here, because none of the
+ * default UI is used: Pagefind ships a plain JavaScript API alongside its widget, and that is what this talks to.
+ *
+ * Which also fixes the dialog rather than restyling it. Measured before this change, six things were visibly
+ * wrong: the mobile-only Cancel button rendered at desktop width over the input, the magnifying glass sat on top
+ * of the query text, `<mark>` excerpts came out as amber Cornerstone chips, the dialog geometry and the clear
+ * button were Cornerstone's rather than the ones asked for, and every result carried an unintended indent. All
+ * six were Starlight's CSS losing to `cs-native`, so the 22KB was not competing with Cornerstone — it had already
+ * lost, and that was the reason the dialog looked broken.
+ *
+ * Each row is three parts, as upstream builds them: a leading icon, a details column that grows and truncates,
+ * and a trailing chevron. The chevron is always in the DOM at `opacity: 0` and fades in on hover or keyboard
+ * selection — the same treatment for both, which is what keeps mouse and keyboard agreeing on one highlight.
+ *
+ * The shape follows Web Awesome's, as requested: an input in the header; a body that shows quick links and recent
+ * searches until you type, results once you do, and an empty state when there are none; and a footer of keyboard
+ * hints. Their layout is all utilities and so is this — `cs-stack`, `cs-cluster`, `cs-flank`, `cs-gap-*`.
+ *
+ * `autofocus` on the input is load-bearing, not decoration. `cs-dialog` takes initial focus itself on open —
+ * `dialog.ts:238-245` focuses the first `[autofocus]` child if there is one and the dialog element otherwise — so
+ * without it the caret lands on the dialog and typing goes nowhere. Calling `focus()` from script does not work
+ * either: the component's own `requestAnimationFrame` runs afterwards and takes it back.
+ *
+ * Two things kept from Starlight's version deliberately:
+ *
+ *   - **The shortcut hint is rendered inline, unbundled.** Starlight's comment explains why and it is right: the
+ *     glyph differs by platform, and deciding it in a bundled module means the wrong one is painted first.
+ *   - **The dev branch.** `astro dev` builds no Pagefind index, so the import fails there. It says so instead of
+ *     failing silently, which is what Starlight's `import.meta.env.DEV` check was for.
+ *
+ * Indexing is unaffected: `data-pagefind-body` is set by `Page.astro`, not by this component, and the build hook
+ * is gated on config rather than on the component being Starlight's.
+ */
+const t = Astro.locals.t;
+
+/** The sections worth offering before anything is typed. Icons are Material Symbols names. */
+const QUICK_LINKS = [
+  { label: 'Components', href: '/components', icon: 'deployed_code' },
+  { label: 'CSS Utilities', href: '/utilities', icon: 'brush' },
+  { label: 'Theming', href: '/themes', icon: 'palette' },
+  { label: 'Using with AI', href: '/ai', icon: 'wand_stars' },
+  { label: 'Changelog', href: '/resources/changelog', icon: 'book' },
+  { label: 'Help & Support', href: '/resources/support', icon: 'support' },
+];
+---
+
+<cs-button id="search-trigger" appearance="plain" size="s">
+  <cs-icon name="search" label={t('search.label')} />
+</cs-button>
+
+<cs-dialog id="site-search" class="site-search" label={t('search.label')} without-header with-footer light-dismiss>
+  <div class="site-search-header">
+    <cs-input
+      id="site-search-input"
+      class="site-search-input"
+      type="search"
+      with-clear
+      autofocus
+      autocomplete="off"
+      spellcheck="false"
+      placeholder={`${t('search.label')} for…`}
+      aria-label={t('search.label')}
+      aria-controls="site-search-results"
+    >
+      <cs-icon slot="start" name="search" />
+    </cs-input>
+  </div>
+
+  <div id="site-search-results" class="site-search-body" role="listbox" aria-label={t('search.label')}>
+    <div class="site-search-initial">
+      <div class="site-search-listing">
+        <h3 class="site-search-label">Quick Links</h3>
+        <ul class="cs-stack cs-gap-3xs cs-list-plain">
+          {
+            QUICK_LINKS.map((link) => (
+              <li>
+                <a
+                  class="site-search-item cs-cluster cs-flex-nowrap cs-gap-s cs-link-plain"
+                  href={link.href}
+                  role="option"
+                >
+                  <cs-icon class="site-search-icon" name={link.icon} />
+                  <span class="site-search-details">{link.label}</span>
+                  <cs-icon class="site-search-caret" name="keyboard_arrow_right" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <cs-divider class="site-search-divider" hidden />
+
+      <div class="site-search-recent site-search-listing" hidden>
+        <h3 class="site-search-label">Recent Searches</h3>
+        <ul class="cs-stack cs-gap-3xs cs-list-plain"></ul>
+      </div>
+    </div>
+
+    <ul class="site-search-hits site-search-listing cs-stack cs-gap-3xs cs-list-plain" hidden></ul>
+
+    <div class="site-search-empty site-search-listing cs-stack cs-gap-2xs cs-align-items-center" hidden>
+      <cs-icon name="sentiment_dissatisfied" class="site-search-empty-icon" />
+      <p class="cs-color-text-quiet"></p>
+    </div>
+  </div>
+
+  <div slot="footer" class="site-search-footer cs-split cs-gap-m cs-flex-nowrap">
+    <div class="cs-cluster cs-gap-m cs-flex-nowrap">
+      <small class="cs-cluster cs-gap-2xs cs-flex-nowrap"><kbd>↑</kbd><kbd>↓</kbd> Navigate</small>
+      <small class="cs-cluster cs-gap-2xs cs-flex-nowrap"><kbd>↵</kbd> Select</small>
+    </div>
+    <small class="cs-cluster cs-gap-2xs cs-flex-nowrap"><kbd>Esc</kbd> Close</small>
+  </div>
+</cs-dialog>
+
+{/* Inline and unbundled: the glyph differs by platform, and a bundled module paints the wrong one first. */}
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const isApple = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform ?? '');
+    document.documentElement.dataset.searchShortcut = isApple ? '⌘K' : 'Ctrl K';
+  });
+</script>

@@ -1,0 +1,55 @@
+---
+/**
+ * The table of contents at narrow widths: a `cs-details` in the reading column.
+ *
+ * This is how the Eleventy site did it (`docs/_includes/base.njk:144-152`): the outline is rendered twice from
+ * one source, and exactly one of the two is shown. The wide layout gets the sticky rail in `<cs-page>`'s `aside`
+ * slot; below that it collapses into a disclosure above the prose, so the reading column keeps the full width
+ * rather than paying for a column it is too narrow to afford.
+ *
+ * Starlight intends the same thing and even uses the same breakpoint — `PageSidebar` wraps its mobile TOC in
+ * `div.lg:sl-hidden` and its sidebar TOC in `div.sl-hidden.lg:sl-block`, and `lg` is 72rem. What broke it here
+ * is that this port hands the whole of `PageSidebar` to the `aside` slot, so Starlight's mobile copy was nested
+ * inside the very element that hides below 72rem: hidden above by Starlight, hidden below with the aside, never
+ * visible at any width. `PageFrame` now renders the sidebar TOC directly and this component covers the rest.
+ *
+ * It sits inside `<main>` rather than beside it, which is why it lives in `MarkdownContent` rather than
+ * `PageFrame`: a slot is assigned from a direct child, and everything `PageFrame` renders is a sibling of
+ * `<main>`, not inside it. Above the prose wrapper and marked `cs-not-prose`, because it is navigation chrome
+ * and should not take the prose rhythm — the same reason the Eleventy template put it outside `.cs-prose`.
+ */
+const { toc } = Astro.locals.starlightRoute;
+const label = Astro.locals.t('tableOfContents.onThisPage');
+
+/** The same flattening `TableOfContents` does, so both copies list the same headings at the same depths. */
+const items = (toc?.items ?? []).flatMap((item) => [
+  { depth: 0, slug: item.slug, text: item.text },
+  ...(item.children ?? []).map((child) => ({ depth: 1, slug: child.slug, text: child.text })),
+]);
+---
+
+{
+  items.length > 0 && (
+    <nav class="outline-expandable cs-not-prose" aria-label={label}>
+      <cs-details>
+        <span slot="summary" class="cs-cluster cs-gap-xs cs-font-size-s">
+          <cs-icon name="menu_book" />
+          {label}
+        </span>
+        <ul class="cs-grid cs-gap-xs cs-list-plain">
+          {items.map((item) => (
+            <li>
+              <a
+                href={`#${item.slug}`}
+                class="cs-link-plain"
+                {...(item.depth ? { 'data-nested': String(item.depth) } : {})}
+              >
+                {item.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </cs-details>
+    </nav>
+  )
+}

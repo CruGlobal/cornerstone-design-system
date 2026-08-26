@@ -1,0 +1,262 @@
+@layer cs-utilities {
+  /* #region General ~~~~~ */
+  [class*='cs-body'] {
+    font-family: var(--cs-font-family-body);
+    font-weight: var(--cs-font-weight-body);
+    line-height: var(--cs-line-height-normal);
+  }
+
+  [class*='cs-heading'] {
+    font-family: var(--cs-font-family-heading);
+    font-weight: var(--cs-font-weight-heading);
+    line-height: var(--cs-line-height-condensed);
+    text-wrap: balance;
+  }
+
+  [class*='cs-caption'] {
+    color: var(--cs-color-text-quiet);
+    font-family: var(--cs-font-family-body);
+    font-weight: var(--cs-font-weight-body);
+    line-height: var(--cs-line-height-condensed);
+  }
+
+  [class*='cs-longform'] {
+    font-family: var(--cs-font-family-longform);
+    font-weight: var(--cs-font-weight-longform);
+    line-height: var(--cs-line-height-normal);
+  }
+
+  .cs-font-size-3xs,
+  .cs-body-3xs,
+  .cs-heading-3xs,
+  .cs-caption-3xs,
+  .cs-longform-3xs {
+    font-size: var(--cs-font-size-3xs);
+  }
+
+  .cs-font-size-2xs,
+  .cs-body-2xs,
+  .cs-heading-2xs,
+  .cs-caption-2xs,
+  .cs-longform-2xs {
+    font-size: var(--cs-font-size-2xs);
+  }
+
+  .cs-font-size-xs,
+  .cs-body-xs,
+  .cs-heading-xs,
+  .cs-caption-xs,
+  .cs-longform-xs {
+    font-size: var(--cs-font-size-xs);
+  }
+
+  .cs-font-size-s,
+  .cs-body-s,
+  .cs-heading-s,
+  .cs-caption-s,
+  .cs-longform-s {
+    font-size: var(--cs-font-size-s);
+  }
+
+  .cs-font-size-m,
+  .cs-body-m,
+  .cs-heading-m,
+  .cs-caption-m,
+  .cs-longform-m {
+    font-size: var(--cs-font-size-m);
+  }
+
+  .cs-font-size-l,
+  .cs-body-l,
+  .cs-heading-l,
+  .cs-caption-l,
+  .cs-longform-l {
+    font-size: var(--cs-font-size-l);
+  }
+
+  .cs-font-size-xl,
+  .cs-body-xl,
+  .cs-heading-xl,
+  .cs-caption-xl,
+  .cs-longform-xl {
+    font-size: var(--cs-font-size-xl);
+  }
+
+  .cs-font-size-2xl,
+  .cs-body-2xl,
+  .cs-heading-2xl,
+  .cs-caption-2xl,
+  .cs-longform-2xl {
+    font-size: var(--cs-font-size-2xl);
+  }
+
+  .cs-font-size-3xl,
+  .cs-body-3xl,
+  .cs-heading-3xl,
+  .cs-caption-3xl,
+  .cs-longform-3xl {
+    font-size: var(--cs-font-size-3xl);
+  }
+
+  .cs-font-size-4xl,
+  .cs-body-4xl,
+  .cs-heading-4xl,
+  .cs-caption-4xl,
+  .cs-longform-4xl {
+    font-size: var(--cs-font-size-4xl);
+  }
+
+  .cs-font-size-5xl,
+  .cs-body-5xl,
+  .cs-heading-5xl,
+  .cs-caption-5xl,
+  .cs-longform-5xl {
+    font-size: var(--cs-font-size-5xl);
+  }
+
+  .cs-font-weight-light {
+    font-weight: var(--cs-font-weight-light);
+  }
+
+  .cs-font-weight-normal {
+    font-weight: var(--cs-font-weight-normal);
+  }
+
+  .cs-font-weight-semibold {
+    font-weight: var(--cs-font-weight-semibold);
+  }
+
+  .cs-font-weight-bold {
+    font-weight: var(--cs-font-weight-bold);
+  }
+
+  .cs-color-text-normal {
+    color: var(--cs-color-text-normal);
+  }
+
+  .cs-color-text-quiet {
+    color: var(--cs-color-text-quiet);
+  }
+
+  .cs-color-text-link {
+    color: var(--cs-color-text-link);
+  }
+
+  .cs-text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cs-text-nowrap,
+  .cs-text-wrap-nowrap {
+    text-wrap: nowrap;
+  }
+
+  .cs-text-balance,
+  .cs-text-wrap-balance {
+    text-wrap: balance;
+  }
+
+  @supports (text-wrap: pretty) {
+    .cs-text-pretty,
+    .cs-text-wrap-pretty {
+      text-wrap: pretty;
+    }
+  }
+
+  .cs-text-uppercase {
+    text-transform: uppercase;
+  }
+
+  .cs-text-lowercase {
+    text-transform: lowercase;
+  }
+
+  .cs-text-capitalize {
+    text-transform: capitalize;
+  }
+
+  .cs-text-start {
+    text-align: start;
+  }
+
+  .cs-text-center {
+    text-align: center;
+  }
+
+  .cs-text-end {
+    text-align: end;
+  }
+
+  .cs-text-justify {
+    text-align: justify;
+  }
+  /* #endregion */
+
+  /* #region Links ~~~~~~~ */
+  .cs-link {
+    color: var(--cs-color-text-link);
+    text-decoration: var(--cs-link-decoration-default);
+    -webkit-text-decoration: var(--cs-link-decoration-default);
+
+    @media (hover: hover) {
+      &:hover {
+        color: color-mix(in oklab, var(--cs-color-text-link) 100%, var(--cs-color-mix-hover));
+        text-decoration: var(--cs-link-decoration-hover);
+        -webkit-text-decoration: var(--cs-link-decoration-hover);
+      }
+    }
+  }
+
+  .cs-link-plain {
+    color: var(--cs-color-text-normal);
+    text-decoration: none;
+
+    @media (hover: hover) {
+      &:hover {
+        color: color-mix(in oklab, currentColor, var(--cs-color-mix-hover));
+        text-decoration: none;
+      }
+    }
+  }
+  /* #endregion */
+
+  /* #region Lists ~~~~~~~ */
+  .cs-list-plain:is(ol, ul) {
+    list-style: none;
+    padding-inline-start: 0;
+
+    > li {
+      margin-inline-start: 0;
+    }
+  }
+  /* #endregion */
+
+  /* #region Form Controls */
+  .cs-form-control-label {
+    color: var(--cs-form-control-label-color);
+    font-weight: var(--cs-form-control-label-font-weight);
+    line-height: var(--cs-form-control-label-line-height);
+  }
+
+  .cs-form-control-value {
+    color: var(--cs-form-control-value-color);
+    font-weight: var(--cs-form-control-value-font-weight);
+    line-height: var(--cs-form-control-value-line-height);
+  }
+
+  .cs-form-control-placeholder {
+    color: var(--cs-form-control-placeholder-color);
+    font-weight: var(--cs-form-control-value-font-weight);
+    line-height: var(--cs-form-control-value-line-height);
+  }
+
+  .cs-form-control-hint {
+    color: var(--cs-form-control-hint-color);
+    font-weight: var(--cs-form-control-hint-font-weight);
+    font-size: var(--cs-font-size-smaller);
+    line-height: var(--cs-form-control-hint-line-height);
+  }
+  /* #endregion */
+}

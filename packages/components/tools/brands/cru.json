@@ -1,0 +1,51 @@
+{
+  "$comment": "Cru brand key colours as they stand in the Cru Design System Figma file, by way of the ref layer of @cruglobal/cornerstone-design-system. Update from Figma (or from /pull-tokens output) and re-run tools/palette.mjs. This file is the seam: everything downstream is derived.",
+  "brand": "cru",
+  "source": {
+    "repo": "CruGlobal/cornerstone-design-system",
+    "layer": "ref/color/cru",
+    "figmaFileKey": "MPjEsALOqWMDRR4osVK6NR"
+  },
+  "roles": {
+    "brand": "yellow",
+    "neutral": "gray",
+    "highlight": "purple",
+    "information": "turquoise",
+    "success": "green",
+    "warning": "orange",
+    "danger": "cerise"
+  },
+  "link": "cyan",
+  "neutralPoints": {
+    "gray": "#f0efee",
+    "graphite": "#565652"
+  },
+  "synthesized": {
+    "purple": "purple"
+  },
+  "hues": {
+    "lemon": "#ffe378",
+    "yellow": "#ffd000",
+    "orange": "#f08020",
+    "vermilion": "#d34400",
+    "rose": "#ffb4c8",
+    "pink": "#ea657f",
+    "cerise": "#c23c49",
+    "ruby": "#991313",
+    "sky": "#89eff7",
+    "cyan": "#00c0d8",
+    "turquoise": "#007890",
+    "navy": "#1f1f47",
+    "mint": "#88e4b6",
+    "green": "#24c976",
+    "moss": "#476052",
+    "olive-drab": "#2e3a33",
+    "gray": "#f0efee",
+    "graphite": "#565652"
+  },
+  "fonts": {
+    "body": "Inter, ui-sans-serif, system-ui, sans-serif",
+    "heading": "Sora, ui-sans-serif, system-ui, sans-serif"
+  },
+  "$fontsComment": "Cru's brand faces, from --sys-string-font-family-* in the design system: Sora for display/headline/title, Inter for body/label/button. Code and longform have no counterpart in sys and are carried from the reference theme."
+}

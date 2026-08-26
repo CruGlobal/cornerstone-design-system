@@ -1,0 +1,23 @@
+# Paths are relative to this file, at the root of the package.
+
+*.hbs
+*.md
+**/.cache
+.github
+cspell.json
+
+# Generated output
+dist
+_site
+src/react
+.astro
+docs-site/public/dist
+
+# Formatted by hand, or by the tool that owns them
+package.json
+package-lock.json
+tsconfig.json
+tsconfig.base.json
+tsconfig.prod.json
+
+node_modules

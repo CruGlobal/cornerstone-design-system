@@ -1,0 +1,56 @@
+---
+/**
+ * The site's section nav, in `cs-page`'s `subheader` slot.
+ *
+ * Upstream carries the same band below its header, and it is what lets its browse page drop the sidebar
+ * without losing every way out of the page. Ours needed it for the same reason once `/components` became
+ * `template: splash`.
+ *
+ * **Measured against theirs rather than approximated.** Their band is two elements — a `page-subheader`
+ * carrying the surface, a bottom rule and `8px 0` of padding, wrapping a capped, centred
+ * `subheader content-container` on `0 40px` — which is the split below. Ours lands on the same numbers
+ * because `cs-page` already gives a slotted subheader `8px` of block padding and `--content-padding-inline`
+ * is 40px.
+ *
+ * The items are **buttons, not styled anchors**: upstream uses `wa-button appearance="plain" size="s"` with
+ * an `href`, and the design skill's first rung says to reach for the component when the markup starts to
+ * look like one. That is also where the band's height comes from — a small button is 38px, so the band needs
+ * no height of its own — and it brings a hit area, a radius and a hover state that a bare link would each
+ * have needed a rule for. The gap is `2xs` for the same reason: the spacing lives inside the buttons as
+ * `0 14px` of padding, so the gap between them is only 4px.
+ *
+ * `subheader` is a documented slot and part, and `cs-page` measures it into `--subheader-height`, which
+ * `--scroll-margin-top` already sums with the header — so anchors keep landing correctly with no arithmetic
+ * here.
+ *
+ * `aria-current="page"` marks the section. Upstream uses `class="current"` and no ARIA, which is a gap on
+ * their side; the attribute is both the hook the styling hangs off and the thing a screen reader reads.
+ *
+ * `slot="subheader"` sits on the `<div>` here rather than on `<Subheader slot="subheader" />` at the use
+ * site. An Astro component is not an element, so the attribute has nowhere to land there and the band
+ * renders as default-slot content instead — inside `main`, with none of `cs-page`'s
+ * `::slotted([slot='subheader'])` styling, and `--subheader-height` measuring 0 while the links still
+ * paint. `PageFrame.astro`'s own `<header>` and `<aside>` carry their slot attributes for the same reason.
+ */
+import { sectionFor, siteSections } from '../site-sections.js';
+
+const current = sectionFor(Astro.url.pathname);
+---
+
+<div class="site-subheader" slot="subheader">
+  <nav class="site-subheader-inner cs-cluster cs-gap-2xs cs-flex-nowrap" aria-label="Sections">
+    {
+      siteSections.map((section) => (
+        <cs-button
+          class="site-subheader-link"
+          appearance="plain"
+          size="s"
+          href={section.link}
+          aria-current={section === current ? 'page' : undefined}
+        >
+          {section.label}
+        </cs-button>
+      ))
+    }
+  </nav>
+</div>

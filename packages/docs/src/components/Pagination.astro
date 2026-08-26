@@ -1,0 +1,52 @@
+---
+/**
+ * Previous/next page links, as a pair of `cs-card`s.
+ *
+ * Starlight's version is a `div.pagination-links` grid of two anchors, each carrying an `Icon` and a two-line
+ * label, with 792 bytes of scoped CSS drawing a bordered, rounded, shadowed box around each. That box is what
+ * `cs-card` is, so the CSS goes and the component does it — and the anchor's colour was already Cornerstone's
+ * (`--cs-color-text-link` beat Starlight's on layer order), so each link was a Cornerstone link inside a
+ * Starlight box.
+ *
+ * `print:hidden` is kept deliberately. It looks like a Starlight utility to be rid of, but `print.css:52` is
+ * what stops pagination appearing on paper, and that stylesheet is imported by `Page.astro` and cannot be
+ * removed — so dropping the class would start printing the links rather than remove a dependency.
+ *
+ * `cs-grid` with a column minimum, so the two cards sit side by side when there is room and stack when there is
+ * not. That is the same behaviour Starlight's `repeat(auto-fit, minmax(min(18rem, 100%), 1fr))` had, expressed
+ * as the utility's own knob.
+ */
+const { dir, pagination } = Astro.locals.starlightRoute;
+const { prev, next } = pagination;
+const isRtl = dir === 'rtl';
+
+/** The arrow points the way the link goes, which swaps with direction. */
+const arrow = (direction) =>
+  direction === 'prev' ? (isRtl ? 'arrow_forward' : 'arrow_back') : isRtl ? 'arrow_back' : 'arrow_forward';
+---
+
+{
+  (prev || next) && (
+    <nav class="pagination-links print:hidden cs-grid cs-gap-m" dir={dir} aria-label={Astro.locals.t('page.nextLink')}>
+      {[
+        { entry: prev, direction: 'prev', label: Astro.locals.t('page.previousLink') },
+        { entry: next, direction: 'next', label: Astro.locals.t('page.nextLink') },
+      ]
+        .filter(({ entry }) => entry)
+        .map(({ entry, direction, label }) => (
+          <a href={entry.href} rel={direction} class="pagination-link cs-link-plain">
+            <cs-card>
+              <span class:list={['cs-flank', direction === 'next' && 'cs-flank:end']}>
+                {direction === 'prev' && <cs-icon name={arrow('prev')} />}
+                <span class="cs-stack cs-gap-3xs">
+                  <span class="cs-font-size-s cs-color-text-quiet">{label}</span>
+                  <span class="cs-font-weight-semibold">{entry.label}</span>
+                </span>
+                {direction === 'next' && <cs-icon name={arrow('next')} />}
+              </span>
+            </cs-card>
+          </a>
+        ))}
+    </nav>
+  )
+}

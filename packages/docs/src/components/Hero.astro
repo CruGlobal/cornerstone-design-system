@@ -1,0 +1,71 @@
+---
+/**
+ * A page's `hero:` front matter, laid out with Cornerstone.
+ *
+ * The only page that reaches this is Starlight's injected 404 route, and it uses the smallest possible hero: an
+ * `<h1>` and a tagline, no image, no actions. Confirmed against a build — `dist/404.html` carries no
+ * `sl-link-button` at all, so `LinkButton`'s 1,025 bytes were shipping purely because `Hero.astro` imports it.
+ * That is the same dead-import shape as the `PageSidebar` chain, and dropping this component drops both.
+ *
+ * The full front-matter contract is still honoured, because a hero is a documented Starlight feature and a future
+ * page may use it: image (single, or a light/dark pair, or raw HTML), tagline, and action buttons. Actions become
+ * `cs-button`s with `href`, which is what that component is for; `variant` maps straight across, since Starlight's
+ * `primary`/`secondary`/`minimal` and Cornerstone's appearances describe the same three weights.
+ *
+ * `id="_top"` and `data-page-title` are kept: the first is `PAGE_TITLE_ID`, which the skip link resolves against,
+ * and the second is what Starlight's own scripts read to find the page title.
+ *
+ * `DraftContentNotice` is rendered here as well as in `PageTitle`, because a hero page has no `PageTitle` — the
+ * hero replaces it.
+ */
+import { Image } from 'astro:assets';
+import DraftContentNotice from 'virtual:starlight/components/DraftContentNotice';
+
+const { data } = Astro.locals.starlightRoute.entry;
+const { title = data.title, tagline, image, actions = [] } = data.hero || {};
+
+const imageAttrs = { loading: 'eager', decoding: 'async', width: 400, height: 400, alt: image?.alt || '' } as const;
+
+let darkImage;
+let lightImage;
+let rawHtml;
+
+if (image) {
+  if ('file' in image) {
+    darkImage = image.file;
+  } else if ('dark' in image) {
+    darkImage = image.dark;
+    lightImage = image.light;
+  } else {
+    rawHtml = image.html;
+  }
+}
+
+/** Starlight's three action weights, as the equivalent `cs-button` appearances. */
+const APPEARANCE = { primary: 'accent', secondary: 'outlined', minimal: 'plain' };
+---
+
+<div class="page-hero cs-stack cs-gap-l">
+  {darkImage && <Image src={darkImage} {...imageAttrs} class:list={['hero-image', lightImage && 'dark-only']} />}
+  {lightImage && <Image src={lightImage} {...imageAttrs} class="hero-image light-only" />}
+  {rawHtml && <div class="hero-image" set:html={rawHtml} />}
+
+  <div class="cs-stack cs-gap-s">
+    <h1 id="_top" data-page-title set:html={title} />
+    {data.draft && <DraftContentNotice />}
+    {tagline && <p class="cs-font-size-l cs-color-text-quiet" set:html={tagline} />}
+  </div>
+
+  {
+    actions.length > 0 && (
+      <div class="cs-cluster cs-gap-s">
+        {actions.map(({ attrs: { class: className, ...attrs } = {}, icon, link: href, text, variant }) => (
+          <cs-button href={href} appearance={APPEARANCE[variant] ?? 'accent'} class:list={[className]} {...attrs}>
+            {icon?.name && <cs-icon slot="start" name={icon.name} />}
+            {text}
+          </cs-button>
+        ))}
+      </div>
+    )
+  }
+</div>

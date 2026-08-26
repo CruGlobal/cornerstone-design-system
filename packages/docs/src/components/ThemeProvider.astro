@@ -1,0 +1,27 @@
+---
+/**
+ * The pre-paint colour-scheme read, without the parts that no longer connect to anything.
+ *
+ * Starlight's version does three things: sets `data-theme` before first paint from the `starlight-theme`
+ * localStorage key, exposes `window.StarlightThemeProvider.updatePickers()`, and renders a
+ * `<template id="theme-icons">` holding three `Icon` SVGs for that function to swap into a native `<select>`.
+ *
+ * Only the first is still wanted. `updatePickers` queries `starlight-theme-select`, an element this site stopped
+ * rendering when `ThemeSelect` became a `cs-select` — so it was shipping in every page's inline script and
+ * matching nothing — and the template's icons could never be swapped into a `cs-select`, which draws its own.
+ * Dropping the template takes `Icon`'s scoped CSS with it, since nothing else here imports it.
+ *
+ * The pre-paint read stays inline and unbundled, which is the whole point of it: `theme-sync.js` mirrors
+ * `data-theme` onto the `cs-light`/`cs-dark` classes the library's themes key off, and it has to find the
+ * attribute already set. Both read the same `starlight-theme` key.
+ */
+---
+
+{/* Intentionally inlined, before paint, to avoid a flash of the wrong scheme. */}
+<script is:inline>
+  (() => {
+    const stored = typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+    const theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+  })();
+</script>

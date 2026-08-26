@@ -1,0 +1,1263 @@
+import { aTimeout, expect, waitUntil } from '@open-wc/testing';
+import { resetMouse, sendKeys } from '@web/test-runner-commands';
+import { html } from 'lit';
+import sinon from 'sinon';
+import { expectEvent } from '../../internal/test/expect-event.js';
+import { fixtures } from '../../internal/test/fixture.js';
+import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
+import { clickOnElement } from '../../internal/test/pointer-utilities.js';
+import { serialize } from '../../utilities/form.js';
+import type CsOption from '../option/option.js';
+import type CsTooltip from '../tooltip/tooltip.js';
+import type CsSelect from './select.js';
+
+describe('<cs-select>', () => {
+  runFormControlBaseTests({
+    tagName: 'cs-select',
+    // A select's value has to match one of its options, so the base fixture needs them.
+    init: (control) => {
+      control.innerHTML = '<cs-option value="a">A</cs-option><cs-option value="b">B</cs-option>';
+    },
+    formValue: { dirtyValue: 'b' },
+  });
+
+  for (const fixture of fixtures) {
+    describe(`with "${fixture.type}" rendering`, () => {
+      describe('accessibility', () => {
+        it('should pass accessibility tests when closed', async () => {
+          await customElements.whenDefined('cs-option');
+          const el = await fixture<CsSelect>(html`
+            <cs-select label="Select one">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          await expect(el).to.be.accessible();
+        });
+
+        it('should pass accessibility tests when open', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select label="Select one">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+
+          await el.show();
+          await expect(el).to.be.accessible();
+        });
+      });
+
+      describe('properties', () => {
+        it('should be disabled with the disabled attribute', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select disabled>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          expect(el.displayInput.disabled).to.be.true;
+        });
+
+        it('should show a placeholder when no options are selected', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select placeholder="Select one">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const displayInput = el.shadowRoot!.querySelector<HTMLInputElement>('[part~="display-input"]')!;
+
+          expect(getComputedStyle(displayInput).opacity).to.not.equal('0');
+          expect(displayInput.placeholder).to.equal('Select one');
+        });
+
+        it('should show a placeholder when no options are selected and multiple is set', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select placeholder="Select a few" multiple>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const displayInput = el.shadowRoot!.querySelector<HTMLInputElement>('[part~="display-input"]')!;
+
+          expect(getComputedStyle(displayInput).opacity).to.not.equal('0');
+          expect(displayInput.placeholder).to.equal('Select a few');
+        });
+
+        it('should not allow selection when the option is disabled', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2" disabled>Option 2</cs-option>
+            </cs-select>
+          `);
+          const disabledOption = el.querySelector('cs-option[disabled]')!;
+
+          await el.show();
+          await clickOnElement(disabledOption);
+          await el.updateComplete;
+
+          expect(el.value).to.equal('option-1');
+        });
+
+        it('should have rounded tags when using the pill attribute', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select multiple pill>
+              <cs-option value="option-1" selected>Option 1</cs-option>
+              <cs-option value="option-2" selected>Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const tag = el.shadowRoot!.querySelector('[part~="tag"]')!;
+
+          expect(tag.hasAttribute('pill')).to.be.true;
+        });
+
+        it('should update the display label when an option changes', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const displayInput = el.shadowRoot!.querySelector<HTMLSelectElement>('.display-input')!;
+          const option = el.querySelector('cs-option')!;
+
+          expect(displayInput.value).to.equal('Option 1');
+
+          option.textContent = 'updated';
+          await aTimeout(250);
+          await el.updateComplete;
+
+          expect(displayInput.value).to.equal('updated');
+        });
+
+        it('should allow interaction after being disabled and re-enabled', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select label="Select one">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const popup = el.shadowRoot!.querySelector('cs-popup');
+
+          // First disable the select
+          el.disabled = true;
+          await el.updateComplete;
+
+          // Wait 500ms
+          await aTimeout(500);
+
+          // Re-enable the select
+          el.disabled = false;
+          await el.updateComplete;
+
+          // Click on the select to open the dropdown
+          await clickOnElement(el, 'center', 0, 8);
+          await el.updateComplete;
+          await aTimeout(500);
+
+          // Get the popup element and check its active state
+          expect(popup?.active).to.be.true;
+        });
+
+        describe('with selected attribute', () => {
+          it('should select options using the selected attribute for single select', async () => {
+            const el = await fixture<CsSelect>(html`
+              <cs-select>
+                <cs-option value="option-1">Option 1</cs-option>
+                <cs-option value="option-2" selected>Option 2</cs-option>
+                <cs-option value="option-3">Option 3</cs-option>
+              </cs-select>
+            `);
+
+            expect(el.value).to.equal('option-2');
+            expect(el.displayInput.value).to.equal('Option 2');
+          });
+
+          it('should select multiple options using the selected attribute', async () => {
+            const el = await fixture<CsSelect>(html`
+              <cs-select multiple>
+                <cs-option value="option-1" selected>Option 1</cs-option>
+                <cs-option value="option-2">Option 2</cs-option>
+                <cs-option value="option-3" selected>Option 3</cs-option>
+              </cs-select>
+            `);
+
+            expect(el.value).to.have.members(['option-1', 'option-3']);
+            expect(el.value).to.have.length(2);
+          });
+
+          it('should handle options with spaces in values', async () => {
+            const el = await fixture<CsSelect>(html`
+              <cs-select>
+                <cs-option value="option with spaces">Option with spaces</cs-option>
+                <cs-option value="another option" selected>Another option</cs-option>
+              </cs-select>
+            `);
+
+            expect(el.value).to.equal('another option');
+            expect(el.displayInput.value).to.equal('Another option');
+          });
+
+          it('should handle multiple options with spaces in values', async () => {
+            const el = await fixture<CsSelect>(html`
+              <cs-select multiple>
+                <cs-option value="option with spaces" selected>Option with spaces</cs-option>
+                <cs-option value="another option">Another option</cs-option>
+                <cs-option value="third option" selected>Third option</cs-option>
+              </cs-select>
+            `);
+
+            expect(el.value).to.have.members(['option with spaces', 'third option']);
+            expect(el.value).to.have.length(2);
+          });
+
+          it('should serialize options with spaces correctly in FormData', async () => {
+            const form = await fixture<HTMLFormElement>(html`
+              <form>
+                <cs-select name="test" multiple>
+                  <cs-option value="option with spaces" selected>Option with spaces</cs-option>
+                  <cs-option value="another option" selected>Another option</cs-option>
+                </cs-select>
+              </form>
+            `);
+
+            const formData = new FormData(form);
+            const values = formData.getAll('test');
+            expect(values).to.have.members(['option with spaces', 'another option']);
+          });
+
+          it('should select options using the selected attribute with with-clear', async () => {
+            // Regression: Issue #1922 - selected attribute was ignored when with-clear was present
+            const el = await fixture<CsSelect>(html`
+              <cs-select with-clear>
+                <cs-option value="option-1">Option 1</cs-option>
+                <cs-option value="option-2" selected>Option 2</cs-option>
+                <cs-option value="option-3">Option 3</cs-option>
+              </cs-select>
+            `);
+
+            expect(el.value).to.equal('option-2');
+            expect(el.displayInput.value).to.equal('Option 2');
+          });
+
+          it('should select options with selected attribute, with-clear, and placeholder', async () => {
+            // Regression: Bug #1922 exact combination
+            const el = await fixture<CsSelect>(html`
+              <cs-select placeholder="Placeholder" with-clear>
+                <cs-option value="option-1" selected>Option 1</cs-option>
+                <cs-option value="option-2">Option 2</cs-option>
+                <cs-option value="option-3">Option 3</cs-option>
+              </cs-select>
+            `);
+
+            expect(el.value).to.equal('option-1');
+            expect(el.displayInput.value).to.equal('Option 1');
+          });
+
+          it('should select multiple options with selected attribute and with-clear', async () => {
+            const el = await fixture<CsSelect>(html`
+              <cs-select multiple with-clear>
+                <cs-option value="option-1" selected>Option 1</cs-option>
+                <cs-option value="option-2" selected>Option 2</cs-option>
+                <cs-option value="option-3">Option 3</cs-option>
+              </cs-select>
+            `);
+
+            expect(el.value).to.have.members(['option-1', 'option-2']);
+            expect(el.value).to.have.length(2);
+          });
+        });
+      });
+
+      describe('events', () => {
+        it('should emit change and input when the value is changed with the mouse', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+
+          expect(el.value).to.equal('option-1');
+          expect(el.defaultValue).to.equal('option-1');
+          expect(el.displayInput.value).to.equal('Option 1');
+
+          const secondOption = el.querySelectorAll<CsOption>('cs-option')[1];
+
+          await el.show();
+
+          await expectEvent(el, ['change', 'input'], async () => {
+            await clickOnElement(secondOption);
+            await el.updateComplete;
+          });
+
+          expect(el.value).to.equal('option-2');
+        });
+
+        it('should emit change and input when the value is changed with the keyboard', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const changeHandler = sinon.spy();
+          const inputHandler = sinon.spy();
+
+          el.addEventListener('change', changeHandler);
+          el.addEventListener('input', inputHandler);
+
+          el.focus();
+          await el.updateComplete;
+          await sendKeys({ press: ' ' }); // open the dropdown
+          await aTimeout(500); // wait for the dropdown to open
+          await sendKeys({ press: 'ArrowDown' }); // move selection to the second option
+          await el.updateComplete;
+          await sendKeys({ press: 'ArrowDown' }); // move selection to the third option
+          await el.updateComplete;
+          el.focus(); // For some reason, the browser loses focus before we press enter. Refocus the select.
+          await sendKeys({ press: 'Enter' }); // commit the selection
+          await el.updateComplete;
+
+          expect(changeHandler).to.have.been.calledOnce;
+          expect(inputHandler).to.have.been.calledOnce;
+          expect(el.value).to.equal('option-3');
+        });
+
+        it('should not emit change or input when the value is changed programmatically', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+
+          el.addEventListener('change', () => expect.fail('change should not be emitted'));
+          el.addEventListener('input', () => expect.fail('input should not be emitted'));
+          el.value = 'option-2';
+
+          await el.updateComplete;
+        });
+
+        it('should emit change and input with the correct validation message when the value changes', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select required>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const option2 = el.querySelectorAll('cs-option')[1];
+          const handler = sinon.spy((_event: InputEvent | Event) => {});
+
+          el.addEventListener('change', handler);
+          el.addEventListener('input', handler);
+
+          await aTimeout(1);
+          await clickOnElement(el);
+          await aTimeout(500);
+          await el.updateComplete;
+          await aTimeout(100);
+          await clickOnElement(option2);
+          await el.updateComplete;
+          await aTimeout(500);
+
+          expect(handler).to.be.calledTwice;
+          expect(el.value).to.equal(option2.value);
+        });
+
+        it('should have the correct event.target.value at the time the change event fires', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const secondOption = el.querySelectorAll<CsOption>('cs-option')[1];
+          let valueAtChangeTime: string | string[] | null = null;
+          let valueAtInputTime: string | string[] | null = null;
+
+          el.addEventListener('change', (event: Event) => {
+            valueAtChangeTime = (event.target as CsSelect).value;
+          });
+          el.addEventListener('input', (event: Event) => {
+            valueAtInputTime = (event.target as CsSelect).value;
+          });
+
+          await el.show();
+          await clickOnElement(secondOption);
+          await el.updateComplete;
+
+          expect(valueAtChangeTime).to.equal('option-2');
+          expect(valueAtInputTime).to.equal('option-2');
+        });
+
+        it('should have the correct event.target.value when selecting from no initial value', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const secondOption = el.querySelectorAll<CsOption>('cs-option')[1];
+          let valueAtChangeTime: string | string[] | null = null;
+
+          el.addEventListener('change', (event: Event) => {
+            valueAtChangeTime = (event.target as CsSelect).value;
+          });
+
+          await el.show();
+          await clickOnElement(secondOption);
+          await el.updateComplete;
+
+          expect(el.value).to.equal('option-2');
+          expect(valueAtChangeTime).to.equal('option-2');
+        });
+
+        it('should emit exactly one change and one input event per click interaction', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const changeHandler = sinon.spy();
+          const inputHandler = sinon.spy();
+
+          el.addEventListener('change', changeHandler);
+          el.addEventListener('input', inputHandler);
+
+          // First selection
+          await el.show();
+          await clickOnElement(el.querySelectorAll<CsOption>('cs-option')[1]);
+          await el.updateComplete;
+          await aTimeout(100);
+
+          expect(changeHandler).to.have.been.calledOnce;
+          expect(inputHandler).to.have.been.calledOnce;
+
+          // Second selection — wait for the dropdown to fully close then reopen
+          await aTimeout(500);
+          await el.show();
+          await aTimeout(500);
+          await clickOnElement(el.querySelectorAll<CsOption>('cs-option')[2]);
+          await el.updateComplete;
+          await aTimeout(100);
+
+          expect(changeHandler).to.have.been.calledTwice;
+          expect(inputHandler).to.have.been.calledTwice;
+          expect(el.value).to.equal('option-3');
+        });
+
+        it('should focus the select when clicking on the label', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select label="Select One">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const label = el.shadowRoot!.querySelector('[part~="form-control-label"]')!;
+          const focusHandler = sinon.spy();
+
+          el.addEventListener('focus', focusHandler);
+          (label as HTMLLabelElement).click();
+          await waitUntil(() => focusHandler.calledOnce);
+
+          expect(focusHandler).to.have.been.calledOnce;
+        });
+
+        it('should emit focus and blur when receiving and losing focus', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const focusHandler = sinon.spy();
+          const blurHandler = sinon.spy();
+
+          el.addEventListener('focus', focusHandler);
+          el.addEventListener('blur', blurHandler);
+
+          el.focus();
+          await el.updateComplete;
+          el.blur();
+          await el.updateComplete;
+
+          expect(focusHandler).to.have.been.calledOnce;
+          expect(blurHandler).to.have.been.calledOnce;
+        });
+
+        it('should emit cs-clear when the clear button is clicked', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1" with-clear>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const clearButton = el.shadowRoot!.querySelector('[part~="clear-button"]')!;
+
+          await el.show();
+
+          await expectEvent(el, 'cs-clear', async () => {
+            await clickOnElement(clearButton);
+            await el.updateComplete;
+          });
+        });
+
+        it('should emit change and input when a tag is removed', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select multiple>
+              <cs-option value="option-1" selected>Option 1</cs-option>
+              <cs-option value="option-2" selected>Option 2</cs-option>
+              <cs-option value="option-3" selected>Option 3</cs-option>
+            </cs-select>
+          `);
+          const tag = el.shadowRoot!.querySelector('[part~="tag"]')!;
+          const removeButton = tag.shadowRoot!.querySelector('[part~="remove-button"]')!;
+
+          await expectEvent(el, ['change', 'input'], async () => {
+            // The offsets are a funky hack for Firefox.
+            await clickOnElement(removeButton, 'center', 1, 1);
+            await el.updateComplete;
+            await aTimeout(1);
+          });
+        });
+
+        it('should emit cs-show, cs-after-show, cs-hide, and cs-after-hide events when the listbox opens and closes', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const showHandler = sinon.spy();
+          const afterShowHandler = sinon.spy();
+          const hideHandler = sinon.spy();
+          const afterHideHandler = sinon.spy();
+
+          el.addEventListener('cs-show', showHandler);
+          el.addEventListener('cs-after-show', afterShowHandler);
+          el.addEventListener('cs-hide', hideHandler);
+          el.addEventListener('cs-after-hide', afterHideHandler);
+
+          await el.show();
+          expect(showHandler).to.have.been.calledOnce;
+          expect(afterShowHandler).to.have.been.calledOnce;
+
+          await el.hide();
+          expect(hideHandler).to.have.been.calledOnce;
+          expect(afterHideHandler).to.have.been.calledOnce;
+        });
+
+        // Regression: https://github.com/shoelace-style/shoelace/issues/2117
+        // This can happen in on Microsoft Edge auto-filling an associated input element in the same form
+        it('should not throw on incomplete events', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select required>
+              <cs-option value="option-1">Option 1</cs-option>
+            </cs-select>
+          `);
+
+          const event = new KeyboardEvent('keydown');
+          Object.defineProperty(event, 'target', { writable: false, value: el });
+          Object.defineProperty(event, 'key', { writable: false, value: undefined });
+
+          /**
+           * If Edge does autofill, it creates a broken KeyboardEvent
+           * which is missing the key value.
+           * Using the normal dispatch mechanism does not allow to do this
+           * Thus passing the event directly to the private method for testing
+           *
+           * @ts-expect-error - private property */
+          el.handleDocumentKeyDown(event);
+        });
+      });
+
+      describe('keyboard navigation', () => {
+        it('should open the listbox when any letter key is pressed with cs-select on focus', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const displayInput = el.shadowRoot!.querySelector<HTMLSelectElement>('.display-input')!;
+
+          el.focus();
+          await sendKeys({ press: 'r' });
+          await el.updateComplete;
+
+          expect(displayInput.getAttribute('aria-expanded')).to.equal('true');
+        });
+
+        it('should not open the listbox when ctrl + R is pressed with cs-select on focus', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const displayInput = el.shadowRoot!.querySelector<HTMLSelectElement>('.display-input')!;
+
+          el.focus();
+          await sendKeys({ down: 'Control' });
+          await sendKeys({ press: 'r' });
+          await sendKeys({ up: 'Control' });
+          await el.updateComplete;
+          expect(displayInput.getAttribute('aria-expanded')).to.equal('false');
+        });
+
+        it('should scroll a type-to-select match into view', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select>
+              <cs-option value="argentina">Argentina</cs-option>
+              <cs-option value="belgium">Belgium</cs-option>
+              <cs-option value="canada">Canada</cs-option>
+              <cs-option value="denmark">Denmark</cs-option>
+              <cs-option value="egypt">Egypt</cs-option>
+              <cs-option value="france">France</cs-option>
+              <cs-option value="ghana">Ghana</cs-option>
+            </cs-select>
+          `);
+          const listbox = el.shadowRoot!.querySelector<HTMLElement>('.listbox')!;
+          const ghana = el.querySelector<CsOption>('cs-option[value="ghana"]')!;
+          const scrollTo = sinon.stub(listbox, 'scrollTo');
+
+          sinon.stub(listbox, 'getBoundingClientRect').returns({
+            top: 0,
+            left: 0,
+            right: 200,
+            bottom: 100,
+            width: 200,
+            height: 100,
+            x: 0,
+            y: 0,
+            toJSON: () => {},
+          });
+          sinon.stub(ghana, 'getBoundingClientRect').returns({
+            top: 140,
+            left: 0,
+            right: 200,
+            bottom: 160,
+            width: 200,
+            height: 20,
+            x: 0,
+            y: 140,
+            toJSON: () => {},
+          });
+          Object.defineProperty(listbox, 'offsetHeight', { configurable: true, value: 100 });
+          Object.defineProperty(ghana, 'clientHeight', { configurable: true, value: 20 });
+
+          el.focus();
+          await sendKeys({ press: 'g' });
+          await sendKeys({ press: 'h' });
+          await sendKeys({ press: 'a' });
+          await sendKeys({ press: 'n' });
+          await sendKeys({ press: 'a' });
+          await el.updateComplete;
+
+          expect(el.currentOption).to.equal(ghana);
+          expect(scrollTo).to.have.been.calledWith({ top: 60, behavior: 'auto' });
+        });
+      });
+
+      describe('form integration', () => {
+        describe('when using constraint validation', () => {
+          it('should be valid by default', async () => {
+            const el = await fixture<HTMLFormElement>(html`
+              <form>
+                <cs-select>
+                  <cs-option value="option-1">Option 1</cs-option>
+                  <cs-option value="option-2">Option 2</cs-option>
+                  <cs-option value="option-3">Option 3</cs-option>
+                </cs-select>
+              </form>
+            `);
+            const select = el.querySelector<CsSelect>('cs-select')!;
+            expect(select.checkValidity()).to.be.true;
+          });
+
+          it('should be invalid when required and empty', async () => {
+            const el = await fixture<HTMLFormElement>(html`
+              <form>
+                <cs-select required>
+                  <cs-option value="option-1">Option 1</cs-option>
+                  <cs-option value="option-2">Option 2</cs-option>
+                  <cs-option value="option-3">Option 3</cs-option>
+                </cs-select>
+              </form>
+            `);
+            const select = el.querySelector<CsSelect>('cs-select')!;
+            expect(select.checkValidity()).to.be.false;
+          });
+
+          it('should focus on the displayInput when constraint validation occurs', async () => {
+            const el = await fixture<HTMLFormElement>(html`
+              <form>
+                <cs-select required>
+                  <cs-option value="option-1">Option 1</cs-option>
+                  <cs-option value="option-2">Option 2</cs-option>
+                  <cs-option value="option-3">Option 3</cs-option>
+                </cs-select>
+              </form>
+            `);
+            const select = el.querySelector<CsSelect>('cs-select')!;
+            el.requestSubmit();
+            expect(select.shadowRoot!.activeElement).to.equal(select.displayInput);
+          });
+        });
+
+        describe('when submitting a form', () => {
+          it('should serialize its name and value with FormData', async () => {
+            const form = await fixture<HTMLFormElement>(html`
+              <form>
+                <cs-select name="a" value="option-1">
+                  <cs-option value="option-1">Option 1</cs-option>
+                  <cs-option value="option-2">Option 2</cs-option>
+                  <cs-option value="option-3">Option 3</cs-option>
+                </cs-select>
+              </form>
+            `);
+            const formData = new FormData(form);
+            expect(formData.get('a')).to.equal('option-1');
+          });
+
+          it('should serialize its name and value in FormData when multiple options are selected', async () => {
+            const form = await fixture<HTMLFormElement>(html`
+              <form>
+                <cs-select name="a" multiple>
+                  <cs-option value="option-1">Option 1</cs-option>
+                  <cs-option value="option-2" selected>Option 2</cs-option>
+                  <cs-option value="option-3" selected>Option 3</cs-option>
+                </cs-select>
+              </form>
+            `);
+            const formData = new FormData(form);
+            expect(formData.getAll('a')).to.include('option-2');
+            expect(formData.getAll('a')).to.include('option-3');
+          });
+
+          it('should serialize its name and value in JSON', async () => {
+            const form = await fixture<HTMLFormElement>(html`
+              <form>
+                <cs-select name="a" value="option-1">
+                  <cs-option value="option-1">Option 1</cs-option>
+                  <cs-option value="option-2">Option 2</cs-option>
+                  <cs-option value="option-3">Option 3</cs-option>
+                </cs-select>
+              </form>
+            `);
+            const json = serialize(form);
+            expect(json.a).to.equal('option-1');
+          });
+
+          it('should serialize its name and value in JSON when multiple options are selected', async () => {
+            const form = await fixture<HTMLFormElement>(html`
+              <form>
+                <cs-select name="a" multiple>
+                  <cs-option value="option-1">Option 1</cs-option>
+                  <cs-option value="option-2" selected>Option 2</cs-option>
+                  <cs-option value="option-3" selected>Option 3</cs-option>
+                </cs-select>
+              </form>
+            `);
+
+            const json = serialize(form);
+            expect(JSON.stringify(json)).to.equal(JSON.stringify({ a: ['option-2', 'option-3'] }));
+          });
+
+          it('should be present in form data when using the form attribute and located outside of a <form>', async () => {
+            const el = await fixture<HTMLFormElement>(html`
+              <div>
+                <form id="f">
+                  <cs-button type="submit">Submit</cs-button>
+                </form>
+                <cs-select form="f" name="a" value="option-1">
+                  <cs-option value="option-1">Option 1</cs-option>
+                  <cs-option value="option-2">Option 2</cs-option>
+                  <cs-option value="option-3">Option 3</cs-option>
+                </cs-select>
+              </div>
+            `);
+            const form = el.querySelector('form')!;
+            const formData = new FormData(form);
+
+            expect(formData.get('a')).to.equal('option-1');
+          });
+        });
+
+        describe('when resetting a form', () => {
+          it('should reset the element to its initial value', async () => {
+            const form = await fixture<HTMLFormElement>(html`
+              <form>
+                <cs-select value="option-1">
+                  <cs-option value="option-1">Option 1</cs-option>
+                  <cs-option value="option-2">Option 2</cs-option>
+                  <cs-option value="option-3">Option 3</cs-option>
+                </cs-select>
+                <cs-button type="reset">Reset</cs-button>
+              </form>
+            `);
+
+            const resetButton = form.querySelector('cs-button')!;
+            const select = form.querySelector('cs-select')!;
+
+            select.value = 'option-3';
+            await select.updateComplete;
+            expect(select.value).to.equal('option-3');
+
+            const resetSpy = sinon.spy();
+            form.addEventListener('reset', () => {
+              resetSpy();
+            });
+            // clickOnElement causes some weird behavior where the `reset` event never fires.
+            resetButton.click();
+            await select.updateComplete;
+
+            expect(resetSpy).to.have.been.calledOnce;
+            expect(select.value).to.equal('option-1');
+          });
+        });
+      });
+
+      describe('CSS parts and states', () => {
+        it('should receive the correct validation attributes ("states") when valid', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select label="Select one" required value="option-1">
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const secondOption = el.querySelectorAll('cs-option')[1];
+
+          expect(el.checkValidity()).to.be.true;
+          expect(el.customStates.has('required')).to.be.true;
+          expect(el.customStates.has('optional')).to.be.false;
+          expect(el.customStates.has('invalid')).to.be.false;
+          expect(el.customStates.has('valid')).to.be.true;
+          expect(el.customStates.has('user-invalid')).to.be.false;
+          expect(el.customStates.has('user-valid')).to.be.false;
+
+          await el.show();
+          await clickOnElement(secondOption);
+          await el.updateComplete;
+          el.blur();
+          await el.updateComplete;
+
+          expect(el.checkValidity()).to.be.true;
+          expect(el.customStates.has('user-invalid')).to.be.false;
+          expect(el.customStates.has('user-valid')).to.be.true;
+        });
+
+        it('should receive the correct validation attributes ("states") when invalid', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select label="Select one" required>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+              <cs-option value="option-3">Option 3</cs-option>
+            </cs-select>
+          `);
+          const secondOption = el.querySelectorAll('cs-option')[1];
+
+          expect(el.customStates.has('required')).to.be.true;
+          expect(el.customStates.has('optional')).to.be.false;
+          expect(el.customStates.has('invalid')).to.be.true;
+          expect(el.customStates.has('valid')).to.be.false;
+          expect(el.customStates.has('user-invalid')).to.be.false;
+          expect(el.customStates.has('user-valid')).to.be.false;
+
+          await el.show();
+          await clickOnElement(secondOption);
+          el.value = '';
+          await el.updateComplete;
+          el.blur();
+          await el.updateComplete;
+
+          expect(el.customStates.has('user-invalid')).to.be.true;
+          expect(el.customStates.has('user-valid')).to.be.false;
+        });
+
+        it('should receive validation attributes ("states") even when novalidate is used on the parent form', async () => {
+          const el = await fixture<HTMLFormElement>(html`
+            <form novalidate>
+              <cs-select required>
+                <cs-option value="option-1">Option 1</cs-option>
+                <cs-option value="option-2">Option 2</cs-option>
+                <cs-option value="option-3">Option 3</cs-option>
+              </cs-select>
+            </form>
+          `);
+          const select = el.querySelector<CsSelect>('cs-select')!;
+
+          expect(select.customStates.has('required')).to.be.true;
+          expect(select.customStates.has('optional')).to.be.false;
+          expect(select.customStates.has('invalid')).to.be.true;
+          expect(select.customStates.has('valid')).to.be.false;
+          expect(select.customStates.has('user-invalid')).to.be.false;
+          expect(select.customStates.has('user-valid')).to.be.false;
+        });
+      });
+
+      describe('with lazily loaded options', () => {
+        describe('with no existing options', () => {
+          it('should wait to select the option when the option exists for single select', async () => {
+            const form = await fixture<HTMLFormElement>(
+              html`<form><cs-select name="select" value="option-1"></cs-select></form>`,
+            );
+            const el = form.querySelector<CsSelect>('cs-select')!;
+
+            expect(el.defaultValue).to.equal('option-1');
+            expect(el.value).to.equal(null);
+            expect(new FormData(form).get('select')).equal(null);
+
+            const option = document.createElement('cs-option');
+            option.value = 'option-1';
+            option.innerText = 'Option 1';
+            el.append(option);
+
+            await aTimeout(10);
+            await el.updateComplete;
+            expect(el.optionValues ? [...el.optionValues] : []).to.have.members(['option-1']);
+            expect(el.value).to.equal('option-1');
+            expect(new FormData(form).get('select')).equal('option-1');
+          });
+
+          it('should wait to select the option when the option exists for multiple select', async () => {
+            const form = await fixture<HTMLFormElement>(
+              html`<form><cs-select name="select" value="option-1" multiple></cs-select></form>`,
+            );
+
+            const el = form.querySelector<CsSelect>('cs-select')!;
+            expect(Array.isArray(el.value)).to.equal(true);
+            expect(el.value!.length).to.equal(0);
+
+            const option = document.createElement('cs-option');
+            option.value = 'option-1';
+            option.innerText = 'Option 1';
+            el.append(option);
+
+            await aTimeout(10);
+            await el.updateComplete;
+            expect(el.value!.length).to.equal(1);
+            expect(el.value).to.have.members(['option-1']);
+            expect(new FormData(form).getAll('select')).have.members(['option-1']);
+          });
+        });
+
+        describe('with existing options', () => {
+          it('should not select the option if options already exist for single select', async () => {
+            const form = await fixture<HTMLFormElement>(
+              html` <form>
+                <cs-select name="select" value="foo">
+                  <cs-option value="bar">Bar</cs-option>
+                  <cs-option value="baz">Baz</cs-option>
+                </cs-select>
+              </form>`,
+            );
+
+            const el = form.querySelector<CsSelect>('cs-select')!;
+            expect(el.value).to.equal(null);
+            expect(new FormData(form).get('select')).to.equal(null);
+
+            const option = document.createElement('cs-option');
+            option.value = 'foo';
+            option.innerText = 'Foo';
+            el.append(option);
+
+            await aTimeout(10);
+            await el.updateComplete;
+            expect(el.value).to.equal('foo');
+            expect(new FormData(form).get('select')).to.equal('foo');
+          });
+
+          it('should not select the option if options already exist for multiple select', async () => {
+            const form = await fixture<HTMLFormElement>(
+              html` <form>
+                <cs-select name="select" multiple>
+                  <cs-option value="bar">Bar</cs-option>
+                  <cs-option value="baz">Baz</cs-option>
+                  <cs-option value="foo" selected>Foo</cs-option>
+                </cs-select>
+              </form>`,
+            );
+
+            const el = form.querySelector<CsSelect>('cs-select')!;
+            expect(el.value).to.be.an('array');
+            expect(el.value!.length).to.equal(1);
+            expect(el.value).to.have.members(['foo']);
+            expect(new FormData(form).getAll('select')).to.have.members(['foo']);
+          });
+
+          it('should only select the existing options if options already exist for multiple select', async () => {
+            const form = await fixture<HTMLFormElement>(
+              html` <form>
+                <cs-select name="select" multiple>
+                  <cs-option value="bar" selected>Bar</cs-option>
+                  <cs-option value="baz" selected>Baz</cs-option>
+                </cs-select>
+              </form>`,
+            );
+
+            const el = form.querySelector<CsSelect>('cs-select')!;
+            expect(el.optionValues ? [...el.optionValues] : []).to.have.members(['bar', 'baz']);
+            expect(el.optionValues?.size).to.equal(2);
+            expect(el.value).to.have.members(['bar', 'baz']);
+            expect(el.value!.length).to.equal(2);
+            expect(new FormData(form).getAll('select')).to.have.members(['bar', 'baz']);
+
+            const option = document.createElement('cs-option');
+            option.value = 'foo';
+            option.innerText = 'Foo';
+            option.selected = true;
+            el.append(option);
+
+            await aTimeout(10);
+            await el.updateComplete;
+            expect(el.value).to.have.members(['bar', 'baz', 'foo']);
+            expect(new FormData(form).getAll('select')).to.have.members(['bar', 'baz', 'foo']);
+          });
+        });
+
+        describe('with setting the value via JS', () => {
+          it('should preserve value even if not returned', async () => {
+            const form = await fixture<HTMLFormElement>(
+              html` <form>
+                <cs-select name="select">
+                  <cs-option value="bar">Bar</cs-option>
+                  <cs-option value="baz">Baz</cs-option>
+                </cs-select>
+              </form>`,
+            );
+
+            const el = form.querySelector<CsSelect>('cs-select')!;
+            expect(el.value).to.equal(null);
+
+            el.defaultValue = 'foo';
+            await aTimeout(10);
+            await el.updateComplete;
+            expect(el.value).to.equal(null);
+
+            const option = document.createElement('cs-option');
+            option.value = 'foo';
+            option.innerText = 'Foo';
+            el.append(option);
+
+            await aTimeout(10);
+            await el.updateComplete;
+            expect(el.value).to.equal('foo');
+          });
+        });
+      });
+
+      // Regression: https://github.com/shoelace-style/webawesome/issues/1131
+      // new test, failing only in CI
+      it.skip('should work properly with empty values on select', async () => {
+        const el = await fixture<CsSelect>(html`
+          <cs-select label="Select one">
+            <cs-option value="">Blank Option</cs-option>
+            <cs-option value="option-2">Option 2</cs-option>
+            <cs-option value="option-3">Option 3</cs-option>
+          </cs-select>
+        `);
+
+        await resetMouse();
+
+        await el.show();
+        const options = el.querySelectorAll('cs-option');
+        await aTimeout(100);
+        await clickOnElement(options[0]);
+        await resetMouse();
+        await el.updateComplete;
+        expect(el.value).to.equal('');
+
+        await aTimeout(100);
+        await clickOnElement(options[1]);
+        await resetMouse();
+        await el.updateComplete;
+        await aTimeout(100);
+        expect(el.value).to.equal('option-2');
+
+        await clickOnElement(options[0]);
+        await resetMouse();
+        await el.updateComplete;
+        await aTimeout(100);
+        expect(el.value).to.equal('');
+        await resetMouse();
+      });
+    });
+  }
+
+  describe('dismissible stack', () => {
+    it('should only close the tooltip when pressing Escape with a select open underneath', async () => {
+      const fixture = fixtures[0];
+      const el = await fixture<HTMLDivElement>(html`
+        <div>
+          <cs-select id="test-select">
+            <cs-option value="1">Option 1</cs-option>
+            <cs-option value="2">Option 2</cs-option>
+          </cs-select>
+          <cs-tooltip id="test-tooltip" for="test-select" trigger="manual">Tooltip content</cs-tooltip>
+        </div>
+      `);
+
+      const select = el.querySelector<CsSelect>('#test-select')!;
+      const tooltip = el.querySelector<CsTooltip>('#test-tooltip')!;
+
+      // Open the select by focusing and pressing space
+      select.focus();
+      await sendKeys({ press: ' ' });
+      await waitUntil(() => select.open);
+      await aTimeout(200);
+
+      // Open tooltip programmatically (manual trigger won't steal focus)
+      tooltip.open = true;
+      await waitUntil(() => tooltip.open);
+      await aTimeout(200);
+
+      await sendKeys({ press: 'Escape' });
+
+      await waitUntil(() => tooltip.open === false);
+      expect(tooltip.open).to.be.false;
+      expect(select.open).to.be.true;
+    });
+  });
+
+  describe('value set via property before options exist', () => {
+    it('should display the selected value for single select when value property is set before options are added', async () => {
+      const fixture = fixtures[0];
+      const el = await fixture<CsSelect>(html`<cs-select label="Test"></cs-select>`);
+
+      // Set value via property before options exist
+      el.value = 'option-2';
+
+      // Now add options after the value has been set
+      const option1 = document.createElement('cs-option');
+      option1.value = 'option-1';
+      option1.textContent = 'Option 1';
+      const option2 = document.createElement('cs-option');
+      option2.value = 'option-2';
+      option2.textContent = 'Option 2';
+      const option3 = document.createElement('cs-option');
+      option3.value = 'option-3';
+      option3.textContent = 'Option 3';
+      el.append(option1, option2, option3);
+
+      await aTimeout(10);
+      await el.updateComplete;
+
+      expect(el.value).to.equal('option-2');
+      expect(el.displayInput.value).to.equal('Option 2');
+    });
+
+    it('should display the selected values for multiple select when value property is set before options are added', async () => {
+      const fixture = fixtures[0];
+      const el = await fixture<CsSelect>(html`<cs-select label="Test" multiple></cs-select>`);
+
+      // Set value via property as an array before options exist
+      el.value = ['option-1', 'option-2'];
+
+      // Now add options after the value has been set
+      const option1 = document.createElement('cs-option');
+      option1.value = 'option-1';
+      option1.textContent = 'Option 1';
+      const option2 = document.createElement('cs-option');
+      option2.value = 'option-2';
+      option2.textContent = 'Option 2';
+      const option3 = document.createElement('cs-option');
+      option3.value = 'option-3';
+      option3.textContent = 'Option 3';
+      el.append(option1, option2, option3);
+
+      await aTimeout(10);
+      await el.updateComplete;
+
+      expect(el.value).to.be.an('array');
+      expect(el.value).to.have.members(['option-1', 'option-2']);
+      expect(el.selectedOptions.length).to.equal(2);
+    });
+
+    it('should display the selected value when value attribute is set with options present', async () => {
+      const fixture = fixtures[0];
+      const el = await fixture<CsSelect>(html`
+        <cs-select value="option-2">
+          <cs-option value="option-1">Option 1</cs-option>
+          <cs-option value="option-2">Option 2</cs-option>
+          <cs-option value="option-3">Option 3</cs-option>
+        </cs-select>
+      `);
+
+      await el.updateComplete;
+
+      expect(el.value).to.equal('option-2');
+      expect(el.displayInput.value).to.equal('Option 2');
+    });
+  });
+
+  describe('trailing affordance alignment', () => {
+    // <cs-select> and <cs-input> are the canonical trailing axis the other form controls line
+    // up against (date/time/combobox guards compare against <cs-select>). This anchors the two
+    // references together so the axis itself can't silently drift.
+    function iconCenterFromRight(host: HTMLElement, partSelector: string): number {
+      const part = host.shadowRoot!.querySelector(partSelector);
+      let icon: Element | null | undefined = part?.querySelector('cs-icon');
+      if (!icon && part instanceof HTMLSlotElement) {
+        icon = part.assignedElements()[0];
+      }
+      const target = icon ?? part!;
+      const iconRect = target.getBoundingClientRect();
+      const hostRect = host.getBoundingClientRect();
+      return hostRect.right - (iconRect.left + iconRect.right) / 2;
+    }
+
+    it('shares the trailing axis with <cs-input>', async () => {
+      const fixture = fixtures[0];
+      const container = await fixture(html`
+        <div>
+          <cs-select with-clear value="a"><cs-option value="a">A</cs-option></cs-select>
+          <cs-input with-clear value="text"><cs-icon slot="end" name="info" variant="fill"></cs-icon></cs-input>
+        </div>
+      `);
+      const select = container.querySelector<HTMLElement & { updateComplete: Promise<unknown> }>('cs-select')!;
+      const input = container.querySelector<HTMLElement & { updateComplete: Promise<unknown> }>('cs-input')!;
+      await Promise.all([customElements.whenDefined('cs-select'), customElements.whenDefined('cs-input')]);
+      await select.updateComplete;
+      await input.updateComplete;
+      await aTimeout(50);
+
+      // input's trailing-most icon is the end-slot decoration; select's is the chevron.
+      const trailingDelta = Math.abs(
+        iconCenterFromRight(input, '[part~="end"]') - iconCenterFromRight(select, '[part~="expand-icon"]'),
+      );
+      const clearDelta = Math.abs(
+        iconCenterFromRight(input, '[part~="clear-button"]') - iconCenterFromRight(select, '[part~="clear-button"]'),
+      );
+
+      expect(trailingDelta, 'input end-slot icon is off the select trailing axis').to.be.lessThan(2);
+      expect(clearDelta, 'input clear button is off the select clear axis').to.be.lessThan(2);
+    });
+  });
+});

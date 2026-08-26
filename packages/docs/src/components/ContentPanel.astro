@@ -1,0 +1,16 @@
+---
+/**
+ * A content panel: a plain wrapper.
+ *
+ * Starlight's version adds `padding: 1.5rem var(--sl-content-pad-x)`, a `max-width` from
+ * `--sl-content-width`, a `margin-top` on every sibling, and — the visible one — a
+ * `border-top` on the second panel onwards, which drew a rule across the middle of every page between the
+ * title and the body. Upstream has no such rule inside `main`.
+ *
+ * All four are handled elsewhere now, which is why none of them is reproduced: `<cs-page>` pads `main`,
+ * `cs-prose` caps the reading column at `--cs-prose-line-length` and owns the rhythm between blocks. Adding
+ * Starlight's padding and margins on top double-counted all of it.
+ */
+---
+
+<div class="content-panel"><slot /></div>

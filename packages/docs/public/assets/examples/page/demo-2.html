@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cornerstone Page Demo 2</title>
+    <link rel="stylesheet" href="../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../dist/cornerstone.ssr-loader.js"></script>
+  </head>
+  <body>
+    <cs-page class="cs-dark">
+      <header slot="header">
+        <div class="cs-cluster">
+          <cs-button data-toggle-nav appearance="plain" size="s">
+            <cs-icon name="menu" label="Menu"></cs-icon>
+          </cs-button>
+          <cs-icon name="album" variant="fill"></cs-icon>
+          <span class="cs-heading-l">radiogaga</span>
+        </div>
+        <cs-input id="search-header" placeholder="Search" class="cs-desktop-only" style="max-inline-size: 100%">
+          <cs-icon slot="prefix" name="search"></cs-icon>
+        </cs-input>
+        <div class="cs-cluster">
+          <cs-button appearance="outlined">Log In</cs-button>
+          <cs-button>Sign Up</cs-button>
+        </div>
+      </header>
+      <div slot="navigation-header" class="cs-split">
+        <cs-input id="search-nav-drawer" placeholder="Search" style="max-inline-size: 100%" class="cs-mobile-only">
+          <cs-icon slot="prefix" name="search"></cs-icon>
+        </cs-input>
+        <div class="cs-split">
+          <h2 class="cs-heading-m">For You</h2>
+          <cs-button id="settings" appearance="plain" size="s">
+            <cs-icon name="settings" label="Settings"></cs-icon>
+          </cs-button>
+          <cs-tooltip for="settings">Settings</cs-tooltip>
+        </div>
+      </div>
+      <nav slot="navigation">
+        <h3 class="cs-heading-s">Discover</h3>
+        <ul class="cs-stack cs-gap-0">
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon name="home"></cs-icon>
+              <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon name="star" variant="fill"></cs-icon>
+              <span>New</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon name="cell_tower"></cs-icon>
+              <span>Stations</span>
+            </a>
+          </li>
+        </ul>
+        <h3 class="cs-heading-s">Library</h3>
+        <ul class="cs-stack cs-gap-0">
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon name="favorite" variant="fill"></cs-icon>
+              <span>Favorites</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon name="sort"></cs-icon>
+              <span>Playlists</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon name="mic"></cs-icon>
+              <span>Artists</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon name="layers"></cs-icon>
+              <span>Albums</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon name="podcasts"></cs-icon>
+              <span>Podcasts</span>
+            </a>
+          </li>
+        </ul>
+        <h3 class="cs-heading-s">Recently Played</h3>
+        <ul id="recent" class="cs-stack cs-gap-0">
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon name="radio" style="background: var(--cs-color-red-90); color: var(--cs-color-red-60)"></cs-icon>
+              <span>Lo-Fi Station</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon
+                name="font-awesome"
+                style="background: var(--cs-color-blue-30); color: var(--cs-color-yellow-90)"
+                library="brands"
+              ></cs-icon>
+              <span>Podcast Awesome</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="cs-flank">
+              <cs-icon
+                name="eco"
+                style="background: var(--cs-color-green-70); color: var(--cs-color-green-90)"
+              ></cs-icon>
+              <div class="cs-stack cs-gap-0">
+                <span>Seasons</span>
+                <span class="cs-caption-xs">Blister Soul</span>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div slot="main-header">
+        <cs-button id="back" appearance="plain" size="s">
+          <cs-icon name="keyboard_arrow_left" label="Back"></cs-icon>
+        </cs-button>
+        <cs-tooltip for="back" placement="bottom" distance="2">Back</cs-tooltip>
+        <div class="cs-cluster">
+          <cs-button id="favorite" appearance="plain" size="s">
+            <cs-icon name="favorite" label="Favorite"></cs-icon>
+          </cs-button>
+          <cs-tooltip for="favorite" placement="bottom" distance="2">Favorite</cs-tooltip>
+          <cs-button id="options" appearance="plain" size="s">
+            <cs-icon name="more_horiz" label="Options"></cs-icon>
+          </cs-button>
+          <cs-tooltip for="options" placement="bottom" distance="2">Options</cs-tooltip>
+        </div>
+      </div>
+      <main>
+        <div class="cs-stack cs-gap-3xl">
+          <div class="cs-flank cs-gap-3xl" style="--content-percentage: 40%">
+            <div class="cs-frame cs-border-radius-l" style="max-inline-size: 40ch">
+              <img
+                src="https://images.unsplash.com/photo-1732430579016-8d5e5ebd3c99?q=20"
+                alt="Home for the Holidays album artwork"
+              />
+            </div>
+            <div class="cs-split:column cs-align-items-start">
+              <div class="cs-stack" style="margin-block: auto">
+                <h1 class="cs-heading-4xl">Home for the Holidays</h1>
+                <a href="#" class="cs-heading-l">The Shire Choir</a>
+                <div class="cs-cluster cs-caption-s cs-gap-2xs">
+                  <span>Holiday</span>
+                  <span>&bull;</span>
+                  <span>2024</span>
+                  <span>&bull;</span>
+                  <span>12 songs, 41 minutes 9 seconds</span>
+                </div>
+              </div>
+              <div id="play-controls" class="cs-split cs-gap-xl">
+                <div class="cs-cluster cs-gap-xl">
+                  <cs-button variant="brand" size="l">
+                    <cs-icon name="play_arrow" label="Play" variant="fill"></cs-icon>
+                  </cs-button>
+                  <cs-button appearance="plain">
+                    <cs-icon name="shuffle" label="Shuffle"></cs-icon>
+                  </cs-button>
+                </div>
+                <cs-button appearance="plain">
+                  <cs-icon name="add" label="Add to Library"></cs-icon>
+                </cs-button>
+              </div>
+            </div>
+          </div>
+          <ol class="cs-stack cs-gap-0">
+            <li class="cs-split">
+              <span class="cs-flank">
+                <cs-icon name="counter_1"></cs-icon>
+                <span>Fa-La-La-Fellowship</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">3:27</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <cs-icon name="counter_2"></cs-icon>
+                <span>Sleigh Ride</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">2:36</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <cs-icon name="counter_3"></cs-icon>
+                <span>All I Want For Christmas Is Stew</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">2:51</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <cs-icon name="counter_4"></cs-icon>
+                <span>Rockin' Around the Christmas Ent</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">3:05</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <cs-icon name="counter_5"></cs-icon>
+                <span>Merry, Did You Know?</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">1:56</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <cs-icon name="counter_6"></cs-icon>
+                <span>Run Run Shadowfax</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">3:32</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <cs-icon name="counter_7"></cs-icon>
+                <span>You're a Mean One, Mr. Grima</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">2:46</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <cs-icon name="counter_8"></cs-icon>
+                <span>O Come, All Ye Faithful</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">3:27</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <cs-icon name="counter_9"></cs-icon>
+                <span>Do You Hear What I Hear</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">2:13</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <span class="cs-cluster cs-gap-3xs">
+                  <cs-icon name="counter_1"></cs-icon>
+                  <cs-icon name="counter_0"></cs-icon>
+                </span>
+                <span>Carol of the Horns</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">2:55</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <span class="cs-cluster cs-gap-3xs">
+                  <cs-icon name="counter_1"></cs-icon>
+                  <cs-icon name="counter_1"></cs-icon>
+                </span>
+                <span>Silent Night</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">3:10</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+            <li class="cs-split">
+              <span class="cs-flank">
+                <span class="cs-cluster cs-gap-3xs">
+                  <cs-icon name="counter_1"></cs-icon>
+                  <cs-icon name="counter_2"></cs-icon>
+                </span>
+                <span>Wizard Wonderland</span>
+              </span>
+              <span class="cs-cluster">
+                <span class="cs-caption-s">3:22</span>
+                <cs-button appearance="plain" size="s">
+                  <cs-icon name="more_horiz" label="Song Options"></cs-icon>
+                </cs-button>
+              </span>
+            </li>
+          </ol>
+        </div>
+      </main>
+      <div slot="main-footer" class="cs-grid cs-gap-xl cs-align-items-center">
+        <h2 class="cs-heading-3xl">More You Might Like</h2>
+        <div class="cs-stack cs-gap-xs">
+          <div class="cs-frame cs-border-radius-l">
+            <img src="https://images.unsplash.com/photo-1675219119611-40323b738563?q=20" alt="" />
+          </div>
+          <span class="cs-heading-m">Festival of Lights</span>
+          <span class="cs-caption-xs">Station</span>
+        </div>
+        <div class="cs-stack cs-gap-xs">
+          <div class="cs-frame cs-border-radius-l">
+            <img src="https://images.unsplash.com/photo-1481930916222-5ec4696fc0f2?q=20" alt="" />
+          </div>
+          <span class="cs-heading-m">Holiday Cheer</span>
+          <span class="cs-caption-xs">Essential Playlist</span>
+        </div>
+        <div class="cs-stack cs-gap-xs">
+          <div class="cs-frame cs-border-radius-l">
+            <img src="https://images.unsplash.com/photo-1667514627762-521b1c815a89?q=20" alt="" />
+          </div>
+          <span class="cs-heading-m">Nursery Rhymes from the Shire</span>
+          <span class="cs-caption-xs">The Shire Choir</span>
+        </div>
+      </div>
+    </cs-page>
+
+    <style>
+      cs-page {
+        --menu-width: 30ch;
+        --cs-tooltip-arrow-size: 0;
+        background-color: var(--cs-color-surface-lowered);
+      }
+
+      cs-page[view='mobile'] {
+        --menu-width: auto;
+
+        [slot*='main'],
+        main {
+          padding: var(--cs-space-xl);
+        }
+      }
+
+      cs-page,
+      [slot='header'],
+      cs-page[view='desktop'] [slot*='navigation'] {
+        background-color: var(--cs-color-surface-lowered);
+      }
+      cs-page[view='mobile'] [slot*='navigation'] {
+        padding: 0;
+      }
+      cs-page::part(page) {
+        background-color: var(--cs-color-surface-lowered);
+      }
+      [slot='header'] {
+        background: linear-gradient(to bottom, var(--cs-color-surface-raised), var(--cs-color-surface-lowered));
+      }
+      [slot='navigation-header'],
+      [slot='main-header'] {
+        padding-block-end: 0 !important;
+        padding-block-start: var(--cs-space-3xl);
+      }
+      [slot='navigation'] {
+        a {
+          --cs-color-text-link: var(--cs-color-text-normal);
+          --cs-link-decoration-default: none;
+          --cs-link-decoration-hover: none;
+          --flank-size: 2rem;
+          font-weight: var(--cs-font-weight-action);
+          gap: 0.5rem;
+        }
+        ul {
+          list-style: none;
+          margin: 0;
+
+          a {
+            border-radius: var(--cs-border-radius-m);
+            padding: var(--cs-space-xs);
+
+            &:hover {
+              background-color: color-mix(in oklab, var(--cs-color-surface-default), var(--cs-color-brand-fill-quiet));
+            }
+          }
+        }
+        cs-icon {
+          align-items: center;
+          aspect-ratio: 1;
+          color: var(--cs-color-brand-fill-loud);
+          display: flex;
+          justify-content: center;
+          padding-block: 0.5em;
+        }
+        #recent cs-icon {
+          border-radius: var(--cs-border-radius-s);
+        }
+      }
+
+      [slot='main-header'] {
+        border-block-start: var(--cs-border-width-s) var(--cs-border-style) var(--cs-color-surface-border);
+        border-inline: var(--cs-border-width-s) var(--cs-border-style) var(--cs-color-surface-border);
+        border-radius: var(--cs-border-radius-l) var(--cs-border-radius-l) 0 0;
+      }
+      main,
+      [slot*='main'] {
+        margin-inline: var(--cs-space-m);
+      }
+      main ol li {
+        padding: var(--cs-space-m);
+
+        &:hover {
+          background-color: color-mix(in oklab, var(--cs-color-surface-default), var(--cs-color-brand-fill-quiet));
+        }
+
+        &:not(:first-child) {
+          border-block-start: var(--cs-border-width-s) var(--cs-border-style) var(--cs-color-surface-border);
+        }
+
+        .cs-flank {
+          --flank-size: 2rem;
+        }
+      }
+      main,
+      [slot='main-footer'] {
+        border-inline: var(--cs-border-width-s) var(--cs-border-style) var(--cs-color-surface-border);
+      }
+      main,
+      [slot='main-header'] {
+        background-color: var(--cs-color-surface-raised);
+      }
+      #play-controls cs-button::part(button) {
+        border: var(--cs-border-width-l) var(--cs-border-style) currentColor;
+        border-radius: var(--cs-border-radius-circle);
+        font-size: 1.5rem;
+      }
+      #play-controls cs-button:has(cs-icon[name='play'])::part(button) {
+        border: none;
+        font-size: 2.5rem;
+        padding: 0.5em 0.45em 0.5em 0.55em;
+      }
+      [slot='main-footer'].cs-grid > * {
+        max-inline-size: 30ch;
+      }
+    </style>
+
+    <script>
+      const sectionAnchors = document.querySelectorAll("[slot*='navigation'] a[href*='#']");
+      sectionAnchors.forEach((sectionAnchor) => sectionAnchor.setAttribute('data-drawer', 'close'));
+    </script>
+  </body>
+</html>

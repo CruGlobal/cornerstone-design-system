@@ -1,0 +1,20 @@
+@layer cs-utilities {
+  /* These scroll lock helpers are put into this CSS file to avoid strict CSPs that affect style tag loading. */
+  @supports (scrollbar-gutter: stable) {
+    .cs-scroll-lock {
+      scrollbar-gutter: var(--cs-scroll-lock-gutter) !important;
+    }
+
+    .cs-scroll-lock body {
+      overflow: hidden !important;
+    }
+  }
+
+  /** This can go away once Safari has scrollbar-gutter support. */
+  @supports not (scrollbar-gutter: stable) {
+    .cs-scroll-lock body {
+      padding-right: var(--cs-scroll-lock-size) !important;
+      overflow: hidden !important;
+    }
+  }
+}

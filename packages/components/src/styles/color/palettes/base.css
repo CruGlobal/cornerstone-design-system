@@ -1,0 +1,44 @@
+/* Rules shared by all palettes */
+@import url('../../layers.css');
+@import url('../variants.css');
+
+/* Generates --cs-color-{hue}-on tokens for pairing with any palette's key colors */
+:where(:root),
+:host {
+  /**
+    * Conditional tokens to check if the key color is >= 60
+    * Key colors are the most colorful tint in a scale, recorded as --cs-color-{hue} in each palette
+    * The numeric value of the key is isolated as --cs-color-{hue}-key
+    * If key < 60, the result is 0%
+    * If key >= 60, the result is 100%
+    * Intended to be used in the color-mix() functions below
+    */
+
+  --cs-color-red-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-red-key), 1) * 100%));
+  --cs-color-orange-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-orange-key), 1) * 100%));
+  --cs-color-yellow-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-yellow-key), 1) * 100%));
+  --cs-color-green-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-green-key), 1) * 100%));
+  --cs-color-cyan-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-cyan-key), 1) * 100%));
+  --cs-color-blue-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-blue-key), 1) * 100%));
+  --cs-color-indigo-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-indigo-key), 1) * 100%));
+  --cs-color-purple-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-purple-key), 1) * 100%));
+  --cs-color-pink-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-pink-key), 1) * 100%));
+  --cs-color-gray-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-gray-key), 1) * 100%));
+
+  /**
+    * Tokens to set text color with appropriate WCAG 2.1 contrast
+    * If key < 60, the text color is white
+    * If key >= 60, the text color is {hue}-10
+    */
+
+  --cs-color-red-on: color-mix(in oklab, var(--cs-color-red-10) var(--cs-color-red-gte-60), white);
+  --cs-color-orange-on: color-mix(in oklab, var(--cs-color-orange-10) var(--cs-color-orange-gte-60), white);
+  --cs-color-yellow-on: color-mix(in oklab, var(--cs-color-yellow-10) var(--cs-color-yellow-gte-60), white);
+  --cs-color-green-on: color-mix(in oklab, var(--cs-color-green-10) var(--cs-color-green-gte-60), white);
+  --cs-color-cyan-on: color-mix(in oklab, var(--cs-color-cyan-10) var(--cs-color-cyan-gte-60), white);
+  --cs-color-blue-on: color-mix(in oklab, var(--cs-color-blue-10) var(--cs-color-blue-gte-60), white);
+  --cs-color-indigo-on: color-mix(in oklab, var(--cs-color-indigo-10) var(--cs-color-indigo-gte-60), white);
+  --cs-color-purple-on: color-mix(in oklab, var(--cs-color-purple-10) var(--cs-color-purple-gte-60), white);
+  --cs-color-pink-on: color-mix(in oklab, var(--cs-color-pink-10) var(--cs-color-pink-gte-60), white);
+  --cs-color-gray-on: color-mix(in oklab, var(--cs-color-gray-10) var(--cs-color-gray-gte-60), white);
+}

@@ -1,0 +1,59 @@
+---
+/**
+ * The page scaffold, which is `<cs-page>`.
+ *
+ * This replaces Starlight's `PageFrame`, whose 22 lines of markup came with ~75 lines of CSS building a
+ * page grid, a fixed header and a sidebar column by hand. `<cs-page>` owns all of that — the grid, the
+ * sticky regions, the responsive navigation and the mobile drawer — so the CSS is deleted rather than
+ * ported. The design skill is unambiguous that a full page is `<cs-page>`'s job and that hand-rolling a
+ * page grid is the anti-pattern; this site is the library's own proof, so it should not be the exception.
+ *
+ * The table of contents is rendered here rather than by `TwoColumnContent`, because a slot is only
+ * assigned from a direct child: Starlight nests the TOC two levels inside the frame, where `slot="aside"`
+ * would never reach `<cs-page>`. `TwoColumnContent` is overridden to a passthrough for the same reason —
+ * its two-column split is what the `aside` slot now does.
+ *
+ * The aside holds the table of contents directly rather than Starlight's `PageSidebar`. `PageSidebar` renders
+ * two copies — a mobile disclosure in `div.lg:sl-hidden` and the sidebar list in `div.sl-hidden.lg:sl-block` —
+ * and putting the pair inside the `aside` slot meant the mobile copy was hidden above 72rem by Starlight and
+ * below it with the aside, so it never appeared at any width. The narrow-width copy is now
+ * `src/components/OutlineDetails.astro`, rendered by `PageTitle.astro` above the page's `<h1>`, which is where
+ * it can actually be seen.
+ *
+ * Starlight's own mobile menu toggle is deliberately not rendered. `<cs-page>` provides the drawer and a
+ * toggle for it, and the skill's first checklist item is that hand-rolling either is the most common
+ * mistake — `slot="navigation"` is already both the desktop sidebar and the drawer.
+ */
+import TableOfContents from 'virtual:starlight/components/TableOfContents';
+import Subheader from './Subheader.astro';
+
+const { hasSidebar, toc } = Astro.locals.starlightRoute;
+---
+
+<cs-page mobile-breakpoint="800" class:list={{ 'has-aside': Boolean(toc) }}>
+  <header slot="header"><slot name="header" /></header>
+
+  {/* The section nav, on every page as upstream has it. It carries its own `slot` attribute, because an
+      Astro component tag has no element for one to land on. See src/components/Subheader.astro. */}
+  <Subheader />
+
+  {
+    hasSidebar && (
+      <nav slot="navigation" aria-label={Astro.locals.t('sidebarNav.accessibleLabel')}>
+        <div class="sidebar-content">
+          <slot name="sidebar" />
+        </div>
+      </nav>
+    )
+  }
+
+  <slot />
+
+  {
+    toc && (
+      <aside slot="aside" class="cs-desktop-only">
+        <TableOfContents />
+      </aside>
+    )
+  }
+</cs-page>

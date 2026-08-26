@@ -1,0 +1,55 @@
+/* Prep our code blocks to host the copy button */
+pre[id*='code-block-']:has(code) {
+  position: relative;
+  padding: 0;
+  white-space: normal;
+
+  & code {
+    display: block;
+    font-size: 1em;
+    background-color: transparent;
+    padding: var(--cs-space-m);
+    white-space: pre;
+    overflow-x: auto;
+  }
+}
+
+cs-copy-button.copy-button {
+  position: absolute;
+  top: var(--cs-space-xs);
+  right: var(--cs-space-xs);
+  font-family: var(--cs-font-family-body);
+  font-size: var(--cs-font-size-m);
+  color: var(--cs-color-neutral-95);
+
+  /* The radius goes on the painted surface. `copy-button.styles.ts:4-7` gives the host no background and
+     no clipping, so a radius there rounded an invisible box while `.button` kept its own. */
+  &::part(button) {
+    aspect-ratio: 1;
+    background-color: var(--cs-color-neutral-20);
+    border-radius: var(--cs-border-radius-m);
+    cursor: copy;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      &::part(button) {
+        background-color: var(--cs-color-neutral-30);
+      }
+    }
+  }
+
+  &:focus-visible {
+    outline: var(--cs-focus-ring);
+  }
+}
+
+@media (hover: hover) {
+  .copy-button:not(:focus-within) {
+    opacity: 0;
+  }
+
+  pre:hover > .copy-button {
+    opacity: 1;
+  }
+}

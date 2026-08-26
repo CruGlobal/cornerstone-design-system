@@ -39,6 +39,22 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+  verify-components:
+    name: Verify components
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+      - run: npm ci
+      # The component suite drives real browsers. `npm run verify` is what a developer runs by
+      # hand, so CI runs exactly that and nothing else — one command, no bespoke job graph to
+      # drift from the local check. All three engines, here as locally.
+      - run: npx playwright install --with-deps
+      - run: npm run verify --workspace @cruglobal/cornerstone-components
+
   changeset:
     name: Changeset present
     # Skip the changeset gate for automated maintenance PRs (e.g. Dependabot)

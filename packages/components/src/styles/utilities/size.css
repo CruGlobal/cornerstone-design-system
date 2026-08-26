@@ -1,0 +1,21 @@
+@layer cs-utilities {
+  .cs-size-xs {
+    font-size: var(--cs-font-size-xs);
+  }
+
+  .cs-size-s {
+    font-size: var(--cs-font-size-s);
+  }
+
+  .cs-size-m {
+    font-size: var(--cs-font-size-m);
+  }
+
+  .cs-size-l {
+    font-size: var(--cs-font-size-l);
+  }
+
+  .cs-size-xl {
+    font-size: var(--cs-font-size-xl);
+  }
+}

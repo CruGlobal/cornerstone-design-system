@@ -1,0 +1,11 @@
+{
+  "name": "@cruglobal/cornerstone-build-tools",
+  "version": "0.0.0",
+  "description": "Build-time modules shared by the component library and the documentation site. Never published.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./site-url.js": "./site-url.js",
+    "./component-api.js": "./component-api.js"
+  }
+}

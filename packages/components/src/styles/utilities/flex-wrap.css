@@ -1,0 +1,16 @@
+@layer cs-utilities {
+  /* Apply Flexbox with 0 specificity to ensure a flex wrap util produces a visible change */
+  :where(.cs-flex-wrap, .cs-flex-nowrap, .cs-flex-wrap-reverse) {
+    display: flex;
+  }
+
+  .cs-flex-wrap {
+    flex-wrap: wrap;
+  }
+  .cs-flex-nowrap {
+    flex-wrap: nowrap;
+  }
+  .cs-flex-wrap-reverse {
+    flex-wrap: wrap-reverse;
+  }
+}

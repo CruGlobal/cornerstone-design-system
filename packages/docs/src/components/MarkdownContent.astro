@@ -1,0 +1,24 @@
+---
+/**
+ * The content column, which is `cs-prose`.
+ *
+ * Starlight's version is five lines: it imports `style/markdown.css` and wraps the content in
+ * `.sl-markdown-content`. That stylesheet is 253 lines of typography, and it is the single biggest source
+ * of conflict this port has had — it put `margin-top` on every badge after the first in the component
+ * header, and it coloured links and inline code inside `<cs-callout>` panels from Starlight's palette
+ * rather than the callout's own. Both were fixed by opting individual elements out of it.
+ *
+ * `cs-prose` is the library's answer to the same problem and a better mechanism: `@scope (.cs-prose) to
+ * (.cs-not-prose)`, with every rule at 0,0,0 specificity, so anything inside can override it without
+ * weight tricks and a subtree opts out by name rather than by a `:not(:where(…))` guard.
+ *
+ * Not importing `markdown.css` is the point of the file. Starlight still renders the page; it no longer
+ * styles the prose.
+ *
+ * Starlight's heading links are switched off in `astro.config.mjs` rather than styled: they wrap each
+ * heading in an element whose own font-size scales the anchor icon, which compounds with `cs-prose`'s
+ * em-based heading sizes. See the note there.
+ */
+---
+
+<div class="cs-prose"><slot /></div>

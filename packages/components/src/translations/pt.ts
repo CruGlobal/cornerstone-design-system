@@ -1,0 +1,178 @@
+import { registerTranslation } from '../utilities/localize.js';
+import type { Translation } from '../utilities/localize.js';
+
+const translation: Translation = {
+  $code: 'pt',
+  $name: 'Português',
+  $dir: 'ltr',
+
+  am: 'AM',
+  autosizeColumn: 'Ajustar largura da coluna',
+  captions: 'Legendas',
+  carousel: 'Carrossel',
+  chooseDate: 'Escolher data',
+  chooseDecade: 'Escolher década',
+  chooseMonth: 'Escolher mês',
+  chooseTime: 'Escolher hora',
+  chooseYear: 'Escolher ano',
+  clearEntry: 'Limpar entrada',
+  clearFilter: 'Limpar filtro',
+  clearSort: 'Limpar ordenação',
+  close: 'Fechar',
+  closeCalendar: 'Fechar calendário',
+  closeTimeInput: 'Fechar seletor de hora',
+  collapseRow: 'Recolher linha',
+  columnMenu: 'Opções da coluna',
+  columnMovedToPosition: (label, position, total) => `${label} movida para a posição ${position} de ${total}`,
+  columns: 'Colunas',
+  compactPageXOfY: (page, total) => `${page} de ${total}`,
+  copied: 'Copiado',
+  copy: 'Copiar',
+  createOption: (value) => `Criar "${value}"`,
+  currentlyPlaying: 'a reproduzir',
+  currentValue: 'Valor atual',
+  date: 'Data',
+  datePickerKeyboardHelp:
+    'Use as teclas de seta para alterar os valores; pressione Alt+Seta para baixo para abrir o calendário.',
+  day: 'Dia',
+  dayPeriod: 'AM/PM',
+  decrement: 'Diminuir',
+  deselectAllRows: 'Desmarcar todas as linhas',
+  dropFileHere: 'Drop file here or click to browse',
+  dropFilesHere: 'Drop files here or click to browse',
+  empty: 'Vazio',
+  endDate: 'Data de fim',
+  enterFullscreen: 'Entrar em ecrã inteiro',
+  error: 'Erro',
+  exitFullscreen: 'Sair do ecrã inteiro',
+  expandRow: 'Expandir linha',
+  filterByColumn: (label) => `Filtrar por ${label}`,
+  filterFrom: 'De',
+  filterMax: 'Máx.',
+  filterMin: 'Mín.',
+  filterTo: 'Até',
+  firstPage: 'Primeira página',
+  goToSlide: (slide, count) => `Vá para o slide ${slide} de ${count}`,
+  hideColumn: 'Ocultar coluna',
+  hidePassword: 'Esconder a senha',
+  hour: 'Hora',
+  incompleteDate: 'Introduza uma data válida.',
+  increment: 'Aumentar',
+  jumpBackwardX: (count) => `Recuar ${count} páginas`,
+  jumpForwardX: (count) => `Avançar ${count} páginas`,
+  lastPage: 'Última página',
+  loading: 'Carregando',
+  minute: 'Minuto',
+  month: 'Mês',
+  moreOptions: 'Mais opções',
+  mute: 'Sem som',
+  nextDecade: 'Próxima década',
+  nextMonth: 'Próximo mês',
+  nextPage: 'Próxima página',
+  nextSlide: 'Próximo slide',
+  nextVideo: 'Próximo vídeo',
+  nextYear: 'Próximo ano',
+  noData: 'Sem dados',
+  noResults: 'Sem resultados correspondentes',
+  now: 'Agora',
+  numCharacters: (num) => {
+    if (num === 1) {
+      return '1 caractere';
+    }
+    return `${num} caracteres`;
+  },
+  numCharactersRemaining: (num) => {
+    if (num === 1) {
+      return '1 caractere restante';
+    }
+    return `${num} caracteres restantes`;
+  },
+  numOptionsSelected: (num) => {
+    if (num === 0) {
+      return 'Nenhuma opção selecionada';
+    }
+    if (num === 1) {
+      return '1 opção selecionada';
+    }
+    return `${num} opções selecionadas`;
+  },
+  numRowsCopied: (num) => (num === 1 ? '1 linha copiada' : `${num} linhas copiadas`),
+  numRowsSelected: (num) => (num === 1 ? '1 linha selecionada' : `${num} linhas selecionadas`),
+  pageXOfY: (page, total) => `Página ${page} de ${total}`,
+  pagination: 'Paginação',
+  pause: 'Pausar',
+  pauseAnimation: 'Pausar animação',
+  pictureInPicture: 'Imagem em imagem',
+  pinLeft: 'Fixar à esquerda',
+  pinRight: 'Fixar à direita',
+  play: 'Reproduzir',
+  playAnimation: 'Reproduzir animação',
+  playbackSpeed: 'Velocidade de reprodução',
+  playlist: 'Lista de reprodução',
+  pm: 'PM',
+  previousDecade: 'Década anterior',
+  previousMonth: 'Mês anterior',
+  previousPage: 'Página anterior',
+  previousSlide: 'Slide anterior',
+  previousVideo: 'Vídeo anterior',
+  previousYear: 'Ano anterior',
+  progress: 'Progresso',
+  rangeTooLong: (max) => {
+    if (max === 1) {
+      return 'Selecione um intervalo não superior a 1 dia';
+    }
+    return `Selecione um intervalo não superior a ${max} dias`;
+  },
+  rangeTooShort: (min) => {
+    if (min === 1) {
+      return 'Selecione um intervalo de pelo menos 1 dia';
+    }
+    return `Selecione um intervalo de pelo menos ${min} dias`;
+  },
+  readonly: 'Somente leitura',
+  remove: 'Remover',
+  resetColumns: 'Repor colunas',
+  resize: 'Mudar o tamanho',
+  resizeColumn: 'Redimensionar coluna',
+  rowsPerPage: 'Linhas por página',
+  scrollableRegion: 'Região rolável',
+  scrollToEnd: 'Rolar até o final',
+  scrollToStart: 'Rolar até o início',
+  search: 'Pesquisar',
+  second: 'Segundo',
+  seek: 'Procurar',
+  seekProgress: (current, duration) => `${current} de ${duration}`,
+  selectAColorFromTheScreen: 'Selecionar uma cor da tela',
+  selectAllRows: 'Selecionar todas as linhas',
+  selected: 'Selecionado',
+  selectedDateLabel: (date) => `Selecionado: ${date}`,
+  selectedRangeLabel: (range) => `Intervalo selecionado: ${range}`,
+  selectGroup: 'Selecionar grupo',
+  selectionCleared: 'Seleção limpa',
+  selectRow: 'Selecionar linha',
+  showingNofMRows: (shown, total) => `A mostrar ${shown} de ${total} linhas`,
+  showingXtoYofZ: (start, end, total) => `${start}–${end} de ${total}`,
+  showPassword: 'Mostrar senha',
+  slideNum: (slide) => `Slide ${slide}`,
+  sortAscending: 'Ordenar ascendente',
+  sortColumn: 'Ordenar coluna',
+  sortDescending: 'Ordenar descendente',
+  startDate: 'Data de início',
+  time: 'Hora',
+  timeInputKeyboardHelp:
+    'Use as teclas de seta para alterar os valores; pressione Alt+Seta para baixo para abrir o seletor de hora.',
+  today: 'Hoje',
+  toggleColorFormat: 'Trocar o formato de cor',
+  unmute: 'Ativar som',
+  unpin: 'Desafixar',
+  unpinColumn: 'Desafixar coluna',
+  videoPlayer: 'Leitor de vídeo',
+  volume: 'Volume',
+  year: 'Ano',
+  zoomIn: 'Aumentar zoom',
+  zoomOut: 'Diminuir zoom',
+};
+
+registerTranslation(translation);
+
+export default translation;

@@ -1,0 +1,176 @@
+import { registerTranslation } from '../utilities/localize.js';
+import type { Translation } from '../utilities/localize.js';
+
+const translation: Translation = {
+  $code: 'da',
+  $name: 'Dansk',
+  $dir: 'ltr',
+
+  am: 'AM',
+  autosizeColumn: 'Tilpas kolonnebredde automatisk',
+  captions: 'Undertekster',
+  carousel: 'Karrusel',
+  chooseDate: 'Vælg dato',
+  chooseDecade: 'Vælg årti',
+  chooseMonth: 'Vælg måned',
+  chooseTime: 'Vælg klokkeslæt',
+  chooseYear: 'Vælg år',
+  clearEntry: 'Ryd indtastning',
+  clearFilter: 'Ryd filter',
+  clearSort: 'Ryd sortering',
+  close: 'Luk',
+  closeCalendar: 'Luk kalender',
+  closeTimeInput: 'Luk klokkeslætsvælger',
+  collapseRow: 'Skjul række',
+  columnMenu: 'Kolonneindstillinger',
+  columnMovedToPosition: (label, position, total) => `${label} flyttet til position ${position} af ${total}`,
+  columns: 'Kolonner',
+  compactPageXOfY: (page, total) => `${page} af ${total}`,
+  copied: 'Kopieret',
+  copy: 'Kopier',
+  createOption: (value) => `Opret "${value}"`,
+  currentlyPlaying: 'afspilles nu',
+  currentValue: 'Nuværende værdi',
+  date: 'Dato',
+  datePickerKeyboardHelp: 'Brug piletasterne til at ændre værdier; tryk Alt+Pil ned for at åbne kalenderen.',
+  day: 'Dag',
+  dayPeriod: 'AM/PM',
+  decrement: 'Formindsk',
+  deselectAllRows: 'Fravælg alle rækker',
+  dropFileHere: 'Drop file here or click to browse',
+  dropFilesHere: 'Drop files here or click to browse',
+  empty: 'Tom',
+  endDate: 'Slutdato',
+  enterFullscreen: 'Gå til fuldskærm',
+  error: 'Fejl',
+  exitFullscreen: 'Afslut fuldskærm',
+  expandRow: 'Udvid række',
+  filterByColumn: (label) => `Filtrér efter ${label}`,
+  filterFrom: 'Fra',
+  filterMax: 'Maks.',
+  filterMin: 'Min.',
+  filterTo: 'Til',
+  firstPage: 'Første side',
+  goToSlide: (slide, count) => `Gå til dias ${slide} af ${count}`,
+  hideColumn: 'Skjul kolonne',
+  hidePassword: 'Skjul adgangskode',
+  hour: 'Time',
+  incompleteDate: 'Indtast en gyldig dato.',
+  increment: 'Forøg',
+  jumpBackwardX: (count) => `Spring ${count} sider tilbage`,
+  jumpForwardX: (count) => `Spring ${count} sider frem`,
+  lastPage: 'Sidste side',
+  loading: 'Indlæser',
+  minute: 'Minut',
+  month: 'Måned',
+  moreOptions: 'Flere muligheder',
+  mute: 'Slå lyd fra',
+  nextDecade: 'Næste årti',
+  nextMonth: 'Næste måned',
+  nextPage: 'Næste side',
+  nextSlide: 'Næste slide',
+  nextVideo: 'Næste video',
+  nextYear: 'Næste år',
+  noData: 'Ingen data',
+  noResults: 'Ingen matchende resultater',
+  now: 'Nu',
+  numCharacters: (num) => {
+    if (num === 1) {
+      return '1 tegn';
+    }
+    return `${num} tegn`;
+  },
+  numCharactersRemaining: (num) => {
+    if (num === 1) {
+      return '1 tegn tilbage';
+    }
+    return `${num} tegn tilbage`;
+  },
+  numOptionsSelected: (num: number) => {
+    if (num === 0) {
+      return 'Ingen valgt';
+    }
+    if (num === 1) {
+      return '1 valgt';
+    }
+    return `${num} valgt`;
+  },
+  numRowsCopied: (num) => (num === 1 ? '1 række kopieret' : `${num} rækker kopieret`),
+  numRowsSelected: (num) => (num === 1 ? '1 række valgt' : `${num} rækker valgt`),
+  pageXOfY: (page, total) => `Side ${page} af ${total}`,
+  pagination: 'Sidenavigation',
+  pause: 'Sæt på pause',
+  pauseAnimation: 'Pause animation',
+  pictureInPicture: 'Billede i billede',
+  pinLeft: 'Fastgør til venstre',
+  pinRight: 'Fastgør til højre',
+  play: 'Afspil',
+  playAnimation: 'Afspil animation',
+  playbackSpeed: 'Afspilningshastighed',
+  playlist: 'Afspilningsliste',
+  pm: 'PM',
+  previousDecade: 'Forrige årti',
+  previousMonth: 'Forrige måned',
+  previousPage: 'Forrige side',
+  previousSlide: 'Forrige dias',
+  previousVideo: 'Forrige video',
+  previousYear: 'Forrige år',
+  progress: 'Status',
+  rangeTooLong: (max) => {
+    if (max === 1) {
+      return 'Vælg et interval på højst 1 dag';
+    }
+    return `Vælg et interval på højst ${max} dage`;
+  },
+  rangeTooShort: (min) => {
+    if (min === 1) {
+      return 'Vælg et interval på mindst 1 dag';
+    }
+    return `Vælg et interval på mindst ${min} dage`;
+  },
+  readonly: 'Skrivebeskyttet',
+  remove: 'Fjern',
+  resetColumns: 'Nulstil kolonner',
+  resize: 'Tilpas størrelse',
+  resizeColumn: 'Tilpas kolonnebredde',
+  rowsPerPage: 'Rækker pr. side',
+  scrollableRegion: 'Rullebar region',
+  scrollToEnd: 'Scroll til slut',
+  scrollToStart: 'Scroll til start',
+  search: 'Søg',
+  second: 'Sekund',
+  seek: 'Søg',
+  seekProgress: (current, duration) => `${current} af ${duration}`,
+  selectAColorFromTheScreen: 'Vælg en farve fra skærmen',
+  selectAllRows: 'Vælg alle rækker',
+  selected: 'Valgt',
+  selectedDateLabel: (date) => `Valgt: ${date}`,
+  selectedRangeLabel: (range) => `Valgt interval: ${range}`,
+  selectGroup: 'Vælg gruppe',
+  selectionCleared: 'Valg ryddet',
+  selectRow: 'Vælg række',
+  showingNofMRows: (shown, total) => `Viser ${shown} af ${total} rækker`,
+  showingXtoYofZ: (start, end, total) => `${start}–${end} af ${total}`,
+  showPassword: 'Vis adgangskode',
+  slideNum: (slide) => `Slide ${slide}`,
+  sortAscending: 'Sortér stigende',
+  sortColumn: 'Sortér kolonne',
+  sortDescending: 'Sortér faldende',
+  startDate: 'Startdato',
+  time: 'Klokkeslæt',
+  timeInputKeyboardHelp: 'Brug piletasterne til at ændre værdier; tryk Alt+Pil ned for at åbne klokkeslætsvælgeren.',
+  today: 'I dag',
+  toggleColorFormat: 'Skift farveformat',
+  unmute: 'Slå lyd til',
+  unpin: 'Frigør',
+  unpinColumn: 'Frigør kolonne',
+  videoPlayer: 'Videoafspiller',
+  volume: 'Lydstyrke',
+  year: 'År',
+  zoomIn: 'Zoom ind',
+  zoomOut: 'Zoom ud',
+};
+
+registerTranslation(translation);
+
+export default translation;

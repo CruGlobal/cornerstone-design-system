@@ -1,0 +1,1463 @@
+@import url('layers.css');
+
+/* Required utilities */
+@import url('utilities/size.css');
+@import url('utilities/variants.css');
+
+@layer cs-native {
+  /* #region General ~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  html {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+    tab-size: 4;
+
+    background-color: var(--cs-color-surface-default);
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: inherit;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+
+    color: var(--cs-color-text-normal);
+    font-family: var(--cs-font-family-body);
+    font-size: var(--cs-font-size-m);
+    font-weight: var(--cs-font-weight-body);
+    line-height: var(--cs-line-height-normal);
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    text-size-adjust: none;
+    -moz-text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+  }
+  /* #endregion */
+
+  /* #region Content Flow ~~~~~~~~~~~~~~~~~~~~ */
+  address,
+  audio,
+  blockquote,
+  dd,
+  details,
+  dl,
+  fieldset,
+  figure,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  hr,
+  iframe,
+  ol,
+  p,
+  pre,
+  table,
+  ul,
+  video {
+    margin: 0;
+
+    &:has(+ *) {
+      margin-block-end: var(--cs-content-spacing);
+    }
+  }
+  /* #endregion */
+
+  /* #region Block Text ~~~~~~~~~~~~~~~~~~~~~~ */
+
+  /* A floor so a single unbreakable token — a long URL, a package specifier, a generated
+     identifier — wraps instead of overflowing its column and forcing the page sideways.
+     `break-word` only acts when the word cannot fit on a line of its own, so ordinary text
+     is untouched; `cs-prose` deliberately goes further and sets `overflow-wrap: anywhere`
+     on `code`/`pre` inside a prose container, which still wins by being the later rule.
+
+     Stated here rather than left to the document because the alternative is every consumer
+     writing their own universal reset — and a document-level `*` rule is exactly what
+     flattens the components' own `::slotted()` spacing (see `callout.styles.ts`). */
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  code {
+    overflow-wrap: break-word;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--cs-font-family-heading);
+    font-weight: var(--cs-font-weight-heading);
+    line-height: var(--cs-line-height-condensed);
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--cs-font-size-3xl);
+  }
+
+  h2 {
+    font-size: var(--cs-font-size-2xl);
+  }
+
+  h3 {
+    font-size: var(--cs-font-size-xl);
+  }
+
+  h4 {
+    font-size: var(--cs-font-size-l);
+  }
+
+  h5 {
+    font-size: var(--cs-font-size-m);
+  }
+
+  h6 {
+    font-size: var(--cs-font-size-xs);
+  }
+
+  p {
+    text-wrap: wrap;
+  }
+  @supports (text-wrap: pretty) {
+    p {
+      text-wrap: pretty;
+    }
+  }
+  blockquote {
+    padding: var(--cs-space-xl);
+
+    color: var(--cs-color-text-quiet);
+    font-family: var(--cs-font-family-longform);
+    font-size: var(--cs-font-size-larger);
+
+    border-inline-start: var(--cs-border-style) var(--cs-border-width-l) var(--cs-color-neutral-border-quiet);
+  }
+
+  hr {
+    margin: var(--cs-content-spacing) 0;
+
+    border: none;
+    border-bottom: solid var(--cs-border-width-s) var(--cs-color-surface-border);
+  }
+
+  figcaption {
+    margin-block-start: var(--cs-space-xs);
+
+    color: var(--cs-color-text-quiet);
+    font-size: var(--cs-font-size-smaller);
+    line-height: var(--cs-line-height-condensed);
+  }
+  /* #endregion */
+
+  /* #region Lists ~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  ul,
+  ol {
+    padding: 0;
+  }
+
+  li > ul,
+  li > ol {
+    margin-inline-start: 0.25em;
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  li {
+    margin-inline-start: 1.125em;
+    padding: 0;
+  }
+
+  /* `ul` markers are graphical (3:1 contrast threshold); `ol` markers are text
+     (4.5:1). Numerals also wear transparency more than discs, so they keep more
+     contrast. `currentColor` lets markers ride along when text color changes. */
+  ul > li::marker {
+    color: color-mix(in oklch, currentColor 40%, transparent);
+  }
+
+  ol > li::marker {
+    color: color-mix(in oklch, currentColor 60%, transparent);
+  }
+
+  dt {
+    font-weight: var(--cs-font-weight-bold);
+  }
+
+  menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    & > li {
+      margin: 0;
+    }
+  }
+  /* #endregion */
+
+  /* #region Inline Text ~~~~~~~~~~~~~~~~~~~~~ */
+  strong,
+  b {
+    font-weight: var(--cs-font-weight-bold);
+  }
+
+  em,
+  i {
+    font-style: italic;
+  }
+
+  u {
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.09375em;
+    text-underline-offset: 0.125em;
+  }
+
+  s {
+    text-decoration-line: line-through;
+    text-decoration-thickness: 0.09375em;
+  }
+
+  ins {
+    text-decoration-color: var(--cs-color-success-on-quiet);
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.09375em;
+    text-underline-offset: 0.125em;
+  }
+
+  del {
+    color: color-mix(in oklab, currentColor, transparent 10%);
+    text-decoration-color: var(--cs-color-danger-on-quiet);
+    text-decoration-line: line-through;
+    text-decoration-thickness: 0.09375em;
+  }
+
+  mark {
+    padding: 0.125em 0.25em;
+
+    color: var(--cs-color-warning-on-quiet);
+
+    background-color: var(--cs-color-warning-fill-quiet);
+    border-radius: var(--cs-border-radius-s);
+  }
+
+  small {
+    font-size: var(--cs-font-size-smaller);
+  }
+
+  sub,
+  sup {
+    font-size: var(--cs-font-size-smaller);
+    line-height: 0;
+  }
+
+  sub {
+    vertical-align: sub;
+  }
+
+  sup {
+    vertical-align: super;
+  }
+
+  abbr[title] {
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-thickness: 0.09375em;
+    text-underline-offset: 0.125em;
+
+    cursor: help;
+  }
+
+  kbd {
+    padding: 0.125em 0.25em;
+
+    font-family: var(--cs-font-family-code);
+    font-size: var(--cs-font-size-smaller);
+    font-weight: var(--cs-font-weight-code);
+
+    border: solid var(--cs-border-width-s) color-mix(in oklab, currentColor, transparent 50%);
+    border-radius: var(--cs-border-radius-s);
+    box-shadow: 0 0.125em 0 0 color-mix(in oklab, currentColor, transparent 50%);
+
+    cs-icon {
+      vertical-align: -2px;
+    }
+  }
+  /* #endregion */
+
+  /* #region Links ~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  a {
+    color: var(--cs-color-text-link);
+    text-decoration: var(--cs-link-decoration-default);
+    -webkit-text-decoration: var(--cs-link-decoration-default);
+    text-decoration-thickness: 0.09375em;
+    text-underline-offset: 0.125em;
+  }
+
+  *:is([appearance~='accent'], .cs-accent) {
+    a,
+    a:hover {
+      color: currentColor;
+    }
+  }
+
+  a:hover {
+    color: color-mix(in oklab, var(--cs-color-text-link), var(--cs-color-mix-hover));
+    text-decoration: var(--cs-link-decoration-hover);
+    -webkit-text-decoration: var(--cs-link-decoration-hover);
+  }
+
+  a:focus,
+  button:focus {
+    outline: none;
+  }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: var(--cs-focus-ring);
+    outline-offset: var(--cs-focus-ring-offset);
+  }
+  /* #endregion */
+
+  /* #region Code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  code,
+  samp,
+  var {
+    padding: 0.125em 0.25em;
+
+    font-family: var(--cs-font-family-code);
+    font-size: var(--cs-font-size-smaller);
+    font-weight: var(--cs-font-weight-code);
+
+    background-color: var(--cs-color-overlay-inline);
+    border-radius: var(--cs-border-radius-s);
+  }
+
+  pre {
+    padding: var(--cs-space-m);
+
+    font-family: var(--cs-font-family-code);
+    font-size: var(--cs-font-size-smaller);
+    font-weight: var(--cs-font-weight-code);
+    white-space: pre;
+
+    background-color: var(--cs-color-overlay-inline);
+    border-radius: var(--cs-panel-border-radius);
+    overflow-x: auto;
+
+    /* Remove overlapping styles for child code elements */
+    & code,
+    & samp,
+    & var {
+      padding: 0;
+
+      font-size: 1em;
+
+      background-color: transparent;
+    }
+
+    /* Print styles */
+    @media print {
+      background: none;
+      border: solid var(--cs-border-width-s) var(--cs-color-surface-border);
+    }
+  }
+  /* #endregion */
+
+  /* #region Media ~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  img,
+  svg,
+  picture,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  img,
+  picture,
+  video {
+    border-radius: var(--cs-border-radius-m);
+  }
+
+  embed,
+  iframe,
+  object {
+    max-width: 100%;
+  }
+
+  iframe {
+    border: none;
+  }
+  /* #endregion */
+
+  /* #region Tables ~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  table {
+    width: 100%;
+
+    border: none;
+    border-collapse: collapse;
+
+    &.cs-tabular-nums,
+    & .cs-tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  caption {
+    color: var(--cs-color-text-quiet);
+    font-size: var(--cs-font-size-smaller);
+
+    &:has(+ *) {
+      margin-block-end: 0.75em;
+    }
+  }
+
+  tbody {
+    tr {
+      border-block-start: var(--cs-border-style) var(--cs-border-width-s) var(--cs-color-border-quiet);
+
+      :where(table.cs-zebra-rows) &:nth-child(odd) {
+        background-color: color-mix(in oklab, var(--cs-color-fill-quiet) 60%, transparent);
+      }
+
+      :where(table.cs-hover-rows) & {
+        @media (hover: hover) {
+          &:hover {
+            background-color: var(--cs-color-fill-quiet);
+
+            &,
+            + tr {
+              border-block-start-color: var(--cs-color-border-normal);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  td,
+  th {
+    padding: 0.75em;
+
+    text-align: start;
+    vertical-align: top;
+  }
+
+  th {
+    font-weight: var(--cs-font-weight-bold);
+
+    /* Column headers only, ruled out by [scope="row"] or by a following non-header cell.
+     * Row headers keep the body font size because padding here is em-relative, so smaller
+     * type would pull their text out of alignment with the cells beside them. */
+    &:not([scope='row']):not(:has(+ td)) {
+      font-size: var(--cs-font-size-smaller);
+      border-block-end: var(--cs-border-style) var(--cs-border-width-s) var(--cs-color-border-normal);
+    }
+  }
+  /* #endregion */
+
+  /* #region Details ~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  details {
+    padding: 0;
+
+    background-color: var(--cs-color-surface-default);
+    border: var(--cs-panel-border-width) var(--cs-color-surface-border) var(--cs-panel-border-style);
+    border-radius: var(--cs-panel-border-radius);
+
+    overflow-anchor: none;
+
+    summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: var(--cs-space-m);
+
+      border-radius: calc(var(--cs-panel-border-radius) - var(--cs-panel-border-width));
+
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+
+      > * {
+        margin: 0;
+      }
+
+      &:focus {
+        outline: none;
+      }
+
+      &:focus-visible {
+        outline: var(--cs-focus-ring);
+        outline-offset: calc(var(--cs-panel-border-width) + var(--cs-focus-ring-offset));
+      }
+    }
+
+    &[open] {
+      padding: 0 var(--cs-space-m) var(--cs-space-m) var(--cs-space-m);
+
+      summary {
+        margin-inline: calc(-1 * var(--cs-space-m));
+
+        border-end-start-radius: 0;
+        border-end-end-radius: 0;
+      }
+    }
+
+    &::details-content {
+      box-sizing: border-box; /* Ensure contents don't overflow */
+    }
+
+    /* Print styles */
+    @media print {
+      background: none;
+      border: solid var(--cs-border-width-s) var(--cs-color-surface-border);
+
+      summary {
+        list-style: none;
+      }
+    }
+  }
+
+  /* Replace the summary marker */
+  details summary {
+    &::marker,
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::after {
+      content: '';
+      background-color: var(--cs-color-text-quiet);
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>')
+        center no-repeat;
+      width: 1rem;
+      height: 1rem;
+      rotate: 0deg;
+    }
+
+    &:dir(rtl)::after {
+      rotate: 180deg;
+    }
+  }
+
+  details[open] summary::after {
+    rotate: 90deg;
+  }
+  /* #endregion */
+
+  /* #region Dialogs ~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  dialog {
+    flex-direction: column;
+    align-items: start;
+
+    width: 32rem;
+    max-width: calc(100% - var(--cs-space-l));
+    padding: var(--cs-space-l);
+
+    background-color: var(--cs-color-surface-raised);
+    border-radius: var(--cs-panel-border-radius);
+    border: none;
+    box-shadow: var(--cs-shadow-l);
+
+    transition: var(--cs-transition-slow, 200ms) var(--cs-transition-easing);
+
+    /* Center the dialog */
+    margin: auto;
+    inset: 0;
+
+    &[open] {
+      display: flex;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  dialog::backdrop {
+    background-color: var(--cs-color-overlay-modal, rgb(0 0 0 / 0.25));
+  }
+  /* #endregion */
+
+  /* #region Form Labels ~~~~~~~~~~~~~~~~~~~~~ */
+  label {
+    display: inline-block;
+    position: relative;
+
+    color: var(--cs-form-control-label-color);
+    font-weight: var(--cs-form-control-label-font-weight);
+    line-height: var(--cs-form-control-label-line-height);
+
+    &:has(
+      input:not(
+        [type='button'],
+        [type='checkbox'],
+        [type='color'],
+        [type='file'],
+        [type='hidden'],
+        [type='image'],
+        [type='radio'],
+        [type='reset'],
+        [type='submit']
+      ),
+      textarea,
+      select
+    ) {
+      width: 100%;
+    }
+
+    & + :is(input:not([type='checkbox'], [type='radio']), textarea, select),
+    & > :is(input:not([type='checkbox'], [type='radio']), textarea, select) {
+      margin-block-start: 0.5em;
+    }
+  }
+  /* #endregion */
+
+  /* #region Fieldsets ~~~~~~~~~~~~~~~~~~~~~~~ */
+  fieldset {
+    padding: var(--cs-space-l);
+    padding-block-start: calc(var(--cs-space-l) - 0.5em);
+
+    border: solid 1px var(--cs-color-surface-border);
+    border-radius: var(--cs-border-radius-m);
+  }
+
+  legend {
+    padding: 0;
+    padding-inline: var(--cs-space-xs);
+
+    font-weight: var(--cs-form-control-label-font-weight);
+  }
+  /* #endregion */
+
+  /* #region Buttons ~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  button,
+  input[type='button'],
+  input[type='reset'],
+  input[type='submit'],
+  input[type='file'],
+  a.cs-button {
+    /* We allow modifier classes on <input type="file">,
+     * but these selectors ensure the styles only apply to
+     * the file selector button in the user agent's shadow root */
+    &:not(input[type='file']),
+    &::file-selector-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      height: var(--cs-form-control-height);
+      padding: 0 var(--cs-form-control-padding-inline);
+
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: var(--cs-font-weight-action);
+      text-decoration: none;
+      vertical-align: middle;
+      white-space: nowrap;
+
+      border-style: var(--cs-border-style);
+      border-width: max(1px, var(--cs-form-control-border-width));
+
+      /* These read the button group's internal custom properties so native buttons can be grouped */
+      border-start-start-radius: var(--_button-start-start-radius, var(--cs-form-control-border-radius));
+      border-start-end-radius: var(--_button-start-end-radius, var(--cs-form-control-border-radius));
+      border-end-start-radius: var(--_button-end-start-radius, var(--cs-form-control-border-radius));
+      border-end-end-radius: var(--_button-end-end-radius, var(--cs-form-control-border-radius));
+
+      transition-property: background, border, box-shadow, color;
+      transition-duration: var(--cs-transition-fast);
+      transition-timing-function: var(--cs-transition-easing);
+
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+
+      /* Collapse adjacent borders */
+      margin-inline-start: var(--_button-horizontal-indent);
+      margin-block-start: var(--_button-vertical-indent);
+    }
+
+    /* Outlined variants use a negative indent so adjacent borders overlap */
+    &.cs-outlined {
+      &:not(input[type='file']),
+      &::file-selector-button {
+        margin-inline-start: var(--_button-horizontal-indent-outlined);
+        margin-block-start: var(--_button-vertical-indent-outlined);
+      }
+    }
+
+    /* Default styles for standard buttons */
+    &:not(input[type='file']) {
+      color: var(--cs-color-on-loud, var(--cs-color-neutral-on-loud));
+      background-color: var(--cs-color-fill-loud, var(--cs-color-neutral-fill-loud));
+      border-color: transparent;
+
+      &:not(:disabled) {
+        @media (hover: hover) {
+          &:hover {
+            background-color: color-mix(
+              in oklab,
+              var(--cs-color-fill-loud, var(--cs-color-neutral-fill-loud)),
+              var(--cs-color-mix-hover)
+            );
+            transform: var(--cs-button-transform-hover);
+          }
+        }
+
+        &:active {
+          background-color: color-mix(
+            in oklab,
+            var(--cs-color-fill-loud, var(--cs-color-neutral-fill-loud)),
+            var(--cs-color-mix-active)
+          );
+          transform: var(--cs-button-transform-active);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          &:hover,
+          &:active {
+            transform: none;
+          }
+        }
+      }
+    }
+
+    /* Default styles for file selector buttons */
+    &:is(input[type='file']) {
+      &::file-selector-button {
+        color: var(--cs-color-on-normal, var(--cs-color-neutral-on-normal));
+        background-color: var(--cs-color-fill-normal, var(--cs-color-neutral-fill-normal));
+        border-color: transparent;
+      }
+
+      &:not(:disabled) {
+        &::file-selector-button:hover {
+          background-color: color-mix(
+            in oklab,
+            var(--cs-color-fill-normal, var(--cs-color-neutral-fill-normal)),
+            var(--cs-color-mix-hover)
+          );
+        }
+
+        &::file-selector-button:active {
+          background-color: color-mix(
+            in oklab,
+            var(--cs-color-fill-normal, var(--cs-color-neutral-fill-normal)),
+            var(--cs-color-mix-active)
+          );
+        }
+      }
+    }
+
+    /* Modifier classes */
+    &.cs-plain {
+      &:not(input[type='file']),
+      &::file-selector-button {
+        color: var(--cs-color-on-quiet, var(--cs-color-neutral-on-quiet));
+        background-color: transparent;
+        border-color: transparent;
+      }
+
+      &:not(:disabled) {
+        &:not(input[type='file']):hover,
+        &::file-selector-button:hover {
+          color: var(--cs-color-on-quiet, var(--cs-color-neutral-on-quiet));
+          background-color: var(--cs-color-fill-quiet, var(--cs-color-neutral-fill-quiet));
+        }
+
+        &:not(input[type='file']):active,
+        &::file-selector-button:active {
+          color: var(--cs-color-on-quiet, var(--cs-color-neutral-on-quiet));
+          background-color: color-mix(
+            in oklab,
+            var(--cs-color-fill-quiet, var(--cs-color-neutral-fill-quiet)),
+            var(--cs-color-mix-active)
+          );
+        }
+      }
+    }
+
+    &.cs-outlined {
+      &:not(input[type='file']),
+      &::file-selector-button {
+        color: var(--cs-color-on-quiet, var(--cs-color-neutral-on-quiet));
+        background-color: transparent;
+        border-color: var(--cs-color-border-loud, var(--cs-color-neutral-border-loud));
+      }
+
+      &:not(:disabled) {
+        &:not(input[type='file']):hover,
+        &::file-selector-button:hover {
+          color: var(--cs-color-on-quiet, var(--cs-color-neutral-on-quiet));
+          background-color: var(--cs-color-fill-quiet, var(--cs-color-neutral-fill-quiet));
+        }
+
+        &:not(input[type='file']):active,
+        &::file-selector-button:active {
+          color: var(--cs-color-on-quiet, var(--cs-color-neutral-on-quiet));
+          background-color: color-mix(
+            in oklab,
+            var(--cs-color-fill-quiet, var(--cs-color-neutral-fill-quiet)),
+            var(--cs-color-mix-active)
+          );
+        }
+      }
+    }
+
+    &.cs-filled {
+      &:not(input[type='file']),
+      &::file-selector-button {
+        color: var(--cs-color-on-normal, var(--cs-color-neutral-on-normal));
+        background-color: var(--cs-color-fill-normal, var(--cs-color-neutral-fill-normal));
+        border-color: transparent;
+      }
+
+      &:not(:disabled) {
+        &:not(input[type='file']):hover,
+        &::file-selector-button:hover {
+          color: var(--cs-color-on-normal, var(--cs-color-neutral-on-normal));
+          background-color: color-mix(
+            in oklab,
+            var(--cs-color-fill-normal, var(--cs-color-neutral-fill-normal)),
+            var(--cs-color-mix-hover)
+          );
+        }
+
+        &:not(input[type='file']):active,
+        &::file-selector-button:active {
+          color: var(--cs-color-on-normal, var(--cs-color-neutral-on-normal));
+          background-color: color-mix(
+            in oklab,
+            var(--cs-color-fill-normal, var(--cs-color-neutral-fill-normal)),
+            var(--cs-color-mix-active)
+          );
+        }
+      }
+
+      &.cs-outlined {
+        &:not(input[type='file']),
+        &::file-selector-button {
+          border-color: var(--cs-color-border-normal, var(--cs-color-neutral-border-normal));
+        }
+      }
+    }
+
+    &.cs-accent {
+      &:not(input[type='file']),
+      &::file-selector-button {
+        color: var(--cs-color-on-loud, var(--cs-color-neutral-on-loud));
+        background-color: var(--cs-color-fill-loud, var(--cs-color-neutral-fill-loud));
+        border-color: transparent;
+      }
+
+      &:not(:disabled) {
+        &:not(input[type='file']):hover,
+        &::file-selector-button:hover {
+          background-color: color-mix(
+            in oklab,
+            var(--cs-color-fill-loud, var(--cs-color-neutral-fill-loud)),
+            var(--cs-color-mix-hover)
+          );
+        }
+
+        &:not(input[type='file']):active,
+        &::file-selector-button:active {
+          background-color: color-mix(
+            in oklab,
+            var(--cs-color-fill-loud, var(--cs-color-neutral-fill-loud)),
+            var(--cs-color-mix-active)
+          );
+        }
+      }
+    }
+
+    &.cs-pill {
+      &:not(input[type='file']),
+      &::file-selector-button {
+        border-start-start-radius: var(--_button-start-start-radius, var(--cs-border-radius-pill));
+        border-start-end-radius: var(--_button-start-end-radius, var(--cs-border-radius-pill));
+        border-end-start-radius: var(--_button-end-start-radius, var(--cs-border-radius-pill));
+        border-end-end-radius: var(--_button-end-end-radius, var(--cs-border-radius-pill));
+      }
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: var(--cs-focus-ring);
+      outline-offset: var(--cs-focus-ring-offset);
+    }
+
+    /* Wrap in :is() so that Safari doesn't stop parsing this block */
+    &:is(::-moz-focus-inner) {
+      border: 0;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      /* When disabled, prevent mouse events from bubbling up from children */
+      * {
+        pointer-events: none;
+      }
+    }
+
+    /* Adds space between icons and adjacent elements
+     * Prefer sibling selectors over :first-child/:last-child to avoid extra space when an icon is used alone */
+    & > cs-icon:has(+ *) {
+      margin-inline-end: 0.75em;
+    }
+
+    & > * + cs-icon {
+      margin-inline-start: 0.75em;
+    }
+  }
+  /* #endregion */
+
+  /* #region File Inputs ~~~~~~~~~~~~~~~~~~~~~ */
+  input[type='file'] {
+    display: block;
+
+    max-inline-size: 100%;
+
+    color: var(--cs-form-control-value-color);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: var(--cs-form-control-value-font-weight);
+    line-height: var(--cs-form-control-value-line-height);
+    vertical-align: middle;
+
+    border-radius: var(--cs-border-radius-m);
+
+    cursor: pointer;
+  }
+  /* #endregion */
+
+  /* #region Checkboxes + Radios ~~~~~~~~~~~~~ */
+  input[type='checkbox'],
+  label:has(input[type='checkbox']),
+  input[type='radio'],
+  label:has(input[type='radio']) {
+    display: inline-flex;
+
+    width: fit-content;
+
+    color: var(--cs-form-control-value-color);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: var(--cs-form-control-value-font-weight);
+    line-height: var(--cs-form-control-value-line-height);
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    &,
+    + label {
+      cursor: pointer;
+    }
+
+    &:disabled,
+    &:has(:disabled) {
+      opacity: 0.5;
+
+      cursor: not-allowed;
+    }
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    appearance: none;
+
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+
+    width: var(--cs-form-control-toggle-size);
+    height: var(--cs-form-control-toggle-size);
+    margin: 0;
+    margin-inline-end: 0.5em;
+
+    background-color: var(--cs-form-control-background-color);
+    border-color: var(--cs-form-control-border-color);
+    border-style: var(--cs-border-style);
+    border-width: var(--cs-form-control-border-width);
+
+    transition:
+      background var(--cs-transition-normal),
+      border-color var(--cs-transition-fast),
+      box-shadow var(--cs-transition-fast),
+      color var(--cs-transition-fast);
+    transition-timing-function: var(--cs-transition-easing);
+
+    &:focus-visible {
+      outline: var(--cs-focus-ring);
+      outline-offset: var(--cs-focus-ring-offset);
+    }
+  }
+
+  /* Checkbox */
+  input[type='checkbox'] {
+    --checked-icon-color: var(--cs-color-brand-on-loud);
+    --checked-icon-scale: 0.8;
+
+    border-radius: min(
+      calc(var(--cs-form-control-toggle-size) * 0.375),
+      var(--cs-border-radius-s)
+    ); /* min prevents entirely circular checkbox */
+
+    &:checked,
+    &:indeterminate {
+      color: var(--checked-icon-color);
+
+      background-color: var(--cs-form-control-activated-color);
+      border-color: var(--cs-form-control-activated-color);
+    }
+
+    &:checked::after,
+    &:indeterminate::after {
+      content: '';
+
+      width: var(--cs-form-control-toggle-size);
+      height: var(--cs-form-control-toggle-size);
+      scale: var(--checked-icon-scale);
+
+      background-color: currentColor;
+    }
+
+    &:checked::after {
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z"/></svg>')
+        center / 1em 1em no-repeat;
+    }
+
+    &:indeterminate::after {
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M160-450v-60h640v60H160Z"/></svg>')
+        center no-repeat;
+    }
+  }
+
+  /* Radio */
+  input[type='radio'] {
+    --checked-icon-color: var(--cs-form-control-activated-color);
+    --checked-icon-scale: 0.7;
+
+    color: transparent;
+
+    border-radius: 50%;
+
+    &:checked {
+      color: var(--checked-icon-color);
+
+      border-color: var(--cs-form-control-activated-color);
+    }
+
+    &:checked::after {
+      content: '';
+
+      aspect-ratio: 1;
+      width: 100%;
+      scale: var(--checked-icon-scale);
+
+      background-color: currentColor;
+      border-radius: 50%;
+    }
+  }
+  /* #endregion */
+
+  /* #region Text Fields + Textareas + Selects */
+  input:not(
+    /* Exclude inputs that don't accept text */
+    [type='button'],
+    [type='checkbox'],
+    [type='color'],
+    [type='file'],
+    [type='hidden'],
+    [type='image'],
+    [type='radio'],
+    [type='range'],
+    [type='reset'],
+    [type='submit']
+  ), textarea, select {
+    width: 100%;
+    height: var(--cs-form-control-height);
+    padding: 0 var(--cs-form-control-padding-inline);
+
+    color: var(--cs-form-control-value-color);
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: var(--cs-form-control-value-font-weight);
+    line-height: var(--cs-form-control-value-line-height);
+    vertical-align: middle;
+
+    background-color: var(--cs-form-control-background-color);
+    border-color: var(--cs-form-control-border-color);
+    border-style: var(--cs-form-control-border-style);
+    border-width: var(--cs-form-control-border-width);
+    border-radius: var(--cs-form-control-border-radius);
+
+    transition:
+      background-color var(--cs-transition-normal),
+      border-color var(--cs-transition-normal),
+      outline-color var(--cs-transition-fast);
+    transition-timing-function: var(--cs-transition-easing);
+    outline: var(--cs-focus-ring-style) var(--cs-focus-ring-width) transparent;
+    outline-offset: var(--cs-focus-ring-offset);
+
+    cursor: text;
+
+    &::placeholder {
+      color: var(--cs-form-control-placeholder-color);
+
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    &:focus-visible {
+      outline-color: var(--cs-color-focus);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+
+      cursor: not-allowed;
+    }
+
+    &.cs-outlined {
+      background-color: var(--cs-form-control-background-color);
+      border-color: var(--cs-form-control-border-color);
+    }
+
+    &.cs-filled {
+      background-color: var(--cs-color-neutral-fill-quiet);
+      border-color: var(--cs-color-neutral-fill-quiet);
+
+      &.cs-outlined {
+        border-color: var(--cs-form-control-border-color);
+      }
+    }
+
+    &.cs-pill {
+      border-radius: var(--cs-border-radius-pill);
+    }
+  }
+
+  /* Textarea */
+  textarea {
+    height: auto;
+    min-height: var(--cs-form-control-height);
+    scroll-padding-block: var(--cs-form-control-padding-block);
+    padding: calc(var(--cs-form-control-padding-block) - ((1lh - 1em) / 2)) var(--cs-form-control-padding-inline); /* accounts for the larger line height of textarea content */
+
+    line-height: var(--cs-line-height-normal);
+
+    resize: vertical;
+  }
+
+  /* Select */
+  select {
+    --icon-caret: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path fill="rgb(180 180 200)" d="M480-344 240-584l43-43 197 197 197-197 43 43-240 240Z"/></svg>');
+
+    appearance: none;
+
+    position: relative;
+
+    min-width: 0;
+    background-image: var(--icon-caret), var(--icon-caret);
+    background-repeat: no-repeat;
+    background-position: center right var(--cs-form-control-padding-inline);
+    background-blend-mode: hue, difference;
+    background-size: 1rem 1rem;
+    text-overflow: ellipsis;
+    padding-inline-end: calc(var(--cs-form-control-padding-inline) + 1rem + var(--cs-space-xs));
+    overflow: hidden;
+
+    cursor: pointer;
+
+    &[multiple] {
+      height: auto;
+      background-image: none;
+      padding-inline: var(--cs-form-control-padding-inline);
+    }
+  }
+  /* #endregion */
+
+  /* #region Color Pickers ~~~~~~~~~~~~~~~~~~~ */
+  input[type='color'] {
+    display: block;
+
+    block-size: var(--cs-form-control-height);
+    inline-size: var(--cs-form-control-height);
+    padding: calc(var(--cs-form-control-border-width) * 2);
+
+    font-size: 1em;
+
+    background: transparent;
+    border: var(--cs-form-control-border-width) var(--cs-border-style) var(--cs-form-control-border-color);
+    border-radius: var(--cs-form-control-border-radius);
+
+    cursor: pointer;
+    forced-color-adjust: none;
+
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+      border-radius: inherit;
+    }
+
+    &::-webkit-color-swatch {
+      border: none;
+      border-radius: calc(var(--cs-form-control-border-radius) - var(--cs-form-control-border-width) * 3);
+    }
+
+    &::-moz-color-swatch {
+      border: none;
+      border-radius: calc(var(--cs-form-control-border-radius) - var(--cs-form-control-border-width) * 3);
+    }
+
+    &:focus-visible {
+      outline: var(--cs-focus-ring);
+      outline-offset: var(--cs-focus-ring-offset);
+    }
+  }
+  /* #endregion */
+
+  /* #region Sliders ~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  input[type='range'] {
+    --thumb-width: 1.4em;
+    --thumb-height: 1.4em;
+    --track-size: 0.5em;
+
+    -webkit-appearance: none;
+
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    width: 100%;
+    height: var(--track-size);
+    margin: 0;
+
+    font-size: inherit;
+    line-height: var(--cs-form-control-height);
+    vertical-align: middle;
+
+    background-color: var(--cs-color-neutral-fill-normal);
+    border-radius: calc(var(--track-size) / 2);
+
+    &::-webkit-slider-runnable-track {
+      width: 100%;
+      height: var(--track-size);
+
+      border: none;
+      border-radius: 999px;
+    }
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+
+      width: var(--thumb-width);
+      height: var(--thumb-height);
+      margin-top: calc(var(--thumb-height) / -2 + var(--track-size) / 2);
+
+      background-color: var(--cs-form-control-activated-color);
+      border: solid 0.125em var(--cs-color-surface-default);
+      border-radius: 50%;
+
+      transition-property: background-color, border-color, box-shadow, color;
+      transition-duration: var(--cs-transition-normal);
+      transition-timing-function: var(--cs-transition-easing);
+    }
+
+    &:enabled {
+      &:focus-visible::-webkit-slider-thumb {
+        outline: var(--cs-focus-ring);
+        outline-offset: var(--cs-focus-ring-offset);
+      }
+
+      &::-webkit-slider-thumb {
+        cursor: pointer;
+      }
+
+      &::-webkit-slider-thumb:active {
+        cursor: grabbing;
+      }
+    }
+
+    &::-moz-focus-outer {
+      border: 0;
+    }
+
+    &::-moz-range-progress {
+      height: var(--track-size);
+
+      background-color: var(--cs-color-neutral-fill-normal);
+      border-radius: 3px;
+    }
+
+    &::-moz-range-track {
+      width: 100%;
+      height: var(--track-size);
+
+      background-color: var(--cs-color-neutral-fill-normal);
+      border: none;
+      border-radius: 999px;
+    }
+
+    &::-moz-range-thumb {
+      width: var(--thumb-width);
+      height: var(--thumb-height);
+
+      background-color: var(--cs-form-control-activated-color);
+      border: solid 0.125em var(--cs-color-surface-default);
+      border-radius: 50%;
+
+      transition-property: background-color, border-color, box-shadow, color;
+      transition-duration: var(--cs-transition-normal);
+      transition-timing-function: var(--cs-transition-easing);
+    }
+
+    &:enabled {
+      &:focus-visible::-moz-range-thumb {
+        outline: var(--cs-focus-ring);
+        outline-offset: var(--cs-focus-ring-offset);
+      }
+
+      &::-moz-range-thumb {
+        cursor: pointer;
+      }
+
+      &::-moz-range-thumb:active {
+        cursor: grabbing;
+      }
+    }
+  }
+
+  label > input[type='range'] {
+    margin-block-start: 1em;
+  }
+
+  input[type='range']:focus {
+    outline: none;
+  }
+
+  input[type='range']:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+
+    &::-webkit-slider-thumb {
+      cursor: not-allowed;
+    }
+
+    &::-moz-range-thumb {
+      cursor: not-allowed;
+    }
+  }
+  /* #endregion */
+
+  /* #region Progress ~~~~~~~~~~~~~~~~~~~~~~~~ */
+  progress {
+    --indicator-color: var(--cs-color-brand-fill-loud);
+
+    width: 100%;
+    height: 1rem;
+    overflow: hidden;
+
+    color: var(--cs-color-brand-on-loud);
+
+    background-color: var(--cs-color-neutral-fill-normal);
+    border-radius: var(--cs-border-radius-pill);
+
+    &::-webkit-progress-bar {
+      background: transparent;
+    }
+
+    &[value]::-webkit-progress-value {
+      background-color: var(--indicator-color);
+    }
+
+    &::-moz-progress-bar {
+      background-color: var(--indicator-color);
+    }
+  }
+
+  /* Indeterminate */
+  progress:not([value]) {
+    padding-left: var(--inset-inline-start);
+
+    animation: cs-progress-indeterminate 2.5s infinite cubic-bezier(0.37, 0, 0.63, 1);
+
+    &::-webkit-progress-bar {
+      background-color: var(
+        --indicator-color
+      ); /* Chrome does not render a ::-webkit-progress-value for indeterminate progress */
+    }
+  }
+
+  @keyframes cs-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* For some reason Chrome fiercely resists animations on this pseudo
+	  so we had to do it with padding on <progress> */
+  @keyframes cs-progress-indeterminate {
+    0% {
+      padding-inline-end: 100%;
+    }
+
+    25%,
+    100% {
+      padding-inline-end: 0%;
+    }
+
+    75%,
+    100% {
+      padding-inline-start: 100%;
+    }
+  }
+  /* #endregion */
+
+  /* #region Validation ~~~~~~~~~~~~~~~~~~~~~~ */
+  .cs-invalid {
+    --cs-form-control-border-color: var(--cs-color-danger-border-loud);
+    --cs-form-control-activated-color: var(--cs-color-danger-fill-loud);
+    --cs-form-control-value-color: var(--cs-color-danger-on-quiet);
+
+    /* Focus ring */
+    --cs-color-focus: var(--cs-color-danger-border-loud);
+
+    /* Help text */
+    --cs-color-text-quiet: var(--cs-color-danger-on-quiet);
+  }
+
+  .cs-valid {
+    --cs-form-control-border-color: var(--cs-color-success-border-loud);
+    --cs-form-control-activated-color: var(--cs-color-success-fill-loud);
+    --cs-form-control-value-color: var(--cs-color-success-on-quiet);
+
+    /* Focus ring */
+    --cs-color-focus: var(--cs-color-success-border-loud);
+
+    /* Help text */
+    --cs-color-text-quiet: var(--cs-color-success-on-quiet);
+  }
+  /* #endregion */
+}

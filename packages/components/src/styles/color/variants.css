@@ -1,0 +1,13 @@
+/* Which hue plays each semantic role in the reference theme, and the classes that let an author
+   change one. `information` and `highlight` were added when the variant axis widened to seven roles;
+   both take a hue the reference palette already carries, so no new values entered it — `cyan` for
+   `information`, which keeps it distinct from the blue `brand`, and `purple` for `highlight`, which
+   is the hue that role was named for. Cru's equivalent is generated whole into
+   `variants/cru.css`. */
+@import url('variants/brand.css');
+@import url('variants/neutral.css');
+@import url('variants/highlight.css');
+@import url('variants/information.css');
+@import url('variants/success.css');
+@import url('variants/warning.css');
+@import url('variants/danger.css');

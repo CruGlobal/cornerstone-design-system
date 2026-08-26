@@ -1,0 +1,176 @@
+import { registerTranslation } from '../utilities/localize.js';
+import type { Translation } from '../utilities/localize.js';
+
+const translation: Translation = {
+  $code: 'hu',
+  $name: 'Magyar',
+  $dir: 'ltr',
+
+  am: 'de.',
+  autosizeColumn: 'Oszlop méretezése a tartalomhoz',
+  captions: 'Feliratok',
+  carousel: 'Körhinta',
+  chooseDate: 'Dátum kiválasztása',
+  chooseDecade: 'Évtized kiválasztása',
+  chooseMonth: 'Hónap kiválasztása',
+  chooseTime: 'Idő kiválasztása',
+  chooseYear: 'Év kiválasztása',
+  clearEntry: 'Bejegyzés törlése',
+  clearFilter: 'Szűrő törlése',
+  clearSort: 'Rendezés törlése',
+  close: 'Bezárás',
+  closeCalendar: 'Naptár bezárása',
+  closeTimeInput: 'Időválasztó bezárása',
+  collapseRow: 'Sor összecsukása',
+  columnMenu: 'Oszlop beállításai',
+  columnMovedToPosition: (label, position, total) => `${label} áthelyezve a(z) ${total}/${position}. pozícióba`,
+  columns: 'Oszlopok',
+  compactPageXOfY: (page, total) => `${total}/${page}`,
+  copied: 'Másolva',
+  copy: 'Másolás',
+  createOption: (value) => `„${value}" létrehozása`,
+  currentlyPlaying: 'éppen játszik',
+  currentValue: 'Aktuális érték',
+  date: 'Dátum',
+  datePickerKeyboardHelp: 'A nyílbillentyűkkel módosíthatja az értékeket; az Alt+Lefelé nyíl megnyitja a naptárat.',
+  day: 'Nap',
+  dayPeriod: 'de./du.',
+  decrement: 'Csökkentés',
+  deselectAllRows: 'Összes sor kijelölésének megszüntetése',
+  dropFileHere: 'Drop file here or click to browse',
+  dropFilesHere: 'Drop files here or click to browse',
+  empty: 'Üres',
+  endDate: 'Befejező dátum',
+  enterFullscreen: 'Teljes képernyő',
+  error: 'Hiba',
+  exitFullscreen: 'Kilépés a teljes képernyőből',
+  expandRow: 'Sor kibontása',
+  filterByColumn: (label) => `Szűrés a következő szerint: ${label}`,
+  filterFrom: 'Ettől',
+  filterMax: 'Max.',
+  filterMin: 'Min.',
+  filterTo: 'Eddig',
+  firstPage: 'Első oldal',
+  goToSlide: (slide, count) => `Ugrás a ${count}/${slide}. diára`,
+  hideColumn: 'Oszlop elrejtése',
+  hidePassword: 'Jelszó elrejtése',
+  hour: 'Óra',
+  incompleteDate: 'Adjon meg egy érvényes dátumot.',
+  increment: 'Növelés',
+  jumpBackwardX: (count) => `Ugrás ${count} oldallal vissza`,
+  jumpForwardX: (count) => `Ugrás ${count} oldallal előre`,
+  lastPage: 'Utolsó oldal',
+  loading: 'Betöltés',
+  minute: 'Perc',
+  month: 'Hónap',
+  moreOptions: 'További lehetőségek',
+  mute: 'Elnémítás',
+  nextDecade: 'Következő évtized',
+  nextMonth: 'Következő hónap',
+  nextPage: 'Következő oldal',
+  nextSlide: 'Következő dia',
+  nextVideo: 'Következő videó',
+  nextYear: 'Következő év',
+  noData: 'Nincs adat',
+  noResults: 'Nincs egyező találat',
+  now: 'Most',
+  numCharacters: (num) => {
+    if (num === 1) {
+      return '1 karakter';
+    }
+    return `${num} karakter`;
+  },
+  numCharactersRemaining: (num) => {
+    if (num === 1) {
+      return '1 karakter maradt';
+    }
+    return `${num} karakter maradt`;
+  },
+  numOptionsSelected: (num) => {
+    if (num === 0) {
+      return 'Nincsenek kiválasztva opciók';
+    }
+    if (num === 1) {
+      return '1 lehetőség kiválasztva';
+    }
+    return `${num} lehetőség kiválasztva`;
+  },
+  numRowsCopied: (num) => (num === 1 ? '1 sor másolva' : `${num} sor másolva`),
+  numRowsSelected: (num) => (num === 1 ? '1 sor kiválasztva' : `${num} sor kiválasztva`),
+  pageXOfY: (page, total) => `${total}/${page}. oldal`,
+  pagination: 'Lapozás',
+  pause: 'Szünet',
+  pauseAnimation: 'Animáció szüneteltetése',
+  pictureInPicture: 'Kép a képben',
+  pinLeft: 'Rögzítés balra',
+  pinRight: 'Rögzítés jobbra',
+  play: 'Lejátszás',
+  playAnimation: 'Animáció lejátszása',
+  playbackSpeed: 'Lejátszási sebesség',
+  playlist: 'Lejátszási lista',
+  pm: 'du.',
+  previousDecade: 'Előző évtized',
+  previousMonth: 'Előző hónap',
+  previousPage: 'Előző oldal',
+  previousSlide: 'Előző dia',
+  previousVideo: 'Előző videó',
+  previousYear: 'Előző év',
+  progress: 'Folyamat',
+  rangeTooLong: (max) => {
+    if (max === 1) {
+      return 'Válasszon legfeljebb 1 napos tartományt';
+    }
+    return `Válasszon legfeljebb ${max} napos tartományt`;
+  },
+  rangeTooShort: (min) => {
+    if (min === 1) {
+      return 'Válasszon legalább 1 napos tartományt';
+    }
+    return `Válasszon legalább ${min} napos tartományt`;
+  },
+  readonly: 'Csak olvasható',
+  remove: 'Eltávolítás',
+  resetColumns: 'Oszlopok visszaállítása',
+  resize: 'Átméretezés',
+  resizeColumn: 'Oszlop átméretezése',
+  rowsPerPage: 'Sorok oldalanként',
+  scrollableRegion: 'Görgethető terület',
+  scrollToEnd: 'Görgessen a végére',
+  scrollToStart: 'Görgessen az elejére',
+  search: 'Keresés',
+  second: 'Másodperc',
+  seek: 'Keresés',
+  seekProgress: (current, duration) => `${current} / ${duration}`,
+  selectAColorFromTheScreen: 'Szín választása a képernyőről',
+  selectAllRows: 'Összes sor kijelölése',
+  selected: 'Kiválasztva',
+  selectedDateLabel: (date) => `Kiválasztva: ${date}`,
+  selectedRangeLabel: (range) => `Kiválasztott tartomány: ${range}`,
+  selectGroup: 'Csoport kijelölése',
+  selectionCleared: 'Kijelölés törölve',
+  selectRow: 'Sor kijelölése',
+  showingNofMRows: (shown, total) => `${total} sorból ${shown} megjelenítve`,
+  showingXtoYofZ: (start, end, total) => `${start}–${end} / ${total}`,
+  showPassword: 'Jelszó megjelenítése',
+  slideNum: (slide) => `${slide}. dia`,
+  sortAscending: 'Növekvő rendezés',
+  sortColumn: 'Oszlop rendezése',
+  sortDescending: 'Csökkenő rendezés',
+  startDate: 'Kezdő dátum',
+  time: 'Idő',
+  timeInputKeyboardHelp: 'A nyílbillentyűkkel módosíthatja az értékeket; az Alt+Lefelé nyíl megnyitja az időválasztót.',
+  today: 'Ma',
+  toggleColorFormat: 'Színformátum változtatása',
+  unmute: 'Elnémítás feloldása',
+  unpin: 'Rögzítés feloldása',
+  unpinColumn: 'Oszlop rögzítésének feloldása',
+  videoPlayer: 'Videólejátszó',
+  volume: 'Hangerő',
+  year: 'Év',
+  zoomIn: 'Nagyítás',
+  zoomOut: 'Kicsinyítés',
+};
+
+registerTranslation(translation);
+
+export default translation;

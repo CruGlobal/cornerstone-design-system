@@ -1,0 +1,176 @@
+import { registerTranslation } from '../utilities/localize.js';
+import type { Translation } from '../utilities/localize.js';
+
+const translation: Translation = {
+  $code: 'sv',
+  $name: 'Svenska',
+  $dir: 'ltr',
+
+  am: 'FM',
+  autosizeColumn: 'Anpassa kolumnbredd',
+  captions: 'Undertexter',
+  carousel: 'Karusell',
+  chooseDate: 'Välj datum',
+  chooseDecade: 'Välj decennium',
+  chooseMonth: 'Välj månad',
+  chooseTime: 'Välj tid',
+  chooseYear: 'Välj år',
+  clearEntry: 'Återställ val',
+  clearFilter: 'Rensa filter',
+  clearSort: 'Rensa sortering',
+  close: 'Stäng',
+  closeCalendar: 'Stäng kalender',
+  closeTimeInput: 'Stäng tidsväljare',
+  collapseRow: 'Dölj rad',
+  columnMenu: 'Kolumnalternativ',
+  columnMovedToPosition: (label, position, total) => `${label} flyttad till position ${position} av ${total}`,
+  columns: 'Kolumner',
+  compactPageXOfY: (page, total) => `${page} av ${total}`,
+  copied: 'Kopierade',
+  copy: 'Kopiera',
+  createOption: (value) => `Skapa "${value}"`,
+  currentlyPlaying: 'spelas nu',
+  currentValue: 'Nuvarande värde',
+  date: 'Datum',
+  datePickerKeyboardHelp: 'Använd piltangenterna för att ändra värden; tryck Alt+Pil ned för att öppna kalendern.',
+  day: 'Dag',
+  dayPeriod: 'FM/EM',
+  decrement: 'Minska',
+  deselectAllRows: 'Avmarkera alla rader',
+  dropFileHere: 'Drop file here or click to browse',
+  dropFilesHere: 'Drop files here or click to browse',
+  empty: 'Tom',
+  endDate: 'Slutdatum',
+  enterFullscreen: 'Gå till helskärm',
+  error: 'Fel',
+  exitFullscreen: 'Avsluta helskärm',
+  expandRow: 'Visa rad',
+  filterByColumn: (label) => `Filtrera efter ${label}`,
+  filterFrom: 'Från',
+  filterMax: 'Max',
+  filterMin: 'Min',
+  filterTo: 'Till',
+  firstPage: 'Första sidan',
+  goToSlide: (slide, count) => `Gå till bild ${slide} av ${count}`,
+  hideColumn: 'Dölj kolumn',
+  hidePassword: 'Dölj lösenord',
+  hour: 'Timme',
+  incompleteDate: 'Ange ett giltigt datum.',
+  increment: 'Öka',
+  jumpBackwardX: (count) => `Hoppa bakåt ${count} sidor`,
+  jumpForwardX: (count) => `Hoppa framåt ${count} sidor`,
+  lastPage: 'Sista sidan',
+  loading: 'Läser in',
+  minute: 'Minut',
+  month: 'Månad',
+  moreOptions: 'Fler alternativ',
+  mute: 'Stäng av ljud',
+  nextDecade: 'Nästa decennium',
+  nextMonth: 'Nästa månad',
+  nextPage: 'Nästa sida',
+  nextSlide: 'Nästa bild',
+  nextVideo: 'Nästa video',
+  nextYear: 'Nästa år',
+  noData: 'Inga data',
+  noResults: 'Inga matchande resultat',
+  now: 'Nu',
+  numCharacters: (num) => {
+    if (num === 1) {
+      return '1 tecken';
+    }
+    return `${num} tecken`;
+  },
+  numCharactersRemaining: (num) => {
+    if (num === 1) {
+      return '1 tecken kvar';
+    }
+    return `${num} tecken kvar`;
+  },
+  numOptionsSelected: (num) => {
+    if (num === 0) {
+      return 'Inga alternativ har valts';
+    }
+    if (num === 1) {
+      return '1 alternativ valt';
+    }
+    return `${num} alternativ valda`;
+  },
+  numRowsCopied: (num) => (num === 1 ? '1 rad kopierad' : `${num} rader kopierade`),
+  numRowsSelected: (num) => (num === 1 ? '1 rad markerad' : `${num} rader markerade`),
+  pageXOfY: (page, total) => `Sida ${page} av ${total}`,
+  pagination: 'Paginering',
+  pause: 'Pausa',
+  pauseAnimation: 'Pausa animation',
+  pictureInPicture: 'Bild i bild',
+  pinLeft: 'Fäst till vänster',
+  pinRight: 'Fäst till höger',
+  play: 'Spela',
+  playAnimation: 'Spela upp animation',
+  playbackSpeed: 'Uppspelningshastighet',
+  playlist: 'Spellista',
+  pm: 'EM',
+  previousDecade: 'Föregående decennium',
+  previousMonth: 'Föregående månad',
+  previousPage: 'Föregående sida',
+  previousSlide: 'Föregående bild',
+  previousVideo: 'Föregående video',
+  previousYear: 'Föregående år',
+  progress: 'Framsteg',
+  rangeTooLong: (max) => {
+    if (max === 1) {
+      return 'Välj ett intervall som inte är längre än 1 dag';
+    }
+    return `Välj ett intervall som inte är längre än ${max} dagar`;
+  },
+  rangeTooShort: (min) => {
+    if (min === 1) {
+      return 'Välj ett intervall som är minst 1 dag långt';
+    }
+    return `Välj ett intervall som är minst ${min} dagar långt`;
+  },
+  readonly: 'Skrivskyddad',
+  remove: 'Ta bort',
+  resetColumns: 'Återställ kolumner',
+  resize: 'Ändra storlek',
+  resizeColumn: 'Ändra kolumnbredd',
+  rowsPerPage: 'Rader per sida',
+  scrollableRegion: 'Scrollbart område',
+  scrollToEnd: 'Skrolla till slutet',
+  scrollToStart: 'Skrolla till början',
+  search: 'Sök',
+  second: 'Sekund',
+  seek: 'Sök',
+  seekProgress: (current, duration) => `${current} av ${duration}`,
+  selectAColorFromTheScreen: 'Välj en färg från skärmen',
+  selectAllRows: 'Markera alla rader',
+  selected: 'Vald',
+  selectedDateLabel: (date) => `Valt: ${date}`,
+  selectedRangeLabel: (range) => `Valt intervall: ${range}`,
+  selectGroup: 'Markera grupp',
+  selectionCleared: 'Valet rensat',
+  selectRow: 'Markera rad',
+  showingNofMRows: (shown, total) => `Visar ${shown} av ${total} rader`,
+  showingXtoYofZ: (start, end, total) => `${start}–${end} av ${total}`,
+  showPassword: 'Visa lösenord',
+  slideNum: (slide) => `Bild ${slide}`,
+  sortAscending: 'Sortera stigande',
+  sortColumn: 'Sortera kolumn',
+  sortDescending: 'Sortera fallande',
+  startDate: 'Startdatum',
+  time: 'Tid',
+  timeInputKeyboardHelp: 'Använd piltangenterna för att ändra värden; tryck Alt+Pil ned för att öppna tidsväljaren.',
+  today: 'Idag',
+  toggleColorFormat: 'Växla färgformat',
+  unmute: 'Slå på ljud',
+  unpin: 'Ta bort fästning',
+  unpinColumn: 'Ta bort fäst kolumn',
+  videoPlayer: 'Videospelare',
+  volume: 'Volym',
+  year: 'År',
+  zoomIn: 'Zooma in',
+  zoomOut: 'Zooma ut',
+};
+
+registerTranslation(translation);
+
+export default translation;

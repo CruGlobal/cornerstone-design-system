@@ -1,0 +1,35 @@
+{
+  "name": "cornerstone-docs-site",
+  "description": "The Cornerstone Components documentation site. Not published; the library's package.json omits it.",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "predev": "node scripts/link-library.js",
+    "dev": "astro dev --force",
+    "prebuild": "node scripts/link-library.js",
+    "build": "ASTRO_CACHE_DIR=node_modules/.astro-build astro build --force",
+    "preview": "astro preview",
+    "check": "astro check",
+    "check:pages": "node scripts/check-pages.js",
+    "check:tokens": "node scripts/check-tokens.js",
+    "check:components": "node scripts/check-components.js",
+    "port": "node scripts/port-from-eleventy.js",
+    "postbuild": "node scripts/prune-pagefind.js"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/markdown-remark": "^7.2.0",
+    "@astrojs/starlight": "0.41.7",
+    "@cruglobal/cornerstone-build-tools": "*",
+    "@types/node": "^24.13.3",
+    "astro": "7.2.3",
+    "gray-matter": "^4.0.3",
+    "prismjs": "^1.30.0",
+    "remark-directive": "^4.0.0",
+    "typescript": "^6.0.3"
+  }
+}

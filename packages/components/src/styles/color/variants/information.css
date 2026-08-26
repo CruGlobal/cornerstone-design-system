@@ -1,0 +1,162 @@
+@layer cs-color-variant {
+  :where(:root), /* default */
+  .cs-information-cyan {
+    --cs-color-information-95: var(--cs-color-cyan-95);
+    --cs-color-information-90: var(--cs-color-cyan-90);
+    --cs-color-information-80: var(--cs-color-cyan-80);
+    --cs-color-information-70: var(--cs-color-cyan-70);
+    --cs-color-information-60: var(--cs-color-cyan-60);
+    --cs-color-information-50: var(--cs-color-cyan-50);
+    --cs-color-information-40: var(--cs-color-cyan-40);
+    --cs-color-information-30: var(--cs-color-cyan-30);
+    --cs-color-information-20: var(--cs-color-cyan-20);
+    --cs-color-information-10: var(--cs-color-cyan-10);
+    --cs-color-information-05: var(--cs-color-cyan-05);
+    --cs-color-information: var(--cs-color-cyan);
+    --cs-color-information-on: var(--cs-color-cyan-on);
+  }
+
+  .cs-information-red {
+    --cs-color-information-95: var(--cs-color-red-95);
+    --cs-color-information-90: var(--cs-color-red-90);
+    --cs-color-information-80: var(--cs-color-red-80);
+    --cs-color-information-70: var(--cs-color-red-70);
+    --cs-color-information-60: var(--cs-color-red-60);
+    --cs-color-information-50: var(--cs-color-red-50);
+    --cs-color-information-40: var(--cs-color-red-40);
+    --cs-color-information-30: var(--cs-color-red-30);
+    --cs-color-information-20: var(--cs-color-red-20);
+    --cs-color-information-10: var(--cs-color-red-10);
+    --cs-color-information-05: var(--cs-color-red-05);
+    --cs-color-information: var(--cs-color-red);
+    --cs-color-information-on: var(--cs-color-red-on);
+  }
+
+  .cs-information-orange {
+    --cs-color-information-95: var(--cs-color-orange-95);
+    --cs-color-information-90: var(--cs-color-orange-90);
+    --cs-color-information-80: var(--cs-color-orange-80);
+    --cs-color-information-70: var(--cs-color-orange-70);
+    --cs-color-information-60: var(--cs-color-orange-60);
+    --cs-color-information-50: var(--cs-color-orange-50);
+    --cs-color-information-40: var(--cs-color-orange-40);
+    --cs-color-information-30: var(--cs-color-orange-30);
+    --cs-color-information-20: var(--cs-color-orange-20);
+    --cs-color-information-10: var(--cs-color-orange-10);
+    --cs-color-information-05: var(--cs-color-orange-05);
+    --cs-color-information: var(--cs-color-orange);
+    --cs-color-information-on: var(--cs-color-orange-on);
+  }
+
+  .cs-information-yellow {
+    --cs-color-information-95: var(--cs-color-yellow-95);
+    --cs-color-information-90: var(--cs-color-yellow-90);
+    --cs-color-information-80: var(--cs-color-yellow-80);
+    --cs-color-information-70: var(--cs-color-yellow-70);
+    --cs-color-information-60: var(--cs-color-yellow-60);
+    --cs-color-information-50: var(--cs-color-yellow-50);
+    --cs-color-information-40: var(--cs-color-yellow-40);
+    --cs-color-information-30: var(--cs-color-yellow-30);
+    --cs-color-information-20: var(--cs-color-yellow-20);
+    --cs-color-information-10: var(--cs-color-yellow-10);
+    --cs-color-information-05: var(--cs-color-yellow-05);
+    --cs-color-information: var(--cs-color-yellow);
+    --cs-color-information-on: var(--cs-color-yellow-on);
+  }
+
+  .cs-information-green {
+    --cs-color-information-95: var(--cs-color-green-95);
+    --cs-color-information-90: var(--cs-color-green-90);
+    --cs-color-information-80: var(--cs-color-green-80);
+    --cs-color-information-70: var(--cs-color-green-70);
+    --cs-color-information-60: var(--cs-color-green-60);
+    --cs-color-information-50: var(--cs-color-green-50);
+    --cs-color-information-40: var(--cs-color-green-40);
+    --cs-color-information-30: var(--cs-color-green-30);
+    --cs-color-information-20: var(--cs-color-green-20);
+    --cs-color-information-10: var(--cs-color-green-10);
+    --cs-color-information-05: var(--cs-color-green-05);
+    --cs-color-information: var(--cs-color-green);
+    --cs-color-information-on: var(--cs-color-green-on);
+  }
+
+  .cs-information-blue {
+    --cs-color-information-95: var(--cs-color-blue-95);
+    --cs-color-information-90: var(--cs-color-blue-90);
+    --cs-color-information-80: var(--cs-color-blue-80);
+    --cs-color-information-70: var(--cs-color-blue-70);
+    --cs-color-information-60: var(--cs-color-blue-60);
+    --cs-color-information-50: var(--cs-color-blue-50);
+    --cs-color-information-40: var(--cs-color-blue-40);
+    --cs-color-information-30: var(--cs-color-blue-30);
+    --cs-color-information-20: var(--cs-color-blue-20);
+    --cs-color-information-10: var(--cs-color-blue-10);
+    --cs-color-information-05: var(--cs-color-blue-05);
+    --cs-color-information: var(--cs-color-blue);
+    --cs-color-information-on: var(--cs-color-blue-on);
+  }
+
+  .cs-information-indigo {
+    --cs-color-information-95: var(--cs-color-indigo-95);
+    --cs-color-information-90: var(--cs-color-indigo-90);
+    --cs-color-information-80: var(--cs-color-indigo-80);
+    --cs-color-information-70: var(--cs-color-indigo-70);
+    --cs-color-information-60: var(--cs-color-indigo-60);
+    --cs-color-information-50: var(--cs-color-indigo-50);
+    --cs-color-information-40: var(--cs-color-indigo-40);
+    --cs-color-information-30: var(--cs-color-indigo-30);
+    --cs-color-information-20: var(--cs-color-indigo-20);
+    --cs-color-information-10: var(--cs-color-indigo-10);
+    --cs-color-information-05: var(--cs-color-indigo-05);
+    --cs-color-information: var(--cs-color-indigo);
+    --cs-color-information-on: var(--cs-color-indigo-on);
+  }
+
+  .cs-information-purple {
+    --cs-color-information-95: var(--cs-color-purple-95);
+    --cs-color-information-90: var(--cs-color-purple-90);
+    --cs-color-information-80: var(--cs-color-purple-80);
+    --cs-color-information-70: var(--cs-color-purple-70);
+    --cs-color-information-60: var(--cs-color-purple-60);
+    --cs-color-information-50: var(--cs-color-purple-50);
+    --cs-color-information-40: var(--cs-color-purple-40);
+    --cs-color-information-30: var(--cs-color-purple-30);
+    --cs-color-information-20: var(--cs-color-purple-20);
+    --cs-color-information-10: var(--cs-color-purple-10);
+    --cs-color-information-05: var(--cs-color-purple-05);
+    --cs-color-information: var(--cs-color-purple);
+    --cs-color-information-on: var(--cs-color-purple-on);
+  }
+
+  .cs-information-pink {
+    --cs-color-information-95: var(--cs-color-pink-95);
+    --cs-color-information-90: var(--cs-color-pink-90);
+    --cs-color-information-80: var(--cs-color-pink-80);
+    --cs-color-information-70: var(--cs-color-pink-70);
+    --cs-color-information-60: var(--cs-color-pink-60);
+    --cs-color-information-50: var(--cs-color-pink-50);
+    --cs-color-information-40: var(--cs-color-pink-40);
+    --cs-color-information-30: var(--cs-color-pink-30);
+    --cs-color-information-20: var(--cs-color-pink-20);
+    --cs-color-information-10: var(--cs-color-pink-10);
+    --cs-color-information-05: var(--cs-color-pink-05);
+    --cs-color-information: var(--cs-color-pink);
+    --cs-color-information-on: var(--cs-color-pink-on);
+  }
+
+  .cs-information-gray {
+    --cs-color-information-95: var(--cs-color-gray-95);
+    --cs-color-information-90: var(--cs-color-gray-90);
+    --cs-color-information-80: var(--cs-color-gray-80);
+    --cs-color-information-70: var(--cs-color-gray-70);
+    --cs-color-information-60: var(--cs-color-gray-60);
+    --cs-color-information-50: var(--cs-color-gray-50);
+    --cs-color-information-40: var(--cs-color-gray-40);
+    --cs-color-information-30: var(--cs-color-gray-30);
+    --cs-color-information-20: var(--cs-color-gray-20);
+    --cs-color-information-10: var(--cs-color-gray-10);
+    --cs-color-information-05: var(--cs-color-gray-05);
+    --cs-color-information: var(--cs-color-gray);
+    --cs-color-information-on: var(--cs-color-gray-on);
+  }
+}
