@@ -1,0 +1,8 @@
+# Astro's build output, and its cache.
+dist/
+.astro/
+.cache/
+
+# The library's bundled build, copied in by scripts/link-library.js so pages load
+# the components the way a real consumer would. Generated, never committed.
+public/dist/

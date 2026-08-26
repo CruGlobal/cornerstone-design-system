@@ -1,0 +1,17 @@
+.astro
+.cache
+.DS_Store
+dist/
+node_modules
+src/react
+cdn/
+yarn.lock
+_bundle_
+custom-elements.json
+**/.claude/scheduled_tasks.lock
+
+# Claude Code local per-user settings
+.claude/settings.local.json
+
+# Skills the build writes into this repo (generated; see docs/.eleventy.js)
+.claude/skills/
