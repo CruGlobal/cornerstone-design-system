@@ -9,6 +9,14 @@ on:
   # open PR doesn't build twice.
   pull_request:
 
+# One run per ref. A second push used to leave the first still going, and the component gate is
+# ~35 minutes — two of them competing for the same runners is how a suite starts failing on
+# timeouts rather than assertions. `cancel-in-progress` is safe here because nothing in this
+# workflow deploys or publishes; the worst a cancelled run loses is a result we no longer want.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   pull-requests: read
