@@ -1,0 +1,91 @@
+import { html } from 'lit';
+import { property, query } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
+import CornerstoneElement from '../../internal/cornerstone-element.js';
+import { customElement } from '../../internal/custom-element.js';
+import { watch } from '../../internal/watch.js';
+import styles from './tab.styles.js';
+
+let id = 0;
+
+/**
+ * @summary Tabs label and activate an individual panel inside a tab group.
+ * @documentation https://cruglobal.github.io/cornerstone-design-system/components/tab
+ * @status stable
+ * @since 2.0
+ *
+ * @slot - The tab's label.
+ *
+ * @csspart tab - The component's outer wrapper.
+ */
+@customElement('cs-tab')
+export default class CsTab extends CornerstoneElement {
+  static css = styles;
+
+  private readonly attrId = ++id;
+  private readonly componentId = `cs-tab-${this.attrId}`;
+
+  @query('.tab') tab: HTMLElement;
+
+  /** The name of the tab panel this tab is associated with. The panel must be located in the same tab group. */
+  @property({ reflect: true }) panel = '';
+
+  /** @internal Draws the tab in an active state. */
+  @property({ type: Boolean, reflect: true }) active = false;
+
+  /** Disables the tab and prevents selection. */
+  @property({ type: Boolean, reflect: true }) disabled = false;
+
+  /**
+   * @internal
+   * Need to wrap in a `@property()` otherwise NextJS blows up.
+   */
+  @property({ type: Number, reflect: true }) tabIndex = 0;
+
+  /**
+   * @internal
+   * Need to wrap in @property({reflect: true}) otherwise it will not SSR properly.
+   */
+  @property({ reflect: true }) slot = 'nav';
+
+  @property({ reflect: true }) role = 'tab';
+
+  @watch('active')
+  handleActiveChange() {
+    this.setAttribute('aria-selected', this.active ? 'true' : 'false');
+  }
+
+  @watch('disabled')
+  handleDisabledChange() {
+    this.setAttribute('aria-disabled', this.disabled ? 'true' : 'false');
+
+    if (this.disabled && !this.active) {
+      this.tabIndex = -1;
+    } else {
+      this.tabIndex = 0;
+    }
+  }
+
+  render() {
+    // If the user didn't provide an ID, we'll set one so we can link tabs and tab panels with aria labels
+    this.id = this.id?.length > 0 ? this.id : this.componentId;
+
+    return html`
+      <div
+        part="tab"
+        class=${classMap({
+          tab: true,
+          'tab-active': this.active,
+        })}
+      >
+        <slot></slot>
+      </div>
+    `;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'cs-tab': CsTab;
+  }
+}

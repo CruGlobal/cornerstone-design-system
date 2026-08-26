@@ -1,0 +1,15 @@
+---
+/**
+ * Renders nothing.
+ *
+ * Starlight's chrome is a tree of components that import each other, and its CSS ships because of the
+ * *import*, not because anything renders. `Page.astro` imports `PageSidebar`, which imports
+ * `MobileTableOfContents`, which imports `TableOfContentsList` — so three scoped stylesheets shipped on all 115
+ * pages while zero pages carried any of their scope hashes. Pointing the top of such a subtree at this file
+ * severs the import and the bytes go with it.
+ *
+ * Used for the components this site replaces outright, and for the ones it cannot reach a use for. Where a
+ * Starlight feature is worth keeping, it gets a real Cornerstone override instead — see Banner.astro and
+ * DraftContentNotice.astro, which keep working rather than silently doing nothing.
+ */
+---

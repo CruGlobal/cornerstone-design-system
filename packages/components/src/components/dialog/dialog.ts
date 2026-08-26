@@ -1,0 +1,349 @@
+import { html, isServer, type PropertyValues } from 'lit';
+import { property, query } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
+import { CsAfterHideEvent } from '../../events/after-hide.js';
+import { CsAfterShowEvent } from '../../events/after-show.js';
+import { CsHideEvent } from '../../events/hide.js';
+import { CsShowEvent } from '../../events/show.js';
+import { animateWithClass } from '../../internal/animate.js';
+import CornerstoneElement from '../../internal/cornerstone-element.js';
+import { customElement } from '../../internal/custom-element.js';
+import { isTopDismissible, registerDismissible, unregisterDismissible } from '../../internal/dismissible-stack.js';
+import { parseSpaceDelimitedTokens } from '../../internal/parse.js';
+import { RenderedWatcher } from '../../internal/rendered-watcher.js';
+import { lockBodyScrolling, unlockBodyScrolling } from '../../internal/scroll.js';
+import { HasSlotController } from '../../internal/slot.js';
+import { watch } from '../../internal/watch.js';
+import { LocalizeController } from '../../utilities/localize.js';
+import '../button/button.js';
+import styles from './dialog.styles.js';
+
+/**
+ * @summary Dialogs appear above the page and require the user's immediate attention. Use them for confirmations, forms,
+ *  or focused tasks that interrupt the main flow.
+ * @documentation https://cruglobal.github.io/cornerstone-design-system/components/dialog
+ * @status stable
+ * @since 2.0
+ *
+ * @dependency cs-button
+ *
+ * @slot - The dialog's main content.
+ * @slot label - The dialog's label. Alternatively, you can use the `label` attribute.
+ * @slot header-actions - Optional actions to add to the header. Works best with `<cs-button>`.
+ * @slot footer - The dialog's footer, usually one or more buttons representing various options.
+ *
+ * @event cs-show - Emitted when the dialog opens.
+ * @event cs-after-show - Emitted after the dialog opens and all animations are complete.
+ * @event {{ source: Element }} cs-hide - Emitted when the dialog is requested to close. Calling
+ *  `event.preventDefault()` will prevent the dialog from closing. You can inspect `event.detail.source` to see which
+ *  element caused the dialog to close. If the source is the dialog element itself, the user has pressed [[Escape]] or
+ *  the dialog has been closed programmatically. Avoid using this unless closing the dialog will result in destructive
+ *  behavior such as data loss.
+ * @event cs-after-hide - Emitted after the dialog closes and all animations are complete.
+ *
+ * @csspart dialog - The dialog's internal `<dialog>` element.
+ * @csspart header - The dialog's header. This element wraps the title and header actions.
+ * @csspart header-actions - Optional actions to add to the header. Works best with `<cs-button>`.
+ * @csspart title - The dialog's title.
+ * @csspart close-button - The close button, a `<cs-button>`.
+ * @csspart close-button__button - The close button's exported `button` part.
+ * @csspart body - The dialog's body.
+ * @csspart footer - The dialog's footer.
+ *
+ * @cssproperty --spacing - The amount of space around and between the dialog's content.
+ * @cssproperty --width - The preferred width of the dialog. Note that the dialog will shrink to accommodate smaller screens.
+ * @cssproperty [--backdrop-filter=none] - A filter to apply to the backdrop behind the dialog.
+ * @cssproperty [--show-duration=var(--cs-transition-normal)] - The animation duration when showing the dialog.
+ * @cssproperty [--hide-duration=var(--cs-transition-normal)] - The animation duration when hiding the dialog.
+ */
+@customElement('cs-dialog')
+export default class CsDialog extends CornerstoneElement {
+  static css = styles;
+
+  private readonly localize = new LocalizeController(this);
+  private readonly hasSlotController = new HasSlotController(this, 'footer');
+  private readonly renderedWatcher = new RenderedWatcher(this, (isRendered) => this.handleRenderedChange(isRendered));
+  private originalTrigger: HTMLElement | null;
+
+  @query('.dialog') dialog: HTMLDialogElement;
+
+  /** Indicates whether or not the dialog is open. Toggle this attribute to show and hide the dialog. */
+  @property({ type: Boolean, reflect: true }) open = false;
+
+  /**
+   * The dialog's label as displayed in the header. You should always include a relevant label, as it is required for
+   * proper accessibility. If you need to display HTML, use the `label` slot instead.
+   */
+  @property({ reflect: true }) label = '';
+
+  /** Disables the header. This will also remove the default close button. */
+  @property({ attribute: 'without-header', type: Boolean, reflect: true }) withoutHeader = false;
+
+  /** When enabled, the dialog will be closed when the user clicks outside of it. */
+  @property({ attribute: 'light-dismiss', type: Boolean }) lightDismiss = false;
+
+  /**
+   * Only required for SSR. Set to `true` if you're slotting in a `footer` element so the server-rendered markup
+   * includes the footer before the component hydrates on the client.
+   */
+  @property({ attribute: 'ssr-footer', type: Boolean }) ssrFooter = false;
+
+  firstUpdated(changedProperties: PropertyValues<typeof this>) {
+    super.firstUpdated(changedProperties);
+    if (this.open) {
+      this.addOpenListeners();
+      this.dialog.showModal();
+      lockBodyScrolling(this);
+      this.renderedWatcher.start(this.dialog);
+    }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.renderedWatcher.stop();
+    unlockBodyScrolling(this);
+    this.removeOpenListeners();
+  }
+
+  private async requestClose(source: Element) {
+    // Hide
+    const csHideEvent = new CsHideEvent({ source });
+    this.dispatchEvent(csHideEvent);
+
+    if (csHideEvent.defaultPrevented) {
+      this.open = true;
+      animateWithClass(this.dialog, 'pulse');
+      return;
+    }
+
+    this.removeOpenListeners();
+
+    await animateWithClass(this.dialog, 'hide');
+
+    this.open = false;
+    this.dialog.close();
+    unlockBodyScrolling(this);
+    this.renderedWatcher.stop();
+
+    // Restore focus to the original trigger
+    const trigger = this.originalTrigger;
+    if (typeof trigger?.focus === 'function') {
+      setTimeout(() => trigger.focus());
+    }
+
+    this.dispatchEvent(new CsAfterHideEvent());
+  }
+
+  private addOpenListeners() {
+    document.addEventListener('keydown', this.handleDocumentKeyDown);
+    registerDismissible(this);
+  }
+
+  private removeOpenListeners() {
+    document.removeEventListener('keydown', this.handleDocumentKeyDown);
+    unregisterDismissible(this);
+  }
+
+  private handleDialogCancel(event: Event) {
+    event.preventDefault();
+
+    if (!this.dialog.classList.contains('hide') && event.target === this.dialog && isTopDismissible(this)) {
+      this.requestClose(this.dialog);
+    }
+  }
+
+  private handleDialogClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const button = target.closest('[data-dialog="close"]');
+
+    // Close when a button with [data-dialog="close"] is clicked
+    if (button) {
+      event.stopPropagation();
+      this.requestClose(button);
+    }
+  }
+
+  private async handleDialogPointerDown(event: PointerEvent) {
+    // Detect when the backdrop is clicked
+    if (event.target === this.dialog) {
+      if (this.lightDismiss) {
+        this.requestClose(this.dialog);
+      } else {
+        await animateWithClass(this.dialog, 'pulse');
+      }
+    }
+  }
+
+  private handleDocumentKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && this.open && isTopDismissible(this)) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.requestClose(this.dialog);
+    }
+  };
+
+  /**
+   * Suspends the modal when third-party CSS (e.g. cookie banner blockers) hides an open dialog, so the page isn't
+   * left scroll locked and inert. "open" stays true so the modal resumes if the dialog is rendered again.
+   */
+  private handleRenderedChange(isRendered: boolean) {
+    if (!this.open) {
+      this.renderedWatcher.stop();
+      return;
+    }
+
+    if (!isRendered && this.dialog.open) {
+      // Suspend the modal while hidden so the page stays scrollable and interactive
+      this.removeOpenListeners();
+      this.dialog.close();
+      unlockBodyScrolling(this);
+    } else if (isRendered && !this.dialog.open) {
+      // Resume the modal now that the dialog is rendered again
+      this.addOpenListeners();
+      this.dialog.showModal();
+      lockBodyScrolling(this);
+    }
+  }
+
+  @watch('open', { waitUntilFirstUpdate: true })
+  handleOpenChange() {
+    // Open or close the dialog
+    if (this.open && !this.dialog.open) {
+      this.show();
+    } else if (!this.open && this.dialog.open) {
+      this.open = true;
+      this.requestClose(this.dialog);
+    } else if (!this.open) {
+      // Closed programmatically while the modal was suspended (see handleRenderedChange)
+      this.renderedWatcher.stop();
+    }
+  }
+
+  /** Shows the dialog. */
+  private async show() {
+    // Show
+    const csShowEvent = new CsShowEvent();
+    this.dispatchEvent(csShowEvent);
+    if (csShowEvent.defaultPrevented) {
+      this.open = false;
+      return;
+    }
+
+    this.addOpenListeners();
+    this.originalTrigger = document.activeElement as HTMLElement;
+    this.open = true;
+    this.dialog.showModal();
+
+    lockBodyScrolling(this);
+    this.renderedWatcher.start(this.dialog);
+
+    // Set focus on autocomplete if it exists
+    requestAnimationFrame(() => {
+      const elementToFocus = this.querySelector<HTMLButtonElement>('[autofocus]');
+      if (elementToFocus && typeof elementToFocus.focus === 'function') {
+        elementToFocus.focus();
+      } else {
+        this.dialog.focus();
+      }
+    });
+
+    await animateWithClass(this.dialog, 'show');
+
+    this.dispatchEvent(new CsAfterShowEvent());
+  }
+
+  render() {
+    const hasHeader = !this.withoutHeader;
+    // The header's `<h2 id="title">` is the only accessible name available, and it exists only when
+    // there is a header. Without this the element has no name at all, `label` attribute or not.
+    const labelledBy = hasHeader ? 'title' : undefined;
+    const hasFooter = this.hasSlotController.test('footer', 'ssrFooter');
+
+    return html`
+      <dialog
+        part="dialog"
+        aria-labelledby=${ifDefined(labelledBy)}
+        class=${classMap({
+          dialog: true,
+          open: this.open,
+        })}
+        @cancel=${this.handleDialogCancel}
+        @click=${this.handleDialogClick}
+        @pointerdown=${this.handleDialogPointerDown}
+      >
+        ${
+          hasHeader
+            ? html`
+                <header part="header" class="header">
+                  <h2 part="title" class="title" id="title">
+                    <!-- If there's no label, use an invisible character to prevent the header from collapsing -->
+                    <slot name="label"> ${this.label.length > 0 ? this.label : String.fromCharCode(8203)} </slot>
+                  </h2>
+                  <div part="header-actions" class="header-actions">
+                    <slot name="header-actions"></slot>
+                    <cs-button
+                      part="close-button"
+                      exportparts="button:close-button__button"
+                      class="close"
+                      appearance="plain"
+                      @click="${(event: PointerEvent) => this.requestClose(event.target as Element)}"
+                    >
+                      <cs-icon name="close" label=${this.localize.term('close')} library="system"></cs-icon>
+                    </cs-button>
+                  </div>
+                </header>
+              `
+            : ''
+        }
+
+        <div part="body" class="body"><slot></slot></div>
+
+        <!-- Use a hidden element so we still get "slotchange" events. -->
+        <footer part="footer" class="footer" ?hidden=${!hasFooter}>
+          <slot name="footer"></slot>
+        </footer>
+      </dialog>
+    `;
+  }
+}
+
+// Ugly, but it fixes light dismiss in Safari: https://bugs.webkit.org/show_bug.cgi?id=267688
+if (!isServer) {
+  //
+  // Watch for data-dialog="open *" clicks
+  //
+  document.addEventListener('click', (event: MouseEvent) => {
+    const dialogAttrEl = (event.target as Element).closest('[data-dialog]');
+
+    if (dialogAttrEl instanceof Element) {
+      const [command, id] = parseSpaceDelimitedTokens(dialogAttrEl.getAttribute('data-dialog') || '');
+
+      if (command === 'open' && id?.length) {
+        const doc = dialogAttrEl.getRootNode() as Document | ShadowRoot;
+        const dialog = doc.getElementById(id) as CsDialog;
+
+        if (dialog?.localName === 'cs-dialog') {
+          dialog.open = true;
+        } else {
+          console.warn(`A dialog with an ID of "${id}" could not be found in this document.`);
+        }
+      }
+    }
+  });
+
+  //
+  // Ugly, but it fixes light dismiss in Safari: https://bugs.webkit.org/show_bug.cgi?id=267688
+  //
+  // [Mar 27, 2026] - This bug was fixed in Safari 18.3 beta so this can be removed in a year or so.
+  //
+  document.addEventListener('pointerdown', () => {
+    /* empty */
+  });
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'cs-dialog': CsDialog;
+  }
+}

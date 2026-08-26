@@ -1,0 +1,13 @@
+---
+/**
+ * A passthrough.
+ *
+ * Starlight splits main and the table of contents into two columns here, with its own flex rules and a
+ * media query. `<cs-page>` does that with its `aside` slot, and the slot has to be a direct child of the
+ * element — so `PageFrame.astro` renders the table of contents and this component has nothing left to do
+ * but pass the main content through. The `right-sidebar` slot Starlight fills is intentionally dropped;
+ * ignoring it here is what stops the table of contents rendering twice.
+ */
+---
+
+<slot />

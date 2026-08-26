@@ -1,0 +1,18 @@
+---
+/**
+ * The "this page is a draft" notice, as a `cs-callout`.
+ *
+ * Shown by Starlight on any page with `draft: true` when it is served in dev — a real warning worth keeping,
+ * since this site has 16 draft pages carrying unported markup. Starlight's version reaches it through
+ * `ContentNotice.astro`, which pulls in its own scoped stylesheet and its `Icon` component; rendering the same
+ * thing as a callout drops both and matches every other notice on the site.
+ *
+ * `FallbackContentNotice` is the other route to `ContentNotice` and is pointed at Empty.astro: it announces
+ * untranslated content, and this site has a single locale.
+ */
+---
+
+<cs-callout variant="warning" data-pagefind-ignore>
+  <cs-icon slot="icon" name="warning" variant="fill"/>
+  {Astro.locals.t('page.draft')}
+</cs-callout>

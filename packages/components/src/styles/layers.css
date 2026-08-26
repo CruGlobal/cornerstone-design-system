@@ -1,0 +1,21 @@
+/* Order of precedence for all cascade layers in Cornerstone */
+@layer cs-native, cs-base, cs-utilities, cs-color-palette, cs-color-variant, cs-theme, cs-theme-dimension, cs-theme-overrides;
+
+@layer cs-base {
+  /**
+    Because headers are sticky, this is needed to make sure page fragment anchors scroll down past the headers / subheaders and are visible.
+    IE: \`<a href="#id-for-h2">\` anchors.
+    */
+  cs-page :is(*, *:after, *:before) {
+    scroll-margin-top: var(--scroll-margin-top);
+  }
+
+  cs-page[view='desktop'] [data-toggle-nav] {
+    display: none;
+  }
+
+  cs-page[view='mobile'] .cs-desktop-only,
+  cs-page[view='desktop'] .cs-mobile-only {
+    display: none !important;
+  }
+}

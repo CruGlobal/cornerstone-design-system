@@ -1,0 +1,115 @@
+---
+/**
+ * The page's `<h1>`, with the narrow-width table of contents above it.
+ *
+ * Two things at once, because they belong on the same element. Starlight renders the title and the markdown in
+ * two separate content panels (`Page.astro:107-119`) — the title in the first, the prose in the second — so the
+ * only way to put anything above the title is to render it here.
+ *
+ * `OutlineDetails` used to sit in `MarkdownContent`, which put it below the title and above the prose. Here it is
+ * above the title, and it still inherits the first content panel's padding, so it needs no width or alignment
+ * rules of its own. The alternative was `cs-page`'s `main-header` slot, which is also above everything Starlight
+ * renders — but slotted content there takes the component's own `--cs-space-3xl` padding rather than this site's
+ * `--content-padding-inline`, so the panel would not have lined up with the title beneath it.
+ *
+ * `id="_top"` is `PAGE_TITLE_ID` (`@astrojs/starlight/constants.ts:4`) and is not ours to rename: it is the
+ * target the skip link and the "back to top" affordances resolve against.
+ *
+ * Overriding this also drops Starlight's own 157 bytes, which had become a split nobody chose — `cs-native`'s
+ * `h1 { margin: 0 }` and `cs-prose`'s em-based sizing had already won the margin and the font size, leaving
+ * Starlight supplying only `color: var(--sl-color-white)`. So the title was sized by Cornerstone and coloured by
+ * Starlight. It is Cornerstone's throughout now, and `cs-prose` handles the typography.
+ */
+import { getCollection } from 'astro:content';
+import OutlineDetails from './OutlineDetails.astro';
+import { BROWSER_SLUG } from '../plugins/remark-component-browser.js';
+
+const { title } = Astro.locals.starlightRoute.entry.data;
+
+/**
+ * The components browse page renders its own title, inside its hero.
+ *
+ * Upstream puts the page title in the hero band above the search field, and Starlight renders the title
+ * in a separate content panel from the markdown — so the only way to get it inside the hero is for the
+ * plugin that builds the hero to emit the `<h1>` as well. It carries `id="_top"` for the skip link, so
+ * the page still has exactly one of each.
+ *
+ * The outline is dropped with it: the grid is a flat list with no headings to outline.
+ */
+const id = Astro.locals.starlightRoute.entry.id.replace(/\.md$/, '');
+const ownsItsTitle = id === BROWSER_SLUG || id === 'components';
+
+/**
+ * The breadcrumb, for a page one level inside a section.
+ *
+ * Upstream shows one above the title on exactly these pages — `/docs/tokens/color`,
+ * `/docs/ai/agent-skills`, `/docs/frameworks/react` — and **not** on its component reference, not on a
+ * section index, and not on a top-level page. Checked against all five rather than inferred from two.
+ *
+ * The component reference is excluded for the reason it has its own header block: a component page already
+ * states where it sits with a category badge that links back to the browse page, filtered. A breadcrumb
+ * would say the same thing twice, less usefully, on 70 pages.
+ *
+ * The parent's label is the section index's own `title`, so it reads "Design Tokens" rather than "tokens" —
+ * which is why this needs the collection rather than the path. Two shapes to resolve, because the sections
+ * are not uniform: most are `<dir>/index.md`, but Frameworks is a sibling `frameworks.md` beside its
+ * directory.
+ *
+ * No separator is slotted. Upstream passes `angle-right`, but `cs-breadcrumb` already defaults to
+ * `keyboard_arrow_right` and swaps it for `keyboard_arrow_left` under RTL — so taking the default is both
+ * less markup and more correct than copying theirs.
+ *
+ * Spacing and type are upstream's, measured: a 24px gap below the breadcrumb and 14px text. Both are
+ * exactly a token — `--cs-space-l` is 1.5rem and `--cs-font-size-s` rounds to 14px — so this needs no CSS,
+ * only `cs-gap-l` and `cs-font-size-s`. There is no margin utility, which is why the gap comes from a
+ * `cs-stack` wrapper rather than a margin.
+ *
+ * The pill behind it is upstream's too: a full-width rounded bar at `9999px` with `8px 16px` of padding and
+ * a barely-there neutral tint. `cs-border-radius-pill` is that radius exactly, so it comes from the utility;
+ * the padding and the fill have no utility and are two declarations in `docs.css`, both on tokens. Ours uses
+ * `--cs-color-neutral-fill-quiet` rather than copying their fixed 4.5%-alpha ink, so it follows the colour
+ * scheme instead of disappearing in dark mode.
+ *
+ * The wrapper is unconditional, and inert when there is no breadcrumb: a one-child flex column lays out
+ * exactly as the bare `<h1>` did, and `[class*='cs-stack'] > *` zeroing child margins changes nothing on an
+ * `h1` that `cs-native` already sets to `margin: 0`. It is also safe against `cs-prose`'s `h1 + h2` rules,
+ * because Starlight renders the title in its own content panel — the title never has a prose sibling to
+ * lose. One code path beats a branch that duplicates the heading.
+ */
+const segments = id.split('/');
+const isNested = segments.length > 1 && segments.at(-1) !== 'index';
+const showBreadcrumb = isNested && segments[0] !== 'components';
+
+let parent = null;
+
+if (showBreadcrumb) {
+  const dir = segments.slice(0, -1).join('/');
+  const docs = await getCollection('docs');
+  const match = docs.find((entry) => {
+    const entryId = entry.id.replace(/\.md$/, '');
+
+    return entryId === `${dir}/index` || entryId === dir;
+  });
+
+  if (match) {
+    parent = { title: match.data.title, href: `/${dir}` };
+  }
+}
+---
+
+{
+  !ownsItsTitle && (
+    <>
+      <OutlineDetails />
+      <div class="cs-stack cs-gap-l">
+        {parent && (
+          <cs-breadcrumb class="page-breadcrumb cs-font-size-s cs-not-prose">
+            <cs-breadcrumb-item href={parent.href}>{parent.title}</cs-breadcrumb-item>
+            <cs-breadcrumb-item>{title}</cs-breadcrumb-item>
+          </cs-breadcrumb>
+        )}
+        <h1 id="_top">{title}</h1>
+      </div>
+    </>
+  )
+}

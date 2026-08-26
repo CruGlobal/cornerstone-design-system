@@ -1,0 +1,17 @@
+@layer cs-utilities {
+  /*
+   * Utility to minimize FOUCE and show custom elements only after they're registered
+   */
+  .cs-cloak:has(:not(:defined)) {
+    animation: 2s step-end cs-fouce-cloak;
+  }
+
+  @keyframes cs-fouce-cloak {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

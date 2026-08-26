@@ -1,0 +1,176 @@
+import { registerTranslation } from '../utilities/localize.js';
+import type { Translation } from '../utilities/localize.js';
+
+const translation: Translation = {
+  $code: 'nn',
+  $name: 'Norwegian Nynorsk',
+  $dir: 'ltr',
+
+  am: 'AM',
+  autosizeColumn: 'Tilpass kolonnebreidd',
+  captions: 'Teksting',
+  carousel: 'Karusell',
+  chooseDate: 'Vel dato',
+  chooseDecade: 'Vel tiår',
+  chooseMonth: 'Vel månad',
+  chooseTime: 'Vel klokkeslett',
+  chooseYear: 'Vel år',
+  clearEntry: 'Tøm felt',
+  clearFilter: 'Fjern filter',
+  clearSort: 'Fjern sortering',
+  close: 'Lukk',
+  closeCalendar: 'Lukk kalender',
+  closeTimeInput: 'Lukk klokkeslettveljar',
+  collapseRow: 'Slå saman rad',
+  columnMenu: 'Kolonneval',
+  columnMovedToPosition: (label, position, total) => `${label} flytta til posisjon ${position} av ${total}`,
+  columns: 'Kolonnar',
+  compactPageXOfY: (page, total) => `${page} av ${total}`,
+  copied: 'Kopiert',
+  copy: 'Kopier',
+  createOption: (value) => `Opprett "${value}"`,
+  currentlyPlaying: 'spelar no',
+  currentValue: 'Nåverande verdi',
+  date: 'Dato',
+  datePickerKeyboardHelp: 'Bruk piltastane for å endre verdiar; trykk Alt+Pil ned for å opne kalenderen.',
+  day: 'Dag',
+  dayPeriod: 'AM/PM',
+  decrement: 'Reduser',
+  deselectAllRows: 'Fjern val av alle radar',
+  dropFileHere: 'Drop file here or click to browse',
+  dropFilesHere: 'Drop files here or click to browse',
+  empty: 'Tom',
+  endDate: 'Sluttdato',
+  enterFullscreen: 'Gå til fullskjerm',
+  error: 'Feil',
+  exitFullscreen: 'Avslutt fullskjerm',
+  expandRow: 'Utvid rad',
+  filterByColumn: (label) => `Filtrer etter ${label}`,
+  filterFrom: 'Frå',
+  filterMax: 'Maks',
+  filterMin: 'Min',
+  filterTo: 'Til',
+  firstPage: 'Første side',
+  goToSlide: (slide, count) => `Gå til visning ${slide} av ${count}`,
+  hideColumn: 'Gøym kolonne',
+  hidePassword: 'Gøym passord',
+  hour: 'Time',
+  incompleteDate: 'Skriv inn ein gyldig dato.',
+  increment: 'Auk',
+  jumpBackwardX: (count) => `Hopp ${count} sider tilbake`,
+  jumpForwardX: (count) => `Hopp ${count} sider fram`,
+  lastPage: 'Siste side',
+  loading: 'Lastar',
+  minute: 'Minutt',
+  month: 'Månad',
+  moreOptions: 'Fleire alternativ',
+  mute: 'Demp lyd',
+  nextDecade: 'Neste tiår',
+  nextMonth: 'Neste månad',
+  nextPage: 'Neste side',
+  nextSlide: 'Neste visning',
+  nextVideo: 'Neste video',
+  nextYear: 'Neste år',
+  noData: 'Inga data',
+  noResults: 'Ingen treff',
+  now: 'No',
+  numCharacters: (num) => {
+    if (num === 1) {
+      return '1 teikn';
+    }
+    return `${num} teikn`;
+  },
+  numCharactersRemaining: (num) => {
+    if (num === 1) {
+      return '1 teikn att';
+    }
+    return `${num} teikn att`;
+  },
+  numOptionsSelected: (num) => {
+    if (num === 0) {
+      return 'Ingen alternativ valt';
+    }
+    if (num === 1) {
+      return 'Eitt alternativ valt';
+    }
+    return `${num} alternativ valt`;
+  },
+  numRowsCopied: (num) => (num === 1 ? '1 rad kopiert' : `${num} radar kopierte`),
+  numRowsSelected: (num) => (num === 1 ? '1 rad vald' : `${num} radar valde`),
+  pageXOfY: (page, total) => `Side ${page} av ${total}`,
+  pagination: 'Paginering',
+  pause: 'Pause',
+  pauseAnimation: 'Set animasjon på pause',
+  pictureInPicture: 'Bilete i bilete',
+  pinLeft: 'Fest til venstre',
+  pinRight: 'Fest til høgre',
+  play: 'Spel av',
+  playAnimation: 'Spel av animasjon',
+  playbackSpeed: 'Avspelingshastigheit',
+  playlist: 'Speljeliste',
+  pm: 'PM',
+  previousDecade: 'Førre tiår',
+  previousMonth: 'Førre månad',
+  previousPage: 'Førre side',
+  previousSlide: 'Førre visning',
+  previousVideo: 'Førre video',
+  previousYear: 'Førre år',
+  progress: 'Framdrift',
+  rangeTooLong: (max) => {
+    if (max === 1) {
+      return 'Vel eit tidsrom på høgst 1 dag';
+    }
+    return `Vel eit tidsrom på høgst ${max} dagar`;
+  },
+  rangeTooShort: (min) => {
+    if (min === 1) {
+      return 'Vel eit tidsrom på minst 1 dag';
+    }
+    return `Vel eit tidsrom på minst ${min} dagar`;
+  },
+  readonly: 'Skriveverna',
+  remove: 'Fjern',
+  resetColumns: 'Tilbakestill kolonnar',
+  resize: 'Endre storleik',
+  resizeColumn: 'Endre kolonnebreidd',
+  rowsPerPage: 'Radar per side',
+  scrollableRegion: 'Rullbar region',
+  scrollToEnd: 'Rull til slutten',
+  scrollToStart: 'Rull til starten',
+  search: 'Søk',
+  second: 'Sekund',
+  seek: 'Søk',
+  seekProgress: (current, duration) => `${current} av ${duration}`,
+  selectAColorFromTheScreen: 'Vel ein farge frå skjermen',
+  selectAllRows: 'Vel alle radar',
+  selected: 'Vald',
+  selectedDateLabel: (date) => `Vald: ${date}`,
+  selectedRangeLabel: (range) => `Valt tidsrom: ${range}`,
+  selectGroup: 'Vel gruppe',
+  selectionCleared: 'Val fjerna',
+  selectRow: 'Vel rad',
+  showingNofMRows: (shown, total) => `Viser ${shown} av ${total} radar`,
+  showingXtoYofZ: (start, end, total) => `${start}–${end} av ${total}`,
+  showPassword: 'Vis passord',
+  slideNum: (slide) => `Visning ${slide}`,
+  sortAscending: 'Sorter stigande',
+  sortColumn: 'Sorter kolonne',
+  sortDescending: 'Sorter synkande',
+  startDate: 'Startdato',
+  time: 'Klokkeslett',
+  timeInputKeyboardHelp: 'Bruk piltastane for å endre verdiar; trykk Alt+Pil ned for å opne klokkeslettveljaren.',
+  today: 'I dag',
+  toggleColorFormat: 'Byt fargeformat',
+  unmute: 'Skru på lyd',
+  unpin: 'Løys frå',
+  unpinColumn: 'Løys kolonne frå',
+  videoPlayer: 'Videospelar',
+  volume: 'Volum',
+  year: 'År',
+  zoomIn: 'Zoom inn',
+  zoomOut: 'Zoom ut',
+};
+
+registerTranslation(translation);
+
+export default translation;

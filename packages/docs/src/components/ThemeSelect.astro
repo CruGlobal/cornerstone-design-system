@@ -1,0 +1,104 @@
+---
+/**
+ * The colour-scheme picker: an icon button that opens a `cs-dropdown`.
+ *
+ * Matches the header on Web Awesome, which is where the shape comes from — Light, Dark, a divider, System, a
+ * divider, then a link to the page that explains colour schemes. Their items carry the target in `value` rather
+ * than `href` and navigate from it in script; this does the same, so one handler covers both jobs and a path is
+ * distinguishable from a scheme by its leading slash.
+ *
+ * The trigger shows the scheme in force rather than marking the active item, again as upstream does: their items
+ * are all `type="normal"` with nothing checked. Each item carries an icon in the `icon` slot, and "System" carries
+ * both — the same scheme-swapped pair as the trigger, which is how upstream signals "whatever the OS says". Both icons are rendered and one is hidden per scheme, so the
+ * swap costs no script and cannot flash the wrong glyph.
+ *
+ * What is kept from the `cs-select` version this replaces: the `starlight-theme` storage key and the `data-theme`
+ * attribute. Everything downstream keys off those — `theme-sync.js` mirrors the attribute onto the library's own
+ * `cs-light`/`cs-dark` classes, and the pre-paint script in `ThemeProvider.astro` reads the same key, so a stored
+ * preference still applies before first paint.
+ *
+ * "System" is written out rather than taken from `themeSelect.auto`, whose English string is "Auto". Upstream
+ * says System, the change request says System, and this site has a single locale — the same reason
+ * `FallbackContentNotice` is switched off — so the literal costs nothing and the label is the one asked for.
+ *
+ * `light_mode` and `dark_mode` rather than upstream's `sun-bright` and `moon-stars`: Font Awesome is no longer the
+ * fork resolves icons from the free CDN, where a Pro name renders as nothing.
+ *
+ * The "Docs" target is `/themes`, not the light-and-dark section of the customizing page that upstream links to,
+ * because `customizing.md` and `theming-overview.md` are both still `draft: true` and excluded from production
+ * builds. The themes page shows the two schemes side by side, so it is the closest live page. Worth revisiting
+ * when those drafts are finished.
+ */
+const t = Astro.locals.t;
+---
+
+<cs-dropdown class="scheme-menu" placement="bottom-end" distance={4}>
+  <cs-button slot="trigger" appearance="plain" size="s">
+    <cs-icon name="light_mode" class="light-only" label={t('themeSelect.accessibleLabel')} />
+    <cs-icon name="dark_mode" class="dark-only" variant="fill" label={t('themeSelect.accessibleLabel')}/>
+  </cs-button>
+
+  <cs-dropdown-item value="light">
+    <cs-icon slot="icon" name="light_mode" />
+    {t('themeSelect.light')}
+  </cs-dropdown-item>
+  <cs-dropdown-item value="dark">
+    <cs-icon slot="icon" name="dark_mode" variant="fill"/>
+    {t('themeSelect.dark')}
+  </cs-dropdown-item>
+  <cs-divider />
+  <cs-dropdown-item value="auto">
+    {/* Both, one per scheme — the same pair the trigger uses, which is how upstream marks "follow the system". */}
+    <cs-icon slot="icon" name="light_mode" class="light-only" />
+    <cs-icon slot="icon" name="dark_mode" class="dark-only" variant="fill"/>
+    System
+  </cs-dropdown-item>
+  <cs-divider />
+  <cs-dropdown-item value="/themes">
+    <cs-icon slot="icon" name="menu_book" />
+    Docs
+  </cs-dropdown-item>
+</cs-dropdown>
+
+<script>
+  const KEY = 'starlight-theme';
+
+  /** `auto` follows the operating system, which is what having no stored preference means. */
+  const resolve = (theme) =>
+    theme === 'auto' || !theme
+      ? window.matchMedia('(prefers-color-scheme: light)').matches
+        ? 'light'
+        : 'dark'
+      : theme;
+
+  const apply = (theme) => {
+    document.documentElement.dataset.theme = resolve(theme);
+
+    if (theme === 'auto') {
+      localStorage.removeItem(KEY);
+    } else {
+      localStorage.setItem(KEY, theme);
+    }
+  };
+
+  document.querySelector('cs-dropdown.scheme-menu')?.addEventListener('cs-select', (event) => {
+    // @ts-expect-error -- `cs-select` carries a payload, and nothing here can say so. The library augments
+    // `GlobalEventHandlersEventMap` in `src/events/select.ts`, but this site consumes the built library out
+    // of `public/dist` rather than as a dependency, so its types never reach here. A client `<script>` is
+    // checked as JavaScript whatever `lang` says, so neither a JSDoc cast nor an ambient declaration in
+    // `src/env.d.ts` applies to it either — both were tried. Reading the attribute instead would type
+    // cleanly and change behaviour, since `value` is declared without `reflect`.
+    const value = event.detail.item?.value;
+
+    if (!value) {
+      return;
+    }
+
+    // A path is the "Docs" item; anything else is a scheme.
+    if (value.startsWith('/')) {
+      window.location.href = value;
+    } else {
+      apply(value);
+    }
+  });
+</script>

@@ -1,0 +1,397 @@
+import { consume, createContext, provide } from '@lit/context';
+import type { PropertyValueMap, PropertyValues } from 'lit';
+import { html } from 'lit';
+import { property, query, state } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
+import { live } from 'lit/directives/live.js';
+import { when } from 'lit/directives/when.js';
+import { CsAfterCollapseEvent } from '../../events/after-collapse.js';
+import { CsAfterExpandEvent } from '../../events/after-expand.js';
+import { CsCollapseEvent } from '../../events/collapse.js';
+import { CsExpandEvent } from '../../events/expand.js';
+import { CsLazyChangeEvent } from '../../events/lazy-change.js';
+import { CsLazyLoadEvent } from '../../events/lazy-load.js';
+import { animate, parseDuration } from '../../internal/animate.js';
+import CornerstoneElement from '../../internal/cornerstone-element.js';
+import { customElement } from '../../internal/custom-element.js';
+import { watch } from '../../internal/watch.js';
+import { LocalizeController } from '../../utilities/localize.js';
+import '../checkbox/checkbox.js';
+import '../icon/icon.js';
+import '../spinner/spinner.js';
+import styles from './tree-item.styles.js';
+
+export type TreeItemContext = { depth: number; expanded: boolean };
+export const treeItemContext = createContext<TreeItemContext>('cs-tree-item');
+
+/**
+ * @summary Tree items represent a single hierarchical node inside a tree, and can contain nested items that expand and
+ *  collapse.
+ * @documentation https://cruglobal.github.io/cornerstone-design-system/components/tree-item
+ * @status stable
+ * @since 2.0
+ *
+ * @dependency cs-checkbox
+ * @dependency cs-icon
+ * @dependency cs-spinner
+ *
+ * @event cs-expand - Emitted when the tree item expands.
+ * @event cs-after-expand - Emitted after the tree item expands and all animations are complete.
+ * @event cs-collapse - Emitted when the tree item collapses.
+ * @event cs-after-collapse - Emitted after the tree item collapses and all animations are complete.
+ * @event cs-lazy-change - Emitted when the tree item's lazy state changes.
+ * @event cs-lazy-load - Emitted when a lazy item is selected. Use this event to asynchronously load data and append
+ *  items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading
+ *  state and update the tree.
+ *
+ * @slot - The default slot.
+ * @slot expand-icon - The icon to show when the tree item is expanded.
+ * @slot collapse-icon - The icon to show when the tree item is collapsed.
+ *
+ * @csspart tree-item - The component's outer wrapper.
+ * @csspart item - The tree item's container. This element wraps everything except slotted tree item children.
+ * @csspart indentation - The tree item's indentation container.
+ * @csspart expand-button - The container that wraps the tree item's expand button and spinner.
+ * @csspart spinner - The spinner that shows when a lazy tree item is in the loading state.
+ * @csspart spinner__spinner - The spinner's exported `spinner` part.
+ * @csspart label - The tree item's label.
+ * @csspart children - The container that wraps the tree item's nested children.
+ * @csspart checkbox - The checkbox that shows when using multiselect.
+ * @csspart checkbox__checkbox - The checkbox's exported `checkbox` part.
+ * @csspart checkbox__control - The checkbox's exported `control` part.
+ * @csspart checkbox__checked-icon - The checkbox's exported `checked-icon` part.
+ * @csspart checkbox__indeterminate-icon - The checkbox's exported `indeterminate-icon` part.
+ * @csspart checkbox__label - The checkbox's exported `label` part.
+ *
+ * @cssproperty [--show-duration=var(--cs-transition-normal)] - The animation duration when expanding tree items.
+ * @cssproperty [--hide-duration=var(--cs-transition-normal)] - The animation duration when collapsing tree items.
+ *
+ * @cssstate disabled - Applied when the tree item is disabled.
+ * @cssstate expanded - Applied when the tree item is expanded.
+ * @cssstate indeterminate - Applied when the selection is indeterminate.
+ * @cssstate selected - Applied when the tree item is selected.
+ */
+@customElement('cs-tree-item')
+export default class CsTreeItem extends CornerstoneElement {
+  static css = styles;
+
+  static isTreeItem(node: Node) {
+    const el = node as Element;
+    return el && (el.role === 'treeitem' || el.getAttribute?.('role') === 'treeitem');
+  }
+
+  private readonly localize = new LocalizeController(this);
+
+  @state() indeterminate = false;
+  @state() isLeaf = false;
+  @state() loading = false;
+  @state() selectable = false;
+
+  /** Expands the tree item. */
+  @property({ type: Boolean, reflect: true }) expanded = false;
+
+  /** Draws the tree item in a selected state. */
+  @property({ type: Boolean, reflect: true }) selected = false;
+
+  /** Disables the tree item. */
+  @property({ type: Boolean, reflect: true }) disabled = false;
+
+  /** Enables lazy loading behavior. */
+  @property({ type: Boolean, reflect: true }) lazy = false;
+
+  @provide({ context: treeItemContext })
+  _treeItemContext: TreeItemContext = { depth: 0, expanded: this.expanded };
+
+  @consume({ context: treeItemContext, subscribe: false })
+  _parentTreeContext: TreeItemContext | null = null;
+
+  private animationGeneration = 0;
+
+  @query('slot:not([name])') defaultSlot: HTMLSlotElement;
+  @query('slot[name=children]') childrenSlot: HTMLSlotElement;
+  @query('.item') itemElement: HTMLDivElement;
+  @query('.children') childrenContainer: HTMLDivElement;
+  @query('.expand-button slot') expandButtonSlot: HTMLSlotElement;
+
+  @property({ reflect: true, type: Number, attribute: 'tabindex' }) tabIndex = -1;
+  @property({ reflect: true }) role = 'treeitem';
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    this.setAttribute('role', 'treeitem');
+    this.setAttribute('tabIndex', this.tabIndex.toString());
+
+    // TODO: Because the parent influences the child, we should be able to handle this in SSR with a custom renderer.
+    if (this.isNestedItem()) {
+      this.setAttribute('slot', 'children');
+      if (!this._parentTreeContext?.expanded) {
+        this.expanded = false;
+      }
+    }
+
+    if (this._parentTreeContext) {
+      this._treeItemContext = { depth: this._parentTreeContext.depth + 1, expanded: this.expanded };
+    }
+
+    this.updateIndentation();
+  }
+
+  firstUpdated(changedProperties: PropertyValues<typeof this>) {
+    super.firstUpdated(changedProperties);
+    this.childrenContainer.hidden = !this.expanded;
+    this.childrenContainer.style.height = this.expanded ? 'auto' : '0';
+
+    this.isLeaf = !this.lazy && this.getChildrenItems().length === 0;
+    this.handleExpandedChange();
+  }
+
+  private async animateCollapse(generation: number) {
+    this.dispatchEvent(new CsCollapseEvent());
+
+    const duration = parseDuration(getComputedStyle(this.childrenContainer).getPropertyValue('--hide-duration'));
+    await animate(
+      this.childrenContainer,
+      [
+        // We can't animate from 'auto', so use the scroll height for now
+        { height: `${this.childrenContainer.scrollHeight}px`, opacity: '1', overflow: 'hidden' },
+        { height: '0', opacity: '0', overflow: 'hidden' },
+      ],
+      { duration, easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)' },
+    );
+
+    // If a newer animation has started, handle the final state
+    if (this.animationGeneration !== generation) {
+      return;
+    }
+
+    this.childrenContainer.hidden = true;
+
+    this.dispatchEvent(new CsAfterCollapseEvent());
+  }
+
+  // Checks whether the item is nested into an item
+  private isNestedItem(): boolean {
+    if (this._parentTreeContext !== null) {
+      return true;
+    }
+
+    const parent = this.parentElement;
+    return !!parent && CsTreeItem.isTreeItem(parent);
+  }
+
+  /** Counts the nesting depth and sets the private --indent property on the host for indentation. */
+  private updateIndentation() {
+    const depth = Math.max(this._treeItemContext?.depth || 0, this.getDepth());
+    this.setStyleProperty('--indent', `calc(${depth} * var(--indent-size, 2em))`);
+  }
+
+  private getDepth() {
+    let depth = 0;
+    let node = this.parentElement;
+    while (node) {
+      if (CsTreeItem.isTreeItem(node)) {
+        depth++;
+      }
+      node = node.parentElement;
+    }
+
+    return depth;
+  }
+
+  private handleChildrenSlotChange() {
+    this.loading = false;
+    this.isLeaf = !this.lazy && this.getChildrenItems().length === 0;
+  }
+
+  protected willUpdate(changedProperties: PropertyValueMap<CsTreeItem> | Map<PropertyKey, unknown>) {
+    if (changedProperties.has('selected') && !changedProperties.has('indeterminate')) {
+      this.indeterminate = false;
+    }
+
+    super.willUpdate(changedProperties);
+  }
+
+  private async animateExpand(generation: number) {
+    this.dispatchEvent(new CsExpandEvent());
+
+    this.childrenContainer.hidden = false;
+    // We can't animate to 'auto', so use the scroll height for now
+    const duration = parseDuration(getComputedStyle(this.childrenContainer).getPropertyValue('--show-duration'));
+    await animate(
+      this.childrenContainer,
+      [
+        { height: '0', opacity: '0', overflow: 'hidden' },
+        { height: `${this.childrenContainer.scrollHeight}px`, opacity: '1', overflow: 'hidden' },
+      ],
+      {
+        duration,
+        easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+      },
+    );
+
+    // If a newer animation has started, handle the final state
+    if (this.animationGeneration !== generation) {
+      return;
+    }
+
+    this.childrenContainer.style.height = 'auto';
+
+    this.dispatchEvent(new CsAfterExpandEvent());
+  }
+
+  @watch('loading', { waitUntilFirstUpdate: true })
+  handleLoadingChange() {
+    this.setAttribute('aria-busy', this.loading ? 'true' : 'false');
+
+    if (!this.loading) {
+      this.animateExpand(this.animationGeneration);
+    }
+  }
+
+  @watch('disabled')
+  handleDisabledChange() {
+    this.customStates.set('disabled', this.disabled);
+    this.setAttribute('aria-disabled', this.disabled ? 'true' : 'false');
+  }
+
+  @watch('expanded')
+  handleExpandedState() {
+    this.customStates.set('expanded', this.expanded);
+  }
+
+  @watch('indeterminate')
+  handleIndeterminateStateChange() {
+    this.customStates.set('indeterminate', this.indeterminate);
+  }
+
+  @watch('selected')
+  handleSelectedChange() {
+    this.customStates.set('selected', this.selected);
+    this.setAttribute('aria-selected', this.selected ? 'true' : 'false');
+  }
+
+  @watch('expanded', { waitUntilFirstUpdate: true })
+  handleExpandedChange() {
+    if (!this.isLeaf) {
+      this.setAttribute('aria-expanded', this.expanded ? 'true' : 'false');
+    } else {
+      this.removeAttribute('aria-expanded');
+    }
+  }
+
+  @watch('expanded', { waitUntilFirstUpdate: true })
+  handleExpandAnimation() {
+    this.animationGeneration++;
+    const generation = this.animationGeneration;
+
+    if (this.expanded) {
+      if (this.lazy) {
+        this.loading = true;
+        this.dispatchEvent(new CsLazyLoadEvent());
+      } else {
+        this.animateExpand(generation);
+      }
+    } else {
+      this.animateCollapse(generation);
+    }
+  }
+
+  @watch('lazy', { waitUntilFirstUpdate: true })
+  handleLazyChange() {
+    this.dispatchEvent(new CsLazyChangeEvent());
+  }
+
+  /** Gets all the nested tree items in this node. */
+  getChildrenItems({ includeDisabled = true }: { includeDisabled?: boolean } = {}): CsTreeItem[] {
+    return this.childrenSlot
+      ? ([...this.childrenSlot.assignedElements({ flatten: true })].filter(
+          (item: CsTreeItem) => CsTreeItem.isTreeItem(item) && (includeDisabled || !item.disabled),
+        ) as CsTreeItem[])
+      : [];
+  }
+
+  render() {
+    const isRtl = this.localize.dir() === 'rtl';
+    const showExpandButton = !this.loading && (!this.isLeaf || this.lazy);
+
+    return html`
+      <div
+        part="tree-item"
+        class="${classMap({
+          'tree-item': true,
+          'tree-item-expanded': this.expanded,
+          'tree-item-selected': this.selected,
+          'tree-item-leaf': this.isLeaf,
+          'tree-item-loading': this.loading,
+          'tree-item-has-expand-button': showExpandButton,
+        })}"
+      >
+        <div class="item" part="item">
+          <div class="indentation" part="indentation"></div>
+
+          <div
+            part="expand-button"
+            class=${classMap({
+              'expand-button': true,
+              'expand-button-visible': showExpandButton,
+            })}
+            aria-hidden="true"
+          >
+            <slot class="expand-icon-slot" name="expand-icon">
+              ${when(
+                this.loading,
+                () => html` <cs-spinner part="spinner" exportparts="spinner:spinner__spinner"></cs-spinner> `,
+                () => html`
+                  <cs-icon name=${isRtl ? 'keyboard_arrow_left' : 'keyboard_arrow_right'} library="system"></cs-icon>
+                `,
+              )}
+            </slot>
+            <slot class="expand-icon-slot" name="collapse-icon">
+              <cs-icon name=${isRtl ? 'keyboard_arrow_left' : 'keyboard_arrow_right'} library="system"></cs-icon>
+            </slot>
+          </div>
+
+          ${when(
+            this.selectable,
+            () => html`
+              <cs-checkbox
+                part="checkbox"
+                exportparts="
+                    checkbox:checkbox__checkbox,
+                    control:checkbox__control,
+                    checked-icon:checkbox__checked-icon,
+                    indeterminate-icon:checkbox__indeterminate-icon,
+                    label:checkbox__label
+                  "
+                class="checkbox"
+                ?disabled="${this.disabled}"
+                ?checked="${live(this.selected)}"
+                ?indeterminate="${this.indeterminate}"
+                tabindex="-1"
+              ></cs-checkbox>
+            `,
+          )}
+
+          <slot class="label" part="label"></slot>
+        </div>
+
+        <div class="children" part="children" role="group" ?hidden=${!this.expanded && !this.isConnected}>
+          <slot name="children" @slotchange="${this.handleChildrenSlotChange}"></slot>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// The change-in-update warning is required for this component because `isLeaf` and `loading` are @state() properties
+// that must be derived from DOM/slot content (via getChildrenItems() and slotchange handlers), which is only available
+// after rendering. These properties cannot be computed before render in willUpdate() since they depend on assigned slot
+// elements. See https://lit.dev/docs/tools/development/#development-build-runtime-warnings
+CsTreeItem.disableWarning?.('change-in-update');
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'cs-tree-item': CsTreeItem;
+  }
+}

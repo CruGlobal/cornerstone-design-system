@@ -1,0 +1,56 @@
+@layer cs-utilities {
+  /* Apply Flexbox with 0 specificity to ensure a gap util produces a visible change */
+  :where(
+    .cs-gap-0,
+    .cs-gap-3xs,
+    .cs-gap-2xs,
+    .cs-gap-xs,
+    .cs-gap-s,
+    .cs-gap-m,
+    .cs-gap-l,
+    .cs-gap-xl,
+    .cs-gap-2xl,
+    .cs-gap-3xl,
+    .cs-gap-4xl,
+    .cs-gap-5xl
+  ) {
+    display: flex;
+  }
+
+  .cs-gap-0 {
+    gap: 0px;
+  }
+  .cs-gap-3xs {
+    gap: var(--cs-space-3xs);
+  }
+  .cs-gap-2xs {
+    gap: var(--cs-space-2xs);
+  }
+  .cs-gap-xs {
+    gap: var(--cs-space-xs);
+  }
+  .cs-gap-s {
+    gap: var(--cs-space-s);
+  }
+  .cs-gap-m {
+    gap: var(--cs-space-m);
+  }
+  .cs-gap-l {
+    gap: var(--cs-space-l);
+  }
+  .cs-gap-xl {
+    gap: var(--cs-space-xl);
+  }
+  .cs-gap-2xl {
+    gap: var(--cs-space-2xl);
+  }
+  .cs-gap-3xl {
+    gap: var(--cs-space-3xl);
+  }
+  .cs-gap-4xl {
+    gap: var(--cs-space-4xl);
+  }
+  .cs-gap-5xl {
+    gap: var(--cs-space-5xl);
+  }
+}

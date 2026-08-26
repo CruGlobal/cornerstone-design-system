@@ -1,0 +1,71 @@
+---
+/**
+ * The navigation, built with the library's own layout utilities.
+ *
+ * This replaces Starlight's `Sidebar` rather than restyling it. Starlight renders a sidebar group as
+ * `<details><summary>` with a caret, which is a disclosure widget — and the Eleventy sidebar was never
+ * that: `docs/_includes/sidebar.njk` is `cs-stack` sections with `cs-cluster` headings and plain nested
+ * lists. Reshaping one into the other took a stylesheet full of rules that undid `<details>` semantics,
+ * hid a caret, hid a native marker, and re-drew the rules; owning the markup deletes all of it.
+ *
+ * Every layout decision here is a `cs-*` utility, and the icons are `<cs-icon>` elements rather than CSS
+ * masks. Nothing in this file needs a rule in docs.css.
+ *
+ * Depth comes from the `data-nested` attribute the sidebar config puts on sub-component links. Starlight's
+ * schema requires each entry to be a link or a group and never both, so a parent component cannot carry its
+ * children in the config — but it can say how deep it is, and the nesting is rebuilt here.
+ *
+ * `MobileMenuFooter` used to be rendered here in a `div.md:sl-hidden`, and this file was the only thing in the
+ * build still importing it. It offered a language select and social icons: this site has one locale and no
+ * social links, and the theme select it also carried is already in the header, which `cs-page` keeps visible in
+ * mobile view. Removing the import took its own 340 bytes plus `SocialIcons` (144), `LanguageSelect` and
+ * `Select` (1,129) — none of which had another importer left. `md:sl-hidden` went with it, which matters
+ * because `cs-native` gives `button` a `display` and so silently defeats that utility anyway.
+ */
+import SidebarList from './SidebarList.astro';
+import { SECTION_SYMBOLS, componentCategories } from '../component-categories.js';
+
+const { sidebar } = Astro.locals.starlightRoute;
+
+const symbolFor = (label) =>
+  SECTION_SYMBOLS[label] ?? componentCategories.find((category) => category.label === label)?.icon;
+
+/** Rebuilds the parent/child nesting the config had to flatten. */
+function nest(entries) {
+  const roots = [];
+  const stack = [];
+
+  for (const entry of entries.flatMap((entry) => (entry.type === 'group' ? entry.entries : [entry]))) {
+    const depth = Number(entry.attrs?.['data-nested'] ?? 0);
+    const node = { entry, children: [] };
+
+    stack.length = depth;
+    (stack[depth - 1]?.children ?? roots).push(node);
+    stack[depth] = node;
+  }
+
+  return roots;
+}
+
+const sections = sidebar.map((section) => ({
+  label: section.label,
+  symbol: symbolFor(section.label),
+  items: nest(section.type === 'group' ? section.entries : [section]),
+}));
+---
+
+<div class="docs-nav cs-stack cs-gap-xl">
+  {
+    sections.map((section) => (
+      <section class="cs-stack">
+        <h2 class="cs-cluster cs-gap-xs">
+          {section.symbol && (
+            <cs-icon name={section.symbol} aria-hidden="true"></cs-icon>
+          )}
+          {section.label}
+        </h2>
+        <SidebarList items={section.items} />
+      </section>
+    ))
+  }
+</div>

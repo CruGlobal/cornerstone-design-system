@@ -1,0 +1,39 @@
+---
+/**
+ * The header lockup, with our own markup.
+ *
+ * Starlight's version does the same job — a light/dark `<img>` pair plus a visually-hidden title — and its 404
+ * bytes of scoped CSS were being fought rather than used: `native.css` gives every `img` a `height: auto` in the
+ * `cs-native` layer, which is ordered after `starlight.core`, so Starlight's logo sizing lost and `docs.css` had
+ * to size the lockup itself. Owning the markup means that rule is this site's own decision rather than a
+ * counterweight.
+ *
+ * The scheme swap uses `cs-light`/`cs-dark` — the classes the library's own themes key off, which `theme-sync.js`
+ * keeps in step with Starlight's `data-theme` — rather than Starlight's `light:sl-hidden`/`dark:sl-hidden`
+ * utilities. Those live in `util.css`, which `Page.astro` imports and this site cannot remove, so using them
+ * would have kept a dependency for no gain. There is no `cs-*` utility for "show only in one colour scheme",
+ * which is a gap worth noting: the swap takes two rules in `docs.css`.
+ *
+ * `print:hidden` on the dark copy is kept for the reason `Pagination` keeps it — `print.css` is what makes the
+ * printed page use the light lockup, and that stylesheet is not removable.
+ *
+ * The intrinsic `width`/`height` stay on both images so the header reserves its space before they load. The
+ * `<span>` keeps the site title for assistive technology, since the lockup carries the name as artwork.
+ */
+import light from '../assets/cds-mark-light.png';
+import dark from '../assets/cds-mark-dark.png';
+
+const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute;
+---
+
+<a href={siteTitleHref} class="site-title cs-cluster cs-gap-s">
+  <img class="site-logo light-only" alt="" src={light.src} width={light.width} height={light.height} />
+  <img
+    class="site-logo dark-only print:hidden"
+    alt=""
+    src={dark.src}
+    width={dark.width}
+    height={dark.height}
+  />
+  <span class="cs-visually-hidden" translate="no">{siteTitle}</span>
+</a>

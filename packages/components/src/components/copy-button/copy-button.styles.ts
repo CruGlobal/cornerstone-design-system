@@ -1,0 +1,86 @@
+import { css } from 'lit';
+
+export default css`
+  :host {
+    display: inline-block;
+    color: var(--cs-color-neutral-on-quiet);
+  }
+
+  .copy-button__trigger {
+    position: relative;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    border-radius: var(--cs-form-control-border-radius);
+    color: inherit;
+    font-size: inherit;
+    height: calc(var(--cs-form-control-height) * 0.8);
+    aspect-ratio: 1;
+    cursor: pointer;
+    transition-property: background-color, color;
+    transition-duration: var(--cs-transition-fast);
+    transition-timing-function: var(--cs-transition-easing);
+  }
+
+  @media (hover: hover) {
+    .button:hover:not([disabled]) {
+      background-color: var(--cs-color-neutral-fill-quiet);
+      color: color-mix(in oklab, currentColor, var(--cs-color-mix-hover));
+    }
+  }
+
+  .button:focus-visible:not([disabled]) {
+    background-color: var(--cs-color-neutral-fill-quiet);
+    color: color-mix(in oklab, currentColor, var(--cs-color-mix-hover));
+  }
+
+  .button:active:not([disabled]) {
+    color: color-mix(in oklab, currentColor, var(--cs-color-mix-active));
+  }
+
+  .button:focus-visible {
+    outline: var(--cs-focus-ring);
+    outline-offset: var(--cs-focus-ring-offset);
+  }
+
+  .button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+  }
+
+  slot {
+    display: inline-flex;
+  }
+
+  /* Icon swap animation */
+  .show {
+    animation: copy-button-icon-show var(--cs-transition-fast) var(--cs-transition-easing);
+  }
+
+  .hide {
+    animation: copy-button-icon-show var(--cs-transition-fast) var(--cs-transition-easing) reverse;
+  }
+
+  @keyframes copy-button-icon-show {
+    from {
+      scale: 0.25;
+      opacity: 0.25;
+    }
+    to {
+      scale: 1;
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .show,
+    .hide {
+      animation-duration: 1ms;
+    }
+  }
+`;

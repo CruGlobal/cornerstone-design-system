@@ -1,0 +1,23 @@
+---
+/**
+ * A page's `banner:` front matter, as a `cs-callout`.
+ *
+ * Starlight's version is a `div.sl-banner` with its own scoped stylesheet keyed to `--sl-color-banner-bg` and
+ * `--sl-nav-pad-*`. An empty override would have dropped 432 bytes, but it would also have made `banner:` front
+ * matter silently render nothing — a feature quietly removed rather than replaced. A callout is what this site
+ * already uses for every other inline notice, so the feature survives and the CSS still goes.
+ *
+ * `set:html` because the value is markdown-rendered HTML, exactly as Starlight passes it, and
+ * `data-pagefind-ignore` so a site-wide banner does not end up in every search result.
+ */
+const { banner } = Astro.locals.starlightRoute.entry.data;
+---
+
+{
+  banner && (
+    <cs-callout variant="brand" data-pagefind-ignore class="cs-span-grid">
+      <cs-icon slot="icon" name="campaign" />
+      <span set:html={banner.content} />
+    </cs-callout>
+  )
+}

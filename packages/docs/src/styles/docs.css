@@ -1,0 +1,1231 @@
+/**
+ * The documentation site's own styles.
+ *
+ * Deliberately small. The design skill's ladder is component → layout utility → token → the
+ * component's styling API → custom CSS last, so anything expressible as a `cs-*` utility is a class in
+ * the markup rather than a rule here. `.component-info` and the badge row carry `cs-cluster`, which the
+ * library defines as `[class*='cs-cluster']` in `utilities/layout.css` — so this file states no flex,
+ * no gap and no alignment for them.
+ *
+ * Every value is a `--cs-*` token, with no raw px, hex or rem fallbacks: a fallback is where a theme
+ * silently stops applying. Each token below was checked against `styles/themes/cru.css` before use.
+ */
+
+/**
+ * There is no `--sl-*` alias table any more, and that is the end state rather than an omission.
+ *
+ * It used to map four of Starlight's colour tokens onto Cornerstone's, so the page did not render in
+ * two colour languages at once. Every consumer of those four was inside `props.css` or `reset.css`,
+ * both now stubbed (see src/plugins/stub-starlight-styles.js), so the aliases had nothing left to
+ * feed: `--sl-color-text` and `--sl-color-bg` were read only by `reset.css`'s `body` rule, and
+ * `--sl-color-text-accent` and `--sl-color-bg-inline-code` were read by nothing at all.
+ *
+ * Worth keeping the reason it is gone rather than just deleting it. Aliasing is not free: an alias
+ * only works if Cornerstone also wins — or loses — the *paired* property, and the skip link is what
+ * proved it. `SkipLink.astro` took its background from `--sl-color-text-accent`, which this table
+ * pointed at `--cs-color-text-link`, and its foreground from `--sl-color-text-invert`, which
+ * `native.css`'s `a { color }` then overrode on layer order. Text and background resolved to the same
+ * colour and the link was invisible on all 114 pages. So a new alias is a cascade claim about two
+ * properties, not one, and the safe move is to have no table to add to.
+ */
+
+/**
+ * Starlight colours links and inline code inside slotted callout content, because a callout is not
+ * inside `.not-content`. That put an indigo link and a grey code chip on a brand or warning panel
+ * nobody had contrast-checked. The Eleventy site corrected the same thing for its `new` callouts
+ * (docs/assets/styles/utils.css:570-577); this generalises it to every variant by taking the link
+ * colour from the panel's own `on-quiet` token, which is what the component uses for its text.
+ */
+cs-callout a {
+  color: var(--cs-color-brand-on-quiet);
+}
+
+cs-callout[variant='neutral'] a {
+  color: var(--cs-color-neutral-on-quiet);
+}
+
+cs-callout[variant='highlight'] a {
+  color: var(--cs-color-highlight-on-quiet);
+}
+
+cs-callout[variant='information'] a {
+  color: var(--cs-color-information-on-quiet);
+}
+
+cs-callout[variant='success'] a {
+  color: var(--cs-color-success-on-quiet);
+}
+
+cs-callout[variant='warning'] a {
+  color: var(--cs-color-warning-on-quiet);
+}
+
+cs-callout[variant='danger'] a {
+  color: var(--cs-color-danger-on-quiet);
+}
+
+/**
+ * The reading column.
+ *
+ * Two settings. The line length is declared **on the element** because the utility sets
+ * `--cs-prose-line-length` on `:where(.cs-prose)` at 0 specificity, so an inherited value would win
+ * otherwise; it is kept in `ch`, which is a reading measure rather than a length. And the cap is centred
+ * so it reads as a column rather than a flush-left block.
+ *
+ * The Eleventy site also remapped `cs-prose`'s em-based rhythm onto the rem-based spacing scale. That is
+ * deliberately **not** carried across: em-based rhythm is the utility's design — a heading's margins scale
+ * with the heading's own size — and flattening it to fixed rem collapsed the space above every `##`, since
+ * a 2em heading no longer earned a 2em gap.
+ */
+.cs-prose {
+  --cs-prose-line-length: round(up, 110ch, 1px);
+
+  margin-inline: auto;
+}
+
+/* `cs-prose` gives major blocks their own rhythm; a live example is one. */
+.cs-prose .code-example:has(+ *) {
+  margin-block-end: var(--cs-prose-rhythm-xl);
+}
+
+/**
+ * The page's shared inline measure.
+ *
+ * This is the piece that makes the layout read as one grid rather than four boxes: the header, the
+ * sidebar, the aside and main all take their inline padding from one property, so the logo, the navigation
+ * and the first character of body text line up. It tightens in `cs-page`'s mobile view, which pulls every
+ * band in together rather than each on its own.
+ *
+ * `main` needs a rule at all because Starlight's `Page.astro` sets `main { padding: var(--sl-main-pad) }`
+ * as a **document** rule, and an outer-document rule always beats a shadow root's `::slotted()` — so
+ * `cs-page`'s own `::slotted(main) { padding: var(--cs-space-3xl) }` never applied and main had no padding
+ * at all. This restores it, at the wider inline measure the reference pages want for their API tables.
+ *
+ * Values match the Eleventy site's, which is where the numbers were established.
+ */
+cs-page {
+  --content-padding-inline: var(--cs-space-2xl);
+
+  /* The vertical measure, named for the same reason as the inline one: main and the aside have to start on the
+     same line, and they were 32px and 16px apart because only one of them said so. The aside was taking
+     `cs-page`'s own `::slotted([slot='aside']) { padding: var(--cs-space-m) }` default, which is 16px, so the
+     table of contents heading sat 16px above the page title it should line up with. */
+  --content-padding-block: var(--cs-space-xl);
+
+  /* The aside is capped rather than left at `auto`, which sizes it to its widest entry — "Attributes &
+     Properties" is enough to steal 300px from the reading column. 240px of content plus the shared measure
+     on each side, expressed as a multiple of the space scale per composition.md's sizing recipe. */
+  --aside-width: calc(var(--cs-space-5xl) * 3 + 2 * var(--content-padding-inline));
+}
+
+cs-page[view='mobile'] {
+  --content-padding-inline: var(--cs-space-l);
+}
+
+/**
+ * Below 72rem the table of contents gives its column back to the reading column.
+ *
+ * `cs-page` lays its body out as `minmax(0, var(--menu-width)) minmax(0, var(--main-width)) minmax(0,
+ * var(--aside-width))` with no `gap` (page.styles.ts:181-188), and `--main-width` is `1fr`. So zeroing
+ * `--aside-width` collapses the track and main takes the space. It is the component's own knob, not a reach
+ * into its shadow DOM.
+ *
+ * The reserved space was this file's own doing, which is worth being honest about. `--aside-width` defaults to
+ * `auto`, and `minmax(0, auto)` content-sizes with a zero floor — so with the default, hiding the aside
+ * collapses the track by itself. Measured: `display: none` with `auto` gives `248px 1048px 0px`. The cap above
+ * exists because `auto` sizes the track to the aside's widest entry, and it is that fixed 320px which holds the
+ * track open no matter what happens to the element — `display: none` with the cap in place still gives
+ * `248px 728px 320px`. Zeroing the cap at the same breakpoint is the fix; leaving the cap and hiding the element
+ * is not.
+ *
+ * Hiding the aside as well is not belt-and-braces. With a zero track the element still paints its own padding —
+ * measured 80px wide, `scrollWidth` 137 against `clientWidth` 0 — and `[part~='aside']` is `overflow: auto`, so
+ * it lays a scrollbar over the content.
+ *
+ * `cs-desktop-only` does not cover this either. It keys off `cs-page[view='mobile']`, which flips at
+ * `mobile-breakpoint` — 800px here — so between 800px and 72rem the aside was visible AND holding 320px while
+ * main was squeezed to whatever was left. At a 900px page that left main 331px against the aside's 320px.
+ *
+ * 72rem rather than a token because the library defines no breakpoint tokens; rem rather than px so the
+ * threshold tracks the root font size.
+ */
+@media (width < 72rem) {
+  cs-page {
+    --aside-width: 0px;
+  }
+
+  cs-page > [slot='aside'] {
+    display: none;
+  }
+}
+
+/**
+ * The other half of that swap: the outline collapses into the reading column instead.
+ *
+ * Mobile-first, as the Eleventy stylesheet had it (`docs/assets/styles/outline.css:31-59`) — the disclosure is
+ * the default and the sticky rail takes over at the wide breakpoint. Exactly one of the two is ever visible,
+ * which is what keeps the same headings from being announced twice.
+ *
+ * The list is `cs-grid cs-gap-xs cs-list-plain`, the classes the Eleventy transformer gave this copy, so it
+ * needs none of the resets the aside's `docs-nav` rules would have to have undone. `--min-column-size` is
+ * `cs-grid`'s own knob and a measure, like `--cs-prose-line-length` above: wide enough for a heading, so a
+ * short outline in a wide reading column flows into columns instead of one long thin list.
+ */
+.outline-expandable {
+  margin-block-end: var(--cs-space-xl);
+}
+
+.outline-expandable ul {
+  --min-column-size: 25ch;
+}
+
+@media (width >= 72rem) {
+  .outline-expandable {
+    display: none;
+  }
+}
+
+/**
+ * The page's outer width, capped the way the Eleventy site caps it.
+ *
+ * The cap goes on `::part(body)` — the grid holding menu, main and aside — and *not* on `::part(page)`. That is
+ * upstream's choice and the comment at `docs/assets/styles/utils.css:73-75` gives the reason: the chrome rows
+ * stay viewport-wide and cap their contents separately, so the header's background still spans the screen while
+ * its logo and search line up with the sidebar and the reading column. Capping `::part(page)` instead would put
+ * empty gutters either side of the header bar.
+ *
+ * `inline-size: 100%` is not redundant next to a max: it gives the grid a definite size so `--main-width: 1fr`
+ * has something to resolve against. Upstream's comment says the same.
+ *
+ * 90rem is upstream's envelope. `cs-page` documents no property for this — its six are `--menu-width`,
+ * `--main-width`, `--aside-width` and the three height hints — so a consumer has to reach in through the part and
+ * know about the `inline-size` companion. That is a gap worth closing in the library.
+ */
+:root {
+  --page-max-inline-size: 90rem;
+}
+
+cs-page::part(body) {
+  inline-size: 100%;
+  max-inline-size: var(--page-max-inline-size);
+  margin-inline: auto;
+}
+
+/**
+ * The header band stays full-bleed; its contents take the same envelope.
+ *
+ * The inline padding moves off the band and onto the content, so the cap and the padding are on one element —
+ * which is what makes the logo's left edge land exactly where the sidebar's first link does. With the padding on
+ * the band instead, the two would differ by `--content-padding-inline`, because the band's padding is outside the
+ * capped box while the sidebar's is inside it.
+ *
+ * The aside keeps its padding on the slot element: it lives inside `::part(body)`, so it is already within the
+ * envelope.
+ */
+cs-page > [slot='aside'] {
+  padding-block: var(--content-padding-block);
+  padding-inline: var(--content-padding-inline);
+}
+
+/**
+ * The header band's own background, which `cs-page` does not supply.
+ *
+ * `cs-page` paints opacity on *slotted* content — `slot[name]::slotted(*)` gets `surface-default` — and
+ * explicitly excludes `navigation-toggle` from that rule, which is right, since a plain-appearance button
+ * should not get a surface painted behind it as a block. But the toggle is a sibling of the header slot, not
+ * inside it, so on mobile the strip it occupies has no background at all: measured at 500px, `part=header`
+ * spans 0–500 transparent while the slotted `<header>` covers only 54–500. The header is `position: sticky`,
+ * so scrolled content showed through the leading 54px.
+ *
+ * Painting the part fixes the whole band at once and needs no exception for the toggle. Worth raising
+ * upstream: any consumer whose header shows a navigation toggle has this, and relying on slotted content for
+ * an opaque sticky band is fragile when the component itself puts a child outside that slot.
+ */
+cs-page::part(header) {
+  background-color: var(--cs-color-surface-default);
+}
+
+cs-page > [slot='header'] {
+  padding-inline: 0;
+}
+
+.site-header {
+  max-inline-size: var(--page-max-inline-size);
+  margin-inline: auto;
+  padding-inline: var(--content-padding-inline);
+}
+
+/* The navigation takes the measure on both axes, so its first heading sits as far from the header as the
+   links sit from the edge. */
+cs-page > [slot='navigation'] {
+  padding: var(--content-padding-inline);
+}
+
+/**
+ * `--main-padding-inline` exists so that anything needing to *cancel* main's padding reads the same
+ * property main uses, rather than restating the token and drifting from it.
+ *
+ * That is not hypothetical: the browse page's full-bleed hero cancelled `--content-padding-inline`,
+ * while main takes the wider `--cs-space-4xl` once the sidebar is a column — so the band stopped 24px
+ * short of each edge and looked like a mistake. Same reasoning as `--content-padding-block` above,
+ * which exists because main and the aside were 16px apart for the same kind of reason.
+ */
+cs-page {
+  --main-padding-inline: var(--content-padding-inline);
+}
+
+cs-page > main {
+  margin-inline: auto;
+  padding-block: var(--content-padding-block);
+  padding-inline: var(--main-padding-inline);
+}
+
+/**
+ * A page that opens on a full-bleed band gets no block padding above it.
+ *
+ * The band sits flush against the chrome, as upstream's does — measured 0px between their subheader's
+ * bottom edge and their hero's top — and main's block padding is the 32px of lowered surface that used to
+ * show through between the two. The band cancelled it with a negative margin; zeroing it at the source is
+ * what the design skill's fourth hard rule asks for, and it means the band no longer has to know what
+ * `--content-padding-block` is. The block axis is all this can do: see the note on the hero's
+ * `margin-inline` for why the inline axis cannot be zeroed the same way.
+ */
+cs-page > main:has(.component-browser-hero) {
+  padding-block-start: 0;
+}
+
+/**
+ * Starlight puts the page title in one panel and the body in the next, so `cs-prose`'s rhythm cannot reach
+ * between them — its scope is the body. Without `ContentPanel`'s own padding, which is not reproduced, the
+ * title and the first line of content sat flush against each other. `--cs-content-spacing` is the library's
+ * own block measure, which is what the gap between two blocks should be.
+ */
+cs-page > main > .content-panel + .content-panel {
+  margin-block-start: var(--cs-content-spacing);
+}
+
+/**
+ * An empty panel does not earn a gap.
+ *
+ * `Page.astro` always renders two panels — the title in the first, the markdown in the second — so a page
+ * whose title is rendered elsewhere leaves the first one present, zero-height and childless, while the
+ * second still collects the sibling margin above. On the components browse page, where the plugin emits its
+ * own `<h1>` inside the hero and `PageTitle.astro` steps aside, that was 24px of the lowered page surface
+ * showing between the chrome and a band that is meant to sit flush against it.
+ *
+ * `:empty` is exactly the condition — no children, no text — and fixing it here means the hero cancels only
+ * main's own padding rather than compensating for a number from two elements away.
+ */
+cs-page > main > .content-panel:empty + .content-panel {
+  margin-block-start: 0;
+}
+
+/* Once the sidebar is a column rather than a drawer, main can afford the wider measure. */
+cs-page:not([view='mobile']) {
+  --main-padding-inline: var(--cs-space-4xl);
+}
+
+/* In the drawer, the navigation supplies its own edges, so it does not pay twice. */
+cs-page[view='mobile'] > [slot='navigation'] {
+  padding: 0;
+}
+
+/**
+ * The scaffold's hairlines: one under the chrome, and one between the navigation sidebar and the content.
+ *
+ * Nothing between the content and the table of contents — that one was invented — and nothing **inside**
+ * `main`. The rule that used to cross the middle of every page came from Starlight's `ContentPanel`, which
+ * puts a `border-top` on the second panel onwards; it is overridden away rather than styled.
+ *
+ * **There is deliberately no rule under the header**, only under the subheader beneath it. Measured on
+ * upstream: `wa-page::part(header)` and `::part(subheader)` both carry no border, and the single hairline
+ * comes from the band slotted into the subheader — so the two rows read as one block of chrome rather than
+ * two stacked strips. Ours drew a line under the header as well, from before a subheader existed, and once
+ * one was added to every page that line had nothing left to separate.
+ *
+ * Applied through documented `::part()` names, per rule 9, with the hairline recipe of
+ * `--cs-border-width-s` and `--cs-color-surface-border`.
+ */
+
+/*
+ * The rule sits on `menu`, not `navigation-desktop`. `menu` is the sticky scroll container, so it stays pinned to
+ * the viewport; `navigation-desktop` is the content inside it, sized `height: 100%` of the visible box, so its
+ * border was a fixed strip that scrolled away with the links — the rule ended partway down a long navigation.
+ *
+ * Conditional on there being a navigation to divide. `cs-page` renders its `menu` part whether or not
+ * anything is slotted into it, so on a `template: splash` page — which slots nothing — the border still
+ * painted: a vertical line down the left of the content with nothing on the other side of it.
+ */
+/* `:not([view='mobile'])` rather than `[view='desktop']` on purpose: `view` is set by `cs-page`'s
+   ResizeObserver on the client, so it is absent for the first paint, and the negative form keeps the border
+   through SSR instead of flashing it in. On mobile the menu collapses to the border itself — measured 1px
+   wide by 216px tall — which drew a stray vertical line beside the content. */
+html[data-has-sidebar] cs-page:not([view='mobile'])::part(menu) {
+  border-inline-end: var(--cs-border-width-s) solid var(--cs-color-surface-border);
+}
+
+/**
+ * One scroll offset, not two.
+ *
+ * `Page.astro` puts `scroll-padding-top: calc(1.5rem + var(--sl-nav-height) + var(--sl-mobile-toc-height))` on
+ * `html` — 88px here — while `cs-page` puts `scroll-margin-top: var(--scroll-margin-top)` on every element inside
+ * itself (`layers.css:9-11`), computed from the header's measured height. Both apply, and scroll padding on the
+ * container adds to scroll margin on the target, so every in-page anchor landed about 180px below a 76px header.
+ *
+ * `cs-page`'s is the one worth keeping: it measures the header rather than deriving it from a token that has to be
+ * kept in step. Starlight's is zeroed rather than tuned, and it takes `:root` to do it — that declaration lives in
+ * `Page.astro`'s inline `<style>`, which is unlayered and the last block in the document, so no `@layer` can
+ * outrank it. `:root` beats `html` on specificity, which is the one lever left.
+ */
+:root {
+  scroll-padding-top: 0;
+}
+
+/**
+ * The header's height, told to `cs-page` up front.
+ *
+ * `cs-page` measures its header with a ResizeObserver and publishes the result as `--header-height`, which is
+ * what `--scroll-margin-top` is built from. That measurement lands a frame after first paint, and a cold load of
+ * a URL with a fragment scrolls *before* it — so a deep link put the heading 60px behind the sticky header.
+ * Starlight's static `scroll-padding-top` used to paper over this; with it correctly gone, the gap shows.
+ *
+ * The component documents the fix itself: `@cssproperty [--header-height=0px] … If the height is known, you can
+ * set it here to prevent shifting when the page loads.` So this is the supported knob, not a workaround, and it
+ * also removes the layout shift that property exists to prevent.
+ *
+ * In `rem`, deliberately, and not derived from `--cs-form-control-height` as it first was. That token is `em`
+ * based, and `--header-height` is read where `--scroll-margin-top` is *used* — on the target heading — so an
+ * `em` expression resolved against a 32px `h2` instead of the header's 16px and overshot by 58px. A hint for the
+ * observer only has to be approximately right for one frame, so it should not depend on the font size of whatever
+ * element happens to consume it. 4.5625rem is the observed 73px; the observer replaces it with the real
+ * measurement immediately after, and `rem` keeps the hint tracking the root font size in the meantime.
+ *
+ * It was 4.75rem for 76px until the header's two icon buttons were corrected from the long-dead
+ * `size="small"` to `size="s"`, which took them from the default 43px to 38px and left the 40px lockup as
+ * the tallest thing in the row.
+ */
+cs-page {
+  --header-height: 4.5625rem;
+
+  /* And the subheader's, for exactly the same reason: `--scroll-margin-top` sums both, the observer's
+     measurement lands a frame after first paint, and a cold load with a fragment scrolls before it. The
+     hint only has to be right for one frame. 3.4375rem is the observed 55px — a small button's 38px plus
+     the 8px of block padding `cs-page` gives a slotted subheader, top and bottom, which is also exactly
+     upstream's band height. In `rem` for the reason above. */
+  --subheader-height: 3.4375rem;
+}
+
+/**
+ * The section nav below the header.
+ *
+ * `cs-page` styles the slotted element itself — `display: flex`, centred, `space-between`, wrapping, with
+ * its own padding — and the links carry `cs-caption-s`, `cs-font-weight-semibold` and `cs-link-plain`. So
+ * what is left is the rule beneath the band, the shared envelope, and the current state.
+ *
+ * The envelope mirrors `.site-header`: the cap and the inline padding sit on the inner element, which puts
+ * the first link's left edge on the logo's — measured, both at 184.
+ *
+ * The quiet default has to be stated because `cs-link-plain` sets `color: var(--cs-color-text-normal)` and
+ * sits *later* in `utilities/text.css` than `[class*='cs-caption']`'s quiet colour — same layer, same
+ * specificity, so source order decides and every link would read as the current one.
+ */
+.site-subheader {
+  border-block-end: var(--cs-border-width-s) solid var(--cs-color-surface-border);
+
+  /* `cs-page` gives a slotted subheader `8px 16px`. The block half is what upstream's band has; the inline
+     half belongs on the capped inner element instead, or the content is inset twice — the same reason
+     `[slot='header']` above zeroes its own. */
+  padding-inline: 0;
+}
+
+.site-subheader-inner {
+  inline-size: 100%;
+  max-inline-size: var(--page-max-inline-size);
+  margin-inline: auto;
+  padding-inline: var(--content-padding-inline);
+
+  /* One row that scrolls, rather than several that stack. Four sections wrap onto three lines at 500px,
+     which measured 97px of sticky chrome — taller than the header above it. `cs-flex-nowrap` in the markup
+     stops the wrap; this is what makes the overflow reachable. Upstream drops its section nav entirely at
+     this width, which loses every way out of the page. */
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+/**
+ * The current section reads louder than the rest.
+ *
+ * Measured on upstream: every item's label is the quiet colour at weight 500, and the current one is the
+ * normal colour at 600 — so the distinction is colour *and* weight, on the label rather than the button.
+ * `label` is a documented `::part` of `cs-button`, which is the component's styling API and the rung above
+ * custom CSS; the button's own colour cannot be reached from here.
+ */
+.site-subheader-link[aria-current='page']::part(label) {
+  color: var(--cs-color-text-normal);
+  font-weight: var(--cs-font-weight-bold);
+}
+
+/**
+ * The navigation's typography and list treatment, ported from the Eleventy site's `#sidebar` rules.
+ *
+ * The layout is all utilities — `cs-stack`, `cs-cluster`, `cs-gap-*` in the markup, and `cs-link-plain`
+ * for the links, which is exactly the colour and underline behaviour those rules used to hand-write. What
+ * is left is the part the utilities do not cover: heading size, the rule down each list, list padding, and
+ * the current item. Every value is a `--cs-*` token, which is the standard the design skill sets for custom
+ * CSS rather than "none at all" — the Eleventy site's own sidebar is about ninety lines of exactly this.
+ */
+.docs-nav h2 {
+  margin: 0;
+  font-size: var(--cs-font-size-s);
+}
+
+/* Aligns the icon with the child list's rule without shifting the heading's end edge. */
+.docs-nav h2:has(cs-icon) {
+  margin-inline-start: calc(var(--cs-space-xs) * -1);
+}
+
+.docs-nav ul {
+  margin: 0;
+  padding-inline-start: var(--cs-space-m);
+  border-inline-start: var(--cs-border-width-s) solid var(--cs-color-surface-border);
+  font-size: var(--cs-font-size-s);
+  line-height: var(--cs-line-height-condensed);
+}
+
+.docs-nav ul ul {
+  margin-block-start: var(--cs-space-m);
+}
+
+.docs-nav li {
+  margin: 0;
+  list-style: none;
+}
+
+/* Scoped to `li`, as the Eleventy rule was: the quiet treatment is for an item's marker, not for a
+   section heading's icon, which reads at text-normal alongside its label. */
+.docs-nav li cs-icon {
+  color: var(--cs-color-text-quiet);
+}
+
+.docs-nav .current {
+  font-weight: var(--cs-font-weight-bold);
+}
+
+/**
+ * Where you are, in three parts — ported from the Eleventy site's `#sidebar` rules and measured against
+ * upstream, because a single tint cannot say both "this section" and "this page".
+ *
+ * Every list on the path to the current page takes the quiet tint, so on a sub-component page both the
+ * component's own list and its category's are marked. The current item then gets a loud segment laid over
+ * its list's rule, spanning that item alone — which is the part that stops at the item instead of
+ * colouring the whole run. And the section's icon takes the loud colour, so the section is findable while
+ * scrolling past the rules.
+ */
+.docs-nav ul:has(.current) {
+  border-inline-start-color: var(--cs-color-brand-border-quiet);
+}
+
+.docs-nav li:has(> .current) {
+  position: relative;
+}
+
+/* Sits exactly on the parent list's rule: back out the list's inline padding, then its border. */
+.docs-nav li:has(> .current)::before {
+  content: '';
+  position: absolute;
+  inset-block: calc(var(--cs-space-2xs) * -1);
+  inset-inline-start: calc(var(--cs-space-m) * -1 - var(--cs-border-width-s));
+  inline-size: var(--cs-border-width-s);
+  background: var(--cs-color-brand-on-quiet);
+}
+
+.docs-nav section:has(.current) h2 cs-icon {
+  color: var(--cs-color-brand-on-quiet);
+}
+
+/**
+ * A section index's card grid. `cs-grid` does the responsive columns — `--min-column-size` is the knob it
+ * actually reads, not a column count — so this sets that and nothing else about the layout.
+ */
+.page-index {
+  /* A column minimum, as a multiple of the space scale rather than a raw length — the recipe
+     composition.md gives for a fixed-size element, and it keeps the grid on the same scale as
+     everything around it. `--cs-space-4xl` is 4rem, so this is 14rem at the default scale, and it
+     tracks `--cs-space-scale` if a brand changes it. */
+  --min-column-size: calc(var(--cs-space-4xl) * 3.5);
+
+  margin-block: var(--cs-content-spacing);
+}
+
+/**
+ * Hover affordance for a card grid, and the plain-code reset — both ported from the Eleventy site's
+ * `assets/styles/utils.css`, which is this fork's copy of upstream's own site CSS.
+ *
+ * Worth being clear about what these are: **not library utilities.** `hover-grow`,
+ * `hover-emphasize-border` and `appearance-plain` carry no `wa-`/`cs-` prefix, and the library has no
+ * equivalent — upstream ships them in its documentation site, not in the package. So they are a rung-5
+ * extension, and the reason it is a comfortable one is that the fork already renamed them onto `--cs-*`
+ * tokens: every value below is a token, and porting them is reading rather than inventing.
+ *
+ * They also carry two things a hand-rolled version usually forgets, which is the other reason to take
+ * upstream's: `:focus-visible` alongside `:hover`, so the affordance exists for a keyboard, and a
+ * `prefers-reduced-motion` block that removes the transform rather than merely shortening it.
+ *
+ * Measured on upstream to confirm the ported values still describe it: the link transitions `transform`
+ * over `0.3s` with `--hover-grow-scale: 1.025`, and the card sits on a 1px border and a transparent 1px
+ * outline transitioning over `0.15s`, both going to the brand ring on hover.
+ */
+.hover-grow {
+  --hover-grow-scale: 1.025;
+
+  transform-origin: center;
+  transition: transform var(--cs-transition-slow) var(--cs-transition-easing);
+}
+
+.hover-grow:is(:hover, :focus-visible) {
+  transform: scale(var(--hover-grow-scale));
+}
+
+/* The ring is on the card rather than the link, so it follows the card's own radius. */
+.hover-emphasize-border > cs-card {
+  outline: var(--cs-border-width-s) solid transparent;
+  transition: border-color var(--cs-transition-normal), outline-color var(--cs-transition-normal);
+}
+
+.hover-emphasize-border:is(:hover, :focus-visible) > cs-card {
+  border-color: var(--cs-color-brand-border-loud);
+  outline-color: var(--cs-color-brand-border-loud);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-grow {
+    transition: none;
+  }
+
+  .hover-grow:is(:hover, :focus-visible) {
+    transform: none;
+  }
+
+  .hover-emphasize-border > cs-card {
+    transition: none;
+  }
+}
+
+/**
+ * A `<code>` that is a name rather than a snippet.
+ *
+ * `native.css` gives every `code` a chip — `background-color: var(--cs-color-overlay-inline)`, a radius and
+ * `0.125em 0.25em` of padding — which is right for inline code in prose and wrong for a tag name on a card,
+ * where it reads as a grey box around the label. This strips the background and the border and **keeps the
+ * padding**, which is what upstream's does too: measured `1.75px 3.5px` on theirs, transparent, no border.
+ *
+ * The name is upstream's and the Eleventy site's, kept for continuity across the three. It is a little
+ * confusable with the `appearance` attribute on components, which is a real axis with `plain` among its
+ * values; the difference is that this is a class on a native element, and the axis is an attribute on a
+ * `<cs-*>` one.
+ */
+code.appearance-plain {
+  background: transparent;
+  border: none;
+}
+
+/**
+ * The components browse page.
+ *
+ * Modelled on upstream's `/docs/components`, and almost nothing is left here, deliberately. The layout is
+ * `cs-grid`, `cs-stack`, `cs-cluster`, `cs-align-items-*` and `cs-gap-*` in the markup the plugin emits;
+ * the type is `cs-heading-*`, `cs-body-*` and `cs-caption-*`, which carry family, weight, leading, balance
+ * and the quiet colour between them; the search field's label is hidden with `cs-visually-hidden-label`.
+ *
+ * What is below is the four things the system has no utility for — a full-bleed band, two container
+ * measures, and the card's fill — each built on tokens.
+ */
+
+/**
+ * The page field is lowered, and the hero sits on the default surface above it.
+ *
+ * Measured on upstream, and it is the opposite of what this file had first. Their `wa-page` host is
+ * `--wa-color-surface-lowered` (`#f1f2f3`) on the browse page — and plain white on every reference page —
+ * with the hero a **white** `section` on top of it and the cards white. So the chrome and the hero read as
+ * one block of default surface, and the card field beneath is a lowered plane the white cards sit proud of.
+ * Ours had the hero grey on a white page, which inverted the whole relationship and left the cards flat.
+ *
+ * `--cs-color-surface-lowered` is the same idea expressed in our tokens — `neutral-95` in light, a
+ * `color-mix` toward black in dark — so it follows the theme instead of pinning a grey the way a literal
+ * `#f1f2f3` would.
+ *
+ * Scoped with `:has()` on the grid rather than on `[data-has-sidebar]`, so it describes this page instead
+ * of every future splash page.
+ */
+cs-page:has(.component-browser-grid) {
+  background-color: var(--cs-color-surface-lowered);
+}
+
+/**
+ * The hero band, full-bleed across main.
+ *
+ * Upstream's is full-bleed across the viewport, which its layout allows because that page has no sidebar
+ * — and neither does ours, since the front matter marks it `template: splash`. The negative inline margin
+ * cancels `--main-padding-inline`, the property main itself takes its padding from, so the band reaches
+ * the edges without restating a width or a token.
+ *
+ * No `margin-block-end`: a `cs-stack` in the markup owns the rhythm between the bands, which is what the
+ * gap utility is for.
+ */
+.component-browser-hero {
+  /**
+   * Cru's corner-bracket pattern, from `corners.svg`.
+   *
+   * **The band changes with the scheme**, and only two values say so: the field and the text paired with it.
+   * Everything else is derived, so there is one dark override rather than four.
+   *
+   * Light is `fill-loud`, the brand's key step, which is the source artwork's own `#FFD000`. Dark is
+   * `fill-normal`, whose dark value is `brand-20` — the mirror of the key across the ramp, so it reads as the
+   * same band in the other scheme rather than as a gold slab in a dark page. Each takes the `on-*` token that
+   * belongs to it: `on-loud` is `brand-10` in both modes, right on gold and wrong on a dark field, while
+   * `on-normal` flips to `brand-70` and is right there.
+   *
+   * The first attempt held the field constant, since `fill-loud` reads the key in both modes, and derived
+   * everything from it. Light was fine and dark was not: it left a gold band between dark chrome and a dark
+   * card field, and `cs-input`'s own tokens flipped underneath it, so the search field went from white on gold
+   * to dark grey on gold. Making the band answer to the scheme is what removes that, rather than scoping the
+   * form-control tokens to work around it.
+   *
+   * The mark lifts the field's own lightness in OKLCH and drops its chroma a little, rather than mixing toward
+   * white. Two reasons, both measured: a mix toward white is subtle on gold and conspicuous on brown, where a
+   * fixed lightness lift stays subtle either way; and lifting lightness alone keeps chroma, which turns gold
+   * into a brighter yellow instead of the creamier tone the source artwork uses — easing the chroma lands it
+   * back beside its `#FFE378`. `oklch(from …)` is the same relative-colour idiom the theme's own
+   * `--cs-color-mix-hover` uses.
+   *
+   * The lede is mixed only slightly toward the field. At 70% it read well on gold and fell to 3.55 on the dark
+   * band, because diluting light text into a dark field costs more contrast than diluting dark text into a
+   * light one.
+   */
+  --hero-field: var(--cs-color-brand-fill-loud);
+  --hero-on: var(--cs-color-brand-on-loud);
+  --hero-mark: oklch(from var(--hero-field) calc(l + 0.08) calc(c * 0.78) h);
+  --hero-lede: color-mix(in oklab, var(--hero-on) 88%, var(--hero-field));
+
+  /* The source's grid pitch. Square, so one value keeps the bracket undistorted at any size. */
+  --hero-pattern-size: 8.25rem;
+
+  position: relative;
+  isolation: isolate;
+
+  /* Out to the viewport, not just out of main's padding. `main` is capped at `--page-max-inline-size` and
+     centred, so cancelling its padding alone left the band boxed at 1440 with the lowered field showing
+     down both sides — a panel rather than a band. `50% - 50vw` is the distance from a centred box's edge to
+     the viewport's, whatever the cap resolves to.
+
+     So this is the one axis that cannot follow rule 4 by zeroing `--main-padding-inline`, which was tried
+     and measured: at a 1800px viewport the padding is only the innermost of three insets, and the band came
+     out at 1312. Reaching the edge means also lifting `::part(body)`'s cap and `.cs-prose`'s measure, then
+     giving the toolbar, the grid and the empty message back a cap, a centring and a gutter each — six
+     declarations to retire three.
+
+     `vw` includes a classic scrollbar's width, so on a platform that reserves one this overshoots by half
+     of it each side; `overflow-x: clip` on the container below absorbs that without introducing a scroll
+     container the way `hidden` would. */
+  margin-inline: calc(50% - 50vw);
+
+  padding: var(--cs-space-5xl) var(--main-padding-inline);
+  background-color: var(--hero-field);
+
+  /* The text the field expects, whichever field it is. Not the page's `text-normal`, which belongs to the
+     surface rather than to a brand band. */
+  color: var(--hero-on);
+}
+
+/* The dark band. Two values; the mark and the lede follow them. */
+.cs-dark .component-browser-hero {
+  --hero-field: var(--cs-color-brand-fill-normal);
+  --hero-on: var(--cs-color-brand-on-normal);
+}
+
+/**
+ * The marks, as a mask rather than an image.
+ *
+ * Two mask layers composited: the tile, repeated, intersected with a downward fade. That is upstream's
+ * arrangement — its hero pairs `background-wa-pattern` with `wa-mask-fade-below` — and the fade is what stops
+ * the pattern ending on a hard line where the band meets the lowered field below.
+ *
+ * On its own layer beneath the content, so the mask cannot clip the title or the search field.
+ */
+.component-browser-hero::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-color: var(--hero-mark);
+  mask-image: url('/patterns/corner-mark.svg'), linear-gradient(to bottom, black 45%, transparent);
+  mask-size: var(--hero-pattern-size), auto;
+  mask-repeat: repeat, no-repeat;
+  mask-composite: intersect;
+}
+
+/**
+ * Absorbs the half-scrollbar the hero's `50vw` can overshoot by, at the viewport rather than inside it.
+ *
+ * This was on `main` first, which defeated the bleed entirely: `overflow: clip` establishes a clipping box
+ * at the element's padding edge, so a negative margin reaching past that edge is exactly what gets clipped.
+ * The band went back to being boxed at 1440 while still measuring 1728, which is a confusing pair of facts
+ * to debug.
+ *
+ * On `html` it clips where the overshoot actually is. `clip` rather than `hidden` so no scroll container is
+ * created — `hidden` would break the sticky chrome above.
+ */
+html:has(.component-browser-grid) {
+  overflow-x: clip;
+}
+
+/* A readable measure for the lede, in `ch` and defined once rather than repeated per section — the recipe
+   composition.md gives for a content column. The colour is the hero's, not the page's: see the note above. */
+.component-browser-lede {
+  max-inline-size: 60ch;
+  color: var(--hero-lede);
+}
+
+/* The field's own measure, as a multiple of the space scale rather than a raw length — the same recipe, and
+   the same form `.page-index` uses below for its column minimum. */
+.component-browser-search {
+  inline-size: min(100%, calc(var(--cs-space-5xl) * 5.5));
+}
+
+/**
+ * A grid page is not bound by a reading measure.
+ *
+ * `.cs-prose` caps its column at `--cs-prose-line-length`, 110ch, which measured 1189px — the right number
+ * for prose and the wrong one for a card grid, where it packed five 202px columns. The page envelope is the
+ * honest cap for a grid, and it is already named. Scoped with `:has()` on the grid itself rather than on
+ * `[data-has-sidebar]`, so it describes the page it means instead of every future splash page.
+ */
+.cs-prose:has(.component-browser-grid) {
+  --cs-prose-line-length: var(--page-max-inline-size);
+}
+
+/**
+ * Four columns at desktop, at close to upstream's card width.
+ *
+ * `cs-grid` packs `repeat(auto-fit, minmax(min(var(--min-column-size), 100%), 1fr))`, so the column count
+ * follows from the minimum rather than being stated: at this container width it yields four columns of
+ * ~310px against upstream's 322px, and it reflows to three and then two as the window narrows. Naming a
+ * column count instead would have to be re-broken at every breakpoint.
+ */
+.component-browser-grid {
+  --min-column-size: calc(var(--cs-space-4xl) * 4.5);
+}
+
+/**
+ * The card fills its link, and its footer sits on the card's bottom edge.
+ *
+ * So a row of cards is one row rather than a ragged edge, and a row of footers is one line. Measured
+ * before: anchors at a common 214px per row with the card 192px inside one of them, and footers at 765,
+ * 743 and 810 across one row.
+ *
+ * This is the library's missing "fill your host" utility, third of its kind after `cs-page`'s absent width
+ * property and the light/dark display pair — so it is a rung-5 extension rather than a preference. The
+ * footer is reached through `::part(body)`, the component's documented styling API, which is the rung above
+ * custom CSS: `cs-card`'s `.body` is `display: block` with no grow.
+ *
+ * `:not([hidden])` is load-bearing, not defensive. `[hidden] { display: none }` comes from the UA
+ * stylesheet, so **any** author `display` declaration outranks it — this rule was silently keeping all 68
+ * cards on screen while `component-browser.js` correctly set `hidden` on 66 of them, so the filters looked
+ * broken while working perfectly. Any rule that gives an element a `display` has to say what happens when
+ * it is hidden.
+ */
+.component-card-link:not([hidden]) {
+  display: flex;
+}
+
+.component-card {
+  flex: 1;
+}
+
+.component-card::part(body) {
+  flex: 1;
+}
+
+/**
+ * No table of contents on this page, so the grid takes its column.
+ *
+ * The page has no headings to outline — it is one flat grid — and the aside was rendering with a single
+ * "Overview" entry. `tableOfContents: false` in the front matter is Starlight's own switch for that, and it
+ * drops `data-has-toc` from `<html>`, which is the hook this keys on. Zeroing `--aside-width` is `cs-page`'s
+ * own knob, and hiding the slot as well is not belt-and-braces: a zero-width track still paints the
+ * element's padding and lays a scrollbar over the content.
+ *
+ * Only the aside needs this. An empty *menu* collapses on its own, because `--menu-width` is left at the
+ * component's `auto` and `minmax(0, auto)` content-sizes to nothing — measured 0px. The aside does not,
+ * because this file caps `--aside-width` at a fixed length, and a fixed max holds a track open regardless
+ * of content.
+ */
+html:not([data-has-toc]) cs-page {
+  --aside-width: 0px;
+}
+
+html:not([data-has-toc]) cs-page > [slot='aside'] {
+  display: none;
+}
+
+/**
+ * The card fills its link, so a row of cards is one row rather than a ragged edge.
+ *
+ * The grid already stretches these anchors to a common height per row — measured 214px for all three
+ * in a row — but `cs-card` kept its own content height inside, so a short card sat 22px above the
+ * bottom of its own hit area. Two rules rather than one because the anchor has to become a flex
+ * container before `flex: 1` on the card means anything.
+ *
+ * This is the library's missing "fill your host" utility, third of its kind after `cs-page`'s absent
+ * width property and the light/dark display pair. Worth one of these rather than a `block-size: 100%`
+ * on the card, because the card is the thing that should grow, not the thing that should be told a
+ * height.
+ */
+.page-index-card:not([hidden]) {
+  display: flex;
+}
+
+.page-index-card {
+  text-decoration: none;
+}
+
+.page-index-card > cs-card {
+  flex: 1;
+}
+
+/* The breadcrumb's pill, above a page title one level deep.
+ *
+ * Upstream puts the same bar on its nested pages: full content width, fully rounded, `8px 16px`, and a
+ * near-invisible tint.
+ *
+ * **On the part, not the host.** `breadcrumb.styles.ts` has no `:host` rule and the auto-prepended host
+ * styles set no `display`, so the host is `display: inline` — which cannot carry a padded, rounded bar. It
+ * used to work anyway, because `PageTitle.astro` puts it in a `cs-stack` and a flex container blockifies
+ * its children; measured `block` inside the stack and `inline` outside it. That is a dependency on a
+ * parent, not a decision. `breadcrumb.ts:14` documents a `breadcrumb` part, which is the durable target,
+ * and it takes the radius too — `cs-border-radius-pill` was on the host and could not reach in.
+ *
+ * `neutral-fill-quiet` rather than upstream's `oklab(… / 0.045)`: theirs is a fixed dark ink at 4.5%, which
+ * needs a second rule to survive dark mode, while the token already resolves to `neutral-95` in light and
+ * `neutral-10` in dark. */
+.page-breadcrumb::part(breadcrumb) {
+  padding: var(--cs-space-xs) var(--cs-space-m);
+  background-color: var(--cs-color-neutral-fill-quiet);
+  border-radius: var(--cs-border-radius-pill);
+}
+
+.page-index-name {
+  /* `--cs-color-text-loud` does not exist — the theme defines only link, normal and quiet. The tracker
+     already records that token as a dead reference in `segmented-field`; this is the same mistake. */
+  color: var(--cs-color-text-normal);
+  font-weight: var(--cs-font-weight-semibold);
+}
+
+.page-index-summary {
+  margin-block: var(--cs-space-2xs) 0;
+  color: var(--cs-color-text-quiet);
+  font-size: var(--cs-font-size-s);
+}
+
+/* The block between the page title and its first example: tag name, badges, summary. */
+.component-info {
+  margin-block-end: var(--cs-content-spacing);
+}
+
+.component-info code {
+  line-height: var(--cs-line-height-condensed);
+}
+
+.component-tag {
+  background-color: transparent;
+  color: var(--cs-color-text-quiet);
+  font-size: var(--cs-font-size-l);
+}
+
+.component-summary {
+  font-size: var(--cs-font-size-l);
+  font-weight: var(--cs-font-weight-semibold);
+}
+
+/**
+ * The live-example card is styled entirely by code-examples.css, ported from the Eleventy site. The
+ * interim rules that used to live here — a border, radius and padding on `.code-example-content` —
+ * are gone: that element is the demo's own container and must be unstyled, or it renders as a second
+ * box nested inside the card.
+ */
+
+/**
+ * On the Eleventy site an `.anatomy-only` example is rendered but hidden, because the anatomy diagram
+ * clones it to measure parts and nothing else should show it. That rule is deliberately NOT carried
+ * across yet: this site has no diagram, so hiding those examples would delete 15 of them from the
+ * reference outright — worse than showing an example the old site did not. Restore the hide in the
+ * same change that lands the diagram.
+ */
+
+/**
+ * The design token reference tables.
+ *
+ * Ported from the Eleventy site's `docs.css` — `.swatch` and `.token-name`, both token-only. The token pages
+ * carry `.swatch` in hand-written markup (borders, shadows, transitions and colour between them use it 31
+ * times), and without these rules a swatch is a zero-size element: every one of those previews was rendering
+ * as nothing.
+ *
+ * `.token-table` and `.color-mix-example` are class hooks with no rule anywhere upstream either, so nothing is
+ * invented for them here. The consequence is visible on the Interactions table, where the two `color-mix`
+ * previews render as empty boxes rather than showing a mix — a gap in the page it was ported from.
+ */
+.swatch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-block-size: var(--cs-space-3xl);
+  min-inline-size: var(--cs-space-3xl);
+  padding: var(--cs-space-xs);
+  background-color: transparent;
+  border-color: transparent;
+  border-style: var(--cs-border-style);
+  border-width: var(--cs-border-width-s);
+  border-radius: var(--cs-border-radius-m);
+  font-weight: var(--cs-font-weight-semibold);
+  line-height: var(--cs-line-height-condensed);
+}
+
+.token-name {
+  white-space: nowrap;
+}
+
+/**
+ * The header lockup, and the colour-scheme swap.
+ *
+ * `SiteTitle` is this site's own component now, so this sizes our markup rather than counterweighting Starlight's.
+ * The height is still needed for the same reason it always was: `native.css` sets `img { height: auto }` in
+ * `cs-native`, so an intrinsic 518x84 would render at full size. `inline-size: auto` keeps the aspect ratio,
+ * because the markup carries the intrinsic attributes so the header reserves its space before the image loads.
+ *
+ * The scheme swap has no utility to borrow. `cs-light`/`cs-dark` are the classes the library's themes key off and
+ * `theme-sync.js` keeps them in step with Starlight's `data-theme`, but nothing in `utilities/` says "show this
+ * only in one scheme" — so it is two rules here. That is the third gap of this kind, after the missing
+ * fill-your-host utility and `cs-page`'s missing width property.
+ */
+.site-logo {
+  block-size: var(--cs-space-2xl);
+  inline-size: auto;
+}
+
+/**
+ * On mobile the lockup is cropped to its mark, so the wordmark stops eating the band.
+ *
+ * A crop rather than a second asset, because there is no icon-only file to point at — the mark exists only
+ * inside this one. `favicon.svg` is different artwork, a "C" in a rounded square rather than the "CS" mark,
+ * so it is not a substitute; and drawing a new one is a brand decision rather than a responsive fix.
+ *
+ * The crop is measured, not eyeballed. Sampling the PNG column by column for ink puts the mark at x 12–71 of
+ * a 518×84 image, so the leftmost **84×84 square** is the mark with its own padding balanced on both sides.
+ * A square box plus `object-fit: cover` lands exactly there: `cover` scales 518×84 to 246×40 for a 40px box,
+ * then crops to the leading 40px, which is those same 84 image pixels.
+ *
+ * Keyed on `cs-page[view='mobile']` rather than a media query, so it flips with the component's own
+ * ResizeObserver breakpoint — the same mechanism `cs-mobile-only` uses — instead of a second definition of
+ * "mobile" that could drift from it.
+ */
+cs-page[view='mobile'] .site-logo {
+  inline-size: var(--cs-space-2xl);
+  object-fit: cover;
+  object-position: left center;
+}
+
+/**
+ * One pair of classes for every colour-scheme swap.
+ *
+ * The library has the viewport pair — `cs-desktop-only` / `cs-mobile-only`, in `layers.css` — but no light/dark
+ * equivalent, and three things here need one: the header lockup, a hero's optional image pair, and the scheme
+ * picker's own icon. `cs-light` / `cs-dark` are the classes the library's themes key off and `theme-sync.js`
+ * keeps in step with Starlight's `data-theme`, so this is the same mechanism, just missing a name. Worth adding
+ * to the library as a utility.
+ */
+.dark-only {
+  display: none;
+}
+
+.cs-dark .light-only {
+  display: none;
+}
+
+.cs-dark .dark-only {
+  display: revert;
+}
+
+/* The footer's only job is the space above the previous/next links, which Starlight set as a bare 3rem. */
+.content-footer {
+  margin-block-start: var(--cs-space-3xl);
+}
+
+/* Two links side by side where there is room, stacked where there is not. */
+.pagination-links {
+  --min-column-size: calc(var(--cs-space-4xl) * 4.5);
+}
+
+.pagination-link {
+  display: block;
+}
+
+/**
+ * Site search.
+ *
+ * Measured against Web Awesome's dialog and matched: 31rem wide, a full-bleed header whose only line is the rule
+ * beneath it, listings inset by `--cs-space-s`, and a footer with a rule above it. Their input is `outlined` with
+ * its border and background taken off, which is why this does the same through `input-wrapper` rather than
+ * reaching for an appearance the component does not have.
+ *
+ * `.is-active` is set by script rather than `:hover`, because the keyboard and the mouse have to agree on one
+ * highlight. Focus stays in the query box while the arrows walk the list, which is what lets you type and
+ * navigate at the same time.
+ */
+.site-search::part(dialog) {
+  inline-size: min(31rem, calc(100vw - var(--cs-space-xl)));
+}
+
+/* The body owns no padding: the header spans it edge to edge and each listing insets its own rows. */
+.site-search::part(body) {
+  padding: 0;
+  overflow-y: auto;
+}
+
+.site-search::part(footer) {
+  padding: var(--cs-space-m);
+  border-block-start: var(--cs-border-width-s) var(--cs-border-style) var(--cs-color-surface-border);
+}
+
+.site-search-header {
+  padding: var(--cs-space-s) var(--cs-space-xs);
+  border-block-end: var(--cs-border-width-s) var(--cs-border-style) var(--cs-color-surface-border);
+}
+
+/* Borderless and transparent, so the header's rule is the only line — as upstream has it. */
+.site-search-input::part(input-wrapper) {
+  border: none;
+  background: none;
+}
+
+.site-search-listing {
+  padding: var(--cs-space-s);
+}
+
+.site-search-label {
+  margin: 0;
+  padding: var(--cs-space-xs) var(--cs-space-s);
+  color: var(--cs-color-text-quiet);
+  font-size: var(--cs-font-size-s);
+  font-weight: var(--cs-font-weight-normal);
+}
+
+/*
+ * `hidden` has to win against the layout utilities.
+ *
+ * The body states are toggled with the `hidden` attribute, and they carry `cs-stack` for their layout — whose
+ * `[class*='cs-stack'] { display: flex }` overrides the attribute's `display: none`, so a hidden panel stayed on
+ * screen and the arrow keys walked rows that were meant to be gone. The library forces this inside shadow roots
+ * (`host.styles.ts` has `[hidden] { display: none !important }`); light DOM needs it said here.
+ */
+.site-search [hidden] {
+  display: none;
+}
+
+.site-search-item {
+  inline-size: 100%;
+  padding: var(--cs-space-xs) var(--cs-space-s);
+  transition: background-color var(--cs-transition-fast);
+  border: none;
+  border-radius: var(--cs-border-radius-m);
+  background: none;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+/*
+ * A row's three parts, matched to upstream's: the leading icon sits quiet and dimmed, the details column grows and
+ * truncates, and the chevron waits at zero opacity.
+ *
+ * Hover and keyboard selection get the *same* treatment, which is the point — the icon takes the brand colour at
+ * full strength and the chevron fades in, so there is one highlight however you arrived at the row.
+ */
+.site-search-icon {
+  flex: 0 0 auto;
+  opacity: 0.6;
+  color: var(--cs-color-text-quiet);
+  transition: color var(--cs-transition-fast), opacity var(--cs-transition-fast);
+}
+
+.site-search-details {
+  min-inline-size: 0;
+  flex: 1 1 auto;
+}
+
+.site-search-title,
+.site-search-description {
+  display: block;
+  max-inline-size: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.site-search-description {
+  color: var(--cs-color-text-quiet);
+}
+
+.site-search-caret {
+  flex: 0 0 auto;
+  opacity: 0;
+  color: var(--cs-color-text-quiet);
+  font-size: var(--cs-font-size-s);
+  transition: opacity var(--cs-transition-fast);
+}
+
+/*
+ * Hover and keyboard selection are told apart by their background, as upstream tells them apart: hover is a
+ * neutral tint and selection is a brand one. Measured on their dialog — hover resolves to `neutral-fill-quiet`
+ * and `[data-selected="true"]` to `brand-fill-quiet`, which is a different hue rather than a different step.
+ *
+ * That distinction matters when both are on screen at once: the pointer can sit over one row while the arrows
+ * have another, and without it there is no telling which Enter will take.
+ *
+ * The icon and chevron treatment below stays shared, because upstream shares that part.
+ */
+.site-search-item:hover {
+  background-color: var(--cs-color-neutral-fill-quiet);
+}
+
+.site-search-item.is-active {
+  background-color: var(--cs-color-brand-fill-quiet);
+}
+
+/* Real keyboard focus still shows a ring, inset so it does not sit outside the row's own corners. */
+.site-search-item:focus-visible {
+  outline: var(--cs-focus-ring);
+  outline-offset: -2px;
+}
+
+.site-search-item.is-active .site-search-icon,
+.site-search-item:hover .site-search-icon {
+  opacity: 1;
+  color: var(--cs-color-brand-fill-loud);
+}
+
+.site-search-item.is-active .site-search-caret,
+.site-search-item:hover .site-search-caret {
+  opacity: 1;
+}
+
+.site-search-empty-icon {
+  font-size: var(--cs-font-size-3xl);
+  color: var(--cs-color-text-quiet);
+}
+
+.site-search-footer {
+  color: var(--cs-color-text-quiet);
+  font-size: var(--cs-font-size-s);
+}

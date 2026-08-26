@@ -1,0 +1,9 @@
+@layer cs-utilities {
+  .cs-placeholder {
+    align-self: stretch;
+    background-color: var(--cs-color-neutral-fill-quiet);
+    border: dashed var(--cs-border-width-s) var(--cs-color-neutral-border-normal);
+    border-radius: var(--cs-border-radius-l);
+    padding: var(--cs-space-3xl);
+  }
+}

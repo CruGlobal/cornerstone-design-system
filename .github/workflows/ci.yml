@@ -9,6 +9,14 @@ on:
   # open PR doesn't build twice.
   pull_request:
 
+# One run per ref. A second push used to leave the first still going, and the component gate is
+# ~35 minutes — two of them competing for the same runners is how a suite starts failing on
+# timeouts rather than assertions. `cancel-in-progress` is safe here because nothing in this
+# workflow deploys or publishes; the worst a cancelled run loses is a result we no longer want.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   pull-requests: read
@@ -24,7 +32,7 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
       - run: npm ci
-      - run: npm run validate
+      - run: npm run validate --workspace @cruglobal/cornerstone-design-system
 
   build:
     name: Build tokens
@@ -37,7 +45,25 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
       - run: npm ci
-      - run: npm run build
+      # Tokens only. The component build runs inside `verify-components`, and running the
+      # root build here would do it twice per PR.
+      - run: npm run build --workspace @cruglobal/cornerstone-design-system
+
+  verify-components:
+    name: Verify components
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+      - run: npm ci
+      # The component suite drives real browsers. `npm run verify` is what a developer runs by
+      # hand, so CI runs exactly that and nothing else — one command, no bespoke job graph to
+      # drift from the local check. All three engines, here as locally.
+      - run: npx playwright install --with-deps
+      - run: npm run verify --workspace @cruglobal/cornerstone-components
 
   changeset:
     name: Changeset present

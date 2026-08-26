@@ -1,0 +1,26 @@
+# Cloud Run assigns the port at runtime and requires the container to listen on it. nginx cannot read
+# environment variables in its config, so the official image runs `envsubst` over
+# /etc/nginx/templates/*.template at boot — which is why this is a template rather than a conf.
+server {
+  listen ${PORT};
+  server_name _;
+  root /usr/share/nginx/html;
+
+  # Astro emits directory-style URLs: /components/button/ is /components/button/index.html.
+  index index.html;
+
+  # Long-lived caching for fingerprinted assets, none for HTML — the ALB and any proxy in front
+  # should never serve a stale page while assets are immutable.
+  location /_astro/ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+  }
+
+  location / {
+    try_files $uri $uri/ $uri/index.html =404;
+  }
+
+  error_page 404 /404.html;
+
+  # Cloud Run health checks hit / by default; nothing extra is needed for a static site.
+}

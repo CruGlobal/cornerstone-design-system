@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132.55 132.55" width="132.55" height="132.55">
+  <title>Corner bracket</title>
+  <desc>
+    One corner bracket from Cru's corners.svg, isolated as a seamless tile. The source is a 1920x1080
+    composition: a #FFD000 field with 14 by 8 of these marks on a regular 132.55px grid. Using that file
+    directly would either stretch the marks or repeat its uneven margins, so one mark is lifted out and
+    centred in a single cell instead. Geometry is the source's, translated to the origin. Painted opaque
+    white because this is used as a mask image: the shape is the mask and the colour comes from a theme
+    token at the use site, so the pattern follows the theme rather than pinning the source's two hex values.
+
+    Kept in a desc element rather than an XML comment on purpose. A comment cannot contain a double hyphen,
+    so naming a CSS custom property in one makes the file unparseable as an image while fetch still returns
+    200 and the right MIME type.
+  </desc>
+  <g transform="translate(42.17 42.17)" fill="#fff">
+    <path d="M40.2102 0V40.211H0V48.21H40.2102H48.2102V40.211V0H40.2102Z" />
+  </g>
+</svg>

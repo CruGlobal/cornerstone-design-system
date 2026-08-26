@@ -1,0 +1,24 @@
+<p style="margin-top: 0">
+  The content in this example was included from
+  <a href="../../assets/examples/include.html" target="_blank">a separate file</a>. 🤯
+</p>
+<p>
+  Web components are a set of web platform APIs that let you create custom, reusable HTML elements. They work across
+  frameworks and browsers, making them a great choice for building design systems and component libraries. Best of all,
+  they're built on web standards so they'll never go out of style.
+</p>
+<p>
+  The Include component lets you pull in content from external files, making it easy to reuse snippets of HTML across
+  multiple pages. It's like a server-side include, but it works entirely in the browser. Pretty neat, right?
+</p>
+
+<template id="callout-fragment">
+  <cs-callout variant="brand">
+    <cs-icon slot="icon" name="extension"></cs-icon>
+    This callout was pulled from a specific element inside the file.
+  </cs-callout>
+</template>
+
+<script>
+  console.log('This will only execute if the `allow-scripts` prop is present');
+</script>

@@ -1,0 +1,63 @@
+---
+/**
+ * One level of the navigation, recursing into sub-components.
+ *
+ * A nested `<ul>` inside its parent's `<li>` — the structure the Eleventy sidebar used, and the reason
+ * indentation needs no CSS: the list nesting is the indentation.
+ *
+ * An experimental component is marked with a `<cs-icon>`, which is what the Eleventy sidebar drew. The
+ * glyph is the Material Symbols flask, which is what the default icon library resolves.
+ *
+ * A page can also carry a badge through Starlight's own `sidebar.badge` front matter. Nothing applies it for
+ * us — this tree is built by hand — so `sidebar.js` reads it and this renders it.
+ */
+interface Props {
+  items: {
+    entry: {
+      href: string;
+      label: string;
+      isCurrent?: boolean;
+      /** Starlight's own per-entry badge, from a page's `sidebar.badge` front matter. */
+      badge?: { text: string; variant?: string } | null;
+      attrs?: Record<string, string>;
+    };
+    children: Props['items'];
+  }[];
+}
+
+import { badgeVariant } from '../badge-variants.js';
+
+const { items } = Astro.props;
+---
+
+<!-- `cs-gap-m` is the spacing the Eleventy sidebar used between items (`li + li`). -->
+<ul class="cs-stack cs-gap-m">
+  {
+    items.map(({ entry, children }) => (
+      <li>
+        <a
+          href={entry.href}
+          data-drawer="close"
+          aria-current={entry.isCurrent ? 'page' : undefined}
+          class:list={['cs-cluster', 'cs-gap-2xs', 'cs-link-plain', { current: entry.isCurrent }]}
+        >
+          {entry.label}
+          {entry.attrs?.['data-experimental'] && (
+            <cs-icon name="science" label="Experimental"></cs-icon>
+          )}
+          {/*
+            A per-entry badge, which is how upstream marks its Pro pages in exactly this position — and the
+            one place a "Soon" reads as information rather than decoration. `cs-badge` rather than
+            Starlight's `.sl-badge`, whose stylesheet this site does not ship.
+          */}
+          {entry.badge && (
+            <cs-badge variant={badgeVariant(entry.badge.variant)} appearance="filled" pill>
+              {entry.badge.text}
+            </cs-badge>
+          )}
+        </a>
+        {children.length > 0 && <Astro.self items={children} />}
+      </li>
+    ))
+  }
+</ul>

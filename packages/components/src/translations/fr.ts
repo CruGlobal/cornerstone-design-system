@@ -1,0 +1,177 @@
+import { registerTranslation } from '../utilities/localize.js';
+import type { Translation } from '../utilities/localize.js';
+
+const translation: Translation = {
+  $code: 'fr',
+  $name: 'Français',
+  $dir: 'ltr',
+
+  am: 'AM',
+  autosizeColumn: 'Ajuster la colonne au contenu',
+  captions: 'Sous-titres',
+  carousel: 'Carrousel',
+  chooseDate: 'Choisir la date',
+  chooseDecade: 'Choisir la décennie',
+  chooseMonth: 'Choisir le mois',
+  chooseTime: `Choisir l'heure`,
+  chooseYear: `Choisir l'année`,
+  clearEntry: `Effacer l'entrée`,
+  clearFilter: 'Effacer le filtre',
+  clearSort: 'Effacer le tri',
+  close: 'Fermer',
+  closeCalendar: 'Fermer le calendrier',
+  closeTimeInput: `Fermer le sélecteur d'heure`,
+  collapseRow: 'Réduire la ligne',
+  columnMenu: 'Options de colonne',
+  columnMovedToPosition: (label, position, total) => `${label} déplacée à la position ${position} sur ${total}`,
+  columns: 'Colonnes',
+  compactPageXOfY: (page, total) => `${page} sur ${total}`,
+  copied: 'Copié',
+  copy: 'Copier',
+  createOption: (value) => `Créer « ${value} »`,
+  currentlyPlaying: 'en cours de lecture',
+  currentValue: 'Valeur actuelle',
+  date: 'Date',
+  datePickerKeyboardHelp:
+    'Utilisez les touches fléchées pour modifier les valeurs ; appuyez sur Alt+Flèche bas pour ouvrir le calendrier.',
+  day: 'Jour',
+  dayPeriod: 'AM/PM',
+  decrement: 'Diminuer',
+  deselectAllRows: 'Désélectionner toutes les lignes',
+  dropFileHere: 'Drop file here or click to browse',
+  dropFilesHere: 'Drop files here or click to browse',
+  empty: 'Vide',
+  endDate: 'Date de fin',
+  enterFullscreen: 'Passer en plein écran',
+  error: 'Erreur',
+  exitFullscreen: 'Quitter le plein écran',
+  expandRow: 'Développer la ligne',
+  filterByColumn: (label) => `Filtrer par ${label}`,
+  filterFrom: 'De',
+  filterMax: 'Max',
+  filterMin: 'Min',
+  filterTo: 'À',
+  firstPage: 'Première page',
+  goToSlide: (slide, count) => `Aller à la diapositive ${slide} de ${count}`,
+  hideColumn: 'Masquer la colonne',
+  hidePassword: 'Masquer le mot de passe',
+  hour: 'Heure',
+  incompleteDate: 'Saisissez une date valide.',
+  increment: 'Augmenter',
+  jumpBackwardX: (count) => `Reculer de ${count} pages`,
+  jumpForwardX: (count) => `Avancer de ${count} pages`,
+  lastPage: 'Dernière page',
+  loading: 'Chargement',
+  minute: 'Minute',
+  month: 'Mois',
+  moreOptions: "Plus d'options",
+  mute: 'Couper le son',
+  nextDecade: 'Décennie suivante',
+  nextMonth: 'Mois suivant',
+  nextPage: 'Page suivante',
+  nextSlide: 'Diapositive suivante',
+  nextVideo: 'Vidéo suivante',
+  nextYear: 'Année suivante',
+  noData: 'Aucune donnée',
+  noResults: 'Aucun résultat correspondant',
+  now: 'Maintenant',
+  numCharacters: (num) => {
+    if (num === 1) {
+      return '1 caractère';
+    }
+    return `${num} caractères`;
+  },
+  numCharactersRemaining: (num) => {
+    if (num === 1) {
+      return '1 caractère restant';
+    }
+    return `${num} caractères restants`;
+  },
+  numOptionsSelected: (num) => {
+    if (num === 0) {
+      return 'Aucune option sélectionnée';
+    }
+    if (num === 1) {
+      return '1 option sélectionnée';
+    }
+    return `${num} options sélectionnées`;
+  },
+  numRowsCopied: (num) => (num === 1 ? '1 ligne copiée' : `${num} lignes copiées`),
+  numRowsSelected: (num) => (num === 1 ? '1 ligne sélectionnée' : `${num} lignes sélectionnées`),
+  pageXOfY: (page, total) => `Page ${page} sur ${total}`,
+  pagination: 'Pagination',
+  pause: 'Pause',
+  pauseAnimation: "Suspendre l'animation",
+  pictureInPicture: `Image dans l'image`,
+  pinLeft: 'Épingler à gauche',
+  pinRight: 'Épingler à droite',
+  play: 'Lecture',
+  playAnimation: "Lire l'animation",
+  playbackSpeed: 'Vitesse de lecture',
+  playlist: 'Liste de lecture',
+  pm: 'PM',
+  previousDecade: 'Décennie précédente',
+  previousMonth: 'Mois précédent',
+  previousPage: 'Page précédente',
+  previousSlide: 'Diapositive précédente',
+  previousVideo: 'Vidéo précédente',
+  previousYear: 'Année précédente',
+  progress: 'Progrès',
+  rangeTooLong: (max) => {
+    if (max === 1) {
+      return 'Sélectionnez une plage ne dépassant pas 1 jour';
+    }
+    return `Sélectionnez une plage ne dépassant pas ${max} jours`;
+  },
+  rangeTooShort: (min) => {
+    if (min === 1) {
+      return `Sélectionnez une plage d'au moins 1 jour`;
+    }
+    return `Sélectionnez une plage d'au moins ${min} jours`;
+  },
+  readonly: 'Lecture seule',
+  remove: 'Retirer',
+  resetColumns: 'Réinitialiser les colonnes',
+  resize: 'Redimensionner',
+  resizeColumn: 'Redimensionner la colonne',
+  rowsPerPage: 'Lignes par page',
+  scrollableRegion: 'Région défilante',
+  scrollToEnd: `Faire défiler jusqu'à la fin`,
+  scrollToStart: `Faire défiler jusqu'au début`,
+  search: 'Rechercher',
+  second: 'Seconde',
+  seek: 'Rechercher',
+  seekProgress: (current, duration) => `${current} sur ${duration}`,
+  selectAColorFromTheScreen: `Sélectionnez une couleur à l'écran`,
+  selectAllRows: 'Sélectionner toutes les lignes',
+  selected: 'Sélectionné',
+  selectedDateLabel: (date) => `Sélectionné : ${date}`,
+  selectedRangeLabel: (range) => `Plage sélectionnée : ${range}`,
+  selectGroup: 'Sélectionner le groupe',
+  selectionCleared: 'Sélection effacée',
+  selectRow: 'Sélectionner la ligne',
+  showingNofMRows: (shown, total) => `Affichage de ${shown} sur ${total} lignes`,
+  showingXtoYofZ: (start, end, total) => `${start}–${end} sur ${total}`,
+  showPassword: 'Montrer le mot de passe',
+  slideNum: (slide) => `Diapositive ${slide}`,
+  sortAscending: 'Trier par ordre croissant',
+  sortColumn: 'Trier la colonne',
+  sortDescending: 'Trier par ordre décroissant',
+  startDate: 'Date de début',
+  time: 'Heure',
+  timeInputKeyboardHelp: `Utilisez les touches fléchées pour modifier les valeurs ; appuyez sur Alt+Flèche bas pour ouvrir le sélecteur d'heure.`,
+  today: `Aujourd'hui`,
+  toggleColorFormat: 'Changer le format de couleur',
+  unmute: 'Rétablir le son',
+  unpin: 'Désépingler',
+  unpinColumn: 'Désépingler la colonne',
+  videoPlayer: 'Lecteur vidéo',
+  volume: 'Volume',
+  year: 'Année',
+  zoomIn: 'Zoomer',
+  zoomOut: 'Dézoomer',
+};
+
+registerTranslation(translation);
+
+export default translation;

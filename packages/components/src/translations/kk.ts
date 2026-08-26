@@ -1,0 +1,181 @@
+import { registerTranslation } from '@shoelace-style/localize';
+import type { Translation } from '../utilities/localize.js';
+
+const translation: Translation = {
+  $code: 'kk',
+  $name: 'Қазақ',
+  $dir: 'ltr',
+
+  am: 'AM',
+  autosizeColumn: 'Бағана өлшемін мазмұнға келтіру',
+  captions: 'Субтитрлер',
+  carousel: 'Карусель',
+  chooseDate: 'Күнді таңдау',
+  chooseDecade: 'Онжылдықты таңдау',
+  chooseMonth: 'Айды таңдау',
+  chooseTime: 'Уақытты таңдау',
+  chooseYear: 'Жылды таңдау',
+  clearEntry: 'Жазбаны жою',
+  clearFilter: 'Сүзгіні тазарту',
+  clearSort: 'Сұрыптауды тазарту',
+  close: 'Жабу',
+  closeCalendar: 'Күнтізбені жабу',
+  closeTimeInput: 'Уақыт таңдағышын жабу',
+  collapseRow: 'Жолды жию',
+  columnMenu: 'Бағана опциялары',
+  columnMovedToPosition: (label, position, total) => `${label} ${total} ішінен ${position} позицияға жылжытылды`,
+  columns: 'Бағаналар',
+  compactPageXOfY: (page, total) => `${total} ішінен ${page}`,
+  copied: 'Көшірілді',
+  copy: 'Көшіру',
+  createOption: (value) => `"${value}" жасау`,
+  currentlyPlaying: 'қазір ойнатылуда',
+  currentValue: 'Қазіргі мән',
+  date: 'Күн',
+  datePickerKeyboardHelp:
+    'Мәндерді өзгерту үшін көрсеткі пернелерін пайдаланыңыз; күнтізбені ашу үшін Alt+Төмен көрсеткі пернесін басыңыз.',
+  day: 'Күн',
+  dayPeriod: 'AM/PM',
+  decrement: 'Азайту',
+  deselectAllRows: 'Барлық жолдың таңдауын алу',
+  dropFileHere: 'Drop file here or click to browse',
+  dropFilesHere: 'Drop files here or click to browse',
+  empty: 'Бос',
+  endDate: 'Аяқталу күні',
+  enterFullscreen: 'Толық экранға өту',
+  error: 'Қате',
+  exitFullscreen: 'Толық экраннан шығу',
+  expandRow: 'Жолды жаю',
+  filterByColumn: (label) => `${label} бойынша сүзу`,
+  filterFrom: 'Бастап',
+  filterMax: 'Макс.',
+  filterMin: 'Мин.',
+  filterTo: 'Дейін',
+  firstPage: 'Бірінші бет',
+  goToSlide: (slide, count) => `${slide}/${count} слайдқа өту`,
+  hideColumn: 'Бағананы жасыру',
+  hidePassword: 'Құпиясөзді жасыру',
+  hour: 'Сағат',
+  incompleteDate: 'Жарамды күнді енгізіңіз.',
+  increment: 'Арттыру',
+  jumpBackwardX: (count) => `${count} бетке артқа өту`,
+  jumpForwardX: (count) => `${count} бетке алға өту`,
+  lastPage: 'Соңғы бет',
+  loading: 'Жүктелуде',
+  minute: 'Минут',
+  month: 'Ай',
+  moreOptions: 'Қосымша опциялар',
+  mute: 'Дыбысты өшіру',
+  nextDecade: 'Келесі онжылдық',
+  nextMonth: 'Келесі ай',
+  nextPage: 'Келесі бет',
+  nextSlide: 'Келесі слайд',
+  nextVideo: 'Келесі бейне',
+  nextYear: 'Келесі жыл',
+  noData: 'Деректер жоқ',
+  noResults: 'Сәйкес нәтижелер жоқ',
+  now: 'Қазір',
+  numCharacters: (num) => {
+    if (num === 1) {
+      return '1 таңба';
+    }
+    return `${num} таңба`;
+  },
+  numCharactersRemaining: (num) => {
+    if (num === 1) {
+      return '1 таңба қалды';
+    }
+    return `${num} таңба қалды`;
+  },
+  numOptionsSelected: (num) => {
+    if (num === 0) {
+      return 'Ештеңе таңдалмады';
+    }
+    if (num < 6 || num === 7) {
+      return `${num}-еу таңдалды`;
+    }
+    if (num === 6) {
+      return `${num}-ау таңдалды`;
+    }
+    return `${num} таңдалды`;
+  },
+  numRowsCopied: (num) => (num === 1 ? '1 жол көшірілді' : `${num} жол көшірілді`),
+  numRowsSelected: (num) => (num === 1 ? '1 жол таңдалды' : `${num} жол таңдалды`),
+  pageXOfY: (page, total) => `${total} ішінен ${page} бет`,
+  pagination: 'Беттеу',
+  pause: 'Тоқтату',
+  pauseAnimation: 'Анимацияны тоқтату',
+  pictureInPicture: 'Суретте сурет',
+  pinLeft: 'Солға бекіту',
+  pinRight: 'Оңға бекіту',
+  play: 'Ойнату',
+  playAnimation: 'Анимацияны ойнату',
+  playbackSpeed: 'Ойнату жылдамдығы',
+  playlist: 'Ойнату тізімі',
+  pm: 'PM',
+  previousDecade: 'Алдыңғы онжылдық',
+  previousMonth: 'Алдыңғы ай',
+  previousPage: 'Алдыңғы бет',
+  previousSlide: 'Алдыңғы слайд',
+  previousVideo: 'Алдыңғы бейне',
+  previousYear: 'Алдыңғы жыл',
+  progress: 'Прогресс',
+  rangeTooLong: (max) => {
+    if (max === 1) {
+      return '1 күннен аспайтын аралықты таңдаңыз';
+    }
+    return `${max} күннен аспайтын аралықты таңдаңыз`;
+  },
+  rangeTooShort: (min) => {
+    if (min === 1) {
+      return 'Кемінде 1 күн ұзақтықтағы аралықты таңдаңыз';
+    }
+    return `Кемінде ${min} күн ұзақтықтағы аралықты таңдаңыз`;
+  },
+  readonly: 'Тек оқуға арналған',
+  remove: 'Жою',
+  resetColumns: 'Бағаналарды қалпына келтіру',
+  resize: 'Өлшемін өзгерту',
+  resizeColumn: 'Бағана өлшемін өзгерту',
+  rowsPerPage: 'Беттегі жол саны',
+  scrollableRegion: 'Көтеру/түсіруге болатын аймақ (скролл)',
+  scrollToEnd: 'Соңына түсіру',
+  scrollToStart: 'Басына көтеру',
+  search: 'Іздеу',
+  second: 'Секунд',
+  seek: 'Іздеу',
+  seekProgress: (current, duration) => `${current} / ${duration}`,
+  selectAColorFromTheScreen: 'Экраннан түсті таңдаңыз',
+  selectAllRows: 'Барлық жолды таңдау',
+  selected: 'Таңдалды',
+  selectedDateLabel: (date) => `Таңдалды: ${date}`,
+  selectedRangeLabel: (range) => `Таңдалған аралық: ${range}`,
+  selectGroup: 'Топты таңдау',
+  selectionCleared: 'Таңдау тазартылды',
+  selectRow: 'Жолды таңдау',
+  showingNofMRows: (shown, total) => `${total} жолдың ${shown} көрсетілуде`,
+  showingXtoYofZ: (start, end, total) => `${total} ішінен ${start}–${end}`,
+  showPassword: 'Құпиясөзді көрсету',
+  slideNum: (slide) => `${slide}-слайд`,
+  sortAscending: 'Өсу ретімен сұрыптау',
+  sortColumn: 'Бағананы сұрыптау',
+  sortDescending: 'Кему ретімен сұрыптау',
+  startDate: 'Басталу күні',
+  time: 'Уақыт',
+  timeInputKeyboardHelp:
+    'Мәндерді өзгерту үшін көрсеткі пернелерін пайдаланыңыз; уақыт таңдағышын ашу үшін Alt+Төмен көрсеткі пернесін басыңыз.',
+  today: 'Бүгін',
+  toggleColorFormat: 'Түс пішімін ауыстыру',
+  unmute: 'Дыбысты қосу',
+  unpin: 'Бекітуді алып тастау',
+  unpinColumn: 'Бағана бекітуін алып тастау',
+  videoPlayer: 'Бейне ойнатқыш',
+  volume: 'Дыбыс деңгейі',
+  year: 'Жыл',
+  zoomIn: 'Жақындату',
+  zoomOut: 'Алыстату',
+};
+
+registerTranslation(translation);
+
+export default translation;

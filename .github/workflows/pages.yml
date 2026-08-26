@@ -1,0 +1,66 @@
+# Deploys the documentation site to GitHub Pages.
+#
+# Source must be set to "GitHub Actions" in Settings > Pages. That path serves the uploaded
+# artifact directly and never runs Jekyll — which matters, because Astro emits its hashed CSS
+# and JS into `_astro/`, and Jekyll drops directories beginning with an underscore. All 124
+# pages reference `_astro/`, so a Jekyll-processed deploy renders every one of them unstyled.
+# `packages/docs/public/.nojekyll` guards the same hazard for a branch-sourced deploy.
+#
+# The site is a project page at https://cruglobal.github.io/cornerstone-design-system, and every
+# URL in the build derives from `packages/components/package.json`'s `homepage` by way of
+# `packages/build-tools/site-url.js`. Moving to a custom domain later empties the base path and
+# changes nothing else.
+
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Read the repo, write the Pages deployment, mint the OIDC token deploy-pages needs.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time. Never cancel a run in progress — a half-finished deploy would
+# leave the site serving a partial build.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+      - run: npm ci
+      # The documentation build reads the library's Custom Elements Manifest and copies its
+      # bundled build into `public/dist`, so the library has to be built first.
+      - run: npm run build --workspace @cruglobal/cornerstone-components
+      - run: npm run build --workspace cornerstone-docs-site
+      # Fails the build if any asset reference escapes the base path — the failure mode that
+      # makes a project-page deploy look fine locally and 404 everywhere once published.
+      - name: Check every asset resolves under the base path
+        run: node scripts/check-asset-paths.js
+        working-directory: packages/components
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/docs/dist
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

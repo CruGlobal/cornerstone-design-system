@@ -1,0 +1,32 @@
+@layer cs-utilities {
+  /* Apply Flexbox with 0 specificity to ensure a justify-content util produces a visible change */
+  :where(
+    .cs-justify-content-start,
+    .cs-justify-content-end,
+    .cs-justify-content-center,
+    .cs-justify-content-space-around,
+    .cs-justify-content-space-between,
+    .cs-justify-content-space-evenly
+  ) {
+    display: flex;
+  }
+
+  .cs-justify-content-start {
+    justify-content: flex-start;
+  }
+  .cs-justify-content-end {
+    justify-content: flex-end;
+  }
+  .cs-justify-content-center {
+    justify-content: center;
+  }
+  .cs-justify-content-space-around {
+    justify-content: space-around;
+  }
+  .cs-justify-content-space-between {
+    justify-content: space-between;
+  }
+  .cs-justify-content-space-evenly {
+    justify-content: space-evenly;
+  }
+}

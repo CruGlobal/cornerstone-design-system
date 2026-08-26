@@ -1,0 +1,95 @@
+import { css } from 'lit';
+
+export default css`
+  :where(:root),
+  .cs-neutral,
+  :host([variant='neutral']) {
+    --cs-color-fill-loud: var(--cs-color-neutral-fill-loud);
+    --cs-color-fill-normal: var(--cs-color-neutral-fill-normal);
+    --cs-color-fill-quiet: var(--cs-color-neutral-fill-quiet);
+    --cs-color-border-loud: var(--cs-color-neutral-border-loud);
+    --cs-color-border-normal: var(--cs-color-neutral-border-normal);
+    --cs-color-border-quiet: var(--cs-color-neutral-border-quiet);
+    --cs-color-on-loud: var(--cs-color-neutral-on-loud);
+    --cs-color-on-normal: var(--cs-color-neutral-on-normal);
+    --cs-color-on-quiet: var(--cs-color-neutral-on-quiet);
+  }
+
+  .cs-brand,
+  :host([variant='brand']) {
+    --cs-color-fill-loud: var(--cs-color-brand-fill-loud);
+    --cs-color-fill-normal: var(--cs-color-brand-fill-normal);
+    --cs-color-fill-quiet: var(--cs-color-brand-fill-quiet);
+    --cs-color-border-loud: var(--cs-color-brand-border-loud);
+    --cs-color-border-normal: var(--cs-color-brand-border-normal);
+    --cs-color-border-quiet: var(--cs-color-brand-border-quiet);
+    --cs-color-on-loud: var(--cs-color-brand-on-loud);
+    --cs-color-on-normal: var(--cs-color-brand-on-normal);
+    --cs-color-on-quiet: var(--cs-color-brand-on-quiet);
+  }
+
+  .cs-success,
+  :host([variant='success']) {
+    --cs-color-fill-loud: var(--cs-color-success-fill-loud);
+    --cs-color-fill-normal: var(--cs-color-success-fill-normal);
+    --cs-color-fill-quiet: var(--cs-color-success-fill-quiet);
+    --cs-color-border-loud: var(--cs-color-success-border-loud);
+    --cs-color-border-normal: var(--cs-color-success-border-normal);
+    --cs-color-border-quiet: var(--cs-color-success-border-quiet);
+    --cs-color-on-loud: var(--cs-color-success-on-loud);
+    --cs-color-on-normal: var(--cs-color-success-on-normal);
+    --cs-color-on-quiet: var(--cs-color-success-on-quiet);
+  }
+
+  .cs-warning,
+  :host([variant='warning']) {
+    --cs-color-fill-loud: var(--cs-color-warning-fill-loud);
+    --cs-color-fill-normal: var(--cs-color-warning-fill-normal);
+    --cs-color-fill-quiet: var(--cs-color-warning-fill-quiet);
+    --cs-color-border-loud: var(--cs-color-warning-border-loud);
+    --cs-color-border-normal: var(--cs-color-warning-border-normal);
+    --cs-color-border-quiet: var(--cs-color-warning-border-quiet);
+    --cs-color-on-loud: var(--cs-color-warning-on-loud);
+    --cs-color-on-normal: var(--cs-color-warning-on-normal);
+    --cs-color-on-quiet: var(--cs-color-warning-on-quiet);
+  }
+
+  .cs-highlight,
+  :host([variant='highlight']) {
+    --cs-color-fill-loud: var(--cs-color-highlight-fill-loud);
+    --cs-color-fill-normal: var(--cs-color-highlight-fill-normal);
+    --cs-color-fill-quiet: var(--cs-color-highlight-fill-quiet);
+    --cs-color-border-loud: var(--cs-color-highlight-border-loud);
+    --cs-color-border-normal: var(--cs-color-highlight-border-normal);
+    --cs-color-border-quiet: var(--cs-color-highlight-border-quiet);
+    --cs-color-on-loud: var(--cs-color-highlight-on-loud);
+    --cs-color-on-normal: var(--cs-color-highlight-on-normal);
+    --cs-color-on-quiet: var(--cs-color-highlight-on-quiet);
+  }
+
+  .cs-information,
+  :host([variant='information']) {
+    --cs-color-fill-loud: var(--cs-color-information-fill-loud);
+    --cs-color-fill-normal: var(--cs-color-information-fill-normal);
+    --cs-color-fill-quiet: var(--cs-color-information-fill-quiet);
+    --cs-color-border-loud: var(--cs-color-information-border-loud);
+    --cs-color-border-normal: var(--cs-color-information-border-normal);
+    --cs-color-border-quiet: var(--cs-color-information-border-quiet);
+    --cs-color-on-loud: var(--cs-color-information-on-loud);
+    --cs-color-on-normal: var(--cs-color-information-on-normal);
+    --cs-color-on-quiet: var(--cs-color-information-on-quiet);
+  }
+
+  .cs-danger,
+  :host([variant='danger']) {
+    --cs-color-fill-loud: var(--cs-color-danger-fill-loud);
+    --cs-color-fill-normal: var(--cs-color-danger-fill-normal);
+    --cs-color-fill-quiet: var(--cs-color-danger-fill-quiet);
+    --cs-color-border-loud: var(--cs-color-danger-border-loud);
+    --cs-color-border-normal: var(--cs-color-danger-border-normal);
+    --cs-color-border-quiet: var(--cs-color-danger-border-quiet);
+    --cs-color-on-loud: var(--cs-color-danger-on-loud);
+    --cs-color-on-normal: var(--cs-color-danger-on-normal);
+    --cs-color-on-quiet: var(--cs-color-danger-on-quiet);
+  }
+`;

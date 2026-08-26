@@ -1,0 +1,50 @@
+Cornerstone Components
+======================
+
+This project is a modified fork of Web Awesome.
+
+    Web Awesome — https://github.com/shoelace-style/webawesome
+    Copyright (c) 2025 Fonticons, Inc.
+    Licensed under the MIT License. See LICENSE.md, which is retained unmodified.
+
+Fork point
+----------
+
+    upstream  https://github.com/shoelace-style/webawesome
+    branch    next
+    commit    63f2b66ddc48f0d66574d2e9c2076dbf60fb8fb5
+    date      2026-08-11
+
+No `upstream` remote is configured, and upstream releases are not merged. The fork is taken
+over rather than tracked. `tools/rename.mjs` is retained as a record of how the namespace was
+applied, not as a live tool.
+
+Modifications
+-------------
+
+The Web Awesome namespace has been renamed throughout: `wa-` element, class, cascade-layer and
+event names to `cs-`; `--wa-` custom properties to `--cs-`; exported `Wa*` classes to `Cs*`; and
+the package to `@cruglobal/cornerstone-components`. The fork's own commits are not in this
+repository's history: the library was imported as a single commit, so `git log` on these files
+begins at that import rather than at the fork point.
+
+What is and is not carried over
+-------------------------------
+
+Not carried: Web Awesome Pro, which is not part of the upstream public repository. Not vendored:
+Font Awesome icon assets, which carry licensing separate from the Web Awesome source.
+
+Carried: upstream's documentation prose. The documentation site was ported from upstream's `docs/`
+tree with the namespace rename applied and has been edited since; measured against the fork point,
+72% of its substantial prose lines are still upstream's verbatim. It is covered by the same MIT
+licence and the attribution above. That site is no longer part of this package — it is
+`packages/docs` in this workspace — but the attribution travels with it.
+
+Inherited test failures
+-----------------------
+
+Eight tests failed on the unmodified upstream tree at the fork point, in WebKit and Firefox. They
+were recorded in `tools/baseline-failures.txt` so that later failures could be told apart from
+inherited ones. All eight are resolved — fixed, or skipped with the reason recorded in the test —
+and the suite is green on Chromium, Firefox and WebKit. That file was deleted on 2026-08-17, its
+job done.

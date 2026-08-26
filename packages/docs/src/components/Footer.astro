@@ -1,0 +1,18 @@
+---
+/**
+ * The content footer: the previous/next links, and nothing else.
+ *
+ * Starlight's version is a flex column holding a `.meta` row (`EditLink` and `LastUpdated`), `Pagination`, and an
+ * optional "Built with Starlight" credit. Both `EditLink` and `LastUpdated` render nothing on this site — no
+ * `editLink` is configured and no page carries a timestamp — so `.meta` measured 0×0, contributing only its 48px
+ * `margin-top`. That margin is the one thing worth keeping, as a token rather than a number.
+ *
+ * `Pagination` still has to be rendered here: it is Starlight's Footer that places it, so an empty override would
+ * have removed the links along with the CSS.
+ */
+import Pagination from 'virtual:starlight/components/Pagination';
+---
+
+<footer class="content-footer cs-stack">
+  <Pagination />
+</footer>

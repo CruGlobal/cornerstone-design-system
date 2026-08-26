@@ -1,0 +1,32 @@
+---
+/**
+ * The site header, laid out with `cs-split` and `cs-cluster`.
+ *
+ * Starlight's version is a flex row built by hand in its own scoped stylesheet. The arrangement is a
+ * title at one end and controls at the other, which is exactly what `cs-split` names, so the layout is
+ * markup rather than CSS.
+ *
+ * `print:hidden` on the controls is Starlight's own utility, kept because `print.css` is imported by
+ * `Page.astro` and cannot be removed — it is what stops the search field and the theme select appearing on paper.
+ * Starlight's Header carried it and this override had dropped it.
+ *
+ * `Search` is still Starlight's. It is 488 lines carrying the whole Pagefind dialog, and replacing it is
+ * its own piece of work — see the ticket. It is rendered here unchanged so search keeps working.
+ */
+import config from 'virtual:starlight/user-config';
+
+import Search from 'virtual:starlight/components/Search';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+
+const shouldRenderSearch =
+  config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+---
+
+<div class="site-header cs-split cs-gap-m cs-align-items-center">
+  <SiteTitle />
+  <div class="cs-cluster cs-gap-s cs-align-items-center cs-flex-nowrap print:hidden">
+    {shouldRenderSearch && <Search />}
+    <ThemeSelect />
+  </div>
+</div>

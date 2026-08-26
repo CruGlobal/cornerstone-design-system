@@ -1,0 +1,44 @@
+@layer cs-utilities {
+  /* Apply Flexbox with 0 specificity to ensure an align-items util produces a visible change */
+  :where(
+    .cs-align-items-start,
+    .cs-align-items-end,
+    .cs-align-items-center,
+    .cs-align-items-stretch,
+    .cs-align-items-baseline
+  ) {
+    display: flex;
+  }
+
+  .cs-align-items-start {
+    align-items: flex-start;
+  }
+  .cs-align-items-end {
+    align-items: flex-end;
+  }
+  .cs-align-items-center {
+    align-items: center;
+  }
+  .cs-align-items-stretch {
+    align-items: stretch;
+  }
+  .cs-align-items-baseline {
+    align-items: baseline;
+  }
+
+  .cs-align-self-start {
+    align-self: flex-start;
+  }
+  .cs-align-self-end {
+    align-self: flex-end;
+  }
+  .cs-align-self-center {
+    align-self: center;
+  }
+  .cs-align-self-stretch {
+    align-self: stretch;
+  }
+  .cs-align-self-baseline {
+    align-self: baseline;
+  }
+}

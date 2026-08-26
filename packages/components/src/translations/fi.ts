@@ -1,0 +1,176 @@
+import { registerTranslation } from '@shoelace-style/localize';
+import type { Translation } from '../utilities/localize.js';
+
+const translation: Translation = {
+  $code: 'fi',
+  $name: 'Suomi',
+  $dir: 'ltr',
+
+  am: 'ap.',
+  autosizeColumn: 'Sovita sarakkeen koko',
+  captions: 'Tekstitys',
+  carousel: 'Karuselli',
+  chooseDate: 'Valitse päivämäärä',
+  chooseDecade: 'Valitse vuosikymmen',
+  chooseMonth: 'Valitse kuukausi',
+  chooseTime: 'Valitse aika',
+  chooseYear: 'Valitse vuosi',
+  clearEntry: 'Poista merkintä',
+  clearFilter: 'Poista suodatin',
+  clearSort: 'Poista lajittelu',
+  close: 'Sulje',
+  closeCalendar: 'Sulje kalenteri',
+  closeTimeInput: 'Sulje ajanvalitsin',
+  collapseRow: 'Tiivistä rivi',
+  columnMenu: 'Sarakkeen asetukset',
+  columnMovedToPosition: (label, position, total) => `${label} siirretty sijaintiin ${position} / ${total}`,
+  columns: 'Sarakkeet',
+  compactPageXOfY: (page, total) => `${page} / ${total}`,
+  copied: 'Kopioitu',
+  copy: 'Kopioi',
+  createOption: (value) => `Luo "${value}"`,
+  currentlyPlaying: 'toistetaan parhaillaan',
+  currentValue: 'Nykyinen arvo',
+  date: 'Päivämäärä',
+  datePickerKeyboardHelp: 'Muuta arvoja nuolinäppäimillä; avaa kalenteri painamalla Alt+Nuoli alas.',
+  day: 'Päivä',
+  dayPeriod: 'ap./ip.',
+  decrement: 'Vähennä',
+  deselectAllRows: 'Poista kaikkien rivien valinta',
+  dropFileHere: 'Drop file here or click to browse',
+  dropFilesHere: 'Drop files here or click to browse',
+  empty: 'Tyhjä',
+  endDate: 'Päättymispäivä',
+  enterFullscreen: 'Siirry koko näytölle',
+  error: 'Virhe',
+  exitFullscreen: 'Poistu koko näytöltä',
+  expandRow: 'Laajenna rivi',
+  filterByColumn: (label) => `Suodata: ${label}`,
+  filterFrom: 'Alkaen',
+  filterMax: 'Enint.',
+  filterMin: 'Väh.',
+  filterTo: 'Päättyen',
+  firstPage: 'Ensimmäinen sivu',
+  goToSlide: (slide, count) => `Siirry diaan ${slide} / ${count}`,
+  hideColumn: 'Piilota sarake',
+  hidePassword: 'Piilota salasana',
+  hour: 'Tunti',
+  incompleteDate: 'Anna kelvollinen päivämäärä.',
+  increment: 'Lisää',
+  jumpBackwardX: (count) => `Siirry ${count} sivua taaksepäin`,
+  jumpForwardX: (count) => `Siirry ${count} sivua eteenpäin`,
+  lastPage: 'Viimeinen sivu',
+  loading: 'Ladataan',
+  minute: 'Minuutti',
+  month: 'Kuukausi',
+  moreOptions: 'Lisää vaihtoehtoja',
+  mute: 'Mykistä',
+  nextDecade: 'Seuraava vuosikymmen',
+  nextMonth: 'Seuraava kuukausi',
+  nextPage: 'Seuraava sivu',
+  nextSlide: 'Seuraava dia',
+  nextVideo: 'Seuraava video',
+  nextYear: 'Seuraava vuosi',
+  noData: 'Ei tietoja',
+  noResults: 'Ei vastaavia tuloksia',
+  now: 'Nyt',
+  numCharacters: (num) => {
+    if (num === 1) {
+      return '1 merkki';
+    }
+    return `${num} merkkiä`;
+  },
+  numCharactersRemaining: (num) => {
+    if (num === 1) {
+      return '1 merkki jäljellä';
+    }
+    return `${num} merkkiä jäljellä`;
+  },
+  numOptionsSelected: (num) => {
+    if (num === 0) {
+      return 'Ei valittuja vaihtoehtoja';
+    }
+    if (num === 1) {
+      return 'Yksi vaihtoehto valittu';
+    }
+    return `${num} vaihtoehtoa valittu`;
+  },
+  numRowsCopied: (num) => (num === 1 ? '1 rivi kopioitu' : `${num} riviä kopioitu`),
+  numRowsSelected: (num) => (num === 1 ? '1 rivi valittu' : `${num} riviä valittu`),
+  pageXOfY: (page, total) => `Sivu ${page} / ${total}`,
+  pagination: 'Sivutus',
+  pause: 'Keskeytä',
+  pauseAnimation: 'Keskeytä animaatio',
+  pictureInPicture: 'Kuva kuvassa',
+  pinLeft: 'Kiinnitä vasemmalle',
+  pinRight: 'Kiinnitä oikealle',
+  play: 'Toista',
+  playAnimation: 'Toista animaatio',
+  playbackSpeed: 'Toistonopeus',
+  playlist: 'Soittolista',
+  pm: 'ip.',
+  previousDecade: 'Edellinen vuosikymmen',
+  previousMonth: 'Edellinen kuukausi',
+  previousPage: 'Edellinen sivu',
+  previousSlide: 'Edellinen dia',
+  previousVideo: 'Edellinen video',
+  previousYear: 'Edellinen vuosi',
+  progress: 'Edistyminen',
+  rangeTooLong: (max) => {
+    if (max === 1) {
+      return 'Valitse enintään 1 päivän pituinen ajanjakso';
+    }
+    return `Valitse enintään ${max} päivän pituinen ajanjakso`;
+  },
+  rangeTooShort: (min) => {
+    if (min === 1) {
+      return 'Valitse vähintään 1 päivän pituinen ajanjakso';
+    }
+    return `Valitse vähintään ${min} päivän pituinen ajanjakso`;
+  },
+  readonly: 'Vain luku',
+  remove: 'Poista',
+  resetColumns: 'Palauta sarakkeet',
+  resize: 'Muuta kokoa',
+  resizeColumn: 'Muuta sarakkeen kokoa',
+  rowsPerPage: 'Rivejä sivulla',
+  scrollableRegion: 'Vieritettävä alue',
+  scrollToEnd: 'Vieritä loppuun',
+  scrollToStart: 'Vieritä alkuun',
+  search: 'Hae',
+  second: 'Sekunti',
+  seek: 'Siirry',
+  seekProgress: (current, duration) => `${current} / ${duration}`,
+  selectAColorFromTheScreen: 'Valitse väri näytöltä',
+  selectAllRows: 'Valitse kaikki rivit',
+  selected: 'Valittu',
+  selectedDateLabel: (date) => `Valittu: ${date}`,
+  selectedRangeLabel: (range) => `Valittu aikaväli: ${range}`,
+  selectGroup: 'Valitse ryhmä',
+  selectionCleared: 'Valinta tyhjennetty',
+  selectRow: 'Valitse rivi',
+  showingNofMRows: (shown, total) => `Näytetään ${shown} / ${total} riviä`,
+  showingXtoYofZ: (start, end, total) => `${start}–${end} / ${total}`,
+  showPassword: 'Näytä salasana',
+  slideNum: (slide) => `Dia ${slide}`,
+  sortAscending: 'Lajittele nousevasti',
+  sortColumn: 'Lajittele sarake',
+  sortDescending: 'Lajittele laskevasti',
+  startDate: 'Alkamispäivä',
+  time: 'Aika',
+  timeInputKeyboardHelp: 'Muuta arvoja nuolinäppäimillä; avaa ajanvalitsin painamalla Alt+Nuoli alas.',
+  today: 'Tänään',
+  toggleColorFormat: 'Vaihda väriformaattia',
+  unmute: 'Poista mykistys',
+  unpin: 'Poista kiinnitys',
+  unpinColumn: 'Poista sarakkeen kiinnitys',
+  videoPlayer: 'Videosoitin',
+  volume: 'Äänenvoimakkuus',
+  year: 'Vuosi',
+  zoomIn: 'Lähennä',
+  zoomOut: 'Loitonna',
+};
+
+registerTranslation(translation);
+
+export default translation;

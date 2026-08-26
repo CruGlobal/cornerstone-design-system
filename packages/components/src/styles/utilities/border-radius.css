@@ -1,0 +1,20 @@
+@layer cs-utilities {
+  .cs-border-radius-s {
+    border-radius: var(--cs-border-radius-s);
+  }
+  .cs-border-radius-m {
+    border-radius: var(--cs-border-radius-m);
+  }
+  .cs-border-radius-l {
+    border-radius: var(--cs-border-radius-l);
+  }
+  .cs-border-radius-pill {
+    border-radius: var(--cs-border-radius-pill);
+  }
+  .cs-border-radius-circle {
+    border-radius: var(--cs-border-radius-circle);
+  }
+  .cs-border-radius-square {
+    border-radius: var(--cs-border-radius-square);
+  }
+}

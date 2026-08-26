@@ -1,0 +1,42 @@
+---
+/**
+ * The "On this page" aside: a `cs-stack` of plain links, matching the navigation.
+ *
+ * Starlight's version nests lists inside a `<starlight-toc>` element whose script highlights the heading
+ * you are reading. That script is **not** reusable: it lives at
+ * `@astrojs/starlight/components-internals/TableOfContents/starlight-toc` and is not in the package's
+ * `exports`, so importing it fails the build. The highlight is therefore gone for now — recorded in the
+ * ticket alongside the heading permalinks, since the Eleventy site's `outline.js` did the same job and is
+ * the thing to port when either is picked up.
+ *
+ * Depth uses the same `data-nested` attribute as the navigation, so both indent from one rule.
+ */
+const { toc } = Astro.locals.starlightRoute;
+
+/** Flattens the two levels Starlight supplies, tagging each with its depth. */
+const items = (toc?.items ?? []).flatMap((item) => [
+  { depth: 0, slug: item.slug, text: item.text },
+  ...(item.children ?? []).map((child) => ({ depth: 1, slug: child.slug, text: child.text })),
+]);
+---
+
+{
+  items.length > 0 && (
+    <nav aria-labelledby="starlight__on-this-page" class="docs-nav cs-stack">
+      <h2 id="starlight__on-this-page">{Astro.locals.t('tableOfContents.onThisPage')}</h2>
+      <ul class="cs-stack cs-gap-xs">
+        {items.map((item) => (
+          <li>
+            <a
+              href={`#${item.slug}`}
+              class="cs-link-plain"
+              {...(item.depth ? { 'data-nested': String(item.depth) } : {})}
+            >
+              {item.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
