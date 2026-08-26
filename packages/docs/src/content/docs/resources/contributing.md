@@ -38,14 +38,11 @@ decision first.
 
 ### Branches
 
-`cornerstone` — the working branch. Everything is merged into it, and it is what you branch from.
+`main` — the only long-lived branch, and what you branch from. It is protected: changes land through a
+pull request with a review, and Terraform declares the rules.
 
-`next` — upstream's branch, left exactly where the fork was taken (`63f2b66`) and never advanced. It is a
-marker rather than a place to work: `scripts/check-provenance.js` uses that commit to decide whether a line
-of code is upstream's or ours. Do not commit to it.
-
-There is no `current` branch, and no release branch — versioning and release are not settled yet.
-
+Work on a short-lived branch off `main` and open a pull request. There is no release branch — releases
+are cut by changesets from `main`.
 
 ## Documentation
 

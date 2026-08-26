@@ -32,7 +32,7 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
       - run: npm ci
-      - run: npm run validate
+      - run: npm run validate --workspace @cruglobal/cornerstone-design-system
 
   build:
     name: Build tokens
@@ -45,7 +45,9 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
       - run: npm ci
-      - run: npm run build
+      # Tokens only. The component build runs inside `verify-components`, and running the
+      # root build here would do it twice per PR.
+      - run: npm run build --workspace @cruglobal/cornerstone-design-system
 
   verify-components:
     name: Verify components

@@ -71,7 +71,9 @@ const files = globbySync(
     `${root}/scripts/design-skill/**/*.md`,
     `${root}/README.md`,
   ],
-  { ignore: [`${root}/build-tools/site-url.js`, `${root}/scripts/check-docs-url.js`] },
+  {
+    ignore: [`${root}/build-tools/site-url.js`, `${root}/scripts/check-docs-url.js`],
+  },
 );
 
 for (const file of files) {

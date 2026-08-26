@@ -16,7 +16,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "verify": "npm run verify --workspaces --if-present",
     "changeset": "changeset",
-    "version": "changeset version && npm install --package-lock-only",
+    "version": "changeset version && npm install --package-lock-only && npm run build",
     "release": "changeset publish"
   },
   "devDependencies": {

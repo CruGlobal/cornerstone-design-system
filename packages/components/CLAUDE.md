@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Cornerstone — Cru-internal Lit-based web component library (`@cruglobal/cornerstone-components`). A single-package repo, and a hard fork of Web Awesome taken over deliberately rather than adopted.
+Cornerstone — Cru-internal Lit-based web component library (`@cruglobal/cornerstone-components`). One package in the `cornerstone-design-system` workspace, alongside `packages/tokens`, `packages/docs` and `packages/build-tools`. A hard fork of Web Awesome taken over deliberately rather than adopted. The repo root has its own `CLAUDE.md` for workspace-wide concerns.
 
 ## Commands
 
@@ -51,7 +51,7 @@ Instantiate in the class body (not constructor):
 
 ## Code Conventions
 
-The published [contributing guide](docs-site/src/content/docs/resources/contributing.md) is the canonical convention doc (component structure, BEM class names, `with-*`/`without-*` boolean props, event naming). The rules below are the mechanical ones most often gotten wrong:
+The published [contributing guide](../docs/src/content/docs/resources/contributing.md) is the canonical convention doc (component structure, BEM class names, `with-*`/`without-*` boolean props, event naming). The rules below are the mechanical ones most often gotten wrong:
 
 - Event handler parameters are named `event`, not `e`. Read from it directly (`event.key`, `event.target`, `event.preventDefault()`).
 - Event handlers are named `handle<Subject>` (`handleInput`, `handleClearClick`), not `onX`.
@@ -97,7 +97,7 @@ Missing tags will cause missing documentation and incomplete CEM output.
 - **Spies/stubs**: Sinon. **Async helpers**: `aTimeout(ms)`, `waitUntil(() => condition)`.
 - **Run single component**: `npm run test:component -- --watch --group <name>` (group = component name without `cs-` prefix).
 - **Stop `npm start` before `npm run build` or the full suite.** Both write `dist/`, so a concurrent build reads a half-written file and a concurrent test run times out.
-- **A component change does not reach the tests until you build.** `web-test-runner.config.js`'s `testRunnerHtml` imports every component from `/dist/bundled/`; esbuild compiles only the `.test.ts` file from source. So editing a component and re-running its group tests the *previous* build — silently, with no error. Run `npm run build` first, or use `npm run verify`, which builds before testing. Editing only the test file needs no build.
+- **A component change does not reach the tests until you build.** `web-test-runner.config.js`'s `testRunnerHtml` imports every component from `/dist/bundled/`; esbuild compiles only the `.test.ts` file from source. So editing a component and re-running its group tests the _previous_ build — silently, with no error. Run `npm run build` first, or use `npm run verify`, which builds before testing. Editing only the test file needs no build.
 - **A mass failure is usually load, not a regression.** The runner fills the machine on purpose, so a busy one crosses the 3000ms timeout and cascades — dozens of failures concentrated in one heavy component on one engine, all passing in isolation. Two causes seen: a watcher running alongside, and simply a loaded machine. Confirm with **`WTR_CONCURRENCY=1 npm test`**, which is serial, ~2.4× slower, and reliable — `--concurrency` is a no-op, see the comment in `web-test-runner.config.js`. Only failures that survive that are real.
 - **Read the totals, not just the failure count — WebKit drops tests without failing them.** A distinct problem from the one above, and **serial running does not fix it**: near the end of a full run WebKit stops being able to open pages at all, reporting `The browser was unable to create and start a test page after 30000ms` / `page.goto: Timeout 30000ms exceeded`. Those are session-start errors, not assertions, so they are counted **nowhere** — the summary reads `0 failed` while WebKit's passed total sits ~400 short of Chromium's and `web-test-runner` exits 1 with a bare "Error while running tests." Reproduced twice serially: 7 sessions lost, always the tail of the alphabet (`tooltip`, `tree`, `tree-item`, `zoomable-frame`), all 266 of their tests passing when run as single groups. So compare the three engines' passed counts against each other before believing a green run, and treat an exit-1-with-0-failures as this until proven otherwise. Not yet diagnosed or ticketed; `browserStartTimeout` is the first knob to try.
 
@@ -110,7 +110,7 @@ Custom esbuild-based build (`scripts/build.js`). Generates:
 - Custom Elements Manifest (`custom-elements.json`)
 - React wrappers (`src/react/`)
 - Agent skills (`dist/unbundled/skills/cornerstone/`, `.../cornerstone-design/`) and `llms.txt` — AI-ready
-  docs. Generated from `docs-site/src/content/docs/` plus the CEM, so the skill and the site cannot
+  docs. Generated from `../docs/src/content/docs/` plus the CEM, so the skill and the site cannot
   disagree. Also copied to `dist/bundled/skills/` and `.claude/skills/` (gitignored) so agents working
   in this repo load exactly what the package publishes.
 
@@ -123,7 +123,7 @@ Import specifiers do not contain `dist`: it is a container for the two builds, n
 - `src/styles/` — Shared styles, themes, color palettes, CSS utilities
 - `src/events/` — Custom event class definitions
 - `src/translations/` — i18n message files (30+ locales)
-- `docs-site/` — Documentation site (Astro + Starlight). `src/content/docs/` is the page source, and the
+- `packages/docs/` (a sibling package) — Documentation site (Astro + Starlight). `src/content/docs/` is the page source, and the
   agent skills and `llms.txt` are generated from it.
 
 ## Common Tasks
@@ -134,5 +134,5 @@ Import specifiers do not contain `dist`: it is a container for the two builds, n
 - **Add a CSS part**: Add `part="name"` to element in `render()`, add `@csspart name` JSDoc tag.
 - **Add a custom event**: Create event class in `src/events/`, dispatch with `this.dispatchEvent(new CsEventClass())`, add `@event cs-event-name` JSDoc tag.
 - **Add a test**: Import `{ fixtures }` from `src/internal/test/fixture.js`, loop `for (const fixture of fixtures)`, use `await fixture<Type>(html`...`)`.
-- **Doc page**: Create `docs-site/src/content/docs/components/name.md` with front matter (`title`, `description`, `category`). Use ` ```html {.example} ` for live code blocks. The API reference is appended from the CEM by `remark-component-api`, so don't hand-write it.
-- **Update the changelog**: Add entries to the "Unreleased" section in `docs-site/src/content/docs/resources/changelog.md`. Create the section if it doesn't exist. Group entries under `:::added`, `:::fixed`, `:::changed`, `:::deprecated`, `:::removed`, `:::breaking` containers in that order; omit any category with no entries. **Keep entries clear and succinct** — announce what changed at a glance, trim redundant prose, and nest closely related additions as sub-bullets so the parent reads as a topic and children carry the detail.
+- **Doc page**: Create `../docs/src/content/docs/components/name.md` with front matter (`title`, `description`, `category`). Use ` ```html {.example} ` for live code blocks. The API reference is appended from the CEM by `remark-component-api`, so don't hand-write it.
+- **Update the changelog**: Add entries to the "Unreleased" section in `../docs/src/content/docs/resources/changelog.md`. Create the section if it doesn't exist. Group entries under `:::added`, `:::fixed`, `:::changed`, `:::deprecated`, `:::removed`, `:::breaking` containers in that order; omit any category with no entries. **Keep entries clear and succinct** — announce what changed at a glance, trim redundant prose, and nest closely related additions as sub-bullets so the parent reads as a topic and children carry the detail.

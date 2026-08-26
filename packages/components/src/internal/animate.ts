@@ -14,11 +14,6 @@ export function animateWithClass(el: Element, className: string) {
     const controller = new AbortController();
     const { signal } = controller;
 
-    // Already animating with this class. The caller awaits this promise, so it has to settle —
-    // returning bare left it pending forever, stalling anything that waits on an animation before
-    // doing its real work. `cs-toast-item.startTimer()` is the sharp example: it awaits the show
-    // animation and only then starts its countdown, so a stalled promise means a toast that never
-    // auto-dismisses.
     if (el.classList.contains(className)) {
       resolve();
       return;

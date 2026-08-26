@@ -24,8 +24,9 @@ Modifications
 
 The Web Awesome namespace has been renamed throughout: `wa-` element, class, cascade-layer and
 event names to `cs-`; `--wa-` custom properties to `--cs-`; exported `Wa*` classes to `Cs*`; and
-the package to `@cruglobal/cornerstone-components`. Further changes are recorded in the git
-history of the `cornerstone` branch.
+the package to `@cruglobal/cornerstone-components`. The fork's own commits are not in this
+repository's history: the library was imported as a single commit. They are kept on the
+`archive/fork-history` branch.
 
 Excluded from this fork
 -----------------------

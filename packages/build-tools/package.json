@@ -6,6 +6,7 @@
   "type": "module",
   "exports": {
     "./site-url.js": "./site-url.js",
-    "./component-api.js": "./component-api.js"
+    "./component-api.js": "./component-api.js",
+    "./workspace.js": "./workspace.js"
   }
 }

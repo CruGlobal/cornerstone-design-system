@@ -1,9 +1,10 @@
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { asset } from '@cruglobal/cornerstone-build-tools/site-url.js';
-import { visit } from 'unist-util-visit';
-import { palettes as paletteList, themes, tints } from '../themer.js';
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { componentsDir } from "@cruglobal/cornerstone-build-tools/workspace.js";
+import { asset } from "@cruglobal/cornerstone-build-tools/site-url.js";
+import { visit } from "unist-util-visit";
+import { palettes as paletteList, themes, tints } from "../themer.js";
 
 /**
  * The Color Palettes and Built-in Themes pages, generated from the themer data.
@@ -40,16 +41,19 @@ import { palettes as paletteList, themes, tints } from '../themer.js';
  *     two ways that are actually true here.
  */
 
-// The components package, which owns the stylesheets this plugin reads. Named rather than counted
-// in `dirname` calls: it is a sibling package in the workspace, not an ancestor of this file.
-const repoRoot = join(dirname(dirname(dirname(dirname(fileURLToPath(import.meta.url))))), 'components');
-const paletteDir = join(repoRoot, 'src', 'styles', 'color', 'palettes');
-const variantDir = join(repoRoot, 'src', 'styles', 'color', 'variants');
-const themeDir = join(repoRoot, 'src', 'styles', 'themes');
+// The components package owns the stylesheets this plugin reads.
+const componentsRoot = componentsDir();
+const paletteDir = join(componentsRoot, "src", "styles", "color", "palettes");
+const variantDir = join(componentsRoot, "src", "styles", "color", "variants");
+const themeDir = join(componentsRoot, "src", "styles", "themes");
 
-const stripExtension = (filename) => filename.replace(/\.css$/, '');
+const stripExtension = (filename) => filename.replace(/\.css$/, "");
 const slugOf = (name) => name.toLowerCase();
-const escape = (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const escape = (value) =>
+  String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/"/g, "&quot;");
 
 /**
  * What a palette stylesheet actually defines, read from the stylesheet rather than assumed.
@@ -66,22 +70,38 @@ const escape = (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&l
  */
 function readPalette(palette) {
   const slug = slugOf(palette.name);
-  const css = readFileSync(join(paletteDir, palette.filename), 'utf-8');
+  const css = readFileSync(join(paletteDir, palette.filename), "utf-8");
   // The 95 step exists for every hue in every palette, so it is the cheapest way to enumerate the hues —
   // and a Set keeps the file's own order, which is the order the palette was generated in. The hue pattern
   // allows a hyphen: Cru names one `olive-drab`, and a letters-only pattern dropped that scale silently.
-  const hues = [...new Set([...css.matchAll(/--cs-color-([a-z-]+)-95:/g)].map((match) => match[1]))];
+  const hues = [
+    ...new Set(
+      [...css.matchAll(/--cs-color-([a-z-]+)-95:/g)].map((match) => match[1])
+    ),
+  ];
   // `--cs-color-{hue}-key` names the step the bare `--cs-color-{hue}` token resolves to. Every palette
   // declares one per hue; in the Cru palette it is the step the generator wrote the brand colour into.
   const keys = Object.fromEntries(
-    [...css.matchAll(/--cs-color-([a-z-]+)-key:\s*(\d+)/g)].map((match) => [match[1], match[2]]),
+    [...css.matchAll(/--cs-color-([a-z-]+)-key:\s*(\d+)/g)].map((match) => [
+      match[1],
+      match[2],
+    ])
   );
   // Each step's literal value, so a swatch can name the colour it is as well as the token it comes from.
   const values = Object.fromEntries(
-    [...css.matchAll(/--cs-color-([a-z-]+-\d{2}):\s*(#[0-9a-f]{3,8})/gi)].map((match) => [match[1], match[2]]),
+    [...css.matchAll(/--cs-color-([a-z-]+-\d{2}):\s*(#[0-9a-f]{3,8})/gi)].map(
+      (match) => [match[1], match[2]]
+    )
   );
 
-  return { ...palette, slug, hues, keys, values, scoped: css.includes(`.cs-palette-${slug}`) };
+  return {
+    ...palette,
+    slug,
+    hues,
+    keys,
+    values,
+    scoped: css.includes(`.cs-palette-${slug}`),
+  };
 }
 
 /** Every palette, with what its stylesheet defines. Exported so the page gate counts the same things. */
@@ -95,7 +115,8 @@ export const palettes = paletteList.map(readPalette);
  * choose between. The Awesome and Shoelace themes, and the two palettes they carried, are gone: the theming
  * decision ruled them products rather than capabilities.
  */
-export const brandPalette = palettes.find((palette) => !palette.scoped) ?? palettes[0];
+export const brandPalette =
+  palettes.find((palette) => !palette.scoped) ?? palettes[0];
 
 /**
  * The semantic variants, and which hue each is by default.
@@ -114,14 +135,16 @@ export const brandPalette = palettes.find((palette) => !palette.scoped) ?? palet
  * rather than a component variant, and the matrix leaves it out.
  */
 function readVariants() {
-  const css = readFileSync(join(variantDir, brandPalette.filename), 'utf-8');
-  const theme = readFileSync(join(themeDir, brandPalette.filename), 'utf-8');
+  const css = readFileSync(join(variantDir, brandPalette.filename), "utf-8");
+  const theme = readFileSync(join(themeDir, brandPalette.filename), "utf-8");
 
-  return [...css.matchAll(/\/\* ([a-z]+) — defaults to ([a-z-]+) \*\//g)].map((match) => ({
-    name: match[1],
-    hue: match[2],
-    attention: theme.includes(`--cs-color-${match[1]}-fill-quiet:`),
-  }));
+  return [...css.matchAll(/\/\* ([a-z]+) — defaults to ([a-z-]+) \*\//g)].map(
+    (match) => ({
+      name: match[1],
+      hue: match[2],
+      attention: theme.includes(`--cs-color-${match[1]}-fill-quiet:`),
+    })
+  );
 }
 
 export const variants = readVariants();
@@ -134,10 +157,13 @@ export const variants = readVariants();
  * and Default is the opt-in unbranded reference rather than the base every theme layers over.
  */
 export const brandTheme =
-  themes.find((theme) => stripExtension(theme.palette.filename) === brandPalette.slug) ?? themes[0];
+  themes.find(
+    (theme) => stripExtension(theme.palette.filename) === brandPalette.slug
+  ) ?? themes[0];
 
 /** `red` → `Red`, for a hue's label. */
-const titleCase = (value) => value.replace(/^./, (character) => character.toUpperCase());
+const titleCase = (value) =>
+  value.replace(/^./, (character) => character.toUpperCase());
 
 /**
  * One tint, as a copy button whose whole square is the trigger.
@@ -155,16 +181,22 @@ const titleCase = (value) => value.replace(/^./, (character) => character.toUppe
 const swatch = (hue, tint, isKey, value) => {
   const token = `--cs-color-${hue}-${tint}`;
   // The emphasis is the library's own utilities rather than a rule of this site's.
-  const emphasis = isKey ? 'cs-font-weight-bold' : 'cs-color-text-quiet';
-  const label = [`var(${token})`, value, isKey && 'key step'].filter(Boolean).join(' · ');
+  const emphasis = isKey ? "cs-font-weight-bold" : "cs-color-text-quiet";
+  const label = [`var(${token})`, value, isKey && "key step"]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     `<div class="cs-stack cs-gap-3xs" data-tint="${tint}">` +
-    `<cs-copy-button class="palette-swatch" value="var(${token})" copy-label="${escape(label)}">` +
+    `<cs-copy-button class="palette-swatch" value="var(${token})" copy-label="${escape(
+      label
+    )}">` +
     `<button class="palette-swatch-button" style="background: var(${token})"></button>` +
     `</cs-copy-button>` +
     `<span class="palette-tint cs-font-size-xs cs-text-center ${emphasis}">${tint}` +
-    `<span class="cs-visually-hidden" data-key-note${isKey ? '' : ' hidden'}>, the key step</span>` +
+    `<span class="cs-visually-hidden" data-key-note${
+      isKey ? "" : " hidden"
+    }>, the key step</span>` +
     `</span>` +
     `</div>`
   );
@@ -178,7 +210,9 @@ const scale = (hue, key, values = {}) =>
   `<code class="cs-font-size-xs">--cs-color-${hue}-*</code>` +
   `</div>` +
   `<div class="palette-swatches cs-grid cs-gap-3xs">` +
-  `${tints.map((tint) => swatch(hue, tint, tint === key, values[`${hue}-${tint}`])).join('')}</div>` +
+  `${tints
+    .map((tint) => swatch(hue, tint, tint === key, values[`${hue}-${tint}`]))
+    .join("")}</div>` +
   `</div>`;
 
 /**
@@ -187,7 +221,7 @@ const scale = (hue, key, values = {}) =>
  */
 const viewer = (hues, keys = {}, values = {}) =>
   `<div class="palette-viewer cs-stack cs-gap-l cs-not-prose">` +
-  `${hues.map((hue) => scale(hue, keys[hue], values)).join('')}</div>`;
+  `${hues.map((hue) => scale(hue, keys[hue], values)).join("")}</div>`;
 
 /**
  * The design-token tables on the Color tokens page.
@@ -200,13 +234,16 @@ const viewer = (hues, keys = {}, values = {}) =>
  * The markup matches the page's other tables: `cs-scroller` around `table.token-table.cs-hover-rows`, token
  * names in `.token-name`, previews in `.swatch`. Only the rows are generated.
  */
-const table = (headings, rows, headingClass = '') =>
+const table = (headings, rows, headingClass = "") =>
   `<cs-scroller><table class="token-table cs-hover-rows">` +
-  `<thead><tr>${headings.map((heading) => `<th${headingClass}>${heading}</th>`).join('')}</tr></thead>` +
-  `<tbody>${rows.join('')}</tbody>` +
+  `<thead><tr>${headings
+    .map((heading) => `<th${headingClass}>${heading}</th>`)
+    .join("")}</tr></thead>` +
+  `<tbody>${rows.join("")}</tbody>` +
   `</table></cs-scroller>`;
 
-const tokenCell = (token) => `<td class="token-name"><code>--cs-color-${token}</code></td>`;
+const tokenCell = (token) =>
+  `<td class="token-name"><code>--cs-color-${token}</code></td>`;
 
 /** A core colour and its on colour, previewed as text on the fill. */
 const corePreview = (name) =>
@@ -215,21 +252,26 @@ const corePreview = (name) =>
 /** Every hue's core colour, key step and on colour. */
 const coreColors = () =>
   table(
-    ['Core Color', 'Key', 'On Color', 'Preview'],
+    ["Core Color", "Key", "On Color", "Preview"],
     brandPalette.hues.map(
-      (hue) => `<tr>${tokenCell(hue)}${tokenCell(`${hue}-key`)}${tokenCell(`${hue}-on`)}${corePreview(hue)}</tr>`,
-    ),
+      (hue) =>
+        `<tr>${tokenCell(hue)}${tokenCell(`${hue}-key`)}${tokenCell(
+          `${hue}-on`
+        )}${corePreview(hue)}</tr>`
+    )
   );
 
 /** Every variant's core colour and on colour, and the hue it aliases. */
 const variantColors = () =>
   table(
-    ['Core Color', 'On Color', 'Default Hue', 'Preview'],
+    ["Core Color", "On Color", "Default Hue", "Preview"],
     variants.map(
       (variant) =>
         `<tr>${tokenCell(variant.name)}${tokenCell(`${variant.name}-on`)}` +
-        `<td class="token-name"><code>${variant.hue}</code></td>${corePreview(variant.name)}</tr>`,
-    ),
+        `<td class="token-name"><code>${variant.hue}</code></td>${corePreview(
+          variant.name
+        )}</tr>`
+    )
   );
 
 /**
@@ -242,18 +284,22 @@ const variantMatrix = () => {
   const columns = variants.filter((variant) => variant.attention);
   const rows = [];
 
-  for (const type of ['fill', 'border', 'on']) {
-    for (const attention of ['quiet', 'normal', 'loud']) {
+  for (const type of ["fill", "border", "on"]) {
+    for (const attention of ["quiet", "normal", "loud"]) {
       const cells = columns.map((variant) =>
-        type === 'border'
+        type === "border"
           ? `<td><div class="swatch" style="border-color: var(--cs-color-${variant.name}-border-${attention})"></div></td>`
           : `<td><div class="swatch" style="background-color: var(--cs-color-${variant.name}-fill-${attention}); ` +
-            `color: var(--cs-color-${variant.name}-on-${attention})">${type === 'on' ? 'Aa' : ''}</div></td>`,
+            `color: var(--cs-color-${variant.name}-on-${attention})">${
+              type === "on" ? "Aa" : ""
+            }</div></td>`
       );
 
       rows.push(
         `<tr id="token-color-${type}-${attention}">` +
-          `<td class="token-name"><code>--cs-color-*-${type}-${attention}</code></td>${cells.join('')}</tr>`,
+          `<td class="token-name"><code>--cs-color-*-${type}-${attention}</code></td>${cells.join(
+            ""
+          )}</tr>`
       );
     }
   }
@@ -262,9 +308,12 @@ const variantMatrix = () => {
   // from had, and at that width `information` and `highlight` were breaking mid-word. `.token-name` is the
   // rule that already says "do not wrap a token", so the headings borrow it rather than adding a second.
   return table(
-    ['Custom Property', ...columns.map((variant) => `<code>${variant.name}</code>`)],
+    [
+      "Custom Property",
+      ...columns.map((variant) => `<code>${variant.name}</code>`),
+    ],
     rows,
-    ' class="token-name"',
+    ' class="token-name"'
   );
 };
 
@@ -283,8 +332,14 @@ const variantMatrix = () => {
  */
 function colorPalette() {
   return (
-    `<link rel="stylesheet" href="${asset(`/dist/styles/color/palettes/${brandPalette.filename}`)}" />` +
-    `<div class="theming-preview">${viewer(brandPalette.hues, brandPalette.keys, brandPalette.values)}</div>`
+    `<link rel="stylesheet" href="${asset(
+      `/dist/styles/color/palettes/${brandPalette.filename}`
+    )}" />` +
+    `<div class="theming-preview">${viewer(
+      brandPalette.hues,
+      brandPalette.keys,
+      brandPalette.values
+    )}</div>`
   );
 }
 
@@ -301,10 +356,11 @@ function colorPalette() {
  */
 function themePreview() {
   const query =
-    `theme=${stripExtension(brandTheme.filename)}&palette=${stripExtension(brandTheme.palette.filename)}` +
-    `&color-brand=${brandTheme.colorBrand.color}`;
+    `theme=${stripExtension(brandTheme.filename)}&palette=${stripExtension(
+      brandTheme.palette.filename
+    )}` + `&color-brand=${brandTheme.colorBrand.color}`;
 
-  const frame = (slot, extra = '') =>
+  const frame = (slot, extra = "") =>
     `<cs-zoomable-frame slot="${slot}" src="/examples/themes/showcase?${query}${extra}" zoom="0.65"` +
     ` without-controls without-interaction></cs-zoomable-frame>`;
 
@@ -312,10 +368,12 @@ function themePreview() {
     `<div class="theming-preview cs-stack cs-not-prose">` +
     `<header class="cs-stack cs-gap-2xs">` +
     `<div class="cs-heading-m">${escape(brandTheme.name)}</div>` +
-    `<p class="cs-font-size-s cs-color-text-quiet">${escape(brandTheme.description)}</p>` +
+    `<p class="cs-font-size-s cs-color-text-quiet">${escape(
+      brandTheme.description
+    )}</p>` +
     `</header>` +
     `<cs-comparison class="theme-comparison" position="80">` +
-    `${frame('before', '&color-scheme=dark')}${frame('after')}` +
+    `${frame("before", "&color-scheme=dark")}${frame("after")}` +
     `</cs-comparison>` +
     `</div>`
   );
@@ -333,41 +391,49 @@ function instructions({ importPath, htmlClass, subject }) {
   // The Cru palette scopes nothing: importing it is the whole instruction, and telling a reader to add
   // `cs-palette-cru` would be telling them to add a class that matches no rule in the stylesheet.
   const applyClass = htmlClass
-    ? ['Then apply the following class to the `<html>` element:', '', '```html', `<html class="${htmlClass}">`, '```']
-    : [`Importing it is all that is needed — this ${subject} applies at the document root rather than under a class.`];
+    ? [
+        "Then apply the following class to the `<html>` element:",
+        "",
+        "```html",
+        `<html class="${htmlClass}">`,
+        "```",
+      ]
+    : [
+        `Importing it is all that is needed — this ${subject} applies at the document root rather than under a class.`,
+      ];
 
   return [
     // The tags run without blank lines between them on purpose. A line holding only a tag is passed
     // through as raw HTML, but `<cs-tab panel="npm">npm</cs-tab>` has content on it, so alone it parses as
     // a paragraph — and `cs-tab-group` then finds a `<p>` where it expects its tabs. Keeping the run in one
     // block hands the lot through untouched; only the panel bodies are left as markdown.
-    '<cs-tab-group>',
+    "<cs-tab-group>",
     '<cs-tab panel="npm">npm</cs-tab>',
     '<cs-tab panel="self-hosted">Self-Hosted</cs-tab>',
     '<cs-tab-panel name="npm">',
-    '',
+    "",
     `After installing \`@cruglobal/cornerstone-components\`, import the ${subject}'s stylesheet:`,
-    '',
-    '```js',
+    "",
+    "```js",
     `import '@cruglobal/cornerstone-components/${importPath}';`,
-    '```',
-    '',
+    "```",
+    "",
     ...applyClass,
-    '',
-    '</cs-tab-panel>',
+    "",
+    "</cs-tab-panel>",
     '<cs-tab-panel name="self-hosted">',
-    '',
+    "",
     `If you are self-hosting Cornerstone, include the ${subject}'s stylesheet from your server:`,
-    '',
-    '```html',
+    "",
+    "```html",
     `<link rel="stylesheet" href="${asset(`/dist/${importPath}`)}" />`,
-    '```',
-    '',
+    "```",
+    "",
     ...applyClass,
-    '',
-    '</cs-tab-panel>',
-    '</cs-tab-group>',
-  ].join('\n');
+    "",
+    "</cs-tab-panel>",
+    "</cs-tab-group>",
+  ].join("\n");
 }
 
 /** The brand palette's install instructions. */
@@ -375,7 +441,7 @@ const paletteInstall = () =>
   instructions({
     importPath: `styles/color/palettes/${brandPalette.filename}`,
     htmlClass: brandPalette.scoped ? `cs-palette-${brandPalette.slug}` : null,
-    subject: 'palette',
+    subject: "palette",
   });
 
 /**
@@ -388,7 +454,7 @@ const paletteInstall = () =>
 const themeInstall = () => {
   const name = stripExtension(brandTheme.filename);
   const palette = stripExtension(brandTheme.palette.filename);
-  const css = readFileSync(join(themeDir, brandTheme.filename), 'utf-8');
+  const css = readFileSync(join(themeDir, brandTheme.filename), "utf-8");
 
   // Three classes or none, and which it is comes from the stylesheet rather than from an assumption. A
   // theme that leads its blocks with `:where(:root)` *is* the document's theme, and so are the palette and
@@ -399,26 +465,28 @@ const themeInstall = () => {
   // defines nowhere, since it puts its values on `:where(:root), :host`. That is the exact mistake the
   // comment in `instructions` warns against; `paletteInstall` passes its `scoped` flag and was right, and
   // only this caller bypassed the guard by building the string itself.
-  const scoped = !css.includes(':where(:root)');
+  const scoped = !css.includes(":where(:root)");
 
   return instructions({
     importPath: `styles/themes/${brandTheme.filename}`,
-    htmlClass: scoped ? `cs-theme-${name} cs-palette-${palette} cs-brand-${brandTheme.colorBrand.color}` : null,
-    subject: 'theme',
+    htmlClass: scoped
+      ? `cs-theme-${name} cs-palette-${palette} cs-brand-${brandTheme.colorBrand.color}`
+      : null,
+    subject: "theme",
   });
 };
 
 /** Directives whose output is HTML, keyed by directive name. */
 const HTML_DIRECTIVES = {
-  'color-palette': colorPalette,
-  'core-colors': coreColors,
-  'variant-colors': variantColors,
-  'variant-matrix': variantMatrix,
-  'theme-preview': themePreview,
+  "color-palette": colorPalette,
+  "core-colors": coreColors,
+  "variant-colors": variantColors,
+  "variant-matrix": variantMatrix,
+  "theme-preview": themePreview,
   // A grid for named scales rather than the palette's own: the Color tokens page uses it for the variant
   // scales, which are aliases and so have no entry in the palette stylesheet. With no `scales` it falls back to
   // the brand palette's hues and its key steps.
-  'color-scales': (node) => {
+  "color-scales": (node) => {
     const scales = node.attributes?.scales;
 
     return scales
@@ -429,8 +497,8 @@ const HTML_DIRECTIVES = {
 
 /** Directives whose output is markdown, keyed by directive name. */
 const MARKDOWN_DIRECTIVES = {
-  'palette-install': paletteInstall,
-  'theme-install': themeInstall,
+  "palette-install": paletteInstall,
+  "theme-install": themeInstall,
 };
 
 export function remarkTheming() {
@@ -438,7 +506,7 @@ export function remarkTheming() {
   const processor = this;
 
   return (tree) => {
-    visit(tree, 'leafDirective', (node, index, parent) => {
+    visit(tree, "leafDirective", (node, index, parent) => {
       if (index === undefined) {
         return;
       }
@@ -446,7 +514,7 @@ export function remarkTheming() {
       const html = HTML_DIRECTIVES[node.name];
 
       if (html) {
-        parent.children.splice(index, 1, { type: 'html', value: html(node) });
+        parent.children.splice(index, 1, { type: "html", value: html(node) });
         return index + 1;
       }
 

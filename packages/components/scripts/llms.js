@@ -82,7 +82,9 @@ function generateComponentApiSection(component, frontMatterCache, baseUrl) {
       const meta = [typeStr, defaultStr].filter(Boolean).join(', ');
 
       lines.push(
-        `- \`${prop.name}\`${attrNote}: ${removeNewlines(prop.description) || 'No description.'}${meta ? ` (${meta})` : ''}`,
+        `- \`${prop.name}\`${attrNote}: ${
+          removeNewlines(prop.description) || 'No description.'
+        }${meta ? ` (${meta})` : ''}`,
       );
     }
     lines.push('');

@@ -57,7 +57,10 @@ async function waitForServer() {
 async function getComponentUrls(options = {}) {
   const docsDir = options.docsDir || getDocsDir();
 
-  const files = await globby('src/content/docs/components/*.md', { cwd: docsDir, absolute: false });
+  const files = await globby('src/content/docs/components/*.md', {
+    cwd: docsDir,
+    absolute: false,
+  });
   return files
     .map((file) => basename(file, '.md'))
     .sort()
@@ -130,7 +133,10 @@ async function checkUrl(context, url) {
 
       if (response && !response.ok()) {
         console.log(`⚠️  ${label} — HTTP ${response.status()}`);
-        return { url: label, errors: [{ tagName: '(http)', message: `HTTP ${response.status()}` }] };
+        return {
+          url: label,
+          errors: [{ tagName: '(http)', message: `HTTP ${response.status()}` }],
+        };
       }
 
       await waitForComponentsLoaded(page);
@@ -155,15 +161,17 @@ async function checkUrl(context, url) {
     return null;
   } catch (error) {
     console.log(`❌ ${label} — navigation failed: ${error.message}`);
-    return { url: label, errors: [{ tagName: '(navigation)', message: error.message }] };
+    return {
+      url: label,
+      errors: [{ tagName: '(navigation)', message: error.message }],
+    };
   } finally {
     await page.close();
   }
 }
 
 export async function check(options = {}) {
-  const { rootDir } = options;
-  const urls = await getComponentUrls({ rootDir });
+  const urls = await getComponentUrls(options);
   console.log(`Waiting for dev server at ${BASE_URL} ...`);
   await waitForServer();
   console.log(`Checking ${urls.length} pages, ${CONCURRENCY} at a time, against ${BASE_URL}\n`);
@@ -193,7 +201,10 @@ export async function check(options = {}) {
     // rejection. Catch it in-page so we don't depend on Playwright mapping
     // microtask rejections to 'pageerror'.
     const record = (message, tag) =>
-      window.__hydrationErrors.push({ tagName: tag, message: message || '(no message)' });
+      window.__hydrationErrors.push({
+        tagName: tag,
+        message: message || '(no message)',
+      });
     window.addEventListener('error', (e) => record(e.message, '(window.error)'));
     window.addEventListener('unhandledrejection', (e) => {
       const r = e.reason;

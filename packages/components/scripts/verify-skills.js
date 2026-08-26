@@ -417,7 +417,10 @@ for (const file of filesToScan) {
       const resolved = path.resolve(path.dirname(file), pathPart);
       if (!fs.existsSync(resolved)) {
         errors.push(
-          `${path.relative(PACKAGE_ROOT, file)}:${idx + 1}: broken link to '${href}' (resolved to ${path.relative(PACKAGE_ROOT, resolved)})`,
+          `${path.relative(PACKAGE_ROOT, file)}:${idx + 1}: broken link to '${href}' (resolved to ${path.relative(
+            PACKAGE_ROOT,
+            resolved,
+          )})`,
         );
       }
     }
@@ -445,7 +448,10 @@ const BUILT_SKILLS_DIR = path.join(PACKAGE_ROOT, 'dist', 'unbundled', 'skills');
 const builtFilesToScan = fs.existsSync(BUILT_SKILLS_DIR) ? [...walkMarkdown(BUILT_SKILLS_DIR)] : [];
 if (builtFilesToScan.length === 0) {
   warnings.push(
-    `no built skill found at ${path.relative(PACKAGE_ROOT, BUILT_SKILLS_DIR)} — run \`npm run build\` to check the generated half`,
+    `no built skill found at ${path.relative(
+      PACKAGE_ROOT,
+      BUILT_SKILLS_DIR,
+    )} — run \`npm run build\` to check the generated half`,
   );
 }
 

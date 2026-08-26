@@ -28,12 +28,19 @@ const dryRun = process.argv.includes('--dry-run');
 
 /** Every process, as `{ pid, ppid, command }`. */
 function processTable() {
-  const out = execFileSync('ps', ['-eo', 'pid=,ppid=,command='], { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
+  const out = execFileSync('ps', ['-eo', 'pid=,ppid=,command='], {
+    encoding: 'utf8',
+    maxBuffer: 8 * 1024 * 1024,
+  });
   const rows = new Map();
   for (const line of out.split('\n')) {
     const match = line.match(/^\s*(\d+)\s+(\d+)\s+(.*)$/);
     if (match) {
-      rows.set(Number(match[1]), { pid: Number(match[1]), ppid: Number(match[2]), command: match[3] });
+      rows.set(Number(match[1]), {
+        pid: Number(match[1]),
+        ppid: Number(match[2]),
+        command: match[3],
+      });
     }
   }
   return rows;

@@ -1,6 +1,6 @@
-import { rm, stat } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { rm, stat } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 /**
  * Deletes the Pagefind UI bundles nothing loads.
@@ -16,14 +16,18 @@ import { fileURLToPath } from 'node:url';
  * Runs as `postbuild`, because the files are build output — the binary re-emits them every time.
  */
 const ORPHANED = [
-  'pagefind-ui.css',
-  'pagefind-ui.js',
-  'pagefind-component-ui.css',
-  'pagefind-component-ui.js',
-  'pagefind-highlight.js',
+  "pagefind-ui.css",
+  "pagefind-ui.js",
+  "pagefind-component-ui.css",
+  "pagefind-component-ui.js",
+  "pagefind-highlight.js",
 ];
 
-const pagefindDir = join(dirname(dirname(fileURLToPath(import.meta.url))), 'dist', 'pagefind');
+const pagefindDir = join(
+  dirname(dirname(fileURLToPath(import.meta.url))),
+  "dist",
+  "pagefind"
+);
 
 let removed = 0;
 let bytes = 0;
@@ -37,10 +41,14 @@ for (const name of ORPHANED) {
     removed += 1;
   } catch (error) {
     // A missing file is the expected state on a second run, or if Pagefind stops emitting it.
-    if (error.code !== 'ENOENT') {
+    if (error.code !== "ENOENT") {
       throw error;
     }
   }
 }
 
-console.log(`Pruned ${removed} unreferenced Pagefind asset(s), ${(bytes / 1024).toFixed(0)} KB.`);
+console.log(
+  `Pruned ${removed} unreferenced Pagefind asset(s), ${(bytes / 1024).toFixed(
+    0
+  )} KB.`
+);

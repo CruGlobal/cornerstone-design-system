@@ -46,14 +46,14 @@
  * Run after `npm run build`. Exits non-zero listing every unresolved reference and where it is used.
  */
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { dirname, extname, join, relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { DOCS_BASE_PATH as BASE_PATH } from '@cruglobal/cornerstone-build-tools/site-url.js';
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { dirname, extname, join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+import { DOCS_BASE_PATH as BASE_PATH } from "@cruglobal/cornerstone-build-tools/site-url.js";
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
-const distDir = join(siteDir, 'dist');
-const manifestPath = join(siteDir, 'public', 'dist', 'custom-elements.json');
+const distDir = join(siteDir, "dist");
+const manifestPath = join(siteDir, "public", "dist", "custom-elements.json");
 
 /**
  * Properties registered at runtime rather than declared in CSS, so no stylesheet defines them.
@@ -61,7 +61,7 @@ const manifestPath = join(siteDir, 'public', 'dist', 'custom-elements.json');
  * `--cs-length-resolver` is `CSS.registerProperty`'d by `cs-page` to convert a non-pixel
  * `mobile-breakpoint` (page.ts:36-44). It is written and read entirely from script.
  */
-const RUNTIME_REGISTERED = new Set(['--cs-length-resolver']);
+const RUNTIME_REGISTERED = new Set(["--cs-length-resolver"]);
 
 function walk(dir) {
   const out = [];
@@ -71,7 +71,7 @@ function walk(dir) {
 
     if (entry.isDirectory()) {
       out.push(...walk(path));
-    } else if (['.css', '.html'].includes(extname(entry.name))) {
+    } else if ([".css", ".html"].includes(extname(entry.name))) {
       out.push(path);
     }
   }
@@ -79,7 +79,7 @@ function walk(dir) {
   return out;
 }
 
-const stripCssComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '');
+const stripCssComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, "");
 
 /**
  * A page with its displayed source removed.
@@ -89,7 +89,8 @@ const stripCssComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '');
  * theme — and every hue in `palettes/default.css` — look reachable, which silently masked the dead-hue
  * bug this check exists to find. Example source is prose about CSS, not CSS.
  */
-const withoutDisplayedSource = (html) => html.replace(/<pre\b[\s\S]*?<\/pre>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
+const withoutDisplayedSource = (html) =>
+  html.replace(/<pre\b[\s\S]*?<\/pre>/gi, "").replace(/<!--[\s\S]*?-->/g, "");
 
 /**
  * The CSS a browser would actually apply from one file.
@@ -98,17 +99,21 @@ const withoutDisplayedSource = (html) => html.replace(/<pre\b[\s\S]*?<\/pre>/gi,
  * attributes, with `<pre>` removed first so highlighted source does not read as applied CSS.
  */
 function applicableCss(path) {
-  const source = readFileSync(path, 'utf-8');
+  const source = readFileSync(path, "utf-8");
 
-  if (extname(path) === '.css') {
+  if (extname(path) === ".css") {
     return stripCssComments(source);
   }
 
   const html = withoutDisplayedSource(source);
-  const blocks = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((match) => match[1]);
-  const inline = [...html.matchAll(/\sstyle="([^"]*)"/gi)].map((match) => match[1].replace(/&quot;/g, '"'));
+  const blocks = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map(
+    (match) => match[1]
+  );
+  const inline = [...html.matchAll(/\sstyle="([^"]*)"/gi)].map((match) =>
+    match[1].replace(/&quot;/g, '"')
+  );
 
-  return stripCssComments([...blocks, ...inline].join('\n'));
+  return stripCssComments([...blocks, ...inline].join("\n"));
 }
 
 /** Every `--name:` declaration, which is what defines a custom property. */
@@ -136,11 +141,11 @@ function bareReferencesIn(css) {
     while (index < css.length && depth > 0) {
       const char = css[index];
 
-      if (char === '(') {
+      if (char === "(") {
         depth += 1;
-      } else if (char === ')') {
+      } else if (char === ")") {
         depth -= 1;
-      } else if (char === ',' && depth === 1) {
+      } else if (char === "," && depth === 1) {
         hasFallback = true;
         break;
       }
@@ -159,20 +164,22 @@ function bareReferencesIn(css) {
 /** The properties components define inside their own shadow roots, from the manifest. */
 function manifestProperties() {
   if (!existsSync(manifestPath)) {
-    throw new Error(`custom-elements.json not found at ${manifestPath} — run the library build first.`);
+    throw new Error(
+      `custom-elements.json not found at ${manifestPath} — run the library build first.`
+    );
   }
 
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
 
   return (manifest.modules ?? []).flatMap((module) =>
     (module.declarations ?? []).flatMap((declaration) =>
-      (declaration.cssProperties ?? []).map((property) => property.name),
-    ),
+      (declaration.cssProperties ?? []).map((property) => property.name)
+    )
   );
 }
 
 if (!existsSync(distDir)) {
-  console.error('dist/ not found — run `npm run build` first.');
+  console.error("dist/ not found — run `npm run build` first.");
   process.exit(1);
 }
 
@@ -189,13 +196,18 @@ if (!existsSync(distDir)) {
 function reachableFrom(html, cache) {
   const queue = [];
 
-  for (const [, href] of withoutDisplayedSource(html).matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/gi)) {
-    if (href.startsWith('/')) {
+  for (const [, href] of withoutDisplayedSource(html).matchAll(
+    /<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/gi
+  )) {
+    if (href.startsWith("/")) {
       // The site is served under a base path, so an href carries it and `dist/` does not. Joining the two
       // as-is resolves to `dist/<base>/dist/...`, which exists nowhere: every page then has no reachable
       // stylesheet, every page is skipped, and this check reports success having read nothing. It did
       // exactly that when the base was introduced.
-      const withoutBase = BASE_PATH && href.startsWith(`${BASE_PATH}/`) ? href.slice(BASE_PATH.length) : href;
+      const withoutBase =
+        BASE_PATH && href.startsWith(`${BASE_PATH}/`)
+          ? href.slice(BASE_PATH.length)
+          : href;
       queue.push(join(distDir, withoutBase));
     }
   }
@@ -212,11 +224,15 @@ function reachableFrom(html, cache) {
     seen.add(path);
 
     if (!cache.has(path)) {
-      cache.set(path, stripCssComments(readFileSync(path, 'utf-8')));
+      cache.set(path, stripCssComments(readFileSync(path, "utf-8")));
     }
 
-    for (const [, spec] of cache.get(path).matchAll(/@import\s+url\(\s*['"]?([^'")]+)['"]?\s*\)/gi)) {
-      queue.push(spec.startsWith('/') ? join(distDir, spec) : join(dirname(path), spec));
+    for (const [, spec] of cache
+      .get(path)
+      .matchAll(/@import\s+url\(\s*['"]?([^'")]+)['"]?\s*\)/gi)) {
+      queue.push(
+        spec.startsWith("/") ? join(distDir, spec) : join(dirname(path), spec)
+      );
     }
   }
 
@@ -229,9 +245,11 @@ function reachableFrom(html, cache) {
  * Vite bundles them into `_astro/` alongside Starlight's, where the two can no longer be told apart — so
  * their references are attributed here instead, judged against the cascade every page shares.
  */
-const ownStylesheets = readdirSync(join(siteDir, 'src', 'styles'), { withFileTypes: true })
-  .filter((entry) => entry.isFile() && extname(entry.name) === '.css')
-  .map((entry) => join(siteDir, 'src', 'styles', entry.name));
+const ownStylesheets = readdirSync(join(siteDir, "src", "styles"), {
+  withFileTypes: true,
+})
+  .filter((entry) => entry.isFile() && extname(entry.name) === ".css")
+  .map((entry) => join(siteDir, "src", "styles", entry.name));
 
 /**
  * Pages this site authors.
@@ -242,7 +260,11 @@ const ownStylesheets = readdirSync(join(siteDir, 'src', 'styles'), { withFileTyp
 const pages = walk(distDir).filter((path) => {
   const rel = relative(distDir, path);
 
-  return extname(path) === '.html' && !rel.startsWith('dist/') && !rel.startsWith('assets/');
+  return (
+    extname(path) === ".html" &&
+    !rel.startsWith("dist/") &&
+    !rel.startsWith("assets/")
+  );
 });
 
 /**
@@ -258,7 +280,7 @@ const pages = walk(distDir).filter((path) => {
  * draft will load the same stylesheets the day it ships.
  */
 function draftSources() {
-  const dir = join(siteDir, 'src', 'content', 'docs');
+  const dir = join(siteDir, "src", "content", "docs");
   const out = [];
 
   const walkMd = (current) => {
@@ -267,8 +289,8 @@ function draftSources() {
 
       if (entry.isDirectory()) {
         walkMd(path);
-      } else if (extname(entry.name) === '.md') {
-        const text = readFileSync(path, 'utf-8');
+      } else if (extname(entry.name) === ".md") {
+        const text = readFileSync(path, "utf-8");
         const frontMatter = /^---\n([\s\S]*?)\n---/.exec(text);
 
         // The whole block, not a fixed prefix: a long `description` can push `draft` past any cutoff.
@@ -286,11 +308,15 @@ function draftSources() {
 
 /** The applied CSS in a markdown source: its `<style>` blocks and inline `style` attributes. */
 function cssFromMarkdown(text) {
-  const body = withoutDisplayedSource(text.replace(/```[\s\S]*?```/g, ''));
-  const blocks = [...body.matchAll(/<style>([\s\S]*?)<\/style>/gi)].map((match) => match[1]);
-  const inline = [...body.matchAll(/\sstyle="([^"]*)"/gi)].map((match) => match[1]);
+  const body = withoutDisplayedSource(text.replace(/```[\s\S]*?```/g, ""));
+  const blocks = [...body.matchAll(/<style>([\s\S]*?)<\/style>/gi)].map(
+    (match) => match[1]
+  );
+  const inline = [...body.matchAll(/\sstyle="([^"]*)"/gi)].map(
+    (match) => match[1]
+  );
 
-  return [...blocks, ...inline].join('\n');
+  return [...blocks, ...inline].join("\n");
 }
 
 const baseline = new Set([...RUNTIME_REGISTERED, ...manifestProperties()]);
@@ -302,7 +328,7 @@ let pageCount = 0;
 let draftCount = 0;
 
 for (const path of pages) {
-  const html = readFileSync(path, 'utf-8');
+  const html = readFileSync(path, "utf-8");
   const reachable = reachableFrom(html, cssCache);
 
   /*
@@ -336,7 +362,7 @@ for (const path of pages) {
 
   for (const sheet of ownStylesheets) {
     if (!cssCache.has(sheet)) {
-      cssCache.set(sheet, stripCssComments(readFileSync(sheet, 'utf-8')));
+      cssCache.set(sheet, stripCssComments(readFileSync(sheet, "utf-8")));
     }
 
     for (const name of definitionsIn(cssCache.get(sheet))) {
@@ -391,14 +417,18 @@ for (const [path, css] of draftSources()) {
 
 if (referenced.size === 0) {
   console.log(
-    `\n${pageCount} pages and ${draftCount} draft${draftCount === 1 ? '' : 's'} checked, ` +
-      `${checked.size} distinct custom-property references, all resolve.\n`,
+    `\n${pageCount} pages and ${draftCount} draft${
+      draftCount === 1 ? "" : "s"
+    } checked, ` +
+      `${checked.size} distinct custom-property references, all resolve.\n`
   );
   process.exit(0);
 }
 
 console.error(
-  `\n${referenced.size} custom ${referenced.size === 1 ? 'property' : 'properties'} referenced but never defined:\n`,
+  `\n${referenced.size} custom ${
+    referenced.size === 1 ? "property" : "properties"
+  } referenced but never defined:\n`
 );
 
 for (const [name, paths] of [...referenced].sort()) {
@@ -415,8 +445,10 @@ for (const [name, paths] of [...referenced].sort()) {
     console.error(`      … and ${list.length - shown.length} more`);
   }
 
-  console.error('');
+  console.error("");
 }
 
-console.error('Each of these drops its whole declaration silently. Define it, or give the var() a fallback.\n');
+console.error(
+  "Each of these drops its whole declaration silently. Define it, or give the var() a fallback.\n"
+);
 process.exit(1);

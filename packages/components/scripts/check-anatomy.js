@@ -28,7 +28,10 @@ function hasNoDiagram(fm) {
 
 export async function check(options = {}) {
   const docsDir = options.docsDir || getDocsDir();
-  const files = await globby('src/content/docs/components/*.md', { cwd: docsDir, absolute: true });
+  const files = await globby('src/content/docs/components/*.md', {
+    cwd: docsDir,
+    absolute: true,
+  });
 
   const failures = [];
 

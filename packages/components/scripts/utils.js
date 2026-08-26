@@ -1,6 +1,7 @@
 import childProcess from 'child_process';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { docsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -14,11 +15,8 @@ export const getRootDir = () => process.env.ROOT_DIR || dirname(__dirname);
 export const getDistDir = () => process.env.DIST_DIR || join(getRootDir(), 'dist');
 export const getUnbundledDir = () => process.env.UNBUNDLED_DIR || join(getDistDir(), 'unbundled');
 export const getBundledDir = () => process.env.BUNDLED_DIR || join(getDistDir(), 'bundled');
-/**
- * The documentation package. It is a sibling in the workspace rather than a directory inside this
- * package, so everything that reaches into it goes through here — one seam to move if it relocates.
- */
-export const getDocsDir = () => process.env.DOCS_DIR || join(dirname(getRootDir()), 'docs');
+/** The documentation package, a sibling in the workspace. */
+export const getDocsDir = () => docsDir();
 /** The Astro content collection — the source the agent files are generated from. */
 export const getContentDir = () => process.env.CONTENT_DIR || join(getDocsDir(), 'src', 'content', 'docs');
 
@@ -44,7 +42,10 @@ export function formatError(err) {
  */
 export function runScript(scriptPath, args = [], options = {}) {
   return new Promise((resolve, reject) => {
-    const child = childProcess.fork(scriptPath, args, { silent: true, ...options });
+    const child = childProcess.fork(scriptPath, args, {
+      silent: true,
+      ...options,
+    });
     let wasInvoked = false;
     let stderr = '';
     let stdout = '';

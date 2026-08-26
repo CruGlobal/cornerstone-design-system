@@ -35,19 +35,19 @@
  * decision cheap to apply.
  */
 
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { componentsDir } from "./workspace.js";
 
-// The components package's manifest, by sibling path rather than by module resolution: this package is
-// a dependency *of* that one, so resolving it by name would make the workspace dependency circular.
-// This is the seam if the documentation address ever moves to the workspace root — see ticket 33.
+// The components package's manifest. Its `homepage` is where the documentation is published; see
+// ticket 33 for why that may move to the workspace root later.
 const packageData = JSON.parse(
-  readFileSync(join(dirname(dirname(fileURLToPath(import.meta.url))), 'components', 'package.json'), 'utf8'),
+  readFileSync(join(componentsDir(), "package.json"), "utf8")
 );
 
 /** The documentation root, without a trailing slash. */
-export const DOCS_URL = packageData.homepage.replace(/\/$/, '');
+export const DOCS_URL = packageData.homepage.replace(/\/$/, "");
 
 /**
  * The origin and the path, split — because GitHub Pages serves a *project* site under `/<repo>/`, and
@@ -59,7 +59,7 @@ export const DOCS_URL = packageData.homepage.replace(/\/$/, '');
 export const DOCS_ORIGIN = new URL(DOCS_URL).origin;
 
 /** The path the site is served under, with a leading slash and no trailing one. `''` at a domain root. */
-export const DOCS_BASE_PATH = new URL(DOCS_URL).pathname.replace(/\/$/, '');
+export const DOCS_BASE_PATH = new URL(DOCS_URL).pathname.replace(/\/$/, "");
 
 /**
  * Prefixes a root-absolute asset path with the base the site is served under.
@@ -68,7 +68,8 @@ export const DOCS_BASE_PATH = new URL(DOCS_URL).pathname.replace(/\/$/, '');
  * `{base}/dist/cornerstone.loader.js`. A bare `/dist/...` reference is a 404 on a project site and works
  * only at a domain root, which is why every live asset reference goes through here.
  */
-export const asset = (path) => `${DOCS_BASE_PATH}${path.startsWith('/') ? path : `/${path}`}`;
+export const asset = (path) =>
+  `${DOCS_BASE_PATH}${path.startsWith("/") ? path : `/${path}`}`;
 
 /** The component reference, which every `@documentation` tag and every CEM reference points into. */
 export const DOCS_COMPONENTS_URL = `${DOCS_URL}/components`;

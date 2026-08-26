@@ -89,7 +89,9 @@ function generateSkillMd({ componentList, packageData, baseUrl }) {
     return components
       .map(
         (c) =>
-          `- [\`<${c.tagName}>\`](references/components/${c.name}.md) - ${c.description || 'No description'} ([docs](${baseUrl}/components/${c.name}))`,
+          `- [\`<${c.tagName}>\`](references/components/${c.name}.md) - ${
+            c.description || 'No description'
+          } ([docs](${baseUrl}/components/${c.name}))`,
       )
       .join('\n');
   };
@@ -122,7 +124,9 @@ allowed-tools: Read
 
 # Cornerstone
 
-Cornerstone Components is the open source custom-element library of the Cornerstone design system. It provides ${componentList.length} accessible, customizable web components that work with any framework.
+Cornerstone Components is the open source custom-element library of the Cornerstone design system. It provides ${
+    componentList.length
+  } accessible, customizable web components that work with any framework.
 
 > **Designing with Cornerstone?** For full-page layout (\`<cs-page>\`), theming, brand color, and visual composition guidance, install the companion **\`cornerstone-design\`** skill. This skill is the component reference; that one teaches how to put components together into a polished UI. See [Agent Skills](${baseUrl}/ai/agent-skills) for both.
 
@@ -586,7 +590,10 @@ function processMarkdownDoc(mdContent, baseUrl, component = null) {
     })}`;
   }
 
-  return { content: `${body.replace(/\n{3,}/g, '\n\n').trim()}\n`, title: data.title };
+  return {
+    content: `${body.replace(/\n{3,}/g, '\n\n').trim()}\n`,
+    title: data.title,
+  };
 }
 
 /**
@@ -789,7 +796,12 @@ export async function generateAgentSkill(options = {}) {
     path.join(refsDir, 'choosing-components.md'),
   );
 
-  const destFor = { '': refsDir, frameworks: frameworksDir, utilities: utilitiesDir, tokens: tokensDir };
+  const destFor = {
+    '': refsDir,
+    frameworks: frameworksDir,
+    utilities: utilitiesDir,
+    tokens: tokensDir,
+  };
   for (const [srcRelPath, section, destFileName] of SKILL_PAGES) {
     copyMarkdownDoc(contentDir, destFor[section], srcRelPath, destFileName, baseUrl);
   }
