@@ -6,6 +6,10 @@
   "workspaces": [
     "packages/*"
   ],
+  "overrides": {
+    "playwright": "1.52.0",
+    "playwright-core": "1.52.0"
+  },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "validate": "npm run validate --workspaces --if-present",
