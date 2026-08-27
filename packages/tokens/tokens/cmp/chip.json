@@ -1,0 +1,152 @@
+{
+  "_cmp": {
+    "chip": {
+      "filled": {
+        "surface-info": {
+          "$type": "color",
+          "$value": "{_sys.color.information.default}"
+        },
+        "text-info": {
+          "$type": "color",
+          "$value": "{_sys.color.on-information}"
+        },
+        "surface-success": {
+          "$type": "color",
+          "$value": "{_sys.color.success.default}"
+        },
+        "text-success": {
+          "$type": "color",
+          "$value": "{_sys.color.on-success}"
+        },
+        "surface-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.warning.default}"
+        },
+        "text-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.on-warning}"
+        },
+        "surface-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.danger.default}"
+        },
+        "text-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.on-danger}"
+        },
+        "surface-light": {
+          "$type": "color",
+          "$value": "{_sys.color.surface-bright}"
+        },
+        "text-light": {
+          "$type": "color",
+          "$value": "{_sys.color.on-surface}"
+        },
+        "surface-dark": {
+          "$type": "color",
+          "$value": "{_sys.color.inverse-surface}"
+        },
+        "text-dark": {
+          "$type": "color",
+          "$value": "{_sys.color.inverse-on-surface}"
+        }
+      },
+      "subtle": {
+        "surface-info": {
+          "$type": "color",
+          "$value": "{_sys.color.information-container}"
+        },
+        "border-info": {
+          "$type": "color",
+          "$value": "{_sys.color.information-outline}"
+        },
+        "text-info": {
+          "$type": "color",
+          "$value": "{_sys.color.on-information-container}"
+        },
+        "surface-success": {
+          "$type": "color",
+          "$value": "{_sys.color.success-container}"
+        },
+        "border-success": {
+          "$type": "color",
+          "$value": "{_sys.color.success-outline}"
+        },
+        "text-success": {
+          "$type": "color",
+          "$value": "{_sys.color.on-success-container}"
+        },
+        "surface-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.warning-container}"
+        },
+        "border-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.warning-outline}"
+        },
+        "text-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.on-warning-container}"
+        },
+        "surface-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.danger-container}"
+        },
+        "border-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.danger-outline}"
+        },
+        "text-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.on-danger-container}"
+        },
+        "surface-light": {
+          "$type": "color",
+          "$value": "{_sys.color.surface-dim}"
+        },
+        "border-light": {
+          "$type": "color",
+          "$value": "{_sys.color.outline.default}"
+        },
+        "text-light": {
+          "$type": "color",
+          "$value": "{_sys.color.on-surface-variant}"
+        },
+        "surface-dark": {
+          "$type": "color",
+          "$value": "{_sys.color.inverse-surface-dim}"
+        },
+        "border-dark": {
+          "$type": "color",
+          "$value": "{_sys.color.outline.dark}"
+        },
+        "text-dark": {
+          "$type": "color",
+          "$value": "{_sys.color.inverse-on-surface-variant}"
+        }
+      },
+      "padding": {
+        "left-right": {
+          "$type": "number",
+          "$value": "{_sys.number.space.xs}"
+        },
+        "top-bottom": {
+          "$type": "number",
+          "$value": "{_sys.number.space.3xs}"
+        }
+      },
+      "radius": {
+        "default": {
+          "$type": "number",
+          "$value": "{_sys.number.border-radius.full}"
+        }
+      },
+      "border": {
+        "width": {
+          "$type": "number",
+          "$value": "{_sys.number.border-width.thin}"
+        }
+      }
+    }
+  }
+}
