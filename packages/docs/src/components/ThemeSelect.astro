@@ -1,4 +1,5 @@
 ---
+import { path } from '../site-sections.js';
 /**
  * The colour-scheme picker: an icon button that opens a `cs-dropdown`.
  *
@@ -54,7 +55,7 @@ const t = Astro.locals.t;
     System
   </cs-dropdown-item>
   <cs-divider />
-  <cs-dropdown-item value="/themes">
+  <cs-dropdown-item value={path('/themes')}>
     <cs-icon slot="icon" name="menu_book" />
     Docs
   </cs-dropdown-item>

@@ -58,6 +58,15 @@ if (pages.length === 0) {
 const ROOT_ABSOLUTE = /(?:href|src|poster)\s*=\s*["'](\/(?!\/)[^"']*)["']/g;
 
 /**
+ * Navigation that does not go through `href`. The theme dropdown carries its destination in `value=`
+ * and assigns `window.location.href` from it — a root-absolute path there 404s exactly like an anchor
+ * would, and the attribute-name check above cannot see it. Narrow on purpose: `value` holds all sorts
+ * of things, so only a value that looks like one of this site's own routes counts.
+ */
+const ROOT_ABSOLUTE_VALUE =
+  /value\s*=\s*["'](\/(?!\/)(?:components|tokens|utilities|themes|resources|ai|usage|frameworks)[^"']*)["']/g;
+
+/**
  * Displayed source is not a request. A page that documents `<script src="/dist/cornerstone.loader.js">` in a
  * fenced block renders it as text inside `<pre>`, and flagging that is a false positive — `ssr.md` shows
  * exactly that, in a diff, on purpose. Strip code blocks before scanning.
@@ -68,7 +77,7 @@ const findings = [];
 
 for (const page of pages) {
   const html = stripCodeBlocks(readFileSync(page, 'utf-8'));
-  for (const match of html.matchAll(ROOT_ABSOLUTE)) {
+  for (const match of [...html.matchAll(ROOT_ABSOLUTE), ...html.matchAll(ROOT_ABSOLUTE_VALUE)]) {
     // Anything already under the base is correct; this only wants the ones that skipped it.
     if (match[1].startsWith(`${DOCS_BASE_PATH}/`)) {
       continue;
