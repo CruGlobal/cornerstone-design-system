@@ -1,0 +1,24 @@
+# Dependabot has been opening pull requests here without a config. This adds one, for two reasons.
+#
+# 1. Playwright is pinned, and Dependabot cannot see why. `overrides` in the root manifest holds
+#    `playwright` and `playwright-core` at 1.52.0 because four `cs-toast-item` timer tests fail on the
+#    WebKit that ships with newer versions — see the fork tracker's ticket 43, which records what the
+#    investigation ruled out. Every bump it proposes is unmergeable, and in a different way each time:
+#    raising the range in a workspace package leaves the lockfile unable to satisfy the override, so
+#    `npm ci` refuses; raising `playwright` alone leaves `playwright-core` behind, so the CLI cannot load
+#    `./lib/bootstrap`. Both names are ignored, because ignoring one produces the second failure.
+#
+#    Remove this ignore when ticket 43 is fixed. The pin goes at the same time.
+#
+# 2. One directory, not several. This is an npm workspace, and scanning the root covers every package —
+#    without it, the same dependency gets a pull request per package it appears in.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: playwright
+      - dependency-name: playwright-core
