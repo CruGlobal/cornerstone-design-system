@@ -50,7 +50,7 @@ export function remarkExamples() {
       }
 
       const flags = new Set(
-        [...node.meta.matchAll(/\.([a-z-]+)/g)].map((match) => match[1]).filter((flag) => FLAGS.includes(flag))
+        [...node.meta.matchAll(/\.([a-z-]+)/g)].map((match) => match[1]).filter((flag) => FLAGS.includes(flag)),
       );
 
       const isAnatomy = flags.has('anatomy') || flags.has('anatomy-only');
@@ -60,7 +60,7 @@ export function remarkExamples() {
 
       const buttons = [
         `<button class="code-example-toggle" type="button" aria-expanded="${isOpen}" aria-controls="${sourceId}">Code ${icon(
-          'keyboard_arrow_down'
+          'keyboard_arrow_down',
         )}</button>`,
         !framed &&
           !flags.has('no-color-scheme') &&
@@ -104,7 +104,7 @@ export function remarkExamples() {
         {
           type: 'html',
           value: `</div><div class="code-example-buttons">${buttons.join('')}</div></div>`,
-        }
+        },
       );
 
       // Skip the three nodes just spliced in, or the code node is visited again.

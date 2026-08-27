@@ -166,8 +166,8 @@ function manifestProperties() {
 
   return (manifest.modules ?? []).flatMap((module) =>
     (module.declarations ?? []).flatMap((declaration) =>
-      (declaration.cssProperties ?? []).map((property) => property.name)
-    )
+      (declaration.cssProperties ?? []).map((property) => property.name),
+    ),
   );
 }
 
@@ -394,13 +394,13 @@ for (const [path, css] of draftSources()) {
 if (referenced.size === 0) {
   console.log(
     `\n${pageCount} pages and ${draftCount} draft${draftCount === 1 ? '' : 's'} checked, ` +
-      `${checked.size} distinct custom-property references, all resolve.\n`
+      `${checked.size} distinct custom-property references, all resolve.\n`,
   );
   process.exit(0);
 }
 
 console.error(
-  `\n${referenced.size} custom ${referenced.size === 1 ? 'property' : 'properties'} referenced but never defined:\n`
+  `\n${referenced.size} custom ${referenced.size === 1 ? 'property' : 'properties'} referenced but never defined:\n`,
 );
 
 for (const [name, paths] of [...referenced].sort()) {

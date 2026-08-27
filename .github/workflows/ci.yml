@@ -49,8 +49,42 @@ jobs:
       # root build here would do it twice per PR.
       - run: npm run build --workspace @cruglobal/cornerstone-design-system
 
+  # What changed decides what runs. The component suite drives three real browsers and takes ~35
+  # minutes; a change to a documentation page has no way to affect it, and paying for it anyway is
+  # how a gate stops being run.
+  #
+  # The dependency is one-directional and the filters mirror it: the documentation site consumes the
+  # library, so a components change runs both gates — but a docs-only change runs only its own.
+  changes:
+    name: What changed
+    runs-on: ubuntu-latest
+    outputs:
+      components: ${{ steps.filter.outputs.components }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            components:
+              - 'packages/components/**'
+              - 'packages/build-tools/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - '.github/workflows/ci.yml'
+            docs:
+              - 'packages/docs/**'
+              - 'packages/components/**'
+              - 'packages/build-tools/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - '.github/workflows/ci.yml'
+
   verify-components:
     name: Verify components
+    needs: changes
+    if: needs.changes.outputs.components == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,11 +93,27 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
       - run: npm ci
-      # The component suite drives real browsers. `npm run verify` is what a developer runs by
-      # hand, so CI runs exactly that and nothing else — one command, no bespoke job graph to
-      # drift from the local check. All three engines, here as locally.
+      # `npm run verify` is what a developer runs by hand, so CI runs exactly that and nothing else —
+      # one command, no bespoke job graph to drift from the local check. All three engines.
       - run: npx playwright install --with-deps
       - run: npm run verify --workspace @cruglobal/cornerstone-components
+
+  verify-docs:
+    name: Verify documentation
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+      - run: npm ci
+      # The site reads the library's manifest and copies its bundled build, so the library has to be
+      # built — but not tested. That is the whole saving: minutes instead of half an hour.
+      - run: npm run build --workspace @cruglobal/cornerstone-components
+      - run: npm run verify --workspace cornerstone-docs-site
 
   changeset:
     name: Changeset present

@@ -105,6 +105,6 @@ if (grid) {
       category?.addEventListener('change', update);
       sort?.addEventListener('change', update);
       experimental?.addEventListener('change', apply);
-    }
+    },
   );
 }

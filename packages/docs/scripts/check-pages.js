@@ -243,7 +243,7 @@ function checkTheming(failures) {
 
       if (valued.length !== hues.length) {
         failures.push(
-          `${page.label}: ${hues.length - valued.length} scales have steps with no value read from the stylesheet`
+          `${page.label}: ${hues.length - valued.length} scales have steps with no value read from the stylesheet`,
         );
       }
     }
@@ -332,7 +332,7 @@ function main() {
 
       if (rows !== section.rows.length) {
         failures.push(
-          `${name}: ${section.heading} has ${section.rows.length} rows in the manifest, ${rows} on the page`
+          `${name}: ${section.heading} has ${section.rows.length} rows in the manifest, ${rows} on the page`,
         );
       }
     }

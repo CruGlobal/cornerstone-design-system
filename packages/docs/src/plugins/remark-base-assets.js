@@ -42,7 +42,7 @@ export function remarkBaseAssets() {
       // Authored links inside raw HTML — `<a href="/usage/#events">` — are the same problem as an
       // asset path and were never covered, because they are not under a `public/` directory.
       value = value.replace(/(href|src)="(\/(?!\/)[^"]*)"/g, (whole, attr, path) =>
-        path.startsWith(`${DOCS_BASE_PATH}/`) ? whole : `${attr}="${DOCS_BASE_PATH}${path}"`
+        path.startsWith(`${DOCS_BASE_PATH}/`) ? whole : `${attr}="${DOCS_BASE_PATH}${path}"`,
       );
       node.value = value;
     });

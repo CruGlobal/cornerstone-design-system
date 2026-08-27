@@ -5,17 +5,20 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/link-library.js",
-    "dev": "astro dev --force",
-    "prebuild": "node scripts/link-library.js",
     "build": "ASTRO_CACHE_DIR=node_modules/.astro-build astro build --force",
-    "preview": "astro preview",
-    "prettier": "prettier --check --log-level=warn --ignore-path=\".prettierignore\" .",
     "check": "npm run prettier && astro check",
+    "check:anatomy": "node scripts/check-anatomy.js",
+    "check:assets": "node scripts/check-asset-paths.js",
+    "check:components": "node scripts/check-components.js",
     "check:pages": "node scripts/check-pages.js",
     "check:tokens": "node scripts/check-tokens.js",
-    "check:components": "node scripts/check-components.js",
-    "postbuild": "node scripts/prune-pagefind.js"
+    "dev": "astro dev --force",
+    "postbuild": "node scripts/prune-pagefind.js",
+    "prebuild": "node scripts/link-library.js",
+    "predev": "node scripts/link-library.js",
+    "prettier": "prettier --check --log-level=warn --ignore-path=\".prettierignore\" .",
+    "preview": "astro preview",
+    "verify": "npm run check && npm run build && npm run check:assets && npm run check:pages && npm run check:tokens && npm run check:components && npm run check:anatomy"
   },
   "engines": {
     "node": ">=22.12.0"
@@ -29,6 +32,7 @@
     "@types/node": "^24.13.3",
     "astro": "7.2.3",
     "gray-matter": "^4.0.3",
+    "prettier": "^3.8.3",
     "prismjs": "^1.30.0",
     "remark-directive": "^4.0.0",
     "typescript": "^6.0.3"

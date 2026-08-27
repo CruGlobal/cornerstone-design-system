@@ -66,7 +66,7 @@ const shipped = new Set(
     withFileTypes: true,
   })
     .filter((entry) => entry.isDirectory())
-    .map((entry) => `cs-${entry.name}`)
+    .map((entry) => `cs-${entry.name}`),
 );
 
 function markdownFiles(dir) {
@@ -110,7 +110,7 @@ for (const path of files) {
 
   // script: a tag named as a string is just as load-bearing, and `whenDefined` on a missing one hangs
   for (const [, tag] of text.matchAll(
-    /(?:whenDefined|querySelector(?:All)?|createElement)\(\s*['"`](cs-[a-z0-9-]+)/g
+    /(?:whenDefined|querySelector(?:All)?|createElement)\(\s*['"`](cs-[a-z0-9-]+)/g,
   )) {
     used.add(tag);
   }
@@ -133,7 +133,7 @@ for (const path of files) {
 if (unknown.size === 0) {
   console.log(
     `\n${files.length} pages checked (${drafts} draft${drafts === 1 ? '' : 's'}), ` +
-      `${tagCount} component references, all ship.\n`
+      `${tagCount} component references, all ship.\n`,
   );
   process.exit(0);
 }

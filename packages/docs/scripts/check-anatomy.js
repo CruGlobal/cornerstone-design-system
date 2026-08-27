@@ -6,11 +6,10 @@
  * Static analysis, no build.
  */
 import { readFile } from 'node:fs/promises';
-import { basename } from 'node:path';
+import { basename, dirname } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { globby } from 'globby';
-import { getDocsDir } from './utils.js';
 
 // A fenced block flagged `.anatomy`/`.anatomy-only`; captures its body up to the closing fence.
 const ANATOMY_FENCE = /^```.*\.anatomy.*\n([\s\S]*?)^```/gm;
@@ -27,7 +26,7 @@ function hasNoDiagram(fm) {
 }
 
 export async function check(options = {}) {
-  const docsDir = options.docsDir || getDocsDir();
+  const docsDir = options.docsDir || dirname(dirname(fileURLToPath(import.meta.url)));
   const files = await globby('src/content/docs/components/*.md', {
     cwd: docsDir,
     absolute: true,

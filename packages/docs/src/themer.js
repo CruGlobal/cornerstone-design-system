@@ -132,7 +132,7 @@ export const fonts = themes
   .flatMap((theme) => [theme.fonts.body, theme.fonts.heading, theme.fonts.code, theme.fonts.longform])
   .filter(
     (font, index, array) =>
-      array.findIndex((f) => f.name === font.name && f.css === font.css && f.href === font.href) === index
+      array.findIndex((f) => f.name === font.name && f.css === font.css && f.href === font.href) === index,
   );
 
 /**
@@ -183,7 +183,7 @@ export const palettes = themes
   }))
   .filter(
     (palette, index, array) =>
-      array.findIndex((p) => p.name === palette.name && p.filename === palette.filename) === index
+      array.findIndex((p) => p.name === palette.name && p.filename === palette.filename) === index,
   );
 
 /**

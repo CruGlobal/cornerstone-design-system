@@ -25,11 +25,10 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { DOCS_BASE_PATH } from '@cruglobal/cornerstone-build-tools/site-url.js';
 import { globbySync } from 'globby';
-import { getDocsDir } from './utils.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = dirname(__dirname);
-const builtDir = join(getDocsDir(), 'dist');
+const builtDir = join(dirname(dirname(fileURLToPath(import.meta.url))), 'dist');
 
 if (!DOCS_BASE_PATH) {
   console.log('PASSED: the site is served from a domain root, so a root-absolute asset path is correct.');
@@ -39,9 +38,7 @@ if (!DOCS_BASE_PATH) {
 const pages = globbySync(`${builtDir}/**/*.html`);
 
 if (pages.length === 0) {
-  console.error(
-    `No built pages under ${relative(root, builtDir)}. Run \`npm run build --workspace cornerstone-docs-site\` first.`,
-  );
+  console.error(`No built pages under ${relative(root, builtDir)}. Run \`npm run build\` first.`);
   process.exit(1);
 }
 

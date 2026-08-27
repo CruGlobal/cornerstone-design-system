@@ -50,7 +50,7 @@ function sectionToMarkdown(section) {
       '| ' + section.columns.join(' | ') + ' |',
       '| ' + section.columns.map(() => '---').join(' | ') + ' |',
       ...section.rows.map((row) => '| ' + row.map(cell).join(' | ') + ' |'),
-      ''
+      '',
     );
   } else if (section.type === 'links') {
     lines.push(...section.items.map((item) => `- [\`${item.code}\`](${item.href})`), '');
@@ -135,7 +135,7 @@ export function remarkComponentApi() {
     // reads has to carry the same hooks the Eleventy layout emitted.
     stampAnatomyHooks(
       parsed,
-      sections.find((section) => section.anatomy)
+      sections.find((section) => section.anatomy),
     );
 
     tree.children.unshift(...headerNodes(processor, component, file.data?.astro?.frontmatter?.category));
@@ -182,7 +182,7 @@ function headerNodes(processor, component, categoryLabel) {
     `<div class="component-info cs-cluster cs-not-prose">\n` +
       `<code class="component-tag">&lt;${component.tagName}&gt;</code>\n` +
       `<div class="cs-cluster cs-gap-xs">${badges.join('')}</div>\n` +
-      `</div>\n\n${component.summary ?? ''}\n`
+      `</div>\n\n${component.summary ?? ''}\n`,
   );
 
   // The summary is markdown — descriptions reference sibling tags in backticks — so it is parsed

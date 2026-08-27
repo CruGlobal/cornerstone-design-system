@@ -47,9 +47,8 @@ jobs:
       - run: npm run build --workspace cornerstone-docs-site
       # Fails the build if any asset reference escapes the base path — the failure mode that
       # makes a project-page deploy look fine locally and 404 everywhere once published.
-      - name: Check every asset resolves under the base path
-        run: node scripts/check-asset-paths.js
-        working-directory: packages/components
+      - name: Check every asset and link resolves under the base path
+        run: npm run check:assets --workspace cornerstone-docs-site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: packages/docs/dist
