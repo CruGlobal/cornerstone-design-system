@@ -5,16 +5,27 @@
     "name": "Cru Global",
     "url": "https://github.com/CruGlobal"
   },
+  "allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"],
   "plugins": [
     {
       "name": "cornerstone",
       "source": "./plugins/cornerstone",
-      "description": "Onboarding and design-review commands for the Cru Cornerstone Design System."
+      "description": "Cornerstone's front door, for everyone — the design-system assistant that answers token, theming and integration questions, plus the `/onboard` walkthrough for wiring the package into your project. Install this if you consume Cornerstone; install `cornerstone-dev` if you build it."
     },
     {
       "name": "cornerstone-skills",
       "source": "./plugins/cornerstone-skills",
       "description": "General engineering and productivity skills for Cornerstone's contributor personas. Forked from mattpocock/skills (MIT) — see plugins/cornerstone-skills/NOTICE.md."
+    },
+    {
+      "name": "cornerstone-dev",
+      "source": "./plugins/cornerstone-dev",
+      "description": "The contributor tier — Cornerstone's front door plus the engineering skills and Figma tooling its contributor personas rely on. Install this if you work on Cornerstone itself."
+    },
+    {
+      "name": "cornerstone-designer",
+      "source": "./plugins/cornerstone-designer",
+      "description": "The designer tier — Cornerstone's front door plus Figma tooling and a Figma-only prototyping skill. Install this if you design with Cornerstone and don't write code."
     }
   ]
 }

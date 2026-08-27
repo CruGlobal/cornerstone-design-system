@@ -3,7 +3,7 @@
   "name": "cornerstone",
   "displayName": "Cornerstone Design System",
   "version": "0.1.0",
-  "description": "Onboarding and design-review commands for the Cru Cornerstone Design System.",
+  "description": "Cornerstone's front door, for everyone — the design-system assistant that answers token, theming and integration questions, plus the `/onboard` walkthrough for wiring the package into your project. Install this if you consume Cornerstone; install `cornerstone-dev` if you build it.",
   "author": {
     "name": "Cru Global",
     "url": "https://github.com/CruGlobal"
