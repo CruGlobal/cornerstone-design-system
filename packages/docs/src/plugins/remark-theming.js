@@ -74,11 +74,11 @@ function readPalette(palette) {
   // `--cs-color-{hue}-key` names the step the bare `--cs-color-{hue}` token resolves to. Every palette
   // declares one per hue; in the Cru palette it is the step the generator wrote the brand colour into.
   const keys = Object.fromEntries(
-    [...css.matchAll(/--cs-color-([a-z-]+)-key:\s*(\d+)/g)].map((match) => [match[1], match[2]])
+    [...css.matchAll(/--cs-color-([a-z-]+)-key:\s*(\d+)/g)].map((match) => [match[1], match[2]]),
   );
   // Each step's literal value, so a swatch can name the colour it is as well as the token it comes from.
   const values = Object.fromEntries(
-    [...css.matchAll(/--cs-color-([a-z-]+-\d{2}):\s*(#[0-9a-f]{3,8})/gi)].map((match) => [match[1], match[2]])
+    [...css.matchAll(/--cs-color-([a-z-]+-\d{2}):\s*(#[0-9a-f]{3,8})/gi)].map((match) => [match[1], match[2]]),
   );
 
   return {
@@ -224,8 +224,8 @@ const coreColors = () =>
   table(
     ['Core Color', 'Key', 'On Color', 'Preview'],
     brandPalette.hues.map(
-      (hue) => `<tr>${tokenCell(hue)}${tokenCell(`${hue}-key`)}${tokenCell(`${hue}-on`)}${corePreview(hue)}</tr>`
-    )
+      (hue) => `<tr>${tokenCell(hue)}${tokenCell(`${hue}-key`)}${tokenCell(`${hue}-on`)}${corePreview(hue)}</tr>`,
+    ),
   );
 
 /** Every variant's core colour and on colour, and the hue it aliases. */
@@ -235,8 +235,8 @@ const variantColors = () =>
     variants.map(
       (variant) =>
         `<tr>${tokenCell(variant.name)}${tokenCell(`${variant.name}-on`)}` +
-        `<td class="token-name"><code>${variant.hue}</code></td>${corePreview(variant.name)}</tr>`
-    )
+        `<td class="token-name"><code>${variant.hue}</code></td>${corePreview(variant.name)}</tr>`,
+    ),
   );
 
 /**
@@ -255,12 +255,12 @@ const variantMatrix = () => {
         type === 'border'
           ? `<td><div class="swatch" style="border-color: var(--cs-color-${variant.name}-border-${attention})"></div></td>`
           : `<td><div class="swatch" style="background-color: var(--cs-color-${variant.name}-fill-${attention}); ` +
-            `color: var(--cs-color-${variant.name}-on-${attention})">${type === 'on' ? 'Aa' : ''}</div></td>`
+            `color: var(--cs-color-${variant.name}-on-${attention})">${type === 'on' ? 'Aa' : ''}</div></td>`,
       );
 
       rows.push(
         `<tr id="token-color-${type}-${attention}">` +
-          `<td class="token-name"><code>--cs-color-*-${type}-${attention}</code></td>${cells.join('')}</tr>`
+          `<td class="token-name"><code>--cs-color-*-${type}-${attention}</code></td>${cells.join('')}</tr>`,
       );
     }
   }
@@ -271,7 +271,7 @@ const variantMatrix = () => {
   return table(
     ['Custom Property', ...columns.map((variant) => `<code>${variant.name}</code>`)],
     rows,
-    ' class="token-name"'
+    ' class="token-name"',
   );
 };
 

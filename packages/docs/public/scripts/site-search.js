@@ -115,7 +115,7 @@ if (trigger && dialog) {
     const marksOnly = excerpt.replace(/<(?!\/?mark\b)[^>]*>/g, '');
     const withoutTitle = marksOnly.replace(
       new RegExp(`^\\s*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[.\\s]*`, 'i'),
-      ''
+      '',
     );
 
     return withoutTitle.trim() || marksOnly.trim();
@@ -188,7 +188,7 @@ if (trigger && dialog) {
           title,
           detail: summarise(result.excerpt, title),
         });
-      })
+      }),
     );
     showState('results');
   };

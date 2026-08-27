@@ -116,7 +116,8 @@
   border-inline-start: var(--code-example-chrome-border);
   border-start-end-radius: var(--code-example-panel-radius);
   cursor: ew-resize;
-  transition: background-color var(--cs-transition-fast) var(--cs-transition-easing),
+  transition:
+    background-color var(--cs-transition-fast) var(--cs-transition-easing),
     color var(--cs-transition-fast) var(--cs-transition-easing);
 
   &:hover {
@@ -198,7 +199,8 @@
     text-align: center;
     padding: var(--cs-space-xs);
     cursor: pointer;
-    transition: background-color var(--cs-transition-fast) var(--cs-transition-easing),
+    transition:
+      background-color var(--cs-transition-fast) var(--cs-transition-easing),
       color var(--cs-transition-fast) var(--cs-transition-easing);
 
     &:hover {

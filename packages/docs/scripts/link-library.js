@@ -17,7 +17,7 @@ const target = join(siteDir, 'public', 'dist');
 
 if (!existsSync(bundledDir)) {
   console.error(
-    `Cannot find the library's bundled build at ${bundledDir}. Run \`npm run build --workspace @cruglobal/cornerstone-components\` first.`
+    `Cannot find the library's bundled build at ${bundledDir}. Run \`npm run build --workspace @cruglobal/cornerstone-components\` first.`,
   );
   process.exit(1);
 }
