@@ -37,6 +37,15 @@ if (!DOCS_BASE_PATH) {
 
 const pages = globbySync(`${builtDir}/**/*.html`);
 
+/**
+ * The site's own scripts, which this check could not see. `public/` files are copied verbatim, so no
+ * build step substitutes a base into them — and `site-search.js` loaded its index from
+ * `/pagefind/pagefind.js`, which 404s under a base path. The failure was worse than a broken link: the
+ * `catch` around the import treated a missing index as "no index exists" and told the reader search was
+ * only available in a production build, on the production build.
+ */
+const scripts = globbySync(`${builtDir}/scripts/**/*.js`);
+
 if (pages.length === 0) {
   console.error(`No built pages under ${relative(root, builtDir)}. Run \`npm run build\` first.`);
   process.exit(1);
@@ -72,6 +81,26 @@ const stripCodeBlocks = (html) => html.replace(/<pre\b[\s\S]*?<\/pre>/g, '');
 
 const findings = [];
 
+/** A quoted path that looks like one of this site's own routes or asset directories. */
+const ROOT_ABSOLUTE_IN_JS =
+  /["'`](\/(?!\/)(?:pagefind|dist|assets|scripts|patterns|components|tokens|utilities|themes|resources|ai)[^"'`]*)["'`]/g;
+
+/**
+ * Comments are prose, not requests — and these files document the paths they fetch. Stripping them is the
+ * same idea as stripping `<pre>` from a page: a path being *described* is not a path being requested.
+ */
+const stripComments = (js) => js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+
+for (const script of scripts) {
+  const js = stripComments(readFileSync(script, 'utf-8'));
+  for (const match of js.matchAll(ROOT_ABSOLUTE_IN_JS)) {
+    if (match[1].startsWith(`${DOCS_BASE_PATH}/`)) {
+      continue;
+    }
+    findings.push(`${relative(builtDir, script)}  ${match[1]}`);
+  }
+}
+
 for (const page of pages) {
   const html = stripCodeBlocks(readFileSync(page, 'utf-8'));
   for (const match of [...html.matchAll(ROOT_ABSOLUTE), ...html.matchAll(ROOT_ABSOLUTE_VALUE)]) {
@@ -99,4 +128,6 @@ if (findings.length > 0) {
   process.exit(1);
 }
 
-console.log(`PASSED: ${pages.length} built page(s), every asset and link inside \`${DOCS_BASE_PATH}\`.`);
+console.log(
+  `PASSED: ${pages.length} built page(s) and ${scripts.length} script(s), every asset and link inside \`${DOCS_BASE_PATH}\`.`,
+);
