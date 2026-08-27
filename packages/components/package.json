@@ -128,7 +128,7 @@
     "colorjs.io": "^0.7.1",
     "command-line-args": "^5.2.1",
     "comment-parser": "^1.4.1",
-    "cspell": "^6.18.1",
+    "cspell": "^10.1.0",
     "custom-element-jet-brains-integration": "^1.7.0",
     "custom-element-svelte-integration": "^1.2.0",
     "custom-element-vs-code-integration": "^1.5.0",
