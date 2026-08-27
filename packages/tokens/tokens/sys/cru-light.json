@@ -19,6 +19,12 @@
           "$value": "{_ref.color.cru.yellow.400}"
         }
       },
+      "primary-strong": {
+        "default": {
+          "$type": "color",
+          "$value": "{_ref.color.cru.yellow.700}"
+        }
+      },
       "secondary": {
         "default": {
           "$type": "color",

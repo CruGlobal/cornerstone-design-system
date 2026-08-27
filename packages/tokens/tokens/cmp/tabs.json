@@ -1,0 +1,88 @@
+{
+  "_cmp": {
+    "tabs": {
+      "tab-menu-item": {
+        "active": {
+          "surface": {
+            "$type": "color",
+            "$value": "{_sys.color.action-surface.default}"
+          },
+          "surface-hover": {
+            "$type": "color",
+            "$value": "{_sys.color.action-surface.hover}"
+          },
+          "surface-pressed": {
+            "$type": "color",
+            "$value": "{_sys.color.action-surface.pressed}"
+          },
+          "indicator": {
+            "$type": "color",
+            "$value": "{_sys.color.primary-strong.default}"
+          },
+          "label": {
+            "$type": "color",
+            "$value": "{_sys.color.text.primary}"
+          },
+          "icon": {
+            "$type": "color",
+            "$value": "{_sys.color.text.primary}"
+          }
+        },
+        "inactive": {
+          "surface": {
+            "$type": "color",
+            "$value": "{_sys.color.action-surface.default}"
+          },
+          "surface-hover": {
+            "$type": "color",
+            "$value": "{_sys.color.action-surface.hover}"
+          },
+          "surface-pressed": {
+            "$type": "color",
+            "$value": "{_sys.color.action-surface.pressed}"
+          },
+          "indicator": {
+            "$type": "color",
+            "$value": "{_sys.color.outline.default}"
+          },
+          "label": {
+            "$type": "color",
+            "$value": "{_sys.color.text.secondary}"
+          },
+          "icon": {
+            "$type": "color",
+            "$value": "{_sys.color.text.secondary}"
+          }
+        },
+        "disabled": {
+          "surface": {
+            "$type": "color",
+            "$value": "{_sys.color.transparent}"
+          },
+          "indicator": {
+            "$type": "color",
+            "$value": "{_sys.color.outline.disabled}"
+          },
+          "label": {
+            "$type": "color",
+            "$value": "{_sys.color.text.disabled}"
+          },
+          "icon": {
+            "$type": "color",
+            "$value": "{_sys.color.text.disabled}"
+          }
+        },
+        "padding": {
+          "left-right": {
+            "$type": "number",
+            "$value": "{_sys.number.space.lg}"
+          },
+          "top-bottom": {
+            "$type": "number",
+            "$value": "{_sys.number.space.xs}"
+          }
+        }
+      }
+    }
+  }
+}
