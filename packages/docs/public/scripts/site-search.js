@@ -25,6 +25,13 @@ if (trigger && dialog) {
   const empty = dialog.querySelector('.site-search-empty');
   const emptyText = empty.querySelector('p');
 
+  /**
+   * The path the site is served under. This file is copied out of `public/` verbatim, so no build step
+   * substitutes anything into it — but it is loaded as a module from `<base>/scripts/site-search.js`,
+   * so its own URL carries the base.
+   */
+  const BASE = new URL('../', import.meta.url).pathname.replace(/\/$/, '');
+
   /** Resolves to Pagefind's API, or to null when there is no index — which is every `astro dev` run. */
   let pagefind = null;
   const loadPagefind = async () => {
@@ -33,7 +40,7 @@ if (trigger && dialog) {
     }
 
     try {
-      pagefind = await import(/* @vite-ignore */ '/pagefind/pagefind.js');
+      pagefind = await import(/* @vite-ignore */ `${BASE}/pagefind/pagefind.js`);
       await pagefind.options({ excerptLength: 24 });
       await pagefind.init();
     } catch {
