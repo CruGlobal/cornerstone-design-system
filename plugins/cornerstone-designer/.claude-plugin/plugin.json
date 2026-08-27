@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "cornerstone-designer",
+  "displayName": "Cornerstone Design System — Designers",
+  "version": "0.1.0",
+  "description": "The designer tier of the Cornerstone Design System. Installs Cornerstone's front door plus Figma tooling and the `see-it-in-figma` prototyping skill, for designers who solve a design problem in Figma rather than in code. Install this if you design with Cornerstone; install `cornerstone-dev` if you build it.",
+  "author": {
+    "name": "Cru Global",
+    "url": "https://github.com/CruGlobal"
+  },
+  "homepage": "https://github.com/CruGlobal/cornerstone-design-system#readme",
+  "repository": "https://github.com/CruGlobal/cornerstone-design-system",
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "cru",
+    "cornerstone",
+    "designers",
+    "figma",
+    "prototyping"
+  ],
+  "dependencies": ["cornerstone@cru", "figma@claude-plugins-official"]
+}
