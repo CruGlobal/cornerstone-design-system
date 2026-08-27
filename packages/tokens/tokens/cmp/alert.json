@@ -1,0 +1,162 @@
+{
+  "_cmp": {
+    "alert": {
+      "padding": {
+        "left-right": {
+          "$type": "number",
+          "$value": "{_sys.number.space.md}"
+        },
+        "top-bottom": {
+          "$type": "number",
+          "$value": "{_sys.number.space.md}"
+        }
+      },
+      "gap": {
+        "horizontal": {
+          "$type": "number",
+          "$value": "{_sys.number.space.sm}"
+        },
+        "vertical": {
+          "$type": "number",
+          "$value": "{_sys.number.space.2xs}"
+        },
+        "actions": {
+          "$type": "number",
+          "$value": "{_sys.number.space.xs}"
+        },
+        "content-actions": {
+          "$type": "number",
+          "$value": "{_sys.number.space.xs}"
+        }
+      },
+      "radius": {
+        "default": {
+          "$type": "number",
+          "$value": "{_sys.number.border-radius.md}"
+        }
+      },
+      "border": {
+        "width": {
+          "$type": "number",
+          "$value": "{_sys.number.border-width.thin}"
+        }
+      },
+      "filled": {
+        "surface-info": {
+          "$type": "color",
+          "$value": "{_sys.color.information.default}"
+        },
+        "text-info": {
+          "$type": "color",
+          "$value": "{_sys.color.on-information}"
+        },
+        "icon-info": {
+          "$type": "color",
+          "$value": "{_sys.color.on-information}"
+        },
+        "surface-success": {
+          "$type": "color",
+          "$value": "{_sys.color.success.default}"
+        },
+        "text-success": {
+          "$type": "color",
+          "$value": "{_sys.color.on-success}"
+        },
+        "icon-success": {
+          "$type": "color",
+          "$value": "{_sys.color.on-success}"
+        },
+        "surface-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.warning.default}"
+        },
+        "text-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.on-warning}"
+        },
+        "icon-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.on-warning}"
+        },
+        "surface-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.danger.default}"
+        },
+        "text-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.on-danger}"
+        },
+        "icon-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.on-danger}"
+        }
+      },
+      "subtle": {
+        "surface-info": {
+          "$type": "color",
+          "$value": "{_sys.color.information-container}"
+        },
+        "text-info": {
+          "$type": "color",
+          "$value": "{_sys.color.on-information-container}"
+        },
+        "icon-info": {
+          "$type": "color",
+          "$value": "{_sys.color.on-information-container}"
+        },
+        "border-info": {
+          "$type": "color",
+          "$value": "{_sys.color.information-outline}"
+        },
+        "surface-success": {
+          "$type": "color",
+          "$value": "{_sys.color.success-container}"
+        },
+        "text-success": {
+          "$type": "color",
+          "$value": "{_sys.color.on-success-container}"
+        },
+        "icon-success": {
+          "$type": "color",
+          "$value": "{_sys.color.on-success-container}"
+        },
+        "border-success": {
+          "$type": "color",
+          "$value": "{_sys.color.success-outline}"
+        },
+        "surface-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.warning-container}"
+        },
+        "text-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.on-warning-container}"
+        },
+        "icon-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.on-warning-container}"
+        },
+        "border-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.warning-outline}"
+        },
+        "surface-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.danger-container}"
+        },
+        "text-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.on-danger-container}"
+        },
+        "icon-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.on-danger-container}"
+        },
+        "border-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.danger-outline}"
+        }
+      }
+    }
+  }
+}
