@@ -1,0 +1,128 @@
+{
+  "_cmp": {
+    "toast": {
+      "padding": {
+        "left-right": {
+          "$type": "number",
+          "$value": "{_sys.number.space.md}"
+        },
+        "top-bottom": {
+          "$type": "number",
+          "$value": "{_sys.number.space.sm}"
+        }
+      },
+      "gap": {
+        "horizontal": {
+          "$type": "number",
+          "$value": "{_sys.number.space.sm}"
+        },
+        "actions": {
+          "$type": "number",
+          "$value": "{_sys.number.space.xs}"
+        }
+      },
+      "radius": {
+        "default": {
+          "$type": "number",
+          "$value": "{_sys.number.border-radius.sm}"
+        }
+      },
+      "neutral": {
+        "surface": {
+          "$type": "color",
+          "$value": "{_sys.color.inverse-surface}"
+        },
+        "text": {
+          "$type": "color",
+          "$value": "{_sys.color.inverse-on-surface}"
+        },
+        "action": {
+          "$type": "color",
+          "$value": "{_sys.color.inverse-on-surface}"
+        },
+        "icon-info": {
+          "$type": "color",
+          "$value": "{_sys.color.information-container}"
+        },
+        "icon-success": {
+          "$type": "color",
+          "$value": "{_sys.color.success-container}"
+        },
+        "icon-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.warning-container}"
+        },
+        "icon-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.danger-container}"
+        },
+        "accent-info": {
+          "$type": "color",
+          "$value": "{_sys.color.information-on-inverse}"
+        },
+        "accent-success": {
+          "$type": "color",
+          "$value": "{_sys.color.success-on-inverse}"
+        },
+        "accent-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.warning-on-inverse}"
+        },
+        "accent-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.danger-on-inverse}"
+        }
+      },
+      "status": {
+        "surface-info": {
+          "$type": "color",
+          "$value": "{_sys.color.information.default}"
+        },
+        "text-info": {
+          "$type": "color",
+          "$value": "{_sys.color.on-information}"
+        },
+        "icon-info": {
+          "$type": "color",
+          "$value": "{_sys.color.on-information}"
+        },
+        "surface-success": {
+          "$type": "color",
+          "$value": "{_sys.color.success.default}"
+        },
+        "text-success": {
+          "$type": "color",
+          "$value": "{_sys.color.on-success}"
+        },
+        "icon-success": {
+          "$type": "color",
+          "$value": "{_sys.color.on-success}"
+        },
+        "surface-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.warning.default}"
+        },
+        "text-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.on-warning}"
+        },
+        "icon-warning": {
+          "$type": "color",
+          "$value": "{_sys.color.on-warning}"
+        },
+        "surface-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.danger.default}"
+        },
+        "text-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.on-danger}"
+        },
+        "icon-danger": {
+          "$type": "color",
+          "$value": "{_sys.color.on-danger}"
+        }
+      }
+    }
+  }
+}
