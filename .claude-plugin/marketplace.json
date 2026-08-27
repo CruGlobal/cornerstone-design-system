@@ -10,7 +10,7 @@
     {
       "name": "cornerstone",
       "source": "./plugins/cornerstone",
-      "description": "Onboarding and design-review commands for the Cru Cornerstone Design System."
+      "description": "Cornerstone's front door, for everyone — the design-system assistant that answers token, theming and integration questions, plus the `/onboard` walkthrough for wiring the package into your project. Install this if you consume Cornerstone; install `cornerstone-dev` if you build it."
     },
     {
       "name": "cornerstone-skills",
