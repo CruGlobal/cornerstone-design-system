@@ -5,6 +5,7 @@
     "name": "Cru Global",
     "url": "https://github.com/CruGlobal"
   },
+  "allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"],
   "plugins": [
     {
       "name": "cornerstone",
@@ -15,6 +16,11 @@
       "name": "cornerstone-skills",
       "source": "./plugins/cornerstone-skills",
       "description": "General engineering and productivity skills for Cornerstone's contributor personas. Forked from mattpocock/skills (MIT) — see plugins/cornerstone-skills/NOTICE.md."
+    },
+    {
+      "name": "cornerstone-dev",
+      "source": "./plugins/cornerstone-dev",
+      "description": "The contributor tier — Cornerstone's front door plus the engineering skills and Figma tooling its contributor personas rely on. Install this if you work on Cornerstone itself."
     }
   ]
 }
