@@ -46,10 +46,25 @@ if (pages.length === 0) {
 }
 
 /**
- * A root-absolute reference to something this site serves out of `public/`. Deliberately narrow: `/dist/`
- * and `/scripts/` are ours, whereas `//cdn…`, `https://…` and `/` on its own are not this check's business.
+ * Any root-absolute reference the browser will request from this origin — an asset under `public/`, or a
+ * link to another page of this site. `//cdn…` and `https://…` belong to someone else and are excluded by
+ * requiring a single leading slash.
+ *
+ * This was once narrowed to `/dist/`, `/scripts/`, `/assets/` and `/patterns/`, on the reasoning that only
+ * `public/` directories were "ours". That missed navigation entirely: the subheader, the search dialog and
+ * every authored `[link](/usage/#events)` emitted a root-absolute href, and the first deploy 404'd on all
+ * of them while this check passed. A link off the base is the same bug as an asset off the base.
  */
-const ROOT_ABSOLUTE = /(?:href|src|poster)\s*=\s*["'](\/(?:dist|scripts|assets|patterns)\/[^"']*)["']/g;
+const ROOT_ABSOLUTE = /(?:href|src|poster)\s*=\s*["'](\/(?!\/)[^"']*)["']/g;
+
+/**
+ * Navigation that does not go through `href`. The theme dropdown carries its destination in `value=`
+ * and assigns `window.location.href` from it — a root-absolute path there 404s exactly like an anchor
+ * would, and the attribute-name check above cannot see it. Narrow on purpose: `value` holds all sorts
+ * of things, so only a value that looks like one of this site's own routes counts.
+ */
+const ROOT_ABSOLUTE_VALUE =
+  /value\s*=\s*["'](\/(?!\/)(?:components|tokens|utilities|themes|resources|ai|usage|frameworks)[^"']*)["']/g;
 
 /**
  * Displayed source is not a request. A page that documents `<script src="/dist/cornerstone.loader.js">` in a
@@ -62,7 +77,7 @@ const findings = [];
 
 for (const page of pages) {
   const html = stripCodeBlocks(readFileSync(page, 'utf-8'));
-  for (const match of html.matchAll(ROOT_ABSOLUTE)) {
+  for (const match of [...html.matchAll(ROOT_ABSOLUTE), ...html.matchAll(ROOT_ABSOLUTE_VALUE)]) {
     // Anything already under the base is correct; this only wants the ones that skipped it.
     if (match[1].startsWith(`${DOCS_BASE_PATH}/`)) {
       continue;
@@ -87,4 +102,4 @@ if (findings.length > 0) {
   process.exit(1);
 }
 
-console.log(`PASSED: ${pages.length} built page(s), every asset reference inside \`${DOCS_BASE_PATH}\`.`);
+console.log(`PASSED: ${pages.length} built page(s), every asset and link inside \`${DOCS_BASE_PATH}\`.`);

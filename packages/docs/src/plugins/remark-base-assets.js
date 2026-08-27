@@ -39,7 +39,29 @@ export function remarkBaseAssets() {
           .replaceAll(`"${dir}`, `"${DOCS_BASE_PATH}${dir}`)
           .replaceAll(`'${dir}`, `'${DOCS_BASE_PATH}${dir}`);
       }
+      // Authored links inside raw HTML — `<a href="/usage/#events">` — are the same problem as an
+      // asset path and were never covered, because they are not under a `public/` directory.
+      value = value.replace(/(href|src)="(\/(?!\/)[^"]*)"/g, (whole, attr, path) =>
+        path.startsWith(`${DOCS_BASE_PATH}/`) ? whole : `${attr}="${DOCS_BASE_PATH}${path}"`
+      );
       node.value = value;
     });
+
+    // Markdown links and images: `[text](/usage/#events)`, `![alt](/assets/x.png)`. Root-relative
+    // only — a bare `#anchor`, a relative path and anything with a scheme are all left alone.
+    for (const type of ['link', 'image']) {
+      visit(tree, type, (node) => {
+        if (typeof node.url !== 'string') {
+          return;
+        }
+        if (!node.url.startsWith('/') || node.url.startsWith('//')) {
+          return;
+        }
+        if (node.url.startsWith(`${DOCS_BASE_PATH}/`)) {
+          return;
+        }
+        node.url = `${DOCS_BASE_PATH}${node.url}`;
+      });
+    }
   };
 }

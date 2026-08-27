@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
 import { visit } from 'unist-util-visit';
 import { badgeVariant } from '../badge-variants.js';
+import { DOCS_BASE_PATH } from '@cruglobal/cornerstone-build-tools/site-url.js';
 
 /**
  * Renders a card grid of child pages on a section's index page.
@@ -68,7 +69,7 @@ function childrenOf(dir) {
         // keeps one source of truth, and keeps working if a section ever does get nested.
         badge: data.sidebar?.badge ?? null,
         draft: data.draft === true,
-        link: `/${dir}/${entry.replace(/\.md$/, '')}`,
+        link: `${DOCS_BASE_PATH}/${dir}/${entry.replace(/\.md$/, '')}`,
       };
     })
     .filter((child) => !child.draft)
