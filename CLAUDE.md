@@ -107,10 +107,13 @@ machine, answering an interactive 2FA challenge. Prefer the second for the next 
 credential, and npm removes direct publishing from bypass-2FA tokens in January 2027, leaving OIDC and
 staged publishing.
 
-`packages/components` deliberately does **not** set `publishConfig.provenance`. Trusted publishing attaches
-a provenance attestation on its own — the flag exists to turn that *off* — while setting it true makes
+Provenance is declared in exactly one place: `packages/tokens`' own `publishConfig`. Trusted publishing
+attaches an attestation by itself — the flag exists to turn that *off* — while setting it true makes
 `npm publish` refuse to run anywhere but a CI runner, which is precisely what a first publish cannot be.
-`packages/tokens` still carries the flag; it only ever publishes from CI, so nothing there trips over it.
+A root `.npmrc` carrying `provenance=true` used to apply that to every package in the workspace, and it is
+what failed `@cruglobal/cornerstone-components`' bootstrap publish with `Automatic provenance generation
+not supported for provider: null`. It bought nothing OIDC was not already doing, so it is gone. The flag
+survives only in the tokens manifest, where it reaches one package that publishes from CI and nowhere else.
 
 Neither package runs its test suite at publish time. `prepublishOnly` is `npm run build` in both, because
 the release runner installs no browsers — `npm run verify` in `packages/components` ends in a
