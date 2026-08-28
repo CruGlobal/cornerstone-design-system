@@ -34,6 +34,7 @@ Cornerstone follows <a href="https://semver.org/" class="appearance-plain">Seman
 - Added `sideEffects: true` to `package.json`, recording that component registration, translations and stylesheets are all side-effectful and must never be tree-shaken
 - Added a `bundled/` export subpath, so the bundled build is reachable rather than shipped-but-unimportable
 - Added `LICENSE.md` and `NOTICE` to the published package
+- Published to npm as `@cruglobal/cornerstone-components` — public, with build provenance, released by changesets alongside `@cruglobal/cornerstone-design-system`
 
 :::
 
@@ -61,6 +62,7 @@ Cornerstone follows <a href="https://semver.org/" class="appearance-plain">Seman
 
 - `author` is now `Cru Global`, naming the organisation rather than one of its peer brands
 - `<cs-slider>` now replaces a non-numeric `value` with the midpoint of `min` and `max`, matching `<input type="range">`; it previously became `NaN`
+- `prepublishOnly` now runs `npm run build` rather than `npm run verify`. The release runner installs no browsers, so the three-engine Playwright run that ends `verify` would have failed every publish — and CI has already run that gate on the commit being released
 
 :::
 

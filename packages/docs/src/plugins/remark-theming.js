@@ -37,8 +37,8 @@ import { palettes as paletteList, themes, tints } from '../themer.js';
  *     and a Theme Builder that this package does not have.
  *   - **The "Hosted Projects" install tab.** It described settings screens in a workspace product.
  *   - **The "CDN" install tab.** It was built by a `cdnUrl` shortcode that does not exist in this fork, and
- *     this fork publishes no CDN — the Installation page documents npm only. npm and self-hosted are the
- *     two ways that are actually true here.
+ *     Cru serves the library from no origin of its own — the Installation page documents npm and
+ *     self-hosted, which are the two ways that are actually true here.
  */
 
 // The components package owns the stylesheets this plugin reads.

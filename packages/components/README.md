@@ -15,6 +15,29 @@ Source: [github.com/CruGlobal/cornerstone-design-system](https://github.com/CruG
 
 ---
 
+## Installation
+
+```bash
+npm install @cruglobal/cornerstone-components
+```
+
+Import the stylesheet once, then each component you use:
+
+```js
+import '@cruglobal/cornerstone-components/styles/cornerstone.css';
+import '@cruglobal/cornerstone-components/components/button/button.js';
+```
+
+```html
+<cs-button variant="brand">Click me</cs-button>
+```
+
+If you serve the library yourself rather than bundling it, copy `dist/bundled` out of the package and load
+`cornerstone.loader.js` from your own origin — the autoloader registers each `cs-*` element as it finds one.
+The [installation guide](https://cruglobal.github.io/cornerstone-design-system) covers both paths.
+
+---
+
 ## Developers ✨
 
 Developers can use this documentation to learn how to build Cornerstone Components from source.
