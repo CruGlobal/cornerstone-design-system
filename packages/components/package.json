@@ -160,6 +160,6 @@
     "typescript": "^7.0.2",
     "typescript-eslint": "^8.67.0",
     "user-agent-data-types": "^0.4.2",
-    "uuid": "^9.0.1"
+    "uuid": "^14.0.2"
   }
 }
