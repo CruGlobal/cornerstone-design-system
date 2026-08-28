@@ -1,7 +1,7 @@
 {
   "name": "@cruglobal/cornerstone-components",
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "description": "The custom-element library of the Cornerstone design system.",
   "version": "0.1.0",
@@ -80,7 +80,7 @@
     "check-types": "tsc --noEmit",
     "verify:skills": "node scripts/verify-skills.js",
     "verify": "npm run prettier && npm run build && npm run lint && npm run spellcheck && npm run check-types && npm run test:parts && npm run test:base-path && npm run test:docs-url && npm run verify:skills && npm run test",
-    "prepublishOnly": "npm run verify",
+    "prepublishOnly": "npm run build",
     "check-updates": "npm-check-updates --cooldown 7 --interactive --format group",
     "print-version": "echo $npm_package_version",
     "tag-version": "git tag -a \"v$(npm run print-version | tail -n1)\" -m \"tag v$(npm run print-version | tail -n1)\"",

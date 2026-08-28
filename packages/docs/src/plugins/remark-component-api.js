@@ -62,9 +62,11 @@ function sectionToMarkdown(section) {
 }
 
 /**
- * The four-tab import block. There is no CDN tab: the package is not published, so every CDN URL
- * the Eleventy layout emitted pointed at a host Cru does not own. It returns once there is a
- * published package to point at — see the documentation hosting ticket.
+ * The three-tab import block. There is no CDN tab: the Eleventy layout built its CDN URLs from a host
+ * Cru does not own, and publishing the package did not change that answer. jsDelivr and unpkg do serve
+ * `@cruglobal/cornerstone-components` now, but neither is an origin Cru controls, so the documentation
+ * stays on the two paths that are — npm and self-hosted. A CDN tab belongs here if Cru ever serves the
+ * built library itself.
  */
 function importingSection(component) {
   const name = component.tagName.replace(/^cs-/, '');

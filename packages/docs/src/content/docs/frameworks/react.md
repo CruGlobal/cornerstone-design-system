@@ -27,10 +27,6 @@ To add Cornerstone to your React app, install the package from npm.
 npm install @cruglobal/cornerstone-components
 ```
 
-:::warning
-Cornerstone is not published to npm yet, so this command returns `404 Not Found` today. Until it is published, install from a packed tarball — `npm pack` in this repo, then `npm install /path/to/cruglobal-cornerstone-components-<version>.tgz`.
-:::
-
 Next, include the Cornerstone theme in your app, import the components you need, and start using them!
 
 ```jsx

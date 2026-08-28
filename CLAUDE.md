@@ -10,7 +10,7 @@ one package's work.
 |                        |                                        |                                                                         |
 | ---------------------- | -------------------------------------- | ----------------------------------------------------------------------- |
 | `packages/tokens`      | `@cruglobal/cornerstone-design-system` | the design tokens — published, public                                   |
-| `packages/components`  | `@cruglobal/cornerstone-components`    | the component library — restricted, not yet published                   |
+| `packages/components`  | `@cruglobal/cornerstone-components`    | the component library — published, public                               |
 | `packages/docs`        | —                                      | the Astro documentation site — deploys to GitHub Pages, never published |
 | `packages/build-tools` | —                                      | modules the library and the docs share — private, never published       |
 
@@ -87,9 +87,10 @@ Every PR that touches the token API needs a changeset:
 
 PRs that only change scripts/tooling with no token API impact can use `npx changeset add --empty`.
 
-`@cruglobal/cornerstone-components` is in `.changeset/config.json`'s `ignore` list: it has never been
-published, and whether it goes to npm under a paid organisation or to GitHub Packages is unsettled.
-Until that is decided, changesets must not try to release it.
+Both packages release through changesets; `.changeset/config.json` ignores neither. The documentation
+site is not published, but its pages are compiled into the agent skills the component library ships, so a
+change under `packages/docs/src/content/docs/` changes `@cruglobal/cornerstone-components`' output and
+takes a bump like any other.
 
 ## Release Flow
 
@@ -97,6 +98,24 @@ Merging to `main` triggers `release.yml`. `changesets/action` will:
 
 1. While changesets are pending → open/update a **"chore: version packages"** PR
 2. When that PR is merged → publish to npm with provenance via npm Trusted Publishing (no `NPM_TOKEN` needed; `id-token: write` permission is already configured)
+
+Trusted publishing is configured **per package** on npmjs.com, and npm only lets you configure it for a
+package that already exists — so a package's very first version has to be published by hand before OIDC
+can take over. `@cruglobal/cornerstone-design-system` did that from CI with a short-lived `NPM_TOKEN`
+(added in `ca23090`, removed in `900ea4e`); `@cruglobal/cornerstone-components` did it from a maintainer's
+machine, answering an interactive 2FA challenge. Prefer the second for the next one: it creates no standing
+credential, and npm removes direct publishing from bypass-2FA tokens in January 2027, leaving OIDC and
+staged publishing.
+
+`packages/components` deliberately does **not** set `publishConfig.provenance`. Trusted publishing attaches
+a provenance attestation on its own — the flag exists to turn that *off* — while setting it true makes
+`npm publish` refuse to run anywhere but a CI runner, which is precisely what a first publish cannot be.
+`packages/tokens` still carries the flag; it only ever publishes from CI, so nothing there trips over it.
+
+Neither package runs its test suite at publish time. `prepublishOnly` is `npm run build` in both, because
+the release runner installs no browsers — `npm run verify` in `packages/components` ends in a
+three-engine Playwright run that would fail there, and CI has already run that exact gate on the commit
+being released.
 
 ## Syncing Tokens from Figma
 
