@@ -4,7 +4,7 @@
     "access": "public"
   },
   "description": "The custom-element library of the Cornerstone design system.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://cruglobal.github.io/cornerstone-design-system",
   "author": "Cru Global",
   "license": "MIT",
