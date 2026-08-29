@@ -1,5 +1,39 @@
 # @cruglobal/cornerstone-components
 
+## 0.1.2
+
+### Patch Changes
+
+- [#113](https://github.com/CruGlobal/cornerstone-design-system/pull/113) [`e69a1a9`](https://github.com/CruGlobal/cornerstone-design-system/commit/e69a1a93ec30066de386946aff26492b61c3dd64) Thanks [@rguinee](https://github.com/rguinee)! - Stop `waitForEvent` waiting forever.
+
+  Every `show()`, `hide()`, `expand()` and `collapse()` in the library resolves on a completion event that is
+  dispatched at the end of an animation — and a browser is entitled not to finish an animation. WebKit
+  throttles them on a backgrounded page, and `scrollend`, which `<cs-carousel>` waits on, is not guaranteed at
+  all. With no timeout the promise never settles, so the caller's `await` hangs for the life of the page
+  instead of failing, and nothing logs a word. That is the shape CI hit on WebKit in run #220:
+  `cs-accordion-after-collapse` fired zero times because `await item.collapse()` never returned.
+
+  `waitForEvent` now takes a timeout, defaulting to five seconds, and **resolves** on it rather than
+  rejecting — every caller is a state transition whose state has already changed by the time the animation
+  runs, so the event only reports that it settled. Rejecting would turn a cosmetic stall into an unhandled
+  rejection in eight components. It reaches 14 call sites.
+
+  `<cs-accordion-item>`'s generation guard is unchanged and now carries a comment saying why: a superseded
+  transition deliberately does not emit a completion event, because a consumer must not see a collapse that
+  never happened. `rapid toggling > should only fire the final after event when the animation is interrupted`
+  holds that line, and the cost — a superseded caller's promise going unsettled — is what the timeout above
+  bounds.
+
+  This does not on its own fix the WebKit failure. That test asserts inside a one-second window, and the
+  backstop is deliberately far longer, because it is insurance against a wedged promise rather than a timing
+  mechanism. Sharding the suite is the change that addresses the load.
+
+- [#114](https://github.com/CruGlobal/cornerstone-design-system/pull/114) [`69cf9e1`](https://github.com/CruGlobal/cornerstone-design-system/commit/69cf9e14d986c8015f229fd6667b07ae2b87398f) Thanks [@rguinee](https://github.com/rguinee)! - **Tooling only — nothing that ships changes.** The component test suite is sharded across four CI runners
+  and Playwright's browsers are cached, cutting the gate from ~29 minutes to ~10.
+
+  `npm run verify` is now `verify:static && test` so the two halves can run as separate jobs, and
+  `WTR_SHARD=2/4` selects a quarter of the test files. Unset, `npm test` behaves exactly as before.
+
 ## 0.1.1
 
 ### Patch Changes
