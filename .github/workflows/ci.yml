@@ -81,8 +81,13 @@ jobs:
               - 'package-lock.json'
               - '.github/workflows/ci.yml'
 
-  verify-components:
-    name: Verify components
+  # `npm run verify` used to be one job, on the principle that CI should run exactly the command a
+  # developer runs and nothing else. Sharding the browser suite breaks that into two — so the split lives
+  # in `package.json` as `verify:static` and `test`, both of which a developer can still run, rather than
+  # as a list of steps in this file. `npm run verify` is still `verify:static && test`, so the local gate
+  # and the CI gate remain the same thing.
+  verify-components-static:
+    name: Verify components (static)
     needs: changes
     if: needs.changes.outputs.components == 'true'
     runs-on: ubuntu-latest
@@ -93,10 +98,62 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
       - run: npm ci
-      # `npm run verify` is what a developer runs by hand, so CI runs exactly that and nothing else —
-      # one command, no bespoke job graph to drift from the local check. All three engines.
-      - run: npx playwright install --with-deps
-      - run: npm run verify --workspace @cruglobal/cornerstone-components
+      # Everything in `verify` that is not the browser suite: prettier, build, eslint, cspell, tsc and the
+      # four file checks. Once, rather than repeated on each of the four shards below.
+      - run: npm run verify:static --workspace @cruglobal/cornerstone-components
+
+  # The browser suite, in quarters.
+  #
+  # It was ~28 minutes, and almost all of that is serial: `concurrency` in web-test-runner.config.js
+  # resolves to 1 on a 4-core runner, so each engine walks all 76 test files one page at a time, and the
+  # three engines already run in parallel with one another. Splitting by *engine* would therefore buy
+  # close to nothing — the file list is the only axis with parallelism left in it.
+  #
+  # Four shards also thins the failure mode CLAUDE.md records, where WebKit stops being able to open pages
+  # near the end of a long run: no shard has a long tail any more.
+  #
+  # `fail-fast: false` because a failure in one quarter says nothing about the other three, and cancelling
+  # them turns one red test into three unknowns.
+  verify-components-test:
+    name: Verify components (tests ${{ matrix.shard }}/4)
+    needs: changes
+    if: needs.changes.outputs.components == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+      - run: npm ci
+      # The three browsers are ~400 MB and only a Playwright bump invalidates them. The version is pinned
+      # by the root `overrides`, so the lockfile hash is exactly the right key — it changes when, and only
+      # when, the browsers need to.
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+      # `--with-deps` also installs apt packages, and those live outside the cached directory — so a cache
+      # hit still needs the system libraries, just not the download.
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps
+      # The suite loads components from `dist/`, and nothing is shared between runners, so each shard
+      # builds the library for itself. Seconds, against the tens of minutes the shard saves.
+      - run: npm run build --workspace @cruglobal/cornerstone-components
+      - name: Run this shard of the suite
+        env:
+          WTR_SHARD: ${{ matrix.shard }}/4
+        run: npm test --workspace @cruglobal/cornerstone-components
 
   verify-docs:
     name: Verify documentation
