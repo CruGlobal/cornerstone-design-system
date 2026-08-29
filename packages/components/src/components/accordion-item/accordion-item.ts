@@ -97,6 +97,17 @@ export default class CsAccordionItem extends CornerstoneElement {
     }
   }
 
+  /**
+   * Animates the body open or closed, then announces that the transition settled.
+   *
+   * The generation guard returns *before* dispatching on purpose: a superseded transition must not emit a
+   * completion event, or a consumer sees a collapse that never happened. `rapid toggling > should only fire
+   * the final after event when the animation is interrupted` holds that line.
+   *
+   * The cost is that `expand()`/`collapse()` resolve on these events and nothing else, so the superseded
+   * caller's promise is never settled here. That is bounded by the timeout in `waitForEvent` rather than by
+   * dispatching an event that would be a lie — see `internal/event.ts`.
+   */
   @watch('expanded', { waitUntilFirstUpdate: true })
   async handleExpandedChange() {
     this.animationGeneration++;
