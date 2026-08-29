@@ -6,9 +6,11 @@
 **Trees compared:**
 
 - **A — the published package.** `packages/tokens/tokens/` on `main` — `ref.json`, `sys/{cru,fl}-{light,dark}.json`, `cmp/*.json` (12 files). Style Dictionary 5.x, published as `@cruglobal/cornerstone-design-system@0.6.0`.
-- **B — the generator's output.** `packages/components/tokens/cru/` in the `palette-token-generator` worktree — `palette`, `roles`, `foundation`, `theme`, `cru.resolver.json`, `terrazzo.config.js`. Uncommitted; read, not modified.
+- **B — the generator's output.** `packages/components/tokens/cru/` in the generator worktree at `/Users/ryan.guinee/CruGlobal/cornerstone-generator` — `palette`, `roles`, `foundation`, `theme`, `cru.resolver.json`, `terrazzo.config.js`. Read, not modified.
 
-**Also inspected:** `packages/tokens/build.mjs`, `packages/tokens/scripts/validate-tokens.mjs`, `packages/tokens/package.json`, `packages/tokens/CHANGELOG.md`, `packages/components/tools/{tokens,tokens-core,palette-core}.mjs`, `packages/components/tools/brands/cru.json`, the three uncommitted changesets in the generator worktree, and issues #117, #118, #121.
+**Also inspected:** `packages/tokens/build.mjs`, `packages/tokens/scripts/validate-tokens.mjs`, `packages/tokens/package.json`, `packages/tokens/CHANGELOG.md`, `packages/components/tools/{tokens,tokens-core,palette-core}.mjs`, `packages/components/tools/brands/cru.json`, the three changesets in the generator worktree, and issues #117, #118, #121.
+
+> **Note on B's provenance.** #118 and #117 both describe the generator's output as uncommitted work on branch `palette-token-generator`. During this research that changed underneath: the work was committed as `a603df4` (*"WIP: DTCG token emitter, palette core split, brand metrics"*) and the branch renamed to **`theme-generator`**. The token files themselves are byte-identical to what was analysed — every count in this brief was re-verified against the committed files and matched exactly. Anyone following #117's pointer to `palette-token-generator` will not find it.
 
 ---
 
