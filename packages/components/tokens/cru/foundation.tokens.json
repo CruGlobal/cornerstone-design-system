@@ -1,0 +1,166 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "foundation": {
+    "font-family-body": {
+      "$type": "fontFamily",
+      "$value": ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+    },
+    "font-family-heading": {
+      "$type": "fontFamily",
+      "$value": ["Sora", "ui-sans-serif", "system-ui", "sans-serif"]
+    },
+    "font-family-code": {
+      "$type": "fontFamily",
+      "$value": ["ui-monospace", "monospace"]
+    },
+    "font-family-longform": {
+      "$type": "fontFamily",
+      "$value": ["ui-serif", "serif"]
+    },
+    "font-size-scale": {
+      "$type": "number",
+      "$value": 1
+    },
+    "font-weight-light": {
+      "$type": "fontWeight",
+      "$value": 300
+    },
+    "font-weight-normal": {
+      "$type": "fontWeight",
+      "$value": 400
+    },
+    "font-weight-semibold": {
+      "$type": "fontWeight",
+      "$value": 500
+    },
+    "font-weight-bold": {
+      "$type": "fontWeight",
+      "$value": 600
+    },
+    "line-height-condensed": {
+      "$type": "number",
+      "$value": 1.2
+    },
+    "line-height-normal": {
+      "$type": "number",
+      "$value": 1.6
+    },
+    "line-height-expanded": {
+      "$type": "number",
+      "$value": 2
+    },
+    "space-scale": {
+      "$type": "number",
+      "$value": 1
+    },
+    "border-style": {
+      "$type": "strokeStyle",
+      "$value": "solid"
+    },
+    "border-width-scale": {
+      "$type": "number",
+      "$value": 1
+    },
+    "border-radius-scale": {
+      "$type": "number",
+      "$value": 1
+    },
+    "border-radius-pill": {
+      "$type": "dimension",
+      "$value": {
+        "value": 9999,
+        "unit": "px"
+      }
+    },
+    "border-radius-square": {
+      "$type": "dimension",
+      "$value": {
+        "value": 0,
+        "unit": "px"
+      }
+    },
+    "focus-ring-style": {
+      "$type": "strokeStyle",
+      "$value": "solid"
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": {
+        "value": 0.1875,
+        "unit": "rem"
+      }
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": {
+        "value": 0.0625,
+        "unit": "rem"
+      }
+    },
+    "shadow-offset-x-scale": {
+      "$type": "number",
+      "$value": 0
+    },
+    "shadow-offset-y-scale": {
+      "$type": "number",
+      "$value": 1
+    },
+    "shadow-blur-scale": {
+      "$type": "number",
+      "$value": 1
+    },
+    "shadow-spread-scale": {
+      "$type": "number",
+      "$value": -0.5
+    },
+    "transition-slow": {
+      "$type": "duration",
+      "$value": {
+        "value": 300,
+        "unit": "ms"
+      }
+    },
+    "transition-normal": {
+      "$type": "duration",
+      "$value": {
+        "value": 150,
+        "unit": "ms"
+      }
+    },
+    "transition-fast": {
+      "$type": "duration",
+      "$value": {
+        "value": 75,
+        "unit": "ms"
+      }
+    },
+    "form-control-required-content-offset": {
+      "$type": "dimension",
+      "$value": {
+        "value": 0.1,
+        "unit": "em"
+      }
+    },
+    "form-control-padding-block": {
+      "$type": "dimension",
+      "$value": {
+        "value": 0.75,
+        "unit": "em"
+      }
+    },
+    "form-control-padding-inline": {
+      "$type": "dimension",
+      "$value": {
+        "value": 1,
+        "unit": "em"
+      }
+    },
+    "tooltip-arrow-size": {
+      "$type": "dimension",
+      "$value": {
+        "value": 0.375,
+        "unit": "rem"
+      }
+    }
+  }
+}
