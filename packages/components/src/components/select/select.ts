@@ -34,7 +34,7 @@ import styles from './select.styles.js';
  *  when a fixed set of choices needs to fit in limited space.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/select
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  * @dependency cs-popup

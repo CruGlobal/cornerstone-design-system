@@ -10,7 +10,7 @@ import styles from './scroller.styles.js';
  *  navigate scrollable regions.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/scroller
  * @status stable
- * @since 3.0
+ * @since 0.1
  *
  * @slot - The content to show inside the scroller.
  *

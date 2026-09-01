@@ -20,7 +20,7 @@ import styles from './number-input.styles.js';
  *  decrementing. Use them for quantities, measurements, and other numeric form fields.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/number-input
  * @status stable
- * @since 3.2
+ * @since 0.1
  *
  * @dependency cs-icon
  *

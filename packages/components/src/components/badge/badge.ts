@@ -10,7 +10,7 @@ import styles from './badge.styles.js';
  *  notifications, categorize items, or flag new activity.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/badge
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - The badge's content.
  * @slot start - An element, such as `<cs-icon>`, placed before the label.

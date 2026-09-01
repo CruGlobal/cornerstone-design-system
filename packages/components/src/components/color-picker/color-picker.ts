@@ -49,7 +49,7 @@ declare const EyeDropper: EyeDropperConstructor;
  *  HSL, and HSV formats with optional alpha channel and swatch presets.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/color-picker
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-button
  * @dependency cs-button-group

@@ -15,7 +15,7 @@ import styles from './animated-image.styles.js';
  *  want motion but need to give users control over when it plays.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/animated-image
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

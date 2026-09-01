@@ -19,7 +19,7 @@ import styles from './tooltip.styles.js';
  * @summary Tooltips display brief contextual information when the user hovers, focuses, or taps a target element.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/tooltip
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-popup
  *

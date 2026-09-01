@@ -9,7 +9,7 @@ import styles from './skeleton.styles.js';
  *  wait time and preventing layout shift.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/skeleton
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @csspart indicator - The skeleton's indicator which is responsible for its color and animation.
  *

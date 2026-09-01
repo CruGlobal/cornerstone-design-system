@@ -21,7 +21,7 @@ import styles from './details.styles.js';
  *  information, group related FAQs, or hide advanced options.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/details
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

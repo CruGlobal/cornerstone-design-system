@@ -8,7 +8,7 @@ import { LocalizeController } from '../../utilities/localize.js';
  *  Supports both byte and bit units with configurable locale.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/format-bytes
  * @status stable
- * @since 2.0
+ * @since 0.1
  */
 @customElement('cs-format-bytes')
 export default class CsFormatBytes extends CornerstoneElement {

@@ -54,7 +54,7 @@ function syncCheckboxes(changedTreeItem: CsTreeItem, initialSync = false) {
  *  and collapsed as desired by the user.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/tree
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-tree-item
  *

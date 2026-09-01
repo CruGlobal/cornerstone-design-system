@@ -19,7 +19,7 @@ import styles from './textarea.styles.js';
  * @summary Textareas collect multi-line text input from the user, with optional resizing and character counting.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/textarea
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot label - The textarea's label. Alternatively, you can use the `label` attribute.
  * @slot hint - Text that describes how to use the input. Alternatively, you can use the `hint` attribute.

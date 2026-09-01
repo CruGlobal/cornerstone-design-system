@@ -25,7 +25,7 @@ const ASSIGNED_ID_PROP = '__waCopyButtonAssignedId';
  *  error feedback so users know the copy worked.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/copy
  * @status stable
- * @since 3.6
+ * @since 0.1
  *
  * @dependency cs-icon
  * @dependency cs-tooltip

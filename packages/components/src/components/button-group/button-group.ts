@@ -11,7 +11,7 @@ import styles from './button-group.styles.js';
  *  or any set of actions that belong together.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/button-group
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - One or more `<cs-button>` elements to display in the button group.
  *

@@ -14,7 +14,7 @@ import { animations } from './animations.js';
  *  Powered by the Web Animations API.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/animation
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @event cs-cancel - Emitted when the animation is canceled.
  * @event cs-finish - Emitted when the animation finishes.

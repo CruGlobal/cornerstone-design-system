@@ -43,7 +43,7 @@ const SUPPORTS_POPOVER = Boolean(
  *  resizes. Primarily a low-level building block for popovers, dropdowns, and tooltips.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/popup
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @event cs-reposition - Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive
  *  operations in your listener or consider debouncing it.

@@ -14,7 +14,7 @@ import styles from './option.styles.js';
  *  and the label shown to the user.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/option
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

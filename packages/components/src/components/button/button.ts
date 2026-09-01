@@ -20,7 +20,7 @@ import styles from './button.styles.js';
  *  another page.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/button
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  * @dependency cs-spinner

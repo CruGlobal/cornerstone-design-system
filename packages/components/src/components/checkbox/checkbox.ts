@@ -19,7 +19,7 @@ import styles from './checkbox.styles.js';
  *  indeterminate state for partial selections in groups.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/checkbox
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

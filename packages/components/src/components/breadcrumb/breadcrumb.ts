@@ -12,7 +12,7 @@ import styles from './breadcrumb.styles.js';
  *  understand the current location and navigate back to parent pages.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/breadcrumb
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - One or more breadcrumb items to display.
  * @slot separator - The separator to use between breadcrumb items. Works best with `<cs-icon>`.

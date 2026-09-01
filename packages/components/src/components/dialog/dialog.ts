@@ -24,7 +24,7 @@ import styles from './dialog.styles.js';
  *  or focused tasks that interrupt the main flow.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/dialog
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-button
  *

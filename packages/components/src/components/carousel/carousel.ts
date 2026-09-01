@@ -24,7 +24,7 @@ import styles from './carousel.styles.js';
  * @summary Carousels display a series of content slides along a horizontal or vertical axis, one or more at a time.
  *  Users can navigate between slides with controls, pagination, or autoplay.
  *
- * @since 2.2
+ * @since 0.1
  * @status experimental
  *
  * @dependency cs-icon

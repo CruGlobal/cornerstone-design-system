@@ -6,7 +6,7 @@ import styles from './carousel-item.styles.js';
 /**
  * @summary Carousel items represent individual slides within a carousel.
  *
- * @since 2.0
+ * @since 0.1
  * @status experimental
  *
  * @slot - The carousel item's content..

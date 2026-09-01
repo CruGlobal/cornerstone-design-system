@@ -11,7 +11,7 @@ import styles from './callout.styles.js';
  *  errors, or other information users should not miss.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/callout
  * @status stable
- * @since 3.0
+ * @since 0.1
  *
  * @slot - The callout's main content.
  * @slot icon - An icon to show in the callout. Works best with `<cs-icon>`.

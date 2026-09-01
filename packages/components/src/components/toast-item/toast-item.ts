@@ -20,7 +20,7 @@ import styles from './toast-item.styles.js';
  * @summary Toast items are individual notifications displayed within a toast container.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/toast
  * @status stable
- * @since 3.3
+ * @since 0.1
  *
  * @dependency cs-icon
  * @dependency cs-progress-ring

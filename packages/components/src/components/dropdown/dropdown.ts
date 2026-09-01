@@ -30,7 +30,7 @@ const openDropdowns = new Set<CsDropdown>();
  *  navigation, submenus, and checkable items for building menus and context actions.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/dropdown
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-dropdown-item
  * @dependency cs-popup

@@ -12,7 +12,7 @@ let id = 0;
  * @summary Tab panels hold the content shown for a single tab inside a tab group.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/tab-panel
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - The tab panel's content.
  *

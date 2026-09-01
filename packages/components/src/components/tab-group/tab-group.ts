@@ -20,7 +20,7 @@ import styles from './tab-group.styles.js';
  *  switching between them.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/tab-group
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-button
  * @dependency cs-tab

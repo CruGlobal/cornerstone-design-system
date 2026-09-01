@@ -19,7 +19,7 @@ import styles from './switch.styles.js';
  *  submission.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/switch
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - The switch's label.
  * @slot hint - Text that describes how to use the switch. Alternatively, you can use the `hint` attribute.

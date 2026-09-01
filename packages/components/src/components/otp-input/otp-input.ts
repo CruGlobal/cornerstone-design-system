@@ -19,7 +19,7 @@ import styles from './otp-input.styles.js';
  * Use them for SMS verification, two-factor authentication, and invite codes.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/otp-input
  * @status experimental
- * @since 3.11
+ * @since 0.1
  *
  * @slot label - An optional label. Use this for labels that contain HTML. Takes precedence over the `label` attribute, which is its fallback.
  * @slot hint - Optional hint text. Use this for hints that contain HTML. Takes precedence over the `hint` attribute, which is its fallback.

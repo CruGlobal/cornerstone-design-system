@@ -13,7 +13,7 @@ const connectedInstances = new Set<CsMarkdown>();
  *  user-generated content or documentation without a server-side build step.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/markdown
  * @status experimental
- * @since 3.4
+ * @since 0.1
  *
  * @ssr - `<cs-markdown>` parses the content of its children at runtime, which requires a DOM. It can't render during SSR — use it on the client only.
  */

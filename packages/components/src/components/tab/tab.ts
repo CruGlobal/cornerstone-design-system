@@ -12,7 +12,7 @@ let id = 0;
  * @summary Tabs label and activate an individual panel inside a tab group.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/tab
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - The tab's label.
  *

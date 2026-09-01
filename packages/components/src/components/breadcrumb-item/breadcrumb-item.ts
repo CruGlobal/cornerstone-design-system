@@ -11,7 +11,7 @@ import styles from './breadcrumb-item.styles.js';
  *  hierarchy.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/breadcrumb-item
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - The breadcrumb item's label.
  * @slot start - An element, such as `<cs-icon>`, placed before the label.

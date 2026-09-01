@@ -62,7 +62,7 @@ const SINGLE_GROUP = 'single';
  *  picker. They support 12- and 24-hour formats, optional seconds, and locale-aware segment order.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/time-input
  * @status experimental
- * @since 3.8
+ * @since 0.1
  *
  * @dependency cs-icon
  * @dependency cs-popup

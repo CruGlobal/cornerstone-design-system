@@ -27,7 +27,7 @@ const generateId = (): string => uniqueId('cs-known-date-');
  *  dates - through three separate day, month, and year fields shown in the locale's natural order.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/known-date
  * @status experimental
- * @since 3.8
+ * @since 0.1
  *
  * @slot label - The known date's group label. Alternatively, use the `label` attribute.
  * @slot hint - Text that describes how to use the known date. Alternatively, use the `hint` attribute.
