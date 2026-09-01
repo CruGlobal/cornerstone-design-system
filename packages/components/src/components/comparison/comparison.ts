@@ -15,7 +15,7 @@ import styles from './comparison.styles.js';
  *  them for before/after images, design revisions, or side-by-side previews.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/comparison
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

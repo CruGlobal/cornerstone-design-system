@@ -117,7 +117,7 @@ export interface ToastCreateOptions {
  * @summary Toasts display brief, non-blocking notifications that appear temporarily above the page content.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/toast
  * @status stable
- * @since 3.3
+ * @since 0.1
  *
  * @dependency cs-toast-item
  *

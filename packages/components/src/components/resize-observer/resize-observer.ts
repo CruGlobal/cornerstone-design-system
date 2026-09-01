@@ -11,7 +11,7 @@ import styles from './resize-observer.styles.js';
  *  thin, declarative interface to the browser's ResizeObserver API.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/resize-observer
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - One or more elements to watch for resizing.
  *

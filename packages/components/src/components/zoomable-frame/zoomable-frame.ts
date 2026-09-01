@@ -14,7 +14,7 @@ import styles from './zoomable-frame.styles.js';
  * @summary Zoomable frames embed iframe content with built-in controls for zooming, panning, and managing interaction.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/zoomable-frame
  * @status stable
- * @since 3.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

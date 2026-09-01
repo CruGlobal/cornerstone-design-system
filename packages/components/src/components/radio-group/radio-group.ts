@@ -18,7 +18,7 @@ import styles from './radio-group.styles.js';
  *  handle keyboard navigation, labeling, and validation for the group as a whole.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/radio-group
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-radio
  *

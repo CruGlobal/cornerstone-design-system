@@ -71,7 +71,7 @@ function toLength(px: number | string): string {
  *  footer regions. Use them to structure full pages with minimal markup and responsive behavior built in.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/page
  * @status stable
- * @since 3.0
+ * @since 0.1
  *
  * @slot - The page's main content.
  * @slot banner - The banner that gets display above the header. The banner will not be shown if no content is provided.

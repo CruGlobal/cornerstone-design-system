@@ -9,7 +9,7 @@ import { LocalizeController } from '../../utilities/localize.js';
  *  Intl.DateTimeFormat API for consistent, localized output.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/format-date
  * @status stable
- * @since 2.0
+ * @since 0.1
  */
 @customElement('cs-format-date')
 export default class CsFormatDate extends CornerstoneElement {

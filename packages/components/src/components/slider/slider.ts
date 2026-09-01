@@ -24,7 +24,7 @@ import styles from './slider.styles.js';
  * @summary Sliders let users choose a numeric value within a defined range by dragging a thumb along a track.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/slider
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-tooltip
  *

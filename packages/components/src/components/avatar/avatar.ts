@@ -12,7 +12,7 @@ import styles from './avatar.styles.js';
  *  profiles to give users visual context at a glance.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/avatar
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

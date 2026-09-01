@@ -15,7 +15,7 @@ import styles from './split-panel.styles.js';
  *  suit their workflow.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/split-panel
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @event cs-reposition - Emitted when the divider's position changes.
  *

@@ -49,7 +49,7 @@ export type IconCanvas = 'fixed' | 'auto' | 'square' | 'roomy';
  *  They support Material Symbols and custom icon libraries with animation presets.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/icon
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @event cs-load - Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit.
  * @event cs-error - Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit.

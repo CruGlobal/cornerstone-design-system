@@ -24,7 +24,7 @@ import styles from './drawer.styles.js';
  *  navigating away. Useful for navigation menus, filters, and secondary content.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/drawer
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-button
  *

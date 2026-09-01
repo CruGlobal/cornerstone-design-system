@@ -13,7 +13,7 @@ import styles from './dropdown-item.styles.js';
  *  items, and submenu triggers.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/dropdown-item
  * @status stable
- * @since 3.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

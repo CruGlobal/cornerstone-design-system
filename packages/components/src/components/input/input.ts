@@ -21,7 +21,7 @@ import styles from './input.styles.js';
  *  support labels, hints, validation, and prefix or suffix slots.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/input
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

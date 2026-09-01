@@ -24,7 +24,7 @@ const availableUnits: UnitConfig[] = [
  *  The phrase updates automatically as time passes and respects the user's locale.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/relative-time
  * @status stable
- * @since 2.0
+ * @since 0.1
  */
 @customElement('cs-relative-time')
 export default class CsRelativeTime extends CornerstoneElement {

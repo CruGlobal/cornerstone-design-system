@@ -123,7 +123,7 @@ function getPaginationRange(options: PaginationRangeOptions): PaginationRangeIte
  * @summary Pagination splits long lists of content into pages, letting users navigate between them.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/pagination
  * @status experimental
- * @since 3.11
+ * @since 0.1
  *
  * @dependency cs-icon
  *

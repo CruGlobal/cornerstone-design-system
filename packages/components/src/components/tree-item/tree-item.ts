@@ -29,7 +29,7 @@ export const treeItemContext = createContext<TreeItemContext>('cs-tree-item');
  *  collapse.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/tree-item
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-checkbox
  * @dependency cs-icon

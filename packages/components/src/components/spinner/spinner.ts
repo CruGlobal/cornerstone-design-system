@@ -9,7 +9,7 @@ import styles from './spinner.styles.js';
  *  where a determinate progress bar isn't practical.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/spinner
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @csspart spinner - The component's outer wrapper.
  *

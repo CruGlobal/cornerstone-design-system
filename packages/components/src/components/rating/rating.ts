@@ -19,7 +19,7 @@ import styles from './rating.styles.js';
  *  feedback or show an average rating for a product or piece of content.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/rating
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

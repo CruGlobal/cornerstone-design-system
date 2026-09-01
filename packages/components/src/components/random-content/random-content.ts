@@ -42,7 +42,7 @@ if (typeof document !== 'undefined') {
  * @summary Selects one or more child elements at random and displays them, hiding the rest.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/random-content
  * @status experimental
- * @since 3.9
+ * @since 0.1
  *
  * @slot - The pool of children to choose from. Only direct element children are eligible; unselected
  *  children are hidden with the `hidden` attribute.

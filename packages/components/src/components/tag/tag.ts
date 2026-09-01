@@ -14,7 +14,7 @@ import styles from './tag.styles.js';
  *  indicators, filters, or removable chips.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/tag
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-button
  *

@@ -13,7 +13,7 @@ import styles from './intersection-observer.styles.js';
  *  scroll-triggered animations, and viewport-aware interactions.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/intersection-observer
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - Elements to track. Only immediate children of the host are monitored.
  *

@@ -12,7 +12,7 @@ import styles from './progress-ring.styles.js';
  *  compact alternative to progress bars when horizontal space is limited.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/progress-ring
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - A label to show inside the ring.
  *

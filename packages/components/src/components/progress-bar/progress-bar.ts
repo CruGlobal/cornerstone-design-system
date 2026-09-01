@@ -13,7 +13,7 @@ import styles from './progress-bar.styles.js';
  *  multi-step flows, or any task with measurable progress.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/progress-bar
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - A label to show inside the progress indicator.
  *

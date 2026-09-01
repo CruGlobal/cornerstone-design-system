@@ -12,7 +12,7 @@ import styles from './card.styles.js';
  *  user profiles, or any self-contained unit of information.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/card
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @slot - The card's main content.
  * @slot header - An optional header for the card.

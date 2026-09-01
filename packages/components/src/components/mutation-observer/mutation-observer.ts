@@ -11,7 +11,7 @@ import styles from './mutation-observer.styles.js';
  *  thin, declarative interface to the browser's MutationObserver API.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/mutation-observer
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @event {{ mutationList: MutationRecord[] }} cs-mutation - Emitted when a mutation occurs.
  *

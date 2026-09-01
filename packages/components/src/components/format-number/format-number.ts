@@ -8,7 +8,7 @@ import { LocalizeController } from '../../utilities/localize.js';
  *  styles. Powered by the Intl.NumberFormat API.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/format-number
  * @status stable
- * @since 2.0
+ * @since 0.1
  */
 @customElement('cs-format-number')
 export default class CsFormatNumber extends CornerstoneElement {

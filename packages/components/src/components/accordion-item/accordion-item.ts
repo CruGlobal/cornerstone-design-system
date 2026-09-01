@@ -17,7 +17,7 @@ import styles from './accordion-item.styles.js';
  * @summary Accordion items are used inside `<cs-accordion>` to create expandable sections with accessible headers.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/accordion
  * @status experimental
- * @since 1.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

@@ -16,7 +16,7 @@ import styles from './checkbox-group.styles.js';
  *  semantics.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/checkbox-group
  * @status stable
- * @since 3.9
+ * @since 0.1
  *
  * @dependency cs-checkbox
  *

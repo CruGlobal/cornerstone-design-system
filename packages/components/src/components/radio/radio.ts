@@ -13,7 +13,7 @@ import styles from './radio.styles.js';
  *  must pick exactly one choice from a small list.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/radio
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @dependency cs-icon
  *

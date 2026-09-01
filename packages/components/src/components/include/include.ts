@@ -13,7 +13,7 @@ import { requestInclude } from './request.js';
  *  like headers, footers, and partials across multiple pages.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/include
  * @status stable
- * @since 2.0
+ * @since 0.1
  *
  * @event cs-load - Emitted when the included file is loaded.
  * @event {{ status: number }} cs-include-error - Emitted when the included file fails to load due to an error.

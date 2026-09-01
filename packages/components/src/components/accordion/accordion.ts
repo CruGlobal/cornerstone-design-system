@@ -15,7 +15,7 @@ import styles from './accordion.styles.js';
  * @summary Accordions are a vertically stacked set of interactive headings that each contain a title, representing a section of content.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/accordion
  * @status experimental
- * @since 3.7
+ * @since 0.1
  *
  * @dependency cs-accordion-item
  *

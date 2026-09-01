@@ -23,7 +23,7 @@ const openPopovers = new Set<CsPopover>();
  *  them for rich tooltips, menus, or any content that appears on demand without navigating away.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/popover
  * @status stable
- * @since 3.0
+ * @since 0.1
  *
  * @dependency cs-popup
  *
