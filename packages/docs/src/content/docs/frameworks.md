@@ -126,16 +126,29 @@ Every one of these is a cost, and every one was accepted for something.
 
 ### Why Web Awesome
 
-Choosing web components still left the question of whether to write seventy of them. Cornerstone is a fork of
-[Web Awesome](https://webawesome.com), the library that grew out of Shoelace, which had already done the
-accessibility work, the form-association work and the SSR groundwork on top of [Lit](https://lit.dev). Forking
-it meant starting from a library that already met the requirements instead of spending a year rediscovering
-them. What the fork changed is the token layer, the `cs-` prefix, the variant axes, and the theming.
+Choosing web components still left the question of whether to write seventy of them. Before any were written,
+the library was specified against a set of principles:
 
-The principles the library is held to — the prefix, the `variant` and `appearance` axes, the event names, the
-deliberately minimal `::part()` surface, the rule that ARIA politeness is a timing concern rather than a
-variant one — were argued out in
-[#59](https://github.com/CruGlobal/cornerstone-design-system/pull/59) before the first component shipped. It
-closed unmerged, because forking Web Awesome answered the question the document had been specifying, but it
-remains where the considerations are written down. The [changelog](/resources/changelog) records what has
-changed since.
+- **One prefix, `cs-`.** `cds-` is IBM Carbon, and `cru-` would exclude FamilyLife, which the system also
+  dresses.
+- **Two orthogonal style axes**, `variant` and `appearance`. Figma's `Style` axis was unusable: `style` is a
+  global HTML attribute, so a `style` property would shadow `HTMLElement.style`.
+- **Content arrives through slots**, with the default slot as the body — a body takes inline markup, so it
+  can't be an attribute.
+- **Events are prefixed and paired.** `cs-show` with `cs-after-show`, `cs-hide` with `cs-after-hide`, the
+  before-events cancelable. The pairing maps mechanically onto React's `onCsAfterShow`.
+- **Shadow DOM on, with a deliberately small `::part()` surface.** Outer chrome sits on `:host`, so a
+  consumer controls margin, width and position with a plain `cs-dialog { }` rule and no part at all. New parts
+  are request-driven.
+- **Theming is CSS custom properties**, never a JavaScript layer, so it survives every framework boundary.
+- **Form controls are form-associated**, participating in validation and reset the way native ones do.
+- **Accessibility is asserted rather than claimed**, in the test suite, on real browsers.
+
+Web Awesome met all of it. It is built on [Lit](https://lit.dev), its content model is slots, its events are
+already prefixed and paired in the same shape, its form controls are form-associated, and it exposes parts and
+custom properties instead of a theming API. So the fork was mechanical where it could be — `wa-` became `cs-`
+and the event vocabulary came across intact — and the effort went where the systems genuinely differ: the
+token layer, the variant axes and the theming. It is MIT licensed, which kept that uncomplicated.
+
+The accessibility, form-association and SSR groundwork it brought is a year not spent rediscovering it. The
+[changelog](/resources/changelog) records what has changed since.

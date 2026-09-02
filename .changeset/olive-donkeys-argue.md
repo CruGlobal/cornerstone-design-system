@@ -24,11 +24,18 @@ that buys is a fixed set of surfaces to design against — fewer decisions per c
 a guardrail on an agent that would otherwise improvise a design. It is a dependency rather than source you
 own, and the escape hatch is self-hosting and extending rather than forking.
 
-The API principles now link to [#59](https://github.com/CruGlobal/cornerstone-design-system/pull/59), where
-they were argued out before the first component shipped.
+The API principles the library was specified against are named on the page — the prefix, the `variant` and
+`appearance` axes, slotted content, the paired cancelable events, the deliberately small `::part()` surface,
+CSS-custom-property theming, form association and asserted accessibility — followed by how Web Awesome already
+met each one, which is what made the fork mechanical rather than a rewrite.
+
+The Rails and WordPress sidebar badges change from "Tested" to "Testing", which is where both actually stand.
+Their in-page "Verified on Rails 8.1" and "Verified on WordPress 7.1" badges are left alone: those are
+narrower claims about snippets that were genuinely run, and each page documents what that covered.
 
 The page's card grid moves to a `::page-index` marker under a new "Integration Guides" heading so the prose
 can follow it, which is the same shape `ai/index.md` already uses.
 
-Docs-site only: `frameworks.md` is the section index and is not one of the pages `SKILL_PAGES` compiles into
-the shipped agent skill, so nothing in the package's output changes.
+`frameworks.md` itself is the section index and is not compiled into the shipped agent skill, but
+`frameworks/rails.md` and `frameworks/wordpress.md` are, so the badge correction does reach the skill's
+copies of those two pages.
