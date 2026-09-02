@@ -122,6 +122,9 @@ export function remarkChangelog() {
       return;
     }
 
+    /** Every category the page turns out to use, so the legend describes this page and not this table. */
+    const used = new Set();
+
     // Spliced first, so everything below reaches the generated releases as well as the authored ones.
     visit(tree, 'leafDirective', (node, index, parent) => {
       if (node.name === 'changelog') {
@@ -130,14 +133,85 @@ export function remarkChangelog() {
       }
     });
 
-    // Which categories the page uses, so the legend describes this page rather than this table.
-    const used = new Set();
     visit(tree, 'containerDirective', (node) => {
-      if (CATEGORIES[node.name]) {
+      const category = CATEGORIES[node.name];
+      const bump = BUMPS[node.name];
+
+      if (!category && !bump) {
+        return;
+      }
+
+      node.data = {
+        ...node.data,
+        hName: 'div',
+        hProperties: {
+          class: 'changelog-group',
+          [category ? 'data-change' : 'data-bump']: node.name,
+        },
+      };
+
+      if (category) {
         used.add(node.name);
+
+        // The category name, for anyone who cannot see the icon that replaced it. One per group rather than
+        // one per entry: a screen reader should hear "Fixed" once, not fifteen times.
+        node.children.unshift({
+          type: 'paragraph',
+          data: { hProperties: { class: 'cs-visually-hidden' } },
+          children: [{ type: 'text', value: category.label }],
+        });
+      } else {
+        node.children.unshift({
+          type: 'html',
+          value:
+            `<cs-badge class="changelog-bump" variant="${bump.variant}" appearance="filled" pill>` +
+            `${bump.label}</cs-badge>`,
+        });
+      }
+
+      // Top-level entries only. A nested bullet is a continuation of the entry above it, not a change of
+      // its own, so it keeps an ordinary marker and does not claim a category.
+      for (const list of node.children.filter((child) => child.type === 'list')) {
+        for (const item of list.children) {
+          const paragraph = item.children.find((child) => child.type === 'paragraph');
+
+          if (!paragraph) {
+            continue;
+          }
+
+          if (category) {
+            paragraph.children.unshift(bullet(category.icon));
+            continue;
+          }
+
+          // A generated entry earns the same bullet when its changeset says what kind of change it is.
+          // The changesets format records no such thing — a bump level is not a category, and `patch`
+          // covers a bug fix, a chore and a tooling tweak alike — so the convention is a `Fixed:` prefix
+          // on the summary. It reads as ordinary prose in the CHANGELOG that npm and GitHub render, and
+          // becomes the icon here. An entry without one keeps a plain bullet rather than being guessed at.
+          const first = paragraph.children[0];
+          const declared =
+            first?.type === 'text' && /^(breaking|added|changed|deprecated|removed|fixed):\s*/i.exec(first.value);
+
+          if (!declared) {
+            continue;
+          }
+
+          const name = declared[1].toLowerCase();
+          first.value = first.value.slice(declared[0].length);
+
+          if (!first.value) {
+            paragraph.children.shift();
+          }
+
+          paragraph.children.unshift(bullet(CATEGORIES[name].icon));
+          used.add(name);
+        }
       }
     });
 
+    // Rendered after the walk above, so it can describe a category an entry declared as well as one a block
+    // did.
     visit(tree, 'leafDirective', (node, index, parent) => {
       if (node.name !== 'changelog-legend') {
         return;
@@ -159,55 +233,6 @@ export function remarkChangelog() {
       );
 
       return false;
-    });
-
-    visit(tree, 'containerDirective', (node) => {
-      const category = CATEGORIES[node.name];
-      const bump = BUMPS[node.name];
-
-      if (!category && !bump) {
-        return;
-      }
-
-      node.data = {
-        ...node.data,
-        hName: 'div',
-        hProperties: {
-          class: 'changelog-group',
-          [category ? 'data-change' : 'data-bump']: node.name,
-        },
-      };
-
-      if (bump) {
-        node.children.unshift({
-          type: 'html',
-          value:
-            `<cs-badge class="changelog-bump" variant="${bump.variant}" appearance="filled" pill>` +
-            `${bump.label}</cs-badge>`,
-        });
-
-        return;
-      }
-
-      // The category name, for anyone who cannot see the icon that replaced it. One per group rather than
-      // one per entry: the entries are already the group's, and a screen reader should hear "Fixed" once.
-      node.children.unshift({
-        type: 'paragraph',
-        data: { hProperties: { class: 'cs-visually-hidden' } },
-        children: [{ type: 'text', value: category.label }],
-      });
-
-      // Top-level entries only. A nested bullet is a continuation of the entry above it, not a change of
-      // its own, so it keeps an ordinary marker and does not claim a category.
-      for (const list of node.children.filter((child) => child.type === 'list')) {
-        for (const item of list.children) {
-          const paragraph = item.children.find((child) => child.type === 'paragraph');
-
-          if (paragraph) {
-            paragraph.children.unshift(bullet(category.icon));
-          }
-        }
-      }
     });
 
     // Astro's slugger drops the dots, so `## 0.1.2` becomes `#012` — an anchor nobody would guess and
@@ -234,12 +259,7 @@ export function remarkChangelog() {
 
       node.data = {
         ...node.data,
-        hProperties: {
-          class: 'changelog-ref',
-          href: node.url,
-          target: '_blank',
-          rel: 'noreferrer',
-        },
+        hProperties: { class: 'changelog-ref', href: node.url, target: '_blank', rel: 'noreferrer' },
       };
 
       node.children = [
