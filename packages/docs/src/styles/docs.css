@@ -1247,19 +1247,25 @@ cs-page[view='mobile'] .site-logo {
 }
 
 /*
- * The icon stands in for the marker, so the list gives up its own and the icon is pulled into the space the
- * marker occupied. `inline-block` rather than a float: an entry runs to several lines and the icon belongs to
- * the first of them.
+ * The icon stands in for the list marker, so an entry carrying one gives up its own.
+ *
+ * Keyed on the icon rather than on the group, because the two halves of this page produce different markup
+ * and both can carry icons. An authored entry is a tight list item — `<li><cs-icon>…` — while a generated
+ * one is loose and wraps its text in a paragraph, `<li><p><cs-icon>…`. Scoping this to `[data-change]`
+ * styled only the authored half, so every generated entry rendered a disc *and* an icon.
+ *
+ * Per entry rather than per list, so an entry whose changeset declared no category keeps an ordinary marker
+ * and sits correctly beside ones that did.
  */
-.changelog-group[data-change] ul {
-  list-style: none;
-  padding-inline-start: 0;
-}
-
-.changelog-group[data-change] > ul > li {
+.changelog-group > ul {
   padding-inline-start: 1.75em;
 }
 
+.changelog-group li:has(> .changelog-bullet, > p:first-child > .changelog-bullet) {
+  list-style: none;
+}
+
+/* Pulled into the space the marker vacated. The entry's remaining lines wrap against the text, not the icon. */
 .changelog-bullet {
   margin-inline-start: -1.75em;
   width: 1.25em;
@@ -1268,14 +1274,9 @@ cs-page[view='mobile'] .site-logo {
   color: var(--cs-color-neutral-on-quiet, currentColor);
 }
 
-/* A nested bullet is a continuation of the entry above it, so it keeps an ordinary marker. */
-.changelog-group[data-change] li ul {
-  list-style: disc;
-  padding-inline-start: 1.5em;
-}
-
-.changelog-bump {
-  margin-block-end: var(--cs-space-xs, 0.5rem);
+/* A loose entry opens with a paragraph, whose margin would otherwise gap it away from the badge above. */
+.changelog-group li > p:first-child {
+  margin-block-start: 0;
 }
 
 /* Issue and pull request references: a badge, not a bare number in brackets. */

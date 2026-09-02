@@ -46,17 +46,13 @@ const CATEGORIES = {
 const LEGEND_ORDER = ['breaking', 'added', 'changed', 'removed', 'fixed', 'deprecated'];
 
 /**
- * Bump level → the badge that labels a generated release's group.
+ * The wrapper a generated release's entries land in.
  *
- * These stay visible where a category is hidden, because they are all the signal there is: a changeset
- * records the bump it causes, not whether each entry fixed something or added it. Deriving a bullet icon
- * from `patch` would be a guess — plenty of patches are chores — so generated entries keep plain bullets.
+ * They carry no category of their own: changesets records the bump a change causes, and a bump level is not
+ * a category. It used to render as a "Patch" badge above the list, which said nothing the version heading
+ * had not already said — and once every entry began carrying its own icon, said nothing at all.
  */
-const BUMPS = {
-  major: { label: 'Major', variant: 'danger' },
-  minor: { label: 'Minor', variant: 'success' },
-  patch: { label: 'Patch', variant: 'neutral' },
-};
+const PLAIN_GROUP = 'changes';
 
 /** GitHub reference → the icon its badge carries. Upstream's `circle-dot` and `code-pull-request`. */
 const REFERENCES = { issues: 'adjust', pull: 'merge' };
@@ -86,20 +82,19 @@ function generatedReleases() {
       const newline = section.indexOf('\n');
       const lines = [`## ${section.slice(0, newline).trim()}`, ''];
 
-      // changesets groups a release by bump level — `### Patch Changes`. That is the same kind of statement
-      // as an authored `:::fixed`, so it is emitted as one and picks up the same handling below.
-      for (const group of section.slice(newline).split(/^### /m).slice(1)) {
-        const end = group.indexOf('\n');
-        const level = group
-          .slice(0, end)
-          .trim()
-          .replace(/ Changes$/, '')
-          .toLowerCase();
-        const body = tidy(group.slice(end)).trim();
+      // changesets groups a release by bump level — `### Patch Changes`. The heading is dropped: the version
+      // above it already says which bump it was, and a bump level is not a category, so it told a reader
+      // nothing once every entry began carrying its own.
+      const entries = section
+        .slice(newline)
+        .split(/^### /m)
+        .slice(1)
+        .map((group) => tidy(group.slice(group.indexOf('\n'))).trim())
+        .filter(Boolean)
+        .join('\n\n');
 
-        if (body) {
-          lines.push(`:::${level}`, '', body, '', ':::', '');
-        }
+      if (entries) {
+        lines.push(`:::${PLAIN_GROUP}`, '', entries, '', ':::', '');
       }
 
       return lines.join('\n');
@@ -135,9 +130,8 @@ export function remarkChangelog() {
 
     visit(tree, 'containerDirective', (node) => {
       const category = CATEGORIES[node.name];
-      const bump = BUMPS[node.name];
 
-      if (!category && !bump) {
+      if (!category && node.name !== PLAIN_GROUP) {
         return;
       }
 
@@ -146,28 +140,23 @@ export function remarkChangelog() {
         hName: 'div',
         hProperties: {
           class: 'changelog-group',
-          [category ? 'data-change' : 'data-bump']: node.name,
+          ...(category ? { 'data-change': node.name } : {}),
         },
       };
 
-      if (category) {
-        used.add(node.name);
-
-        // The category name, for anyone who cannot see the icon that replaced it. One per group rather than
-        // one per entry: a screen reader should hear "Fixed" once, not fifteen times.
-        node.children.unshift({
-          type: 'paragraph',
-          data: { hProperties: { class: 'cs-visually-hidden' } },
-          children: [{ type: 'text', value: category.label }],
-        });
-      } else {
-        node.children.unshift({
-          type: 'html',
-          value:
-            `<cs-badge class="changelog-bump" variant="${bump.variant}" appearance="filled" pill>` +
-            `${bump.label}</cs-badge>`,
-        });
+      if (!category) {
+        return;
       }
+
+      used.add(node.name);
+
+      // The category name, for anyone who cannot see the icon that replaced it. One per group rather than
+      // one per entry: a screen reader should hear "Fixed" once, not fifteen times.
+      node.children.unshift({
+        type: 'paragraph',
+        data: { hProperties: { class: 'cs-visually-hidden' } },
+        children: [{ type: 'text', value: category.label }],
+      });
 
       // Top-level entries only. A nested bullet is a continuation of the entry above it, not a change of
       // its own, so it keeps an ordinary marker and does not claim a category.
@@ -175,39 +164,41 @@ export function remarkChangelog() {
         for (const item of list.children) {
           const paragraph = item.children.find((child) => child.type === 'paragraph');
 
-          if (!paragraph) {
-            continue;
-          }
-
-          if (category) {
+          if (paragraph) {
             paragraph.children.unshift(bullet(category.icon));
-            continue;
           }
-
-          // A generated entry earns the same bullet when its changeset says what kind of change it is.
-          // The changesets format records no such thing — a bump level is not a category, and `patch`
-          // covers a bug fix, a chore and a tooling tweak alike — so the convention is a `Fixed:` prefix
-          // on the summary. It reads as ordinary prose in the CHANGELOG that npm and GitHub render, and
-          // becomes the icon here. An entry without one keeps a plain bullet rather than being guessed at.
-          const first = paragraph.children[0];
-          const declared =
-            first?.type === 'text' && /^(breaking|added|changed|deprecated|removed|fixed):\s*/i.exec(first.value);
-
-          if (!declared) {
-            continue;
-          }
-
-          const name = declared[1].toLowerCase();
-          first.value = first.value.slice(declared[0].length);
-
-          if (!first.value) {
-            paragraph.children.shift();
-          }
-
-          paragraph.children.unshift(bullet(CATEGORIES[name].icon));
-          used.add(name);
         }
       }
+    });
+
+    // An entry that names its own category takes the same bullet. Nothing in the changesets format records
+    // one — a bump level is not a category, and `patch` covers a bug fix, a chore and a tooling tweak alike
+    // — so the convention is a `Fixed:` prefix on the summary. It reads as ordinary prose in the CHANGELOG
+    // npm and GitHub render, and becomes the icon here. An entry without one keeps a plain bullet rather
+    // than being guessed at. Entries inside an authored block already hold their icon, so none matches twice.
+    visit(tree, 'listItem', (item) => {
+      const paragraph = item.children.find((child) => child.type === 'paragraph');
+      const first = paragraph?.children[0];
+
+      if (first?.type !== 'text') {
+        return;
+      }
+
+      const declared = /^(breaking|added|changed|deprecated|removed|fixed):\s*/i.exec(first.value);
+
+      if (!declared) {
+        return;
+      }
+
+      const name = declared[1].toLowerCase();
+      first.value = first.value.slice(declared[0].length);
+
+      if (!first.value) {
+        paragraph.children.shift();
+      }
+
+      paragraph.children.unshift(bullet(CATEGORIES[name].icon));
+      used.add(name);
     });
 
     // Rendered after the walk above, so it can describe a category an entry declared as well as one a block
