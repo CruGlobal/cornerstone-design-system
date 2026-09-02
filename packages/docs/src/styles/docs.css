@@ -1233,3 +1233,26 @@ cs-page[view='mobile'] .site-logo {
   color: var(--cs-color-text-quiet);
   font-size: var(--cs-font-size-s);
 }
+
+/*
+ * Changelog categories.
+ *
+ * `:::added` and its siblings are not Starlight aside types, so remark-directive rendered them as bare
+ * `<div>`s and every category on the page was invisible — which is how three separate `:::changed` blocks
+ * survived in one release. remark-changelog.js gives each one a badge; this positions it.
+ *
+ * The badge sits above its list rather than beside it: a category holds up to fifteen entries, and a label
+ * floated next to a fifteen-item list is a label attached to the first item.
+ */
+.changelog-group {
+  margin-block: var(--cs-space-l, 1.5rem);
+}
+
+.changelog-group .changelog-label {
+  margin-block-end: var(--cs-space-xs, 0.5rem);
+}
+
+/* The list's own top margin would double the gap the badge already sets. */
+.changelog-group .changelog-label + ul {
+  margin-block-start: 0;
+}
