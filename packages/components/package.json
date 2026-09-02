@@ -145,7 +145,7 @@
     "globby": "^13.2.2",
     "gray-matter": "^4.0.3",
     "minisearch": "^7.2.0",
-    "npm-check-updates": "^19.1.2",
+    "npm-check-updates": "^23.1.0",
     "open": "^11.0.0",
     "ora": "^8.1.1",
     "pascal-case": "^3.1.2",
