@@ -30,7 +30,7 @@
     "@cruglobal/cornerstone-build-tools": "*",
     "@cruglobal/cornerstone-components": "*",
     "@types/node": "^24.13.3",
-    "astro": "7.2.3",
+    "astro": "7.2.9",
     "gray-matter": "^4.0.3",
     "prettier": "^3.8.3",
     "prismjs": "^1.30.0",
