@@ -24,6 +24,8 @@ Cornerstone follows <a href="https://semver.org/" class="appearance-plain">Seman
   </tbody>
 </table>
 
+::changelog-legend
+
 ::changelog
 
 ## 0.1.0

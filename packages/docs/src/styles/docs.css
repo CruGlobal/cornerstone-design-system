@@ -1239,20 +1239,63 @@ cs-page[view='mobile'] .site-logo {
  *
  * `:::added` and its siblings are not Starlight aside types, so remark-directive rendered them as bare
  * `<div>`s and every category on the page was invisible — which is how three separate `:::changed` blocks
- * survived in one release. remark-changelog.js gives each one a badge; this positions it.
- *
- * The badge sits above its list rather than beside it: a category holds up to fifteen entries, and a label
- * floated next to a fifteen-item list is a label attached to the first item.
+ * survived in one release. remark-changelog.js now gives each entry its category as an icon in place of the
+ * list marker, the way upstream's changelog does, and hides the group's name for screen readers.
  */
 .changelog-group {
   margin-block: var(--cs-space-l, 1.5rem);
 }
 
-.changelog-group .changelog-label {
+/*
+ * The icon stands in for the marker, so the list gives up its own and the icon is pulled into the space the
+ * marker occupied. `inline-block` rather than a float: an entry runs to several lines and the icon belongs to
+ * the first of them.
+ */
+.changelog-group[data-change] ul {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
+.changelog-group[data-change] > ul > li {
+  padding-inline-start: 1.75em;
+}
+
+.changelog-bullet {
+  margin-inline-start: -1.75em;
+  width: 1.25em;
+  /* Optically centred on the first line of text rather than sat on its baseline. */
+  vertical-align: -0.15em;
+  color: var(--cs-color-neutral-on-quiet, currentColor);
+}
+
+/* A nested bullet is a continuation of the entry above it, so it keeps an ordinary marker. */
+.changelog-group[data-change] li ul {
+  list-style: disc;
+  padding-inline-start: 1.5em;
+}
+
+.changelog-bump {
   margin-block-end: var(--cs-space-xs, 0.5rem);
 }
 
-/* The list's own top margin would double the gap the badge already sets. */
-.changelog-group .changelog-label + ul {
-  margin-block-start: 0;
+/* Issue and pull request references: a badge, not a bare number in brackets. */
+.changelog-ref {
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/*
+ * The legend. Upstream ships these icons with nothing explaining them; this is rendered from the same table
+ * the bullets read, and lists only the categories the page actually uses.
+ */
+.changelog-legend {
+  margin-block: var(--cs-space-l, 1.5rem);
+  font-size: var(--cs-font-size-s, 0.875rem);
+}
+
+.changelog-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cs-space-2xs, 0.25rem);
+  color: var(--cs-color-neutral-on-quiet, currentColor);
 }
