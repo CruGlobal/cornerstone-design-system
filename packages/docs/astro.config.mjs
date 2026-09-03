@@ -6,6 +6,7 @@ import remarkDirective from 'remark-directive';
 import { pluginWatcher } from './src/plugin-watcher.js';
 import { rehypeCodeBlocks } from './src/plugins/rehype-code-blocks.js';
 import { remarkBaseAssets } from './src/plugins/remark-base-assets.js';
+import { remarkChangelog } from './src/plugins/remark-changelog.js';
 import { remarkComponentApi } from './src/plugins/remark-component-api.js';
 import { remarkComponentBrowser } from './src/plugins/remark-component-browser.js';
 import { remarkExamples } from './src/plugins/remark-examples.js';
@@ -93,6 +94,7 @@ export default defineConfig({
         remarkComponentApi,
         remarkComponentBrowser,
         remarkPageIndex,
+        remarkChangelog,
         remarkTheming,
         remarkMarkdownFeatures,
         remarkExamples,

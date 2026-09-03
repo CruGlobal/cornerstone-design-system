@@ -1233,3 +1233,90 @@ cs-page[view='mobile'] .site-logo {
   color: var(--cs-color-text-quiet);
   font-size: var(--cs-font-size-s);
 }
+
+/*
+ * Changelog categories.
+ *
+ * `:::added` and its siblings are not Starlight aside types, so remark-directive rendered them as bare
+ * `<div>`s and every category on the page was invisible — which is how three separate `:::changed` blocks
+ * survived in one release. remark-changelog.js now gives each entry its category as an icon in place of the
+ * list marker, the way upstream's changelog does, and hides the group's name for screen readers.
+ */
+.changelog-group {
+  margin-block: var(--cs-space-l, 1.5rem);
+}
+
+/*
+ * The icon stands in for the list marker, so an entry carrying one gives up its own.
+ *
+ * Keyed on the icon rather than on the group, because the two halves of this page produce different markup
+ * and both carry icons. An authored entry is a tight list item — `<li><cs-icon>…` — while a generated one is
+ * loose and wraps its text, `<li><p><cs-icon>…`. Scoping this to `[data-change]` styled only the authored
+ * half, so every generated entry rendered a disc *and* an icon.
+ *
+ * A hanging indent rather than a negative margin on the icon: padding pushes the whole entry right, and a
+ * matching negative `text-indent` pulls its first line — the one the icon starts — back to the container's
+ * edge, which is where the version heading sits. That lands the icon flush with the heading and every
+ * wrapped line against the text above it, from two declarations that agree by construction. The negative
+ * margin this replaces resolved against something other than the padding it was meant to cancel and left the
+ * icon 18px adrift.
+ */
+.changelog-group > ul {
+  padding-inline-start: 0;
+}
+
+.changelog-group li:has(> .changelog-bullet, > p:first-child > .changelog-bullet) {
+  list-style: none;
+  /* The prose styles indent a list item by 18px on top of its list's padding, and the hang below is measured
+     from the container's edge — so that has to go, or the icon lands 18px short of the heading. */
+  margin-inline-start: 0;
+  padding-inline-start: 2.25em;
+  text-indent: -2.25em;
+}
+
+/*
+ * `text-indent` inherits — through shadow boundaries too, being an inherited property — so anything that is
+ * not the entry's own first line has to opt back out. The reference badge is why this matters beyond
+ * tidiness: left inheriting, the hang dragged the `#113` inside `cs-badge` clean out of its own pill.
+ */
+.changelog-group li > p:not(:first-child),
+.changelog-group li ul,
+.changelog-ref {
+  text-indent: 0;
+}
+
+.changelog-bullet {
+  width: 1.25em;
+  /* With the 1.25em above, this is the 2.25em the indent hangs by — the gap between icon and text. */
+  margin-inline-end: 1em;
+  /* Optically centred on the first line of text rather than sat on its baseline. */
+  vertical-align: -0.15em;
+  color: var(--cs-color-neutral-on-quiet, currentColor);
+}
+
+/* A loose entry opens with a paragraph, whose margin would otherwise gap it away from the heading above. */
+.changelog-group li > p:first-child {
+  margin-block-start: 0;
+}
+
+/* Issue and pull request references: a badge, not a bare number in brackets. */
+.changelog-ref {
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/*
+ * The legend. Upstream ships these icons with nothing explaining them; this is rendered from the same table
+ * the bullets read, and lists only the categories the page actually uses.
+ */
+.changelog-legend {
+  margin-block: var(--cs-space-l, 1.5rem);
+  font-size: var(--cs-font-size-s, 0.875rem);
+}
+
+.changelog-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cs-space-2xs, 0.25rem);
+  color: var(--cs-color-neutral-on-quiet, currentColor);
+}

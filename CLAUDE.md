@@ -85,7 +85,20 @@ Every PR that touches the token API needs a changeset:
 - **minor** — adding a new token, mode, or component
 - **patch** — changing a value (color tweak, alias retarget that keeps the public name)
 
-PRs that only change scripts/tooling with no token API impact can use `npx changeset add --empty`.
+PRs that only change scripts/tooling with no token API impact still take a real bump and a real
+description — never `npx changeset add --empty`.
+
+**Keep the description to the change, not the reasoning behind it.** A changeset body is copied verbatim
+into `CHANGELOG.md`, which npm, GitHub and the docs changelog all render, so an essay here is an essay on
+three surfaces. A line or two, or a short bullet list; the rationale belongs in the PR description, which
+every changelog entry links to. The first four entries reached 74-519 words each and had to be rewritten.
+
+**Lead the summary with its category** — `Fixed:`, `Added:`, `Changed:`, `Removed:`, `Breaking:` or
+`Deprecated:`. A changeset records the bump it causes, and a bump level is not a category: `patch` covers a
+bug fix, a chore and a tooling tweak alike. The prefix is what lets the docs changelog give a generated entry
+the same bullet icon an authored one gets; it reads as ordinary prose in the `CHANGELOG.md` npm and GitHub
+render, and `remark-changelog.js` strips it there. An entry without one still publishes fine — it just keeps
+a plain bullet rather than being guessed at.
 
 Both packages release through changesets; `.changeset/config.json` ignores neither. The documentation
 site is not published, but its pages are compiled into the agent skills the component library ships, so a
@@ -108,7 +121,7 @@ credential, and npm removes direct publishing from bypass-2FA tokens in January 
 staged publishing.
 
 Provenance is declared in exactly one place: `packages/tokens`' own `publishConfig`. Trusted publishing
-attaches an attestation by itself — the flag exists to turn that *off* — while setting it true makes
+attaches an attestation by itself — the flag exists to turn that _off_ — while setting it true makes
 `npm publish` refuse to run anywhere but a CI runner, which is precisely what a first publish cannot be.
 A root `.npmrc` carrying `provenance=true` used to apply that to every package in the workspace, and it is
 what failed `@cruglobal/cornerstone-components`' bootstrap publish with `Automatic provenance generation
