@@ -2,7 +2,7 @@
 "@cruglobal/cornerstone-components": patch
 ---
 
-The Frameworks page explains why Cornerstone is built on web components, in a new "Why Web Components?" section.
+Added: The Frameworks page explains why Cornerstone is built on web components, in a new "Why Web Components?" section.
 
 - A table of the six platforms a Cru design decision has to land in, and how far Cornerstone reaches each: React shipped, Rails and WordPress testing, Salesforce brand-standards-only, Angular unsupported, native mobile tokens-only
 - The three layers — tokens reach everything, components are the web layer, platform-native implementations are a possible third
