@@ -4,8 +4,8 @@ description: Tips for using Cornerstone in your WordPress theme or plugin.
 officialDocs: https://developer.wordpress.org
 sidebar:
   badge:
-    text: Tested
-    variant: success
+    text: Testing
+    variant: caution
 ---
 
 <div class="cs-cluster cs-gap-2xs cs-not-prose">
