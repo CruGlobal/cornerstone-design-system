@@ -2,7 +2,7 @@
 "@cruglobal/cornerstone-components": patch
 ---
 
-Every component's `@since` now reads `0.1`, the version it actually shipped in.
+Fixed: Every component's `@since` now reads `0.1`, the version it actually shipped in.
 
 The tag ranged from `1.0` to `3.11` across the 70 components — 100 of the 140 occurrences said `2.0` — and
 none of those numbers were this package's. They were Web Awesome's, inherited by the fork and never

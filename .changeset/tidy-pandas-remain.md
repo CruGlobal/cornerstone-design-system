@@ -2,7 +2,7 @@
 "@cruglobal/cornerstone-components": patch
 ---
 
-The changelog page shows released versions instead of one `## Unreleased` block, and its categories render.
+Fixed: The changelog page shows released versions instead of one `## Unreleased` block, and its categories render.
 
 - `0.1.1` and `0.1.2` are generated from the CHANGELOG changesets already writes, so a version reaches the page by being released
 - `0.1.0` stays hand-written — it is the Web Awesome fork, and predates changesets
