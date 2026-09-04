@@ -93,6 +93,12 @@ into `CHANGELOG.md`, which npm, GitHub and the docs changelog all render, so an 
 three surfaces. A line or two, or a short bullet list; the rationale belongs in the PR description, which
 every changelog entry links to. The first four entries reached 74-519 words each and had to be rewritten.
 
+**The pull request description carries the reasoning, and enough of it to stand alone.** A reviewer should
+be able to judge the change without opening the diff: what moved, what was considered and rejected, and what
+was verified. Every changelog entry links to its pull request, so this is also where a reader lands when the
+one-line summary is not enough — the two are a pair, and the brevity above only works because the depth is
+here.
+
 **Lead the summary with its category** — `Fixed:`, `Added:`, `Changed:`, `Removed:`, `Breaking:` or
 `Deprecated:`. A changeset records the bump it causes, and a bump level is not a category: `patch` covers a
 bug fix, a chore and a tooling tweak alike. The prefix is what lets the docs changelog give a generated entry
