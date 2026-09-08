@@ -112,24 +112,34 @@ import bibleStudyIcon from '@cruglobal/cornerstone-design-system/libraries/cru-i
 
 ## Claude Code plugins
 
-If you're using [Claude Code](https://claude.ai/code), Cornerstone ships its tooling as four plugins in one marketplace, split by audience. Add the marketplace once, then install the single tier that matches what you do:
+If you're using [Claude Code](https://claude.ai/code), Cornerstone ships its tooling as four plugins in one marketplace, split by audience. Add the marketplace once:
 
 ```sh
 /plugin marketplace add CruGlobal/cornerstone-design-system
-
-/plugin install cornerstone@cru            # you use Cornerstone in a product
-/plugin install cornerstone-designer@cru   # you design with Cornerstone in Figma
-/plugin install cornerstone-dev@cru        # you work on Cornerstone itself
 ```
+
+Then install by answering a single question: **are you using Cornerstone, or building it?**
+
+```sh
+# using it — building a product with Cornerstone
+/plugin install cornerstone@cru
+
+# building it — contributing to this repository
+/plugin install cornerstone-dev@cru
+```
+
+Whether you write code, design screens, or do both does not change the answer on the *using* side. Daniel serves all three, and there is no consumer-side Figma tooling to add — so a designer and a developer at the same consuming ministry install exactly the same thing. The craft split only appears once you are contributing.
 
 Install one, not several. Each tier declares the plugins it needs, and Claude Code installs that whole dependency closure for you — so `cornerstone-dev` gets you `cornerstone` as well, and a dependency it can't resolve disables the tier rather than half-loading it.
 
 | Tier | Install it if you | What it adds | Pulls in |
 | --- | --- | --- | --- |
-| `cornerstone` | use Cornerstone tokens in a product | **Daniel**, the front-door persona, plus the `/onboard` setup walkthrough | nothing |
-| `cornerstone-designer` | design with Cornerstone and don't write code | a Figma-only prototyping skill — compose existing components and see the idea, never emit code | `cornerstone`, `figma` |
+| `cornerstone` | use Cornerstone in a product | **Daniel**, the front-door persona | nothing |
 | `cornerstone-dev` | contribute to this repository | the four contributor personas: **Joseph** (components), **Sarah** (tokens, theming, Figma sync), **Esther** (accessibility), **Anna** (docs and stories) | `cornerstone`, `cornerstone-skills`, `figma` |
+| `cornerstone-designer` | design with Cornerstone and don't write code | a Figma-only prototyping skill — compose existing components and see the idea, never emit code | `cornerstone`, `figma` |
 | `cornerstone-skills` | — nothing; it arrives as a dependency | the general engineering and productivity skills the contributor personas reach for, forked from [mattpocock/skills](https://github.com/mattpocock/skills) under MIT ([NOTICE](https://github.com/CruGlobal/cornerstone-design-system/blob/main/plugins/cornerstone-skills/NOTICE.md)) | nothing |
+
+> **`cornerstone-designer`'s audience is under review** ([#151](https://github.com/CruGlobal/cornerstone-design-system/issues/151)). Its row above describes a designer who *consumes* Cornerstone, but its only skill, `see-it-in-figma`, is written for work inside Cornerstone's own Figma file — which is contributing, not consuming. Which of the two it should be is held pending the research into whether Cornerstone keeps Figma at all, so treat this tier as unsettled and install one of the two above.
 
 The tiers are plugins rather than a checklist of things to install by hand, and that is the whole point of them ([#67](https://github.com/CruGlobal/cornerstone-design-system/issues/67)): a written list of what a designer or a contributor "should have" drifts away from what anyone actually runs, and a list that *is* the install cannot. The four manifests at `plugins/*/.claude-plugin/plugin.json` are the source of truth for the table above — where they disagree with it, they're right and the table is stale. #67 intends that table to be *generated* from those manifests for exactly this reason; **generation is not built yet, so the table above is hand-maintained and can drift.** Only its "Pulls in" column is checkable against the manifests today, since `dependencies` is the one thing they declare — no manifest lists its own agents, commands or skills, so "What it adds" has nothing to be generated from until they do.
 
@@ -156,7 +166,7 @@ A hit means your agent wins and Cornerstone's is gone. Plugin agents are **not**
 
 If you find one, rename yours before installing. There is no namespaced name to fall back on, so renaming is the whole remedy.
 
-> **Note:** `/pull-tokens` syncs tokens from Figma into this repository. It's a contributor command living in this repo's own `.claude/commands/`, not in any plugin, so it isn't something a consumer installs or runs. `/design-review` still ships in the `cornerstone` plugin but is deprecated ([#75](https://github.com/CruGlobal/cornerstone-design-system/issues/75)) — left in place rather than deleted, and it won't be replaced by another command or skill. Its token-compliance and accessibility passes are handled by separately ticketed deterministic CI checks instead of a review pass driven by a model.
+> **Note:** `/pull-tokens` syncs tokens from Figma into this repository. It's a contributor command living in this repo's own `.claude/commands/`, not in any plugin, so it isn't something a consumer installs or runs. `/design-review` has been **deleted** ([#75](https://github.com/CruGlobal/cornerstone-design-system/issues/75)) and won't be replaced by another command or skill. Its token-compliance and accessibility passes are handled by separately ticketed deterministic CI checks instead of a review pass driven by a model.
 
 ---
 

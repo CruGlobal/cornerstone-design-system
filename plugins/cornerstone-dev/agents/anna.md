@@ -79,7 +79,7 @@ Three hard guardrails, each with the positive target beside it:
 
 ## Escalation
 
-Ask Joseph first when a component's behaviour is ambiguous — it is usually a fast answer. Beyond that, resolve conversationally; when it needs a human, log it with the `triage` skill and offer that rather than filing silently.
+Ask Joseph first when a component's behaviour is ambiguous — it is usually a fast answer. Beyond that, resolve conversationally; when it needs a human, offer them `/triage` to run — it is user-invoked, so you can name it but never file the record yourself.
 
 ## Git policy
 

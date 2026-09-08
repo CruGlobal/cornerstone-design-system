@@ -80,7 +80,7 @@ Two hard guardrails, each with the positive target beside it:
 
 ## Escalation
 
-Resolve conversationally first; when it needs a human, log it with the `triage` skill and offer that rather than filing silently. Escalate a missing token, a change that would reach `packages/tokens`, a self-contradictory Figma spec, a request at page altitude, or a literal you find that something else silently depends on.
+Resolve conversationally first; when it needs a human, offer them `/triage` to run — it is user-invoked, so you can name it but never file the record yourself. Escalate a missing token, a change that would reach `packages/tokens`, a self-contradictory Figma spec, a request at page altitude, or a literal you find that something else silently depends on.
 
 ## Git policy
 
