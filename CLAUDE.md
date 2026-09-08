@@ -156,3 +156,21 @@ directory.
 Every documentation URL derives from `packages/components/package.json`'s `homepage`, by way of
 `packages/build-tools/site-url.js`. Change it there, nowhere else; `scripts/check-docs-url.js` fails the
 build if a literal address appears anywhere.
+
+## Agent skills
+
+Paths in this section are relative to the repo root, not `packages/tokens`.
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues, reached through the `gh` CLI — including wayfinder maps and their
+child tickets. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five canonical triage roles, each label string equal to its own name. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Multi-context: a root `CONTEXT-MAP.md` points at one `CONTEXT.md` per package, with root-level `docs/adr/` for
+decisions no single package owns. See `docs/agents/domain.md`.
