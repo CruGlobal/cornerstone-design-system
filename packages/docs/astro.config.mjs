@@ -12,6 +12,7 @@ import { remarkComponentBrowser } from './src/plugins/remark-component-browser.j
 import { remarkExamples } from './src/plugins/remark-examples.js';
 import { remarkMarkdownFeatures } from './src/plugins/remark-markdown-features.js';
 import { remarkPageIndex } from './src/plugins/remark-page-index.js';
+import { remarkRoadmap } from './src/plugins/remark-roadmap.js';
 import { remarkTheming } from './src/plugins/remark-theming.js';
 import { stubStarlightStyles } from './src/plugins/stub-starlight-styles.js';
 import { sidebar } from './src/sidebar.js';
@@ -95,6 +96,10 @@ export default defineConfig({
         remarkComponentBrowser,
         remarkPageIndex,
         remarkChangelog,
+        // The only plugin here that makes a network request, and the only async one. It fetches nothing
+        // unless a page carries `::roadmap`, and renders a notice rather than failing the build when
+        // GitHub cannot be reached — see the header comment in src/plugins/remark-roadmap.js.
+        remarkRoadmap,
         remarkTheming,
         remarkMarkdownFeatures,
         remarkExamples,

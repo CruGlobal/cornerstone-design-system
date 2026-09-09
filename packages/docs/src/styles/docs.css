@@ -1320,3 +1320,87 @@ cs-page[view='mobile'] .site-logo {
   gap: var(--cs-space-2xs, 0.25rem);
   color: var(--cs-color-neutral-on-quiet, currentColor);
 }
+
+/*
+ * The roadmap's effort cards.
+ *
+ * Each effort is a markdown `##` heading — so it reaches the "On this page" outline and takes its own id —
+ * with a `cs-card` beneath it holding the summary, the open-question count and the opt-in items. See
+ * src/plugins/remark-roadmap.js.
+ *
+ * The card is pulled up against its heading: the prose rhythm puts a full paragraph gap between an h2 and
+ * what follows it, which reads as a gap between the effort's name and the effort rather than as one
+ * between efforts. The space that matters here is the one *after* the card, and the heading's own
+ * `margin-block-start` supplies it.
+ */
+.roadmap-effort {
+  margin-block-start: calc(var(--cs-space-s) * -1);
+}
+
+.roadmap-summary {
+  margin-block: 0;
+}
+
+/*
+ * The count, as a secondary line rather than a badge or a bar.
+ *
+ * Deliberately unemphasised. A number in a pill next to an effort's name is read as a score, and this one
+ * is not one — `0 open questions` means nobody has asked yet. Quiet, small, and below the summary, so it
+ * reads as a fact about the effort rather than as its status.
+ */
+.roadmap-questions {
+  margin-block: var(--cs-space-s) 0;
+  color: var(--cs-color-text-quiet);
+  font-size: var(--cs-font-size-s);
+}
+
+/*
+ * The named items, separated from the count above them by a rule.
+ *
+ * They need the separation because the two are different kinds of claim: the count is a fact about the
+ * whole effort, and the items are a handful of things inside it that happen to be nameable. Run together
+ * with only a margin, the first item reads as an elaboration of the number.
+ */
+.roadmap-items {
+  margin-block: var(--cs-space-m) 0;
+  padding-block-start: var(--cs-space-m);
+  border-block-start: var(--cs-border-width-s) solid var(--cs-color-neutral-border-quiet);
+  display: grid;
+  gap: var(--cs-space-xs);
+}
+
+/*
+ * The title and its issue badge are one link, so the badge is part of the target rather than a second
+ * thing to aim at — but the link flows as ordinary inline content rather than as a flex row.
+ *
+ * That is the fix for a real defect and not a preference. As `inline-flex` the title and the badge are two
+ * flex items on one baseline, so a title long enough to wrap left the badge stranded at the end of the
+ * *first* line with the rest of the title running underneath it. Inline, the badge follows the last word,
+ * which is where a reference belongs and what the changelog already does.
+ */
+.roadmap-item-link {
+  text-decoration: none;
+}
+
+.roadmap-item-link:hover .roadmap-item-title {
+  text-decoration: underline;
+}
+
+.roadmap-item-title {
+  color: var(--cs-color-text-normal);
+}
+
+/* The changelog's reference badge, and styled for the same reason it is styled there: the prose line rules
+   reach inside the pill otherwise, and a wrapped reference splits the number off its own hash. */
+.roadmap-item-ref {
+  margin-inline-start: var(--cs-space-2xs);
+  text-indent: 0;
+  white-space: nowrap;
+}
+
+/* Both non-card states — GitHub unreachable, and no open effort at all. Neither is a card, because
+   neither is an effort, and rendering one as a card is how an empty state gets mistaken for data. */
+.roadmap-unavailable,
+.roadmap-empty {
+  margin-block: var(--cs-content-spacing);
+}
