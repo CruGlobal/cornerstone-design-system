@@ -1,0 +1,118 @@
+name: Bug report
+description: Something in a published Cornerstone package behaves incorrectly
+title: '[BUG] '
+labels: ['bug', 'needs-triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this.
+
+        **What happens next.** This repository's issues hold design *decisions*; the implementation work
+        lives in Cru's internal tracker. So this report arrives labelled `needs-triage`, gets routed to a
+        work ticket, and is then closed here with a pointer. Closing it is not dismissing it — it means it
+        became someone's assigned work.
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Which package
+      description: If you are not sure, pick the last option rather than guessing.
+      options:
+        - '@cruglobal/cornerstone-components — the cs-* elements'
+        - '@cruglobal/cornerstone-design-system — design tokens'
+        - The documentation site
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: >-
+        The exact version, from your lock file rather than your `package.json` range. `npm ls
+        @cruglobal/cornerstone-components` prints it.
+      placeholder: e.g. 0.1.3
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: Component or utility
+      description: The custom element or CSS utility involved, if it is one in particular.
+      placeholder: e.g. cs-input, or .cs-stack
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-happens
+    attributes:
+      label: What happens
+      description: Describe the behaviour you are seeing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+      description: >-
+        Worth writing even when it feels obvious — a surprising number of reports turn out to be a
+        disagreement about intended behaviour rather than a defect, and that is a useful outcome too.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How to reproduce it
+      description: >-
+        Numbered steps, or a minimal snippet. If you have a link to a reduced case, that is better than
+        anything you can write here.
+      placeholder: |
+        1. Render `<cs-input required label="Email">`
+        2. Submit the form without filling it
+        3. Observe that ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: Browsers you checked
+      description: >-
+        The suite runs on Chromium, Firefox and WebKit, so knowing which engines you saw it on narrows it
+        quickly. Leave blank if you only tried one and are not sure which engine it uses.
+      multiple: true
+      options:
+        - Chrome or Edge (Chromium)
+        - Firefox
+        - Safari (WebKit)
+        - Something else
+    validations:
+      required: false
+
+  - type: dropdown
+    id: rendering
+    attributes:
+      label: Rendering mode
+      description: >-
+        Components are tested both client-rendered and server-rendered-then-hydrated, and a few defects
+        appear in only one of those.
+      options:
+        - Client-rendered only
+        - Server-rendered then hydrated (SSR)
+        - Both
+        - Not sure
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: Screenshots, console errors, the framework you are using, whatever seems relevant.
+    validations:
+      required: false

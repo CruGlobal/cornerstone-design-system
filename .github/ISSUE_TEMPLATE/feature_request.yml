@@ -1,0 +1,93 @@
+name: Feature or component request
+description: Ask for a new component, or a new capability on one that already exists
+title: '[REQUEST] '
+labels: ['enhancement', 'needs-triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Describe the case it has to serve, not the API you would like.** That is not a formality — the
+        library already ships 70 components, and a surprising share of requests turn out to be served by
+        one under a different name, or by an arrangement of two that exist. Describing the problem lets us
+        check that first; describing an API skips straight past it.
+
+        This arrives labelled `needs-triage`. It gets routed to a work ticket, or to a design decision if
+        the shape is genuinely open, and is then closed here with a pointer.
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Which package
+      options:
+        - '@cruglobal/cornerstone-components — the cs-* elements'
+        - '@cruglobal/cornerstone-design-system — design tokens'
+        - The documentation site
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to build
+      description: >-
+        The interface problem in front of you. What the user is doing, and what they need to see or be able
+        to do that you cannot currently give them.
+    validations:
+      required: true
+
+  - type: textarea
+    id: today
+    attributes:
+      label: What are you doing instead today
+      description: >-
+        Hand-rolled markup, a third-party package, a workaround you are not happy with, or nothing yet.
+        This is the most useful field on the form: it shows what the absence actually costs.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reach
+    attributes:
+      label: How many places would you use this
+      description: >-
+        A rough count is fine. Asked because a shape used in one screen and a shape used in twenty are
+        different decisions, and this is the only demand signal we get without guessing.
+      options:
+        - Just one place
+        - 2 to 5 places
+        - 6 to 20 places
+        - More than 20 places
+        - Not sure yet
+    validations:
+      required: true
+
+  - type: input
+    id: existing
+    attributes:
+      label: Closest existing component
+      description: >-
+        If you looked and found something near-but-not-quite, name it — knowing what you rejected and why
+        is often what settles whether this is a new component or a new option on that one.
+      placeholder: e.g. cs-select, but it cannot filter as you type
+    validations:
+      required: false
+
+  - type: textarea
+    id: accessibility
+    attributes:
+      label: Accessibility considerations you know of
+      description: >-
+        Keyboard behaviour, announcement, focus order, anything you already know this shape has to get
+        right. Leave blank if none come to mind — it will be reviewed regardless, this only helps it start
+        from what you know.
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: Mockups, links to prior art, examples from other products.
+    validations:
+      required: false

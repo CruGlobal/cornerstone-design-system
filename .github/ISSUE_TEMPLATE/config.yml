@@ -1,0 +1,17 @@
+# Closes the bypass. Without `blank_issues_enabled: false` the chooser is advisory: anyone can open an
+# untemplated, unlabelled issue and none of the forms below apply. That is how this tracker ended up
+# needing a rule written in prose that nothing enforced.
+blank_issues_enabled: false
+
+# NOTE: these addresses are literals. `packages/components/scripts/check-docs-url.js` derives every
+# documentation URL in `src/` from `package.json`'s `homepage`, but it does not glob `.github/`, so these
+# two are not maintained by it. The site has already moved once — `KNOWN_ROOTS` in that script records
+# `cruglobal.github.io/cornerstone-components` as a previous root — so if `homepage` changes, change these.
+contact_links:
+  - name: Documentation
+    url: https://cruglobal.github.io/cornerstone-design-system
+    about: Component reference, CSS utilities, theming and framework guides. Most questions are answered here.
+
+  - name: How to ask well
+    url: https://cruglobal.github.io/cornerstone-design-system/resources/support
+    about: What to include so a report can be acted on, and what happens to it after you file it.
