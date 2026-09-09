@@ -27,7 +27,7 @@ description: Where to report a bug or ask a question about Cornerstone Component
   </ul>
   <p class="cs-caption-l">A report that is accepted is often closed here with a pointer rather than left open, because this tracker holds the project's open questions rather than its task queue — scheduled work is tracked by the team internally. A closed issue is not a declined one, and the <a href="/resources/roadmap">roadmap</a> is where an effort shows up once it is underway.</p>
   <div class="cs-cluster cs-gap-s">
-    <cs-button appearance="filled" href="https://github.com/CruGlobal/cornerstone-design-system/issues/new">
+    <cs-button appearance="filled" href="https://github.com/CruGlobal/cornerstone-design-system/issues/new/choose">
       <cs-icon slot="start" name="bug_report"></cs-icon>
       Open an issue
     </cs-button>
