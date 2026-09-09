@@ -1,6 +1,28 @@
 # Issue tracker: GitHub
 
-Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
+Decisions for this repo live as GitHub issues. Use the `gh` CLI for all operations.
+
+## This tracker holds decisions, not work
+
+**Two trackers, and the line between them is decisions versus work.**
+
+- **GitHub issues — decisions.** Open questions the system needs answered. Every issue carries a
+  `wayfinder:*` label and belongs to a map. An issue is resolved by answering it, not by shipping code.
+- **Jira (`UIUX`) — work.** Implementation, defects, component builds. A Jira task is created **once a
+  decision has settled that we want the thing built**, not before.
+- **A pull request references both** the decision issue it acts on and the Jira task it implements.
+
+So the mechanical test for whether something belongs here: *is it a question, and does it hang off a map?*
+A `bug`, `enhancement` or `good first issue` label on an issue in this repo is a signal it is in the wrong
+tracker — as is a `wayfinder:*` label with no parent map.
+
+**Do not open a GitHub issue for work you already know you want done.** That is a Jira task. Filing it here
+splits its history across two trackers and hides it from sprint planning. This includes work that falls out
+of a decision made here — spin it out as a Jira task and reference the decision.
+
+**Milestones group decisions by which effort they serve** — `Themes`, `Inspiration`, `Frameworks` — and the
+`P0`–`P3` labels carry the order to work through them. A milestone with no open decisions means nobody has
+asked that effort's questions yet, which is information worth noticing rather than filling in.
 
 ## Conventions
 
