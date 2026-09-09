@@ -1,5 +1,11 @@
 # @cruglobal/cornerstone-components
 
+## 0.6.2
+
+### Patch Changes
+
+- [#165](https://github.com/CruGlobal/cornerstone-design-system/pull/165) [`8186852`](https://github.com/CruGlobal/cornerstone-design-system/commit/81868526f6ebc2049d424b684459c95e9a9bbced) Thanks [@rguinee](https://github.com/rguinee)! - Fixed: the Support page's "Open an issue" button now links to the template chooser at `/issues/new/choose` rather than the bare `/issues/new`.
+
 ## 0.6.1
 
 ### Patch Changes
