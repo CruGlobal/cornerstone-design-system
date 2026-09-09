@@ -39,6 +39,23 @@ triaged?* Anything else is in the wrong tracker — a `bug` or `enhancement` lab
 for weeks. That last one is worth querying for deliberately; a stale transit state is the failure mode this
 design has.
 
+### Who is working it: the `agent:*` labels
+
+GitHub's `assignee` cannot express which agent is driving an issue, because the personas run under a
+human's token — an agent claiming a ticket assigns it to that human, not to itself. So a parallel marker
+carries it: **`agent:daniel`, `agent:joseph`, `agent:sarah`, `agent:esther`, `agent:anna`.**
+
+Like `needs-triage`, this is a **transit state**: an agent adds its label when it picks the issue up and
+**removes it on resolve**. `agent:sarah` left on a closed or long-idle issue is the same defect as a stale
+`needs-triage` — worth querying for rather than trusting.
+
+It marks *who is working it now*, not *whose domain it is*. Domain is already implied by the subject: a
+token question is Sarah's whether or not it carries her label. The label exists to answer "is anyone on
+this, and who" when several agents run at once — which is the case this repo is now routinely in.
+
+Assignee still means what the wayfinding protocol says it means: the human accountable for the answer.
+The two are independent, and both can be set.
+
 **Milestones group decisions by which effort they serve** — `Themes`, `Inspiration`, `Frameworks` — and the
 `P0`–`P3` labels carry the order to work through them. A milestone with no open decisions means nobody has
 asked that effort's questions yet, which is information worth noticing rather than filling in.
