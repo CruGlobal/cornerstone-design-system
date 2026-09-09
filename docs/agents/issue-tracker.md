@@ -15,13 +15,29 @@ Decisions for this repo live as GitHub issues. Use the `gh` CLI for all operatio
   decision has settled that we want the thing built**, not before.
 - **A pull request references both** the decision issue it acts on and the Jira task it implements.
 
-So the mechanical test for whether something belongs here: *is it a question, and does it hang off a map?*
-A `bug`, `enhancement` or `good first issue` label on an issue in this repo is a signal it is in the wrong
-tracker — as is a `wayfinder:*` label with no parent map.
-
 **Do not open a GitHub issue for work you already know you want done.** That is a Jira task. Filing it here
 splits its history across two trackers and hides it from sprint planning. This includes work that falls out
 of a decision made here — spin it out as a Jira task and reference the decision.
+
+### Inbound reports are transit, not a third category
+
+Both packages are published publicly, so people outside this repo file bugs and requests and have nowhere
+else to file them — Jira is internal. Those arrive through the Issue Forms in `.github/ISSUE_TEMPLATE/`,
+which stamp **`needs-triage`**.
+
+`needs-triage` is a **transit state, not a resting one.** An inbound issue is routed to a Jira task, or to a
+chartered decision if the shape is genuinely open, and then **closed here with a pointer**. It is not a
+place work waits.
+
+So the invariant is one sentence, and it stays checkable:
+
+> **Every open issue is either a decision on a map, or `needs-triage` awaiting routing.**
+
+Which gives the mechanical test: *is it a question hanging off a map, or is it inbound and freshly
+triaged?* Anything else is in the wrong tracker — a `bug` or `enhancement` label **without**
+`needs-triage`, a `wayfinder:*` label with no parent map, or a `needs-triage` issue that has been sitting
+for weeks. That last one is worth querying for deliberately; a stale transit state is the failure mode this
+design has.
 
 **Milestones group decisions by which effort they serve** — `Themes`, `Inspiration`, `Frameworks` — and the
 `P0`–`P3` labels carry the order to work through them. A milestone with no open decisions means nobody has
