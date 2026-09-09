@@ -7,7 +7,10 @@ Decisions for this repo live as GitHub issues. Use the `gh` CLI for all operatio
 **Two trackers, and the line between them is decisions versus work.**
 
 - **GitHub issues — decisions.** Open questions the system needs answered. Every issue carries a
-  `wayfinder:*` label and belongs to a map. An issue is resolved by answering it, not by shipping code.
+  `wayfinder:*` label, and normally belongs to a map. An issue is resolved by answering it, not by
+  shipping code. A **standalone decision** — one that serves no larger effort, such as a release-process
+  question — is allowed without a map, but it should be rare: if two or three accumulate around the same
+  subject, that is a map waiting to be chartered.
 - **Jira (`UIUX`) — work.** Implementation, defects, component builds. A Jira task is created **once a
   decision has settled that we want the thing built**, not before.
 - **A pull request references both** the decision issue it acts on and the Jira task it implements.
