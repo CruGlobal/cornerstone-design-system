@@ -272,7 +272,7 @@ function checkTheming(failures) {
  * matching and ships a page with a hole in it — without coupling `npm run verify` to GitHub's uptime.
  *
  * The percentage check is a design constraint made enforceable. `Frameworks` is `open=0 closed=1`, so a
- * progress bar on this page would publish "100% complete" for the effort nobody has started. Nothing on
+ * progress bar on this page would publish "100% complete" for a release nobody has started. Nothing on
  * this page may render one.
  */
 function checkRoadmap(failures) {
@@ -289,18 +289,18 @@ function checkRoadmap(failures) {
     failures.push('resources/roadmap: the `::roadmap` directive is still on the page, so the plugin did not run');
   }
 
-  const states = ['roadmap-effort', 'roadmap-unavailable', 'roadmap-empty'].filter((state) => html.includes(state));
+  const states = ['roadmap-release', 'roadmap-unavailable', 'roadmap-empty'].filter((state) => html.includes(state));
 
   if (!states.length) {
     failures.push(
-      'resources/roadmap: no effort card, no unavailable notice and no empty state — the block rendered nothing',
+      'resources/roadmap: no release card, no unavailable notice and no empty state — the block rendered nothing',
     );
   }
 
   for (const bar of ['cs-progress-bar', 'cs-progress-ring']) {
     if (html.includes(`<${bar}`)) {
       failures.push(
-        `resources/roadmap: a <${bar}> is on the page. An effort's open-question count is not progress — ` +
+        `resources/roadmap: a <${bar}> is on the page. A release's open-question count is not progress — ` +
           `\`Frameworks\` is 0 open of 1 closed, which a bar would render as complete`,
       );
     }

@@ -6,17 +6,23 @@ import { visit } from 'unist-util-visit';
 import { roadmapCopy } from '../roadmap-copy.js';
 
 /**
- * The roadmap page: one card per effort, generated from this repository's GitHub milestones.
+ * The roadmap page: one card per planned release, generated from this repository's GitHub milestones.
  *
  * A roadmap is the page most likely to be wrong, because it is the only page nothing forces anyone to
- * revisit. A component's reference is rendered from the manifest and a release reaches the changelog by
+ * revisit. A component's reference is rendered from the manifest and a version reaches the changelog by
  * being released, so both correct themselves; a hand-written roadmap goes stale the day after it ships and
  * nothing on the site notices. So `::roadmap` is replaced with the milestones as they stand at build time,
- * and an effort reaches this page by existing in the tracker rather than by being remembered.
+ * and a release reaches this page by existing in the tracker rather than by being remembered.
+ *
+ * The milestones are version-keyed — `1.0.0`, `1.1.0` — so a card is a release and its title is the
+ * version it will ship as. That only means anything because both published packages are being locked to
+ * one version number, so `1.0.0` names the same thing across the library and the tokens. The page states
+ * no current version for that reason: those move, and a number written here would be the one thing on a
+ * generated page that could go stale.
  *
  * **Two levels, and only one of them is opt-in.**
  *
- * The *effort* is the milestone: its name, a curated summary from `roadmap-copy.js`, and a count of the
+ * The *release* is the milestone: its version, curated copy from `roadmap-copy.js`, and a count of the
  * decisions still open inside it. None of that reveals anything about an individual issue.
  *
  * The *items* are issues carrying the `roadmap` label, and the label is a gate rather than a filter.
@@ -29,12 +35,17 @@ import { roadmapCopy } from '../roadmap-copy.js';
  * a filter that silently stops filtering is exactly the failure this page cannot survive.
  *
  * **The count is a count, not progress.** GitHub gives both halves of the fraction and a percentage is one
- * subtraction away, which is the trap: `Frameworks` is `open=0 closed=1` today and a progress bar would
- * publish "100% complete" for the effort nobody has started. `N open questions` cannot be misread that way
- * — nothing about zero open questions claims the questions were answered — and the page's own introduction
- * states how to read zero rather than leaving it to be inferred. No stage vocabulary is invented to paper
- * over it either: "Planned", "In progress" and "Shipped" would be four words of judgment on top of one
- * fact, maintained nowhere and true by luck.
+ * subtraction away, which is the trap: a milestone at `open=0 closed=1` would render as "100% complete"
+ * while being the release nobody has started. `N open questions` cannot be misread that way — nothing
+ * about zero open questions claims the questions were answered — and the page's introduction states how to
+ * read zero rather than leaving it to be inferred. No stage vocabulary is invented to paper over it
+ * either: "Planned", "In progress" and "Shipped" would be three words of judgment on top of one fact,
+ * maintained nowhere and true by luck.
+ *
+ * Zero is now the *common* case rather than the exception — two of the four releases have no chartered
+ * decisions at all — which is what makes the one explanatory sentence on the page load-bearing rather than
+ * decorative. Half a page of cards reading `0 open questions` with nothing saying how to read that would
+ * look like a page that failed to load.
  *
  * `milestone.open_issues` is GitHub's own count, and GitHub counts a milestoned *pull request* in it. That
  * is a known imprecision, accepted deliberately: the exact alternative is fetching every open issue in the
@@ -48,11 +59,12 @@ import { roadmapCopy } from '../roadmap-copy.js';
  * questions" is a claim, and a wrong roadmap published confidently is worse than no roadmap. What is left
  * is to render nothing that could be mistaken for data: a notice saying the roadmap could not be generated,
  * pointing at the milestones on GitHub, which are the source and are current. The build logs a warning, and
- * `scripts/check-pages.js` asserts that the page rendered one of the two — cards or the notice — so a
- * plugin that stops matching altogether still fails the gate while a bad minute at GitHub does not.
+ * `scripts/check-pages.js` asserts that the page rendered one of the three states below — cards, the
+ * notice, or "no release is open" — so a plugin that stops matching altogether still fails the gate while
+ * a bad minute at GitHub does not.
  *
  * The two requests are one unit for the same reason. Milestones succeeding while the issues request fails
- * would render every effort with its items missing, which is not a degraded roadmap but an incorrect one.
+ * would render every release with its items missing, which is not a degraded roadmap but an incorrect one.
  *
  * **`GITHUB_TOKEN` is used when the environment has one.** The repository is public and the milestones
  * endpoint answers 200 unauthenticated, so no credential is required — but unauthenticated GitHub is 60
@@ -122,14 +134,32 @@ async function fetchJson(path) {
 }
 
 /**
- * The efforts, in milestone order, or `null` if GitHub could not be reached.
+ * `1.10.0` → `[1, 10, 0]`, and anything that is not a plain version → `null`.
  *
- * Ordered by milestone number — creation order — because it is the only ordering GitHub supplies that is
- * stable, and none of the milestones carries a due date. A curated order in `roadmap-copy.js` was the
- * alternative and it has the same flaw as curated structure: a new milestone would have no position, so it
- * would either sort to an arbitrary place or need an edit before it could appear at all.
+ * Milestones are version-keyed, so a version is the thing being sorted and compared. Parsed rather than
+ * string-compared because a string compare puts `1.10.0` before `1.2.0`, and this project will reach a
+ * tenth minor.
  */
-async function fetchEfforts() {
+const version = (title) => {
+  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(title.trim());
+  return match ? match.slice(1, 4).map(Number) : null;
+};
+
+/**
+ * The releases, in release order, or `null` if GitHub could not be reached.
+ *
+ * **Sorted by version, explicitly, and not by anything GitHub hands back.** The API's own order is
+ * creation order, which is not release order and cannot be: `1.1.0` and `1.2.0` were created after `1.3.0`
+ * had already been renamed onto an older milestone, so creation order reads 1.3.0, 1.0.0, 1.1.0, 1.2.0 —
+ * a roadmap that opens with its last release. `due_on` is not the answer either; none of the milestones
+ * sets one, and inventing dates to get an ordering would publish commitments nobody made.
+ *
+ * A milestone whose title is not a version still renders, after every version, in creation order. Not a
+ * hypothetical: the milestones were efforts (`Themes`, `Inspiration`, `Frameworks`) until they were
+ * version-keyed, and a roadmap that dropped a milestone it could not parse would have shown a blank page
+ * rather than a wrong one — which is worse, because a blank page looks finished.
+ */
+async function fetchReleases() {
   const [milestones, labelled] = await Promise.all([
     fetchJson('/milestones?state=open&per_page=100'),
     fetchJson(`/issues?state=open&labels=${ROADMAP_LABEL}&per_page=100`),
@@ -146,19 +176,28 @@ async function fetchEfforts() {
   if (orphans.length) {
     console.warn(
       `remark-roadmap: ${orphans.length} issue(s) carry the \`${ROADMAP_LABEL}\` label with no milestone, so ` +
-        `they have no effort to render under: ${orphans.map((issue) => `#${issue.number}`).join(', ')}. ` +
+        `they have no release to render under: ${orphans.map((issue) => `#${issue.number}`).join(', ')}. ` +
         `Assign a milestone or remove the label.`,
     );
   }
 
-  return milestones
-    .sort((a, b) => a.number - b.number)
-    .map((milestone) => ({
-      title: milestone.title,
-      summary: roadmapCopy[milestone.title] ?? null,
-      openQuestions: milestone.open_issues,
-      items: items.filter((issue) => issue.milestone?.number === milestone.number).sort((a, b) => a.number - b.number),
-    }));
+  const byVersion = (a, b) => {
+    const [left, right] = [version(a.title), version(b.title)];
+
+    if (!left || !right) {
+      // A version always precedes a title that is not one; two non-versions keep creation order.
+      return left ? -1 : right ? 1 : a.number - b.number;
+    }
+
+    return left[0] - right[0] || left[1] - right[1] || left[2] - right[2];
+  };
+
+  return milestones.sort(byVersion).map((milestone) => ({
+    title: milestone.title,
+    copy: roadmapCopy[milestone.title] ?? null,
+    openQuestions: milestone.open_issues,
+    items: items.filter((issue) => issue.milestone?.number === milestone.number).sort((a, b) => a.number - b.number),
+  }));
 }
 
 /**
@@ -170,8 +209,8 @@ async function fetchEfforts() {
  */
 let pending;
 
-function loadEfforts() {
-  pending ??= fetchEfforts().catch((error) => {
+function loadReleases() {
+  pending ??= fetchReleases().catch((error) => {
     console.warn(
       `remark-roadmap: could not generate the roadmap from GitHub — ${error.message}. The page will say so ` +
         `rather than render an empty one; see the header comment in src/plugins/remark-roadmap.js.`,
@@ -208,9 +247,9 @@ const item = (issue) =>
   `</li>`;
 
 /**
- * One effort's card. Its name is not in here: the heading above it is authored as markdown so it lands in
- * the "On this page" outline and takes its id from its own text, which is the same reason
- * `remark-page-index.js` emits its group headings that way. An effort is a thing people link to.
+ * One release's card. Its version is not in here: the heading above it is authored as markdown so it lands
+ * in the "On this page" outline and gets a real anchor, which is the same reason `remark-page-index.js`
+ * emits its group headings that way. A release is a thing people link to.
  *
  * **The outer `<div>` is load-bearing, and `cs-card` cannot replace it.** CommonMark opens a raw HTML block
  * on a *known* block-level tag even with content following on the same line, which is why
@@ -221,25 +260,30 @@ const item = (issue) =>
  * the count sitting outside it. A `div` sidesteps the rule rather than depending on line breaks nobody
  * editing this would know to preserve.
  */
-const card = (effort) =>
-  `<div class="roadmap-effort">` +
+const card = (release) =>
+  `<div class="roadmap-release">` +
   `<cs-card>` +
-  (effort.summary ? `<p class="roadmap-summary">${prose(effort.summary)}</p>` : '') +
-  `<p class="roadmap-questions">${questions(effort.openQuestions)}</p>` +
-  (effort.items.length ? `<ul class="roadmap-items cs-list-plain">${effort.items.map(item).join('')}</ul>` : '') +
+  (release.copy?.summary ? `<p class="roadmap-summary">${prose(release.copy.summary)}</p>` : '') +
+  (release.copy?.criteria?.length
+    ? `<ul class="roadmap-criteria">` +
+      release.copy.criteria.map((entry) => `<li>${prose(entry)}</li>`).join('') +
+      `</ul>`
+    : '') +
+  `<p class="roadmap-questions">${questions(release.openQuestions)}</p>` +
+  (release.items.length ? `<ul class="roadmap-items cs-list-plain">${release.items.map(item).join('')}</ul>` : '') +
   `</cs-card>` +
   `</div>`;
 
 /**
  * No open milestones at all — a true state rather than a failure, and a different sentence from the one
  * below. It exists so the page cannot render as a heading over nothing, and so `check-pages.js` has
- * something to assert against in a repo that has closed every effort it had.
+ * something to assert against in a repo that has closed every release it had planned.
  *
  * The apostrophes below are typographic. Markdown prose on this page gets them from smartypants, which
  * never sees raw HTML, so a straight one here sits next to a curly one in the paragraph above it.
  */
-const noEfforts = () =>
-  `<p class="roadmap-empty">No effort is open right now. ` +
+const noReleases = () =>
+  `<p class="roadmap-empty">No release is open right now. ` +
   `<a href="${MILESTONES_URL}" target="_blank" rel="noreferrer">The project’s milestones</a> are where ` +
   `the next one will appear.</p>`;
 
@@ -284,29 +328,47 @@ export function remarkRoadmap() {
       return;
     }
 
-    const efforts = await loadEfforts();
+    const releases = await loadReleases();
 
-    if (!efforts) {
+    if (!releases) {
       marker.parent.children.splice(marker.index, 1, ...processor.parse(unavailable()).children);
       return;
     }
 
-    if (!efforts.length) {
-      marker.parent.children.splice(marker.index, 1, ...processor.parse(noEfforts()).children);
+    if (!releases.length) {
+      marker.parent.children.splice(marker.index, 1, ...processor.parse(noReleases()).children);
       return;
     }
 
-    const missing = efforts.filter((effort) => !effort.summary).map((effort) => effort.title);
+    const missing = releases.filter((release) => !release.copy?.summary).map((release) => release.title);
 
     if (missing.length) {
       console.warn(
-        `remark-roadmap: no consumer-facing summary for ${missing.join(', ')} — the card renders with its ` +
-          `name and its open-question count only. Add one in src/roadmap-copy.js.`,
+        `remark-roadmap: no consumer-facing copy for ${missing.join(', ')} — the card renders with its ` +
+          `version and its open-question count only. Add an entry in src/roadmap-copy.js.`,
       );
     }
 
-    const markup = efforts.map((effort) => `## ${effort.title}\n\n${card(effort)}`).join('\n\n');
+    const nodes = releases.flatMap((release) => {
+      const parsed = processor.parse(`## ${release.title}\n\n${card(release)}`).children;
+      const heading = parsed.find((node) => node.type === 'heading');
+      const parts = version(release.title);
 
-    marker.parent.children.splice(marker.index, 1, ...processor.parse(markup).children);
+      // Astro's slugger strips the dots, so `## 1.0.0` is anchored at `#100` — an id nobody would guess
+      // and nobody can read, on the one thing on this page people will link to. `remark-changelog.js` hit
+      // exactly this and states its version ids the same way; the two pages now agree on the shape, so a
+      // link to `#v1-0-0` means the same thing on both. Verified to reach the "On this page" outline as
+      // well as the heading itself.
+      if (heading && parts) {
+        heading.data = {
+          ...heading.data,
+          hProperties: { ...heading.data?.hProperties, id: `v${parts.join('-')}` },
+        };
+      }
+
+      return parsed;
+    });
+
+    marker.parent.children.splice(marker.index, 1, ...nodes);
   };
 }

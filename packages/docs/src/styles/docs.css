@@ -1322,18 +1322,62 @@ cs-page[view='mobile'] .site-logo {
 }
 
 /*
- * The roadmap's effort cards.
+ * The two trackers above the roadmap, each carrying its platform's logo.
  *
- * Each effort is a markdown `##` heading — so it reaches the "On this page" outline and takes its own id —
- * with a `cs-card` beneath it holding the summary, the open-question count and the opt-in items. See
- * src/plugins/remark-roadmap.js.
+ * The logos do the work the deleted preamble used to: one sentence each, and the mark says which platform
+ * it is about without the sentence having to. Only the GitHub one links — Jira is Cru's internal instance,
+ * and a public page that links it sends a reader to a login wall.
+ *
+ * `cs-grid` rather than a cluster, so the two sit in columns while there is room and stack when there is
+ * not, instead of one sentence wrapping under the other's logo.
+ */
+.roadmap-trackers {
+  --min-column-size: calc(var(--cs-space-4xl) * 4);
+
+  margin-block: var(--cs-content-spacing);
+}
+
+.roadmap-tracker {
+  /* `cs-flank` aligns its two children on the cross axis; the mark belongs against the first line of the
+     sentence rather than centred on a two- or three-line block. */
+  align-items: start;
+  gap: var(--cs-space-s);
+  margin-block: 0;
+}
+
+/*
+ * One size for both marks, whether it arrives as `cs-icon` or as an inline `<svg>`.
+ *
+ * The two are not interchangeable by default: `cs-icon` applies `--icon-scale` to cancel Material Symbols'
+ * padding, and a Simple Icons SVG has no such padding to cancel. Sized here from the same declaration so
+ * the two logos read as one pair rather than as one logo and one imported graphic.
+ */
+.roadmap-mark {
+  flex: none;
+  width: var(--cs-space-l);
+  height: var(--cs-space-l);
+  /* Optically aligned with the cap height of the first line rather than its top edge. */
+  margin-block-start: 0.1em;
+  color: var(--cs-color-text-normal);
+}
+
+cs-icon.roadmap-mark {
+  --icon-scale: 1;
+}
+
+/*
+ * The roadmap's release cards.
+ *
+ * Each release is a markdown `##` heading — so it reaches the "On this page" outline, and the plugin states
+ * its id because Astro's slugger would turn `1.0.0` into `#100` — with a `cs-card` beneath it holding the
+ * copy, the open-question count and the opt-in items. See src/plugins/remark-roadmap.js.
  *
  * The card is pulled up against its heading: the prose rhythm puts a full paragraph gap between an h2 and
- * what follows it, which reads as a gap between the effort's name and the effort rather than as one
- * between efforts. The space that matters here is the one *after* the card, and the heading's own
+ * what follows it, which reads as a gap between the version and the release rather than as one between
+ * releases. The space that matters here is the one *after* the card, and the heading's own
  * `margin-block-start` supplies it.
  */
-.roadmap-effort {
+.roadmap-release {
   margin-block-start: calc(var(--cs-space-s) * -1);
 }
 
@@ -1342,11 +1386,26 @@ cs-page[view='mobile'] .site-logo {
 }
 
 /*
+ * The entry criteria, for the one release whose meaning is a bar rather than a subject.
+ *
+ * An ordinary list, because they are conditions and a reader should be able to count them. Kept as a list
+ * rather than folded into the summary for exactly that reason: three things that must all be true read as
+ * three things in a list and as hedging in a paragraph.
+ */
+.roadmap-criteria {
+  margin-block: var(--cs-space-s) 0;
+}
+
+.roadmap-criteria li + li {
+  margin-block-start: var(--cs-space-2xs);
+}
+
+/*
  * The count, as a secondary line rather than a badge or a bar.
  *
- * Deliberately unemphasised. A number in a pill next to an effort's name is read as a score, and this one
- * is not one — `0 open questions` means nobody has asked yet. Quiet, small, and below the summary, so it
- * reads as a fact about the effort rather than as its status.
+ * Deliberately unemphasised. A number in a pill next to a version is read as a score, and this one is not
+ * one — `0 open questions` means nobody has asked yet, which is now true of half the page. Quiet, small,
+ * and last, so it reads as a fact about the release rather than as its status.
  */
 .roadmap-questions {
   margin-block: var(--cs-space-s) 0;
@@ -1358,7 +1417,7 @@ cs-page[view='mobile'] .site-logo {
  * The named items, separated from the count above them by a rule.
  *
  * They need the separation because the two are different kinds of claim: the count is a fact about the
- * whole effort, and the items are a handful of things inside it that happen to be nameable. Run together
+ * whole release, and the items are a handful of things inside it that happen to be nameable. Run together
  * with only a margin, the first item reads as an elaboration of the number.
  */
 .roadmap-items {
@@ -1398,8 +1457,8 @@ cs-page[view='mobile'] .site-logo {
   white-space: nowrap;
 }
 
-/* Both non-card states — GitHub unreachable, and no open effort at all. Neither is a card, because
-   neither is an effort, and rendering one as a card is how an empty state gets mistaken for data. */
+/* Both non-card states — GitHub unreachable, and no open release at all. Neither is a card, because
+   neither is a release, and rendering one as a card is how an empty state gets mistaken for data. */
 .roadmap-unavailable,
 .roadmap-empty {
   margin-block: var(--cs-content-spacing);
