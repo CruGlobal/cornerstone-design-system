@@ -1,5 +1,27 @@
 # Can a consumer still reach onboarding? — the `onboard` / `setup-cornerstone-skills` conflict
 
+> [!IMPORTANT]
+> **Superseded — this brief's question no longer exists.**
+>
+> Both commands it weighs were deleted on 2026-09-08. `onboard` was not folded into
+> `setup-cornerstone-skills` and `design-review` was not left in place deprecated; the
+> `cornerstone` tier is now Daniel alone. Every option below is moot, including the
+> recommendation, and the headline finding — *"the status quo is already correct, and every
+> proposed change risks regressing it"* — argued for keeping `onboard`.
+>
+> The fact that settled it is one this brief did not have: `onboard` documented **only** the
+> tokens package. It never mentioned `@cruglobal/cornerstone-components`, `--cs-*`, or the
+> `.cs-theme-*` class mechanism, so it predated the Web Awesome fork and was silent on half of
+> what a consumer installs. Folding it would have carried pre-fork content into the setup skill.
+> Everything in it that was still true already lives in `packages/tokens/README.md`.
+>
+> Two findings below outlived the question and were acted on: the `triage` escalation defect
+> (§"Is `daniel.md` internally contradictory?"), now fixed in all five personas, and the
+> observation that commands *are* skills, which is why deleting them needed no migration.
+>
+> Kept for the reasoning, not the recommendation. See [#75](https://github.com/CruGlobal/cornerstone-design-system/issues/75)
+> and [#151](https://github.com/CruGlobal/cornerstone-design-system/issues/151).
+
 **Status:** analysis only. Blocks the remaining #75 work. Nothing implemented.
 **Date:** 2026-08-12
 **Decisions in scope:** #61, #67, #73, #74, #75 (all closed)

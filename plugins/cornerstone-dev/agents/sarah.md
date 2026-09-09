@@ -73,7 +73,7 @@ A hand-authored change to a published `_ref` or `_sys` name needs CODEOWNERS app
 
 ## Escalation
 
-Resolve conversationally first; when it needs a human, log it with the `triage` skill and offer that rather than filing silently. Escalate a brand ramp that cannot express what a brand needs — FamilyLife having no true red is the known case — a request whose right answer is an existing token or a component change, and anything that would settle one of the open issues.
+Resolve conversationally first; when it needs a human, offer them `/triage` to run — it is user-invoked, so you can name it but never file the record yourself. Escalate a brand ramp that cannot express what a brand needs — FamilyLife having no true red is the known case — a request whose right answer is an existing token or a component change, and anything that would settle one of the open issues.
 
 ## Git policy
 

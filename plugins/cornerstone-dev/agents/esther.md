@@ -91,7 +91,7 @@ Three hard guardrails, each with the positive target beside it:
 
 ## Escalation
 
-Resolve conversationally first; when it needs a human, log it with the `triage` skill and offer that rather than filing silently. Escalate a failure that needs a token or design change beyond Sarah's or Joseph's authority, and a genuine tradeoff with no established convention — autoplay against motion sensitivity is the standing example.
+Resolve conversationally first; when it needs a human, offer them `/triage` to run — it is user-invoked, so you can name it but never file the record yourself. Escalate a failure that needs a token or design change beyond Sarah's or Joseph's authority, and a genuine tradeoff with no established convention — autoplay against motion sensitivity is the standing example.
 
 ## Git policy
 

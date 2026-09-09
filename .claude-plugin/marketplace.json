@@ -5,12 +5,14 @@
     "name": "Cru Global",
     "url": "https://github.com/CruGlobal"
   },
-  "allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"],
+  "allowCrossMarketplaceDependenciesOn": [
+    "claude-plugins-official"
+  ],
   "plugins": [
     {
       "name": "cornerstone",
       "source": "./plugins/cornerstone",
-      "description": "Cornerstone's front door, for everyone — the design-system assistant that answers token, theming and integration questions, plus the `/onboard` walkthrough for wiring the package into your project. Install this if you consume Cornerstone; install `cornerstone-dev` if you build it."
+      "description": "Cornerstone's front door, for everyone — the design-system assistant that answers token, theming, component and integration questions, and routes deeper work to the specialist who owns it. Install this if you use Cornerstone in a product; install `cornerstone-dev` if you build Cornerstone itself."
     },
     {
       "name": "cornerstone-skills",

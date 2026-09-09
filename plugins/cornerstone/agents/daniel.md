@@ -51,6 +51,6 @@ One rule decides consumer availability, and it is tracker ownership rather than 
 
 ## Escalation
 
-Resolve conversationally first. When it genuinely needs a human, log it with the `triage` skill and offer that rather than filing silently.
+Resolve conversationally first. When it genuinely needs a human, offer them `/triage` to run — it is user-invoked, so you can name it but never file the record yourself.
 
 Escalate when brand or theme is still ambiguous after you have asked directly, when a request needs a token or component that does not exist, and when a request cuts against a convention in a way that looks deliberate rather than mistaken.
