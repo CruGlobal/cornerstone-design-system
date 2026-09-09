@@ -258,6 +258,57 @@ function checkTheming(failures) {
   return checked;
 }
 
+/**
+ * The roadmap page, which is generated from GitHub over the network.
+ *
+ * Checked differently from every other page here, and the difference is the point. `remarkRoadmap` will not
+ * fail a build when GitHub cannot be reached — it renders a notice saying so instead, because taking down
+ * 130 pages over one API call is worse than one page in a stated degraded state. If this check demanded
+ * cards, the gate would fail on a bad minute at GitHub and the plugin's whole design would be undone one
+ * step later.
+ *
+ * So what it asserts is that the plugin *ran*: `::roadmap` is gone, and the page carries one of the three
+ * states the plugin can render. That catches the failure this script exists for — a plugin that stops
+ * matching and ships a page with a hole in it — without coupling `npm run verify` to GitHub's uptime.
+ *
+ * The percentage check is a design constraint made enforceable. `Frameworks` is `open=0 closed=1`, so a
+ * progress bar on this page would publish "100% complete" for a release nobody has started. Nothing on
+ * this page may render one.
+ */
+function checkRoadmap(failures) {
+  const built = join(distDir, 'resources', 'roadmap', 'index.html');
+
+  if (!existsSync(built)) {
+    failures.push('resources/roadmap: no page was built');
+    return 0;
+  }
+
+  const html = readFileSync(built, 'utf-8');
+
+  if (html.includes('::roadmap')) {
+    failures.push('resources/roadmap: the `::roadmap` directive is still on the page, so the plugin did not run');
+  }
+
+  const states = ['roadmap-release', 'roadmap-unavailable', 'roadmap-empty'].filter((state) => html.includes(state));
+
+  if (!states.length) {
+    failures.push(
+      'resources/roadmap: no release card, no unavailable notice and no empty state — the block rendered nothing',
+    );
+  }
+
+  for (const bar of ['cs-progress-bar', 'cs-progress-ring']) {
+    if (html.includes(`<${bar}`)) {
+      failures.push(
+        `resources/roadmap: a <${bar}> is on the page. A release's open-question count is not progress — ` +
+          `\`Frameworks\` is 0 open of 1 closed, which a bar would render as complete`,
+      );
+    }
+  }
+
+  return 1;
+}
+
 function main() {
   if (!existsSync(builtDir)) {
     console.error(`No build found at ${builtDir}. Run \`npm run build\` first.`);
@@ -340,6 +391,7 @@ function main() {
 
   checked += checkBrowsePage(failures);
   checked += checkTheming(failures);
+  checked += checkRoadmap(failures);
 
   for (const failure of failures) {
     console.error(`  ${failure}`);
