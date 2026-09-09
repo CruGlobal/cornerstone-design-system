@@ -1,5 +1,17 @@
 # @cruglobal/cornerstone-components
 
+## 0.6.1
+
+### Patch Changes
+
+- [#163](https://github.com/CruGlobal/cornerstone-design-system/pull/163) [`ab4255c`](https://github.com/CruGlobal/cornerstone-design-system/commit/ab4255ccb1c7b238c966a60749a9c78e60262cc1) Thanks [@rguinee](https://github.com/rguinee)! - Changed: both packages now share a single version number. `@cruglobal/cornerstone-components` moves from `0.1.3` to align with the design-system package — `0.2` through `0.5` never existed, so no published version is affected.
+
+- [#162](https://github.com/CruGlobal/cornerstone-design-system/pull/162) [`823c8ad`](https://github.com/CruGlobal/cornerstone-design-system/commit/823c8ade77dd0aa0a187322d7a19670e0fe5d882) Thanks [@rguinee](https://github.com/rguinee)! - Added: A public roadmap at `/resources/roadmap`, generated from the repository's GitHub milestones.
+
+  - One card per planned release, with curated copy and a count of open questions — no percentage, since a release with nothing open has not been scoped rather than finished
+  - Only issues carrying the `roadmap` label render a title; the tracker's decisions stay off the page
+  - Fixed: the Support page claimed the packages are published privately. Both are public on npm; the support model is what is internal
+
 ## 0.1.3
 
 ### Patch Changes
