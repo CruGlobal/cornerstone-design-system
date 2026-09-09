@@ -1,5 +1,15 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.6.1
+
+### Patch Changes
+
+- [#161](https://github.com/CruGlobal/cornerstone-design-system/pull/161) [`e92e973`](https://github.com/CruGlobal/cornerstone-design-system/commit/e92e973d54f0b952096faa3a16cd15892269e92a) Thanks [@rguinee](https://github.com/rguinee)! - Changed: bug reports and feature requests now use structured GitHub Issue Forms that require the package and version, and untemplated blank issues are disabled.
+
+- [#163](https://github.com/CruGlobal/cornerstone-design-system/pull/163) [`ab4255c`](https://github.com/CruGlobal/cornerstone-design-system/commit/ab4255ccb1c7b238c966a60749a9c78e60262cc1) Thanks [@rguinee](https://github.com/rguinee)! - Changed: both packages now share a single version number. `@cruglobal/cornerstone-components` moves from `0.1.3` to align with the design-system package — `0.2` through `0.5` never existed, so no published version is affected.
+
+- [#153](https://github.com/CruGlobal/cornerstone-design-system/pull/153) [`fe59389`](https://github.com/CruGlobal/cornerstone-design-system/commit/fe59389d2895f8c80fbb543ac54e140e3c9d491d) Thanks [@rguinee](https://github.com/rguinee)! - Changed: the Claude Code plugin section now describes Daniel, the assistant the `cornerstone` plugin installs, instead of the `/onboard` and `/design-review` commands, which have been removed.
+
 ## 0.6.0
 
 ### Minor Changes
