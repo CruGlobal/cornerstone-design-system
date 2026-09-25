@@ -148,6 +148,28 @@ its components have registered:
 The autoloader removes it as soon as discovery completes, or after two seconds, whichever comes first.
 See [Reducing FOUCE](/utilities/fouce).
 
+## Building with Claude Code
+
+If your team uses [Claude Code](https://claude.ai/code), commit this to your app's
+`.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "cru": { "source": { "source": "github", "repo": "CruGlobal/cornerstone-design-system" } }
+  },
+  "enabledPlugins": { "cornerstone@cru": true }
+}
+```
+
+It installs the `cornerstone` plugin for everyone who opens the project, once they trust the folder.
+The plugin carries Cornerstone's two [Agent Skills](/ai/agent-skills), read from the copy inside your
+installed package so they match its version, and a check at the start of each session that points
+Claude at the design skill before it writes UI. Without them, Claude tends to rebuild what the
+components and layout utilities already do in custom CSS. It also makes Daniel, Cornerstone's
+assistant, the main agent in those sessions. See [Agent Skills](/ai/agent-skills) for the details and
+for other AI tools.
+
 ## Where to start
 
 - **Components** — the reference for all 70 elements, grouped by what they are for.

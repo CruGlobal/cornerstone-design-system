@@ -16,5 +16,7 @@ const packagesDir = dirname(dirname(fileURLToPath(import.meta.url)));
 export const componentsDir = () =>
   process.env.COMPONENTS_DIR || join(packagesDir, "components");
 export const docsDir = () => process.env.DOCS_DIR || join(packagesDir, "docs");
+/** The repository root, for the files that sit beside the packages rather than in one: `plugins/`. */
+export const repoDir = () => dirname(packagesDir);
 export const tokensDir = () =>
   process.env.TOKENS_DIR || join(packagesDir, "tokens");

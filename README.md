@@ -128,13 +128,15 @@ Then install by answering a single question: **are you using Cornerstone, or bui
 /plugin install cornerstone-dev@cru
 ```
 
+To give a whole team the consumer tier, commit it to the app's `.claude/settings.json` instead; the snippet is on the [Agent Skills](packages/docs/src/content/docs/ai/agent-skills.md) page of the documentation site.
+
 Whether you write code, design screens, or do both does not change the answer on the *using* side. Daniel serves all three, and there is no consumer-side Figma tooling to add — so a designer and a developer at the same consuming ministry install exactly the same thing. The craft split only appears once you are contributing.
 
 Install one, not several. Each tier declares the plugins it needs, and Claude Code installs that whole dependency closure for you — so `cornerstone-dev` gets you `cornerstone` as well, and a dependency it can't resolve disables the tier rather than half-loading it.
 
 | Tier | Install it if you | What it adds | Pulls in |
 | --- | --- | --- | --- |
-| `cornerstone` | use Cornerstone in a product | **Daniel**, the front-door persona | nothing |
+| `cornerstone` | use Cornerstone in a product | **Daniel**, the front-door persona; the `cornerstone` and `cornerstone-design` skills, which read the copy your installed package ships; and a session-start hook that points Claude at `cornerstone-design` when `package.json` depends on `@cruglobal/cornerstone-components` | nothing |
 | `cornerstone-dev` | contribute to this repository | the four contributor personas: **Joseph** (components), **Sarah** (tokens, theming, Figma sync), **Esther** (accessibility), **Anna** (docs and stories) | `cornerstone`, `cornerstone-skills`, `figma` |
 | `cornerstone-designer` | design with Cornerstone and don't write code | a Figma-only prototyping skill — compose existing components and see the idea, never emit code | `cornerstone`, `figma` |
 | `cornerstone-skills` | — nothing; it arrives as a dependency | the general engineering and productivity skills the contributor personas reach for, forked from [mattpocock/skills](https://github.com/mattpocock/skills) under MIT ([NOTICE](https://github.com/CruGlobal/cornerstone-design-system/blob/main/plugins/cornerstone-skills/NOTICE.md)) | nothing |
