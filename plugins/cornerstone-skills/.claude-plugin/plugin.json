@@ -1,6 +1,5 @@
 {
   "name": "cornerstone-skills",
-  "version": "0.1.0",
   "description": "General-purpose engineering and productivity skills used by Cornerstone's contributor personas. Forked from mattpocock/skills (MIT) so Cornerstone can customize them freely — see NOTICE.md.",
   "license": "MIT",
   "keywords": [

@@ -2,7 +2,6 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "cornerstone",
   "displayName": "Cornerstone Design System",
-  "version": "0.2.0",
   "description": "Cornerstone's front door, for everyone — the design-system assistant that answers token, theming, component and integration questions, and routes deeper work to the specialist who owns it, plus the `cornerstone` and `cornerstone-design` agent skills for apps built with Cornerstone Components. Install this if you use Cornerstone in a product; install `cornerstone-dev` if you build Cornerstone itself.",
   "author": {
     "name": "Cru Global",

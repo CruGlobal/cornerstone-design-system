@@ -166,8 +166,8 @@ It installs the `cornerstone` plugin for everyone who opens the project, once th
 The plugin carries Cornerstone's two [Agent Skills](/ai/agent-skills), read from the copy inside your
 installed package so they match its version, and a check at the start of each session that points
 Claude at the design skill before it writes UI. Without them, Claude tends to rebuild what the
-components and layout utilities already do in custom CSS. It also makes Daniel, Cornerstone's
-assistant, the main agent in those sessions. See [Agent Skills](/ai/agent-skills) for the details and
+components and layout utilities already do in custom CSS. It also adds Daniel, Cornerstone's
+assistant, whom you can ask for by name. See [Agent Skills](/ai/agent-skills) for the details and
 for other AI tools.
 
 ## Where to start

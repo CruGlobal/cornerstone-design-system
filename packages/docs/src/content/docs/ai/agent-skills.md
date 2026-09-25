@@ -87,8 +87,8 @@ The plugin gives Claude Code three things:
   check, Claude tends to rebuild layout in custom CSS instead of using the layout utilities. In a
   project that does not use Cornerstone it prints nothing.
 - **Daniel**, Cornerstone's front-door assistant, for token, theming and integration questions. The
-  plugin makes Daniel the main agent for every session in the project, so his instructions and his
-  model (Opus) replace the session's default. A teammate's own `agent` setting overrides that.
+  plugin does not change your session's main agent or model. Ask for Daniel by name when you want him,
+  and he runs on whatever model you choose.
 
 ### The skills CLI
 

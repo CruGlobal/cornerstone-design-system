@@ -153,7 +153,7 @@ Each dependency is there for a reason worth stating:
 
 `figma` lives in Anthropic's official marketplace rather than Cru's, which is why `.claude-plugin/marketplace.json` carries `allowCrossMarketplaceDependenciesOn: ["claude-plugins-official"]`. Cross-marketplace dependencies are refused outright without it, and only the allowlist of the marketplace you installed from is consulted — trust doesn't pass through a chain of dependencies.
 
-You never type a persona's name. They're subagents, and Claude routes to one by matching your request against its description, the same way it picks any other subagent. Daniel, Sarah and Joseph pin an Opus floor because their work is judgment-heavy — routing, hand-authoring primitives, writing component code; Esther and Anna inherit whatever model your session is running.
+You don't have to type a persona's name. They're subagents, and Claude routes to one by matching your request against its description, the same way it picks any other subagent; you can also ask for one by name. Sarah, Joseph, Esther and Anna pin an Opus floor because their work is judgment-heavy. Daniel inherits whatever model your session is running. The `cornerstone` plugin doesn't change a consuming app's main agent; inside this repo, `.claude/settings.json` makes Daniel the main agent.
 
 ### Check your own agent names before installing
 
