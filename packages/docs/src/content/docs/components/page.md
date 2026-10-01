@@ -262,3 +262,9 @@ You can override the default spacing for each slot with your own CSS. In this ex
 
 - `.cs-mobile-only` hides an element on the desktop view
 - `.cs-desktop-only` hides an element on the mobile view
+
+## DOM Morphing
+
+`<cs-page>` measures its banner, header, subheader and footer as they render, and writes each height to its own inline style as `--header-height` and so on. DOM-diffing libraries such as Turbo 8 morph refreshes, idiomorph with htmx, and Alpine's morph plugin reset that inline style to the server's HTML, which doesn't have those heights.
+
+The page puts its measured heights back when that happens, and leaves the rest of the server's inline styles alone. Versions before this fix lost the heights until the next full page load. If you added a `turbo:before-morph-attribute` listener to keep Turbo off the page's `style` attribute, you can take it out after you upgrade.
