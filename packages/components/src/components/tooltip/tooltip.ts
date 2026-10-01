@@ -277,6 +277,13 @@ export default class CsTooltip extends CornerstoneElement {
       this.body.hidden = false;
       this.popup.active = true;
       await animateWithClass(this.popup.popup, 'show-with-scale');
+
+      // The tooltip was closed while the show animation ran. The hide that closed it owns the final state, and a
+      // show that never finished must not report that it did.
+      if (!this.open || this.disabled) {
+        return;
+      }
+
       this.popup.reposition();
 
       this.dispatchEvent(new CsAfterShowEvent());
@@ -293,6 +300,13 @@ export default class CsTooltip extends CornerstoneElement {
       unregisterDismissible(this);
 
       await animateWithClass(this.popup.popup, 'hide-with-scale');
+
+      // The tooltip was reopened while the hide animation ran, and the show branch has already made the body
+      // visible. Hiding it now would leave the tooltip open with nothing showing.
+      if (this.open && !this.disabled) {
+        return;
+      }
+
       this.popup.active = false;
       this.body.hidden = true;
 
