@@ -1,4 +1,4 @@
-import { aTimeout, expect, waitUntil } from '@open-wc/testing';
+import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
@@ -286,6 +286,57 @@ describe('<cs-tooltip>', () => {
 
           expect(afterShowSpy.callCount).to.equal(0);
           expect(tooltip.open).to.be.false;
+        });
+      });
+
+      describe('rapid toggling', () => {
+        it('should keep the body visible when reopened during the hide animation', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip for="cs-button">This is a tooltip</cs-tooltip>
+              <cs-button id="cs-button">Hover Me</cs-button>
+            </div>
+          `);
+          const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
+          const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
+          const afterHideSpy = sinon.spy();
+          await tooltip.show();
+          tooltip.addEventListener('cs-after-hide', afterHideSpy);
+
+          // Start closing, then reopen before the hide animation ends.
+          tooltip.open = false;
+          await tooltip.updateComplete;
+          const afterShow = oneEvent(tooltip, 'cs-after-show');
+          tooltip.open = true;
+          await afterShow;
+
+          expect(tooltip.open).to.be.true;
+          expect(body.hidden).to.be.false;
+          expect(afterHideSpy.callCount).to.equal(0);
+        });
+
+        it('should keep the body hidden when closed during the show animation', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip for="cs-button">This is a tooltip</cs-tooltip>
+              <cs-button id="cs-button">Hover Me</cs-button>
+            </div>
+          `);
+          const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
+          const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
+          const afterShowSpy = sinon.spy();
+          tooltip.addEventListener('cs-after-show', afterShowSpy);
+
+          // Start opening, then close before the show animation ends.
+          tooltip.open = true;
+          await tooltip.updateComplete;
+          const afterHide = oneEvent(tooltip, 'cs-after-hide');
+          tooltip.open = false;
+          await afterHide;
+
+          expect(tooltip.open).to.be.false;
+          expect(body.hidden).to.be.true;
+          expect(afterShowSpy.callCount).to.equal(0);
         });
       });
 

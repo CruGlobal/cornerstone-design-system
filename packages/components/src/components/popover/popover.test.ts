@@ -1,4 +1,4 @@
-import { aTimeout, expect, waitUntil } from '@open-wc/testing';
+import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
@@ -240,6 +240,57 @@ describe('<cs-popover>', () => {
 
           expect(afterHideSpy.callCount).to.equal(0);
           expect(popover.open).to.be.true;
+        });
+      });
+
+      describe('rapid toggling', () => {
+        it('should stay visible when reopened during the hide animation', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button id="anchor">Anchor</cs-button>
+              <cs-popover for="anchor">Content</cs-popover>
+            </div>
+          `);
+          const popover = el.querySelector<CsPopover>('cs-popover')!;
+          const dialog = popover.shadowRoot!.querySelector('dialog')!;
+          const afterHideSpy = sinon.spy();
+          await popover.show();
+          popover.addEventListener('cs-after-hide', afterHideSpy);
+
+          // Start closing, then reopen before the hide animation ends.
+          popover.open = false;
+          await popover.updateComplete;
+          const afterShow = oneEvent(popover, 'cs-after-show');
+          popover.open = true;
+          await afterShow;
+
+          expect(popover.open).to.be.true;
+          expect(dialog.open).to.be.true;
+          expect(afterHideSpy.callCount).to.equal(0);
+        });
+
+        it('should stay hidden when closed during the show animation', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button id="anchor">Anchor</cs-button>
+              <cs-popover for="anchor">Content</cs-popover>
+            </div>
+          `);
+          const popover = el.querySelector<CsPopover>('cs-popover')!;
+          const dialog = popover.shadowRoot!.querySelector('dialog')!;
+          const afterShowSpy = sinon.spy();
+          popover.addEventListener('cs-after-show', afterShowSpy);
+
+          // Start opening, then close before the show animation ends.
+          popover.open = true;
+          await popover.updateComplete;
+          const afterHide = oneEvent(popover, 'cs-after-hide');
+          popover.open = false;
+          await afterHide;
+
+          expect(popover.open).to.be.false;
+          expect(dialog.open).to.be.false;
+          expect(afterShowSpy.callCount).to.equal(0);
         });
       });
 
