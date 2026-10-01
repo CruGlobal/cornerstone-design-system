@@ -68,8 +68,12 @@ function getComponentInfo(components, frontMatterCache) {
 
 /**
  * Generates the main SKILL.md content.
+ *
+ * `pageSlots` is `<cs-page>`'s named slots, read from the manifest. SKILL.md lists them as the only valid
+ * names and says anything else is ignored, so a hand-typed copy that falls behind tells agents a real slot
+ * does nothing. The typed list it replaces had fallen eight slots behind.
  */
-function generateSkillMd({ componentList, packageData, baseUrl }) {
+function generateSkillMd({ componentList, packageData, baseUrl, pageSlots }) {
   // Group components by category
   const categorize = (list) => {
     const categories = {};
@@ -214,9 +218,7 @@ no warning.
 
 ### Valid slots (use these exact names)
 
-\`banner\`, \`header\`, \`subheader\`, \`navigation-header\`, \`navigation\`,
-\`navigation-footer\`, \`menu\`, \`main-header\`, \`main-footer\`, \`aside\`, \`footer\`,
-\`skip-to-content\`, \`navigation-toggle\`. **Anything else** (e.g. \`slot="main"\`, \`slot="nav"\`,
+${pageSlots.map((name) => `\`${name}\``).join(', ')}. **Anything else** (e.g. \`slot="main"\`, \`slot="nav"\`,
 \`slot="content"\`) is silently ignored. There is no \`nav\` slot — the navigation slot is
 \`navigation\`. (\`menu\` is an advanced escape hatch that *replaces* the entire left navigation
 region; don't use it for ordinary nav links — and for a landing page, skip the left region
@@ -776,7 +778,12 @@ export async function generateAgentSkill(options = {}) {
   fs.mkdirSync(tokensDir, { recursive: true });
 
   // Generate SKILL.md
-  const skillMd = generateSkillMd({ componentList, packageData, baseUrl });
+  const pageSlots = (components.find((c) => c.tagName === 'cs-page')?.slots ?? []).map((s) => s.name).filter(Boolean);
+  if (pageSlots.length === 0) {
+    // An empty list would ship "Valid slots: ." and call every slot invalid. Fail rather than publish that.
+    throw new Error(`No <cs-page> slots found in ${cemPath}; SKILL.md needs them for its list of valid slots.`);
+  }
+  const skillMd = generateSkillMd({ componentList, packageData, baseUrl, pageSlots });
   fs.writeFileSync(path.join(outdir, 'SKILL.md'), skillMd, 'utf-8');
 
   copyAllComponentDocsFromMarkdown(contentDir, refsDir, baseUrl, apiComponents);

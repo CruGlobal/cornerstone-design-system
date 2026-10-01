@@ -81,12 +81,19 @@ function toLength(px: number | string): string {
  * @slot navigation-header - The header for a navigation area. On mobile this will be the header for `<cs-drawer>`.
  * @slot navigation - The main content to display in the navigation area. This is displayed on the left side of the page, if `menu` is not used. This section "sticks" to the top as the page scrolls.
  * @slot navigation-footer - The footer for a navigation area. On mobile this will be the footer for `<cs-drawer>`.
+ * @slot desktop-navigation-header - The sidebar's header on desktop, in place of `navigation-header`. On mobile, `<cs-drawer>` still shows `navigation-header`.
+ * @slot desktop-navigation - The sidebar's content on desktop, in place of `navigation`. On mobile, `<cs-drawer>` still shows `navigation`.
+ * @slot desktop-navigation-footer - The sidebar's footer on desktop, in place of `navigation-footer`. On mobile, `<cs-drawer>` still shows `navigation-footer`.
+ * @slot mobile-navigation-header - The header for `<cs-drawer>` on mobile, in place of `navigation-header`. On desktop, the sidebar still shows `navigation-header`. Use it for a header only the drawer should have.
+ * @slot mobile-navigation - The content of `<cs-drawer>` on mobile, in place of `navigation`. On desktop, the sidebar still shows `navigation`.
+ * @slot mobile-navigation-footer - The footer for `<cs-drawer>` on mobile, in place of `navigation-footer`. On desktop, the sidebar still shows `navigation-footer`.
  * @slot navigation-toggle - Use this slot to slot in your own button + icon for toggling the navigation drawer. By default it is a `<cs-button>` + a 3 bars `<cs-icon>`
  * @slot navigation-toggle-icon - Use this to slot in your own icon for toggling the navigation drawer. By default it is 3 bars `<cs-icon>`.
  * @slot main-header - Header to display inline above the main content.
  * @slot main-footer - Footer to display inline below the main content.
  * @slot aside - Content to be shown on the right side of the page. Typically contains a table of contents, ads, etc. This section "sticks" to the top as the page scrolls.
  * @slot skip-to-content - The "skip to content" slot. You can override this If you would like to override the `Skip to content` button and add additional "Skip to X", they can be inserted here.
+ * @slot skip-to-content-target - Where the "skip to content" link lands. If the document has no element with `id="main-content"`, the page adds an empty one to this slot, at the start of the main content. You don't need to fill it. To choose where the link lands, put `id="main-content"` on your own element in the main content.
  * @slot footer - The content to display in the footer. This is always displayed underneath the viewport so will always make the page "scrollable".
  *
  * @csspart page - The component's outer wrapper.
