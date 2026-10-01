@@ -67,6 +67,8 @@ For each changed/new subtree key, run [#extraction-snippet](#extraction-snippet)
 
 If a subtree's return exceeds the ~20K budget, fall back to the historical chunk strategy for that subtree only (e.g. for `sys/color/<mode>` plus `sys/number/<mode>` plus `sys/string/<mode>` — but you'll usually only have one of those three in the diff at a time).
 
+**Known limitation:** The `use_figma` tool has a ~20 KB response budget. When multiple `sys/color/<mode>` subtrees change simultaneously, extract them one mode at a time to avoid silent truncation (see issue #23).
+
 ## Step 5 — Surgical merge
 
 For each changed subtree the agent pulled, **replace** that subtree's branch in the on-disk JSON file (do **not** deep-merge — deep-merge leaves deleted leaves in place). Concretely:
