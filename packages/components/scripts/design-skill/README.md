@@ -69,6 +69,10 @@ standalone for fast iteration. It catches:
 - **Wrong attribute citations** — every `<cs-tag attr>` or `<cs-tag attr="value">` cited in `agent-skill/choosing-components.md` must reference a real attribute per the CEM. Caught the case where `<cs-tag removable>` should have been `<cs-tag with-remove>`
 - **Drift in `<cs-page>`'s API tables** in `layouts-page.md` — every slot, attribute, and CSS custom property cited under `### Slots`, `### Attributes`, and `### CSS custom properties` must exist in `<cs-page>`'s CEM declaration
 - **Broken relative markdown links** between skill files
+- **Absolute links into the docs site that name no page.** Each one must match a page under
+  `packages/docs/src/content/docs/` or a file under `packages/docs/public/`. It is checked offline,
+  against the source. The skill shipped fourteen links under a `/docs/` prefix that upstream uses and
+  this site does not, and every one was a 404
 
 If the verifier fails after a library change, fix the citation (or the library) before merging.
 

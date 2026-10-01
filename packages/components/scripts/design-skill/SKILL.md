@@ -22,7 +22,7 @@ and compose interfaces that look intentionally designed rather than merely funct
 important habit is to **lean into Cornerstone's design system first** — its components, layout utilities,
 tokens, and styling API — and reach for custom CSS only when the system genuinely doesn't cover the need
 (see "Use Cornerstone's design system first" below). For the API of any single component (props, slots,
-events), use the companion `cornerstone` skill or [llms.txt](https://cruglobal.github.io/cornerstone-design-system/docs/ai/).
+events), use the companion `cornerstone` skill or [llms.txt](https://cruglobal.github.io/cornerstone-design-system/ai/).
 
 Read this file first. It routes you to the right reference and states the rules that matter most.
 
@@ -95,7 +95,7 @@ Before you write a custom class, a raw `flex`/`grid` rule, a hardcoded value, or
 **work down this ladder and stop at the first rung that does the job:**
 
 1. **A component.** Is there already a `<cs-*>` for this (button, card, dialog, dropdown, input, tabs, …)?
-   Use it instead of assembling the same thing from `<div>`s. Check the companion [`cornerstone` skill](https://cruglobal.github.io/cornerstone-design-system/docs/ai/) before building UI by hand. **Watch for these commonly re-invented ones:**
+   Use it instead of assembling the same thing from `<div>`s. Check the companion [`cornerstone` skill](https://cruglobal.github.io/cornerstone-design-system/ai/) before building UI by hand. **Watch for these commonly re-invented ones:**
    a "featured/Most Popular" pricing tier is a `<cs-card>` with a `<cs-badge>` in its header slot (not an
    absolutely-positioned hand-rolled ribbon); a section separator is `<cs-divider>` (not a styled `<hr>`);
    a pill/label is `<cs-tag>` or `<cs-badge>`; a quote mark, check bullet, or star rating is `<cs-icon>` /
@@ -112,7 +112,7 @@ Before you write a custom class, a raw `flex`/`grid` rule, a hardcoded value, or
 4. **The component's styling API.** Need a component to look different? **First look up that specific
    component's documented styling API** — its **attributes** (`variant`, `appearance`, `size`, `pill`, …),
    its **CSS custom properties** (`--cs-*` it exposes), and its **CSS parts** (`::part(...)`) — in the
-   companion [`cornerstone` skill](https://cruglobal.github.io/cornerstone-design-system/docs/ai/) (or [llms.txt](https://cruglobal.github.io/cornerstone-design-system/docs/ai/)).
+   companion [`cornerstone` skill](https://cruglobal.github.io/cornerstone-design-system/ai/) (or [llms.txt](https://cruglobal.github.io/cornerstone-design-system/ai/)).
    Then style through that API in this order: **attributes → component tokens → `::part()`**. Never guess a
    token name, a part name, or which token a `variant` resolves to, and never fight the shadow DOM with host
    CSS. This lookup is **mandatory** — see rule 9 below. (Also composition.md.)
@@ -146,8 +146,8 @@ These are the things that go wrong most often. Treat them as hard constraints.
    page CSS, classes, and `color`/`background` declarations **do not reach inside them** and **`variant`
    colors resolve through tokens you cannot guess**. Before you write **any** custom CSS that targets a
    `<cs-*>` element — or that sets a `--cs-*` token expecting that element to consume it — **open that exact
-   component's reference** in the companion [`cornerstone` skill](https://cruglobal.github.io/cornerstone-design-system/docs/ai/)
-   (`references/components/<name>.md`) or [llms.txt](https://cruglobal.github.io/cornerstone-design-system/docs/ai/) and read its
+   component's reference** in the companion [`cornerstone` skill](https://cruglobal.github.io/cornerstone-design-system/ai/)
+   (`references/components/<name>.md`) or [llms.txt](https://cruglobal.github.io/cornerstone-design-system/ai/) and read its
    **CSS Parts**, **CSS Custom Properties**, **Attributes** (`variant`/`appearance`/`size`/…), and any
    **Styling** notes. Then style **only** through what that doc lists, in this order: **attributes →
    the component's own tokens → its documented `::part()`**.
@@ -186,7 +186,7 @@ These are the things that go wrong most often. Treat them as hard constraints.
 
    **Contrast on colored bands (a separate, equally common button bug).** Even with correct `::part(button)` usage, a button can vanish because its colors match the band it sits on. **Never place an `appearance="outlined"` or `appearance="plain"` button whose `variant` matches the band color** — e.g. `<cs-button variant="brand" appearance="outlined">` on a brand-colored hero or CTA. The outline and label are the same hue as the background, so the button is effectively invisible (this is exactly what happened on the brand-colored hero bands of multiple pages). On any colored band, a secondary button must use a **contrasting** treatment: a solid/filled neutral or on-color button, or an outline/text recolored via `::part(button)` to the band's on-color token (`--cs-color-*-on-loud`, or a surface token). After placing any button on a non-default background, verify its label **and** border are clearly visible against that band.
 
-10. **Use `<cs-icon>` for icons; never emojis.** Don't put emojis in the UI unless the user explicitly asks for them — and that includes the places they sneak in: logos, image-`alt`/placeholder text, list bullets, decorative `::before` content, and JS-injected toast/success messages. Reach for the [`<cs-icon>`](https://cruglobal.github.io/cornerstone-design-system/docs/components/icon) component instead. The default icon library is Material Symbols (sharp), whose names are snake_case. Brand logos come from the separate `brands` library. Search [fonts.google.com/icons](https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Sharp) rather than guessing a name — a name that doesn't exist renders nothing. See [references/composition.md](references/composition.md) for usage.
+10. **Use `<cs-icon>` for icons; never emojis.** Don't put emojis in the UI unless the user explicitly asks for them — and that includes the places they sneak in: logos, image-`alt`/placeholder text, list bullets, decorative `::before` content, and JS-injected toast/success messages. Reach for the [`<cs-icon>`](https://cruglobal.github.io/cornerstone-design-system/components/icon) component instead. The default icon library is Material Symbols (sharp), whose names are snake_case. Brand logos come from the separate `brands` library. Search [fonts.google.com/icons](https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Sharp) rather than guessing a name — a name that doesn't exist renders nothing. See [references/composition.md](references/composition.md) for usage.
 11. **Keep markup valid and accessible.** Use real heading elements for hierarchy (`<h2>`/`<h3>`/`<h4>`) — don't fake a heading with a styled `<strong>`, which breaks the document outline. Give icon-only controls a `label` (or `aria-label`) and images meaningful `alt`. Never put two `style` attributes on one element — the second silently wins; merge them (or, per Rule 8, use a class).
 
 ---
