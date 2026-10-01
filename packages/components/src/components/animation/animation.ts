@@ -39,7 +39,7 @@ export default class CsAnimation extends CornerstoneElement {
 
   /**
    * Plays the animation. When omitted, the animation will be paused. This attribute will be automatically removed when
-   * the animation finishes or gets canceled.
+   * the animation finishes or gets canceled. To play it again from the start, call `restart()`.
    */
   @property({ type: Boolean, reflect: true }) play = false;
 
@@ -223,6 +223,26 @@ export default class CsAnimation extends CornerstoneElement {
   /** Sets the playback time to the end of the animation corresponding to the current playback direction. */
   finish() {
     this.animation?.finish();
+  }
+
+  /**
+   * Rewinds the animation to the start and plays it, whether it has finished, been canceled, been paused or is still
+   * running. Each restart is a new run: the delay and every iteration play again as the current options describe them,
+   * `play` is set to `true`, and `cs-start` is emitted. The run it interrupts emits neither `cs-cancel` nor `cs-finish`.
+   * If the animation doesn't exist yet, for example because nothing is slotted, it starts as soon as it does.
+   */
+  restart() {
+    this.play = true;
+
+    if (!this.animation) {
+      return;
+    }
+
+    // play() alone resumes a paused or running animation where it is, so seek to the start first.
+    this.animation.currentTime = 0;
+    this.animation.play();
+    this.hasStarted = true;
+    this.dispatchEvent(new CsStartEvent());
   }
 
   render() {
