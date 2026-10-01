@@ -4,6 +4,8 @@ import { html } from 'lit';
 import sinon from 'sinon';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { fixtures } from '../../internal/test/fixture.js';
+import { formControlHeight } from '../../internal/test/form-control-height.js';
+import { loadNativeStyles } from '../../internal/test/native-styles.js';
 import { clickOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsDetails from './details.js';
 
@@ -201,6 +203,51 @@ describe('<cs-details>', () => {
           const slottedSummary = el.querySelector('[slot="summary"]');
           expect(slottedSummary).to.exist;
           expect(slottedSummary!.textContent).to.equal('Custom Summary');
+        });
+      });
+
+      // A native <details> puts its <summary> in a slot inside the browser's own shadow root, and that slot is
+      // content-box in Chromium, Firefox and WebKit alike. With `:host * { box-sizing: inherit }` the header
+      // inherited content-box from it, and a page rule such as native.css's `*, ::before, ::after { box-sizing:
+      // inherit }` carried that into whatever was slotted into the summary. Without such a page rule the slotted
+      // button keeps its own border-box, so native.css is loaded for this block and removed afterwards.
+      describe('box sizing', () => {
+        let nativeStyles: HTMLLinkElement;
+
+        before(async () => {
+          nativeStyles = await loadNativeStyles();
+        });
+
+        after(() => {
+          nativeStyles.remove();
+        });
+
+        it('should make the header border-box', async () => {
+          const el = await fixture<CsDetails>(html`<cs-details summary="Test">Content</cs-details>`);
+          const header = el.shadowRoot!.querySelector('[part~="header"]')!;
+
+          expect(getComputedStyle(header).boxSizing).to.equal('border-box');
+        });
+
+        it('should keep an icon-only button in the summary square', async () => {
+          const el = await fixture<CsDetails>(html`
+            <cs-details appearance="plain">
+              <span slot="summary">
+                Name
+                <cs-button appearance="plain" size="xs" pill>
+                  <cs-icon library="system" name="star" label="Favorite"></cs-icon>
+                </cs-button>
+              </span>
+            </cs-details>
+          `);
+          const button = el.querySelector('cs-button')!;
+          await waitUntil(() => button.matches(':state(icon-button)'));
+
+          const { width, height } = button.getBoundingClientRect();
+          const expected = formControlHeight(button);
+
+          expect(width).to.equal(expected, 'width');
+          expect(height).to.equal(expected, 'height');
         });
       });
 
