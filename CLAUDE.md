@@ -7,13 +7,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 An npm workspace of four packages. Root scripts fan out across all of them; per-package scripts do
 one package's work.
 
-|                        |                                        |                                                                         |
-| ---------------------- | -------------------------------------- | ----------------------------------------------------------------------- |
-| `packages/tokens`      | `@cruglobal/cornerstone-design-system` | the design tokens — published, public                                   |
-| `packages/components`  | `@cruglobal/cornerstone-components`    | the component library — published, public                               |
-| `packages/docs`        | —                                      | the Astro documentation site — deploys to GitHub Pages, never published |
-| `packages/build-tools` | —                                      | modules the library and the docs share — private, never published       |
-
 Paths in this file are relative to `packages/tokens` unless stated otherwise.
 
 ## Commands
@@ -41,18 +34,6 @@ Built artifacts live only in the published packages and the deployed site.
 
 Tokens are organized in three layers with strict aliasing rules enforced by `npm run validate`:
 
-```
-tokens/
-  ref.json          # _ref.*  — raw primitives (hex colors, unitless numbers, font strings)
-  sys/
-    cru-light.json  # _sys.*  — semantic aliases per brand × theme mode
-    cru-dark.json
-    fl-light.json
-    fl-dark.json
-  cmp/
-    *.json          # _cmp.*  — component-level aliases
-```
-
 **Aliasing rules (validated, not just convention):**
 
 - `_sys` tokens must alias `_ref` tokens only
@@ -60,22 +41,6 @@ tokens/
 - Raw color literals are only allowed in `_ref`
 
 All files use [W3C DTCG](https://design-tokens.github.io/community-group/format/) format (`$type` / `$value`).
-
-## Build Pipeline
-
-`packages/tokens/build.mjs` runs Style Dictionary 5.x (`usesDtcg: true`) across five platform sets:
-
-| Input                             | CSS selector                             |
-| --------------------------------- | ---------------------------------------- |
-| `packages/tokens/tokens/ref.json` | `:root`                                  |
-| `tokens/sys/cru-light.json`       | `[data-brand="cru"][data-theme="light"]` |
-| `tokens/sys/cru-dark.json`        | `[data-brand="cru"][data-theme="dark"]`  |
-| `tokens/sys/fl-light.json`        | `[data-brand="fl"][data-theme="light"]`  |
-| `tokens/sys/fl-dark.json`         | `[data-brand="fl"][data-theme="dark"]`   |
-
-Each set outputs CSS variables, SCSS variables, ESM, CJS, TypeScript declarations, and nested/flat JSON under `build/`.
-
-Two custom transforms are registered in `packages/tokens/build.mjs`: `name/css/cornerstone` (strips leading `_` from path segments and joins with `-`) and `value/number/unit` (applies `px`, opacity ratio, or `em` based on the token path).
 
 ## Changeset Rules
 
@@ -118,32 +83,12 @@ Merging to `main` triggers `release.yml`. `changesets/action` will:
 1. While changesets are pending → open/update a **"chore: version packages"** PR
 2. When that PR is merged → publish to npm with provenance via npm Trusted Publishing (no `NPM_TOKEN` needed; `id-token: write` permission is already configured)
 
-Trusted publishing is configured **per package** on npmjs.com, and npm only lets you configure it for a
-package that already exists — so a package's very first version has to be published by hand before OIDC
-can take over. `@cruglobal/cornerstone-design-system` did that from CI with a short-lived `NPM_TOKEN`
-(added in `ca23090`, removed in `900ea4e`); `@cruglobal/cornerstone-components` did it from a maintainer's
-machine, answering an interactive 2FA challenge. Prefer the second for the next one: it creates no standing
-credential, and npm removes direct publishing from bypass-2FA tokens in January 2027, leaving OIDC and
-staged publishing.
-
-Provenance is declared in exactly one place: `packages/tokens`' own `publishConfig`. Trusted publishing
-attaches an attestation by itself — the flag exists to turn that _off_ — while setting it true makes
-`npm publish` refuse to run anywhere but a CI runner, which is precisely what a first publish cannot be.
-A root `.npmrc` carrying `provenance=true` used to apply that to every package in the workspace, and it is
-what failed `@cruglobal/cornerstone-components`' bootstrap publish with `Automatic provenance generation
-not supported for provider: null`. It bought nothing OIDC was not already doing, so it is gone. The flag
-survives only in the tokens manifest, where it reaches one package that publishes from CI and nowhere else.
-
-Neither package runs its test suite at publish time. `prepublishOnly` is `npm run build` in both, because
-the release runner installs no browsers — `npm run verify` in `packages/components` ends in a
-three-engine Playwright run that would fail there, and CI has already run that exact gate on the commit
-being released.
+Why a first publish is done by hand, where provenance is declared (and why not in a root `.npmrc`), and why
+`prepublishOnly` only builds: `.claude/rules/release-publishing.md`, which loads when release config is touched.
 
 ## Syncing Tokens from Figma
 
-Use the `/pull-tokens` slash command (requires the Figma plugin for Claude Code — install via `/plugins`). It change-detects via per-subtree FNV-1a hashes and only re-pulls what changed. See `.claude/commands/pull-tokens.md` for the full protocol.
-
-**Known limitation:** The `use_figma` tool has a ~20 KB response budget. When multiple `sys/color/<mode>` subtrees change simultaneously, extract them one mode at a time to avoid silent truncation (see issue #23).
+Use the `/pull-tokens` slash command (requires the Figma plugin for Claude Code — install via `/plugins`). It change-detects via per-subtree FNV-1a hashes and only re-pulls what changed. See `.claude/commands/pull-tokens.md` for the full protocol, including its known `use_figma` size limit.
 
 ## Documentation Site
 

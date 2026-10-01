@@ -36,10 +36,8 @@ which must start with `cs-`, and writes four files: the three above plus a docs 
 
 ## Decorators & Reactivity
 
-- `@customElement('cs-name')` — Registers the custom element.
-- `@property({ reflect: true })` — Reactive public property, reflects to HTML attribute.
-- `@state()` — Reactive internal state (no attribute reflection).
-- `@query('.selector')` — Cached shadow DOM query.
+Standard Lit decorators apply. One is Cornerstone's own:
+
 - `@watch('propertyName')` — Runs handler when a property changes. Use `{ waitUntilFirstUpdate: true }` to skip the initial value.
 
 ## Controllers
@@ -116,23 +114,8 @@ Custom esbuild-based build (`scripts/build.js`). Generates:
 
 Import specifiers do not contain `dist`: it is a container for the two builds, not part of the public API.
 
-## Key Directories
-
-- `src/components/` — All components
-- `src/internal/` — Base classes, decorators (`watch.ts`), controllers (`slot.ts`), validators
-- `src/styles/` — Shared styles, themes, color palettes, CSS utilities
-- `src/events/` — Custom event class definitions
-- `src/translations/` — i18n message files (30+ locales)
-- `packages/docs/` (a sibling package) — Documentation site (Astro + Starlight). `src/content/docs/` is the page source, and the
-  agent skills and `llms.txt` are generated from it.
-
 ## Common Tasks
 
-- **New component**: Run `npm run create`, enter `cs-component-name`. Generates three files in `src/components/<name>/` plus a docs page. Add JSDoc tags (see above), implement `render()`, add styles.
-- **Add a property**: `@property({ reflect: true }) propName: Type = default;` — use `reflect: true` if it should be settable via HTML attribute.
-- **Add a slot**: Add `<slot name="name"></slot>` in `render()`, add `@slot name` JSDoc tag, optionally track with `HasSlotController`.
-- **Add a CSS part**: Add `part="name"` to element in `render()`, add `@csspart name` JSDoc tag.
-- **Add a custom event**: Create event class in `src/events/`, dispatch with `this.dispatchEvent(new CsEventClass())`, add `@event cs-event-name` JSDoc tag.
 - **Add a test**: Import `{ fixtures }` from `src/internal/test/fixture.js`, loop `for (const fixture of fixtures)`, use `await fixture<Type>(html`...`)`.
 - **Doc page**: Create `../docs/src/content/docs/components/name.md` with front matter (`title`, `description`, `category`). Use ` ```html {.example} ` for live code blocks. The API reference is appended from the CEM by `remark-component-api`, so don't hand-write it.
 - **Record a change**: Add a changeset (`npx changeset`), following the root `CLAUDE.md`'s Changeset Rules: lead the summary with its category, such as `Fixed:` or `Added:`. Don't edit `../docs/src/content/docs/resources/changelog.md` by hand. `remark-changelog.js` renders its releases from this package's `CHANGELOG.md`, which changesets writes at each version bump. Only the pre-changesets `0.1.0` section is hand-written.
