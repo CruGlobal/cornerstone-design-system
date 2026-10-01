@@ -155,26 +155,57 @@ A page isn't very opinionated when it comes to responsive behaviors, but there a
 
 #### Default Slot Styles
 
-Each slot is a [flex container](https://developer.mozilla.org/en-US/docs/Glossary/Flex_Container) and specifies some flex properties so that your content is reasonably responsive by default.
+Most slots lay out the element you put in them, so its children are arranged before you write any styles. Each of these wrappers is a [flex container](https://developer.mozilla.org/en-US/docs/Glossary/Flex_Container) with a `--cs-space-m` gap between its children.
 
-The following slots specify `justify-content: space-between` and `flex-wrap: wrap` to evenly distribute child elements horizontally and allow them to wrap when space is limited.
+| Slot                                                                    | Direction | Alignment                                               | Wraps |
+| ----------------------------------------------------------------------- | --------- | ------------------------------------------------------- | ----- |
+| `header`, `subheader`, `main-header`                                    | row       | `align-items: center`, `justify-content: space-between` | yes   |
+| `main-footer`, `footer`                                                 | row       | `align-items: start`, `justify-content: space-between`  | yes   |
+| `banner`                                                                | row       | `align-items: center`, `justify-content: center`        | no    |
+| `navigation-header`, `navigation`, `navigation-footer`, `menu`, `aside` | column    | not set, so children stretch across                     | no    |
 
-- `header`
-- `subheader`
-- `main-header`
-- `main-footer`
-- `footer`
+The default slot is the exception. A `<main>` or `<section>` there gets padding, but its display is left alone.
 
-The following slots specify `flex-direction: column` to arrange child elements vertically.
+#### Changing a Wrapper's Layout
 
-- `navigation-header`
-- `navigation` (or `menu`)
-- `navigation-footer`
-- `aside`
+To arrange a wrapper's children another way, put [layout utilities](/utilities/) on the wrapper instead of writing CSS for it. The defaults above are set from inside the page's shadow DOM, and a style on the slotted element itself always wins over them, whatever its specificity. So a utility class replaces a default outright.
 
-And the `banner` slot specifies `justify-content: center` to horizontally center its child elements.
+A navigation in two parts, such as an icon rail beside a list of links, is the usual case. The `navigation` wrapper is a column, so the parts stack until you make it a row.
 
-You can override the default display and flex properties for each slot with your own CSS.
+```html
+<cs-page>
+  ...
+  <nav slot="navigation" class="cs-split cs-align-items-stretch cs-justify-content-start">
+    <div class="cs-stack cs-gap-xs">
+      <cs-button appearance="plain" href="#home" data-drawer="close">
+        <cs-icon name="home" label="Home"></cs-icon>
+      </cs-button>
+      <cs-button appearance="plain" href="#search" data-drawer="close">
+        <cs-icon name="search" label="Search"></cs-icon>
+      </cs-button>
+      <cs-button appearance="plain" href="#settings" data-drawer="close">
+        <cs-icon name="settings" label="Settings"></cs-icon>
+      </cs-button>
+    </div>
+    <div class="cs-stack cs-gap-2xs">
+      <a href="#overview" data-drawer="close">Overview</a>
+      <a href="#reports" data-drawer="close">Reports</a>
+      <a href="#members" data-drawer="close">Members</a>
+    </div>
+  </nav>
+  ...
+</cs-page>
+```
+
+Each class does one job:
+
+- [`cs-split`](/utilities/split/) makes the wrapper a row. It sets `flex-direction: row`, and `cs-cluster` sets no direction, so a cluster leaves the column in place.
+- `cs-align-items-stretch` runs both parts the full height of the navigation. A split centers its children by default, which floats a short rail to the middle.
+- `cs-justify-content-start` keeps the parts together. A split pushes its children to opposite ends, which opens a gap between them in the mobile drawer, or whenever `--menu-width` is wider than the parts.
+
+The split also puts a `--cs-space-m` gap between the parts. Add a [gap utility](/utilities/gap/) to change it, such as `cs-gap-0` when the parts should meet edge to edge.
+
+On mobile the page moves this same wrapper into its drawer, classes included, so the parts stay side by side there as long as they fit. A split wraps, so when the drawer or a fixed `--menu-width` is narrower than both parts, the second part drops below the first.
 
 #### Responsive Navigation
 
