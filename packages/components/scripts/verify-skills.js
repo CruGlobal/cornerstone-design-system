@@ -12,7 +12,7 @@
  *     under `src/components/<name>/`.
  *  2. Every attribute cited alongside those tags exists on that component per the CEM.
  *  3. Every relative markdown link in `agent-skill/**.md` and `design-skill/**.md` resolves to a file
- *     that exists.
+ *     that exists, and every absolute link into the docs site names a page the site builds.
  *  4. No file asserts a claim known to be false: a domain Cru does not own, a Pro product that does not
  *     exist, a mangled third-party host, or a component count that is wrong.
  */
@@ -20,6 +20,8 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { DOCS_URL } from '@cruglobal/cornerstone-build-tools/site-url.js';
+import { docsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = path.resolve(__dirname, '..');
@@ -427,6 +429,39 @@ for (const file of filesToScan) {
   });
 }
 
+// --- Check 4b: absolute links into the docs site name a page that exists ---
+//
+// Check 4 skips every `https:` link, which is how the design skill shipped fourteen links under a `/docs/`
+// prefix: upstream serves its docs there, and this site serves them at its root. A link is resolved
+// against the docs source rather than fetched, so the check stays offline. A route is a page when the
+// content collection holds `<route>.md` or `<route>/index.md`, or an asset when `public/` holds that file.
+// A redirect source in `astro.config.mjs` does not count: a skill should link the page itself.
+const DOCS_CONTENT_DIR = path.join(docsDir(), 'src', 'content', 'docs');
+const DOCS_PUBLIC_DIR = path.join(docsDir(), 'public');
+const docsUrlRegex = new RegExp(`${DOCS_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^\\s)>\`"']*`, 'g');
+let docsLinksChecked = 0;
+
+for (const file of filesToScan) {
+  fs.readFileSync(file, 'utf-8')
+    .split('\n')
+    .forEach((line, idx) => {
+      for (const [url] of line.matchAll(docsUrlRegex)) {
+        docsLinksChecked += 1;
+        const route = url
+          .slice(DOCS_URL.length)
+          .split('#')[0]
+          .replace(/[.,;:]+$/, '')
+          .replace(/^\/+|\/+$/g, '');
+        const page = ['.md', '.mdx', '/index.md', '/index.mdx'].some((ext) =>
+          fs.existsSync(path.join(DOCS_CONTENT_DIR, (route || 'index') + ext)),
+        );
+        if (!page && !fs.statSync(path.join(DOCS_PUBLIC_DIR, route), { throwIfNoEntry: false })?.isFile()) {
+          errors.push(`${path.relative(PACKAGE_ROOT, file)}:${idx + 1}: '${url}' names no page on the docs site`);
+        }
+      }
+    });
+}
+
 // --- Prose claims ---
 // The link check above proves a path resolves; it says nothing about what the prose asserts. Ticket 02's
 // Pro purge missed the design skill entirely for exactly that reason, so these are the claims that were
@@ -509,6 +544,7 @@ if (errors.length > 0) {
 console.log(`✓ Skill verification passed.`);
 console.log(`  ${seenTags.size} <cs-*> tags checked against ${components.size} components`);
 console.log(`  ${filesToScan.length} markdown files scanned for broken relative links`);
+console.log(`  ${docsLinksChecked} absolute docs link(s) checked against the docs site's pages`);
 console.log(
   `  ${attrValuesChecked} closed-set attribute value(s) checked against the CEM across ${attrCheckFiles} skill source(s)`,
 );

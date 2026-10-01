@@ -10,7 +10,7 @@ named regions and let the component do the work. Do **not** rebuild any of this 
 `display: grid`, no media queries for the nav/sidebar/toggle, no hand-rolled mobile drawer, no manual
 show/hide of a hamburger. Every time you reach for one of those, stop — `<cs-page>` already does it.
 
-Full docs: https://cruglobal.github.io/cornerstone-design-system/docs/components/page
+Full docs: https://cruglobal.github.io/cornerstone-design-system/components/page
 
 ---
 
@@ -214,7 +214,7 @@ utilities instead (see [layouts-inpage.md](layouts-inpage.md)).
    }
    ```
 
-   (If you use [native styles](https://cruglobal.github.io/cornerstone-design-system/docs/utilities/native/), this is already handled.)
+   (If you use [native styles](https://cruglobal.github.io/cornerstone-design-system/utilities/native/), this is already handled.)
 
 2. **`<cs-page>` provides no semantic elements.** It does not emit `<main>`, `<header>`, `<footer>`,
    etc. Slot your own:
@@ -564,7 +564,7 @@ during SSR. When rendering on the server, know:
 
 ## API reference
 
-For the authoritative, always-current API, see the [page component docs](https://cruglobal.github.io/cornerstone-design-system/docs/components/page)
+For the authoritative, always-current API, see the [page component docs](https://cruglobal.github.io/cornerstone-design-system/components/page)
 or the `cornerstone` skill. This is a working summary.
 
 ### Slots
