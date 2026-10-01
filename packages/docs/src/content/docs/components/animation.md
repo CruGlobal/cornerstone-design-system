@@ -213,3 +213,36 @@ Animations won't play until you apply the `play` attribute. You can omit it init
   });
 </script>
 ```
+
+### Restarting Animations
+
+Setting `play` to `true` won't replay an animation that is still running, because `play` is already `true`. Call `restart()` to rewind to the start and play again, whether the animation has finished, is paused or is still running. Each restart is a new run, so the delay plays again and `cs-start` is emitted.
+
+```html {.example}
+<div class="animation-restart">
+  <cs-animation name="tada" duration="1000" iterations="1" play>
+    <div class="box"></div>
+  </cs-animation>
+
+  <cs-button appearance="filled" variant="brand">Replay</cs-button>
+</div>
+
+<script type="module">
+  const container = document.querySelector('.animation-restart');
+  const animation = container.querySelector('cs-animation');
+  const button = container.querySelector('cs-button');
+
+  button.addEventListener('click', () => {
+    animation.restart();
+  });
+</script>
+
+<style>
+  .animation-restart .box {
+    width: 100px;
+    height: 100px;
+    background-color: var(--cs-color-brand-fill-loud);
+    margin-bottom: var(--cs-space-l);
+  }
+</style>
+```
