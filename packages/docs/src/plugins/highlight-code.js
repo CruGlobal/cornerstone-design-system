@@ -18,6 +18,10 @@ import 'prismjs/plugins/custom-class/prism-custom-class.js';
  * there is one highlighter in the build rather than two.
  */
 
+// Prism's plugins and its language loader work on the global `Prism`, not on the import above, so this file
+// relies on one copy of `prismjs` in the process. A second copy replaces the global, the custom-class plugin
+// attaches to that one instead, and `customClass` is undefined below. The one way that has happened so far is
+// guarded by scripts/check-markdown-remark.js.
 PrismLoader('diff');
 PrismLoader.silent = true;
 Prism.plugins.customClass.prefix('code-');
