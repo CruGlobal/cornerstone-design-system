@@ -8,7 +8,7 @@ For the _why_ behind WA's three-layer color system — why semantic tokens beat 
 `*-on-*` pairings are non-negotiable, and how to avoid the "accessible but ugly" trap — see
 [principles.md § Color](principles.md#1-color-less-is-more-and-never-alone).
 
-Full docs: https://cruglobal.github.io/cornerstone-design-system/docs/themes
+Full docs: https://cruglobal.github.io/cornerstone-design-system/themes
 
 ---
 
@@ -134,7 +134,7 @@ Any `--cs-*` token can be overridden at any scope. Common knobs:
 
 Scope overrides to a subtree by putting them on a selector other than `:root`. See
 [composition.md](composition.md) for the spacing/typography scales and for styling component internals
-via `::part()`, and [customizing](https://cruglobal.github.io/cornerstone-design-system/docs/customizing/) for the full reference.
+via `::part()`, and [customizing](https://cruglobal.github.io/cornerstone-design-system/customizing/) for the full reference.
 
 ---
 
