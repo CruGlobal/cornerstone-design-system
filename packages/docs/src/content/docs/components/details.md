@@ -162,3 +162,30 @@ Use the `name` attribute to create accordion-like behavior where only one detail
   </cs-details>
 </div>
 ```
+
+### Reacting to Open & Close
+
+Listen for `cs-show` and `cs-hide` to keep your app's state in step with the details. Both fire on every open and close, whether it came from a click, the keyboard, code such as `show()`, or another details in the same `name` group. Both are cancelable with `event.preventDefault()`. Neither fires for the `open` attribute a details starts with, so read the starting value from `open`.
+
+:::warning
+<strong>Don't read `open` in a `click` handler.</strong><br />
+The details toggles inside its shadow root before the click reaches your listener on `<cs-details>` or any element around it, so `open` already holds the new state, not the old one. A click listener also runs for clicks that change nothing, such as clicks in the content, and never hears a toggle from the keyboard or from code.
+:::
+
+```html {.example}
+<div class="details-tracking cs-stack">
+  <cs-details summary="Shipping options">
+    Standard shipping takes three to five business days. Express shipping arrives the next business day.
+  </cs-details>
+  <p>Tracked state: <strong class="details-tracking-state">closed</strong></p>
+</div>
+
+<script type="module">
+  const demo = document.querySelector('.details-tracking');
+  const details = demo.querySelector('cs-details');
+  const state = demo.querySelector('.details-tracking-state');
+
+  details.addEventListener('cs-show', () => (state.textContent = 'open'));
+  details.addEventListener('cs-hide', () => (state.textContent = 'closed'));
+</script>
+```
