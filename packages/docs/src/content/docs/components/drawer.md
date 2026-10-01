@@ -14,7 +14,7 @@ use-cases:
   - filter panel
   - mobile menu
   - bottom sheet
-description: "Drawers slide in from the edge of a container to expose additional options and information without navigating away. Useful for navigation menus, filters, and secondary content."
+description: "Drawers slide in from an edge of the viewport to expose additional options and information without navigating away. Useful for navigation menus, filters, and secondary content."
 ---
 
 ```html {.example}
@@ -164,7 +164,7 @@ Use the `--size` custom property to set the drawer's size. This will be applied 
 
 ### Scrolling
 
-By design, a drawer's height will never exceed 100% of its container. As such, drawers will not scroll with the page to ensure the header and footer are always accessible to the user.
+By design, a drawer's height will never exceed 100% of the viewport. As such, drawers will not scroll with the page to ensure the header and footer are always accessible to the user.
 
 ```html {.example}
 <cs-drawer label="Drawer" class="drawer-scrolling">

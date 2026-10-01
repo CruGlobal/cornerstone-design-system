@@ -20,7 +20,7 @@ import '../button/button.js';
 import styles from './drawer.styles.js';
 
 /**
- * @summary Drawers slide in from the edge of a container to expose additional options and information without
+ * @summary Drawers slide in from an edge of the viewport to expose additional options and information without
  *  navigating away. Useful for navigation menus, filters, and secondary content.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/drawer
  * @status stable
