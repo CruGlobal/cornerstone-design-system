@@ -42,3 +42,17 @@ import { preventTurboFouce } from '/dist/cornerstone.js';
 
 preventTurboFouce();
 ```
+
+:::warning
+**`cs-cloak` on `<body>` can blank the whole page long after it has loaded.** The cloak is a CSS rule, not a
+one-time step. While an element has the class, it goes invisible whenever it holds a custom element that is not
+defined yet, and stays invisible until every one is defined or two seconds pass. Any custom element counts, not only
+Cornerstone's, and it can happen again each time a new one appears. Pasting into a block editor is one way to hit it.
+
+`cornerstone.loader.js` removes the class once, when the first page's components have loaded or two seconds have
+passed, and nothing else in the library removes it. Load the library without the loader and the class stays on.
+Under Turbo it comes back on every visit, because each new `<body>` arrives with the classes your layout gave it.
+
+So if your app adds elements after the page loads, put `cs-cloak` only on the region that needs it, and not around
+the part that adds them. `<body>` is only safe when the loader has removed the class and nothing puts it back.
+:::
