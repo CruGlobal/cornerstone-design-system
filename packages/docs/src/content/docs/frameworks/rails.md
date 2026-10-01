@@ -150,7 +150,8 @@ preventTurboFouce();
 
 It hooks `turbo:before-render`, holds the render until every component in the incoming body has registered,
 and gives up after two seconds so a failed import cannot wedge navigation. Pair it with the `cs-cloak` class
-for the initial load — both are covered on [Reducing FOUCE](/utilities/fouce).
+for the initial load — both are covered on [Reducing FOUCE](/utilities/fouce). Read the caution there before you
+put the class on `<body>`.
 
 ## Stimulus
 
