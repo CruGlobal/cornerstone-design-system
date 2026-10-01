@@ -180,8 +180,27 @@ export default class extends Controller {
 ```
 
 Note the event name. Form controls emit **native-named** events — `change`, `input`, `focus`, `blur` — so a
-Stimulus action for `<cs-select>` reads exactly as it would for a native `<select>`. The `cs-` prefix is
+Stimulus action for `<cs-select>` names the same event it would for a native `<select>`. The `cs-` prefix is
 reserved for events with no native equivalent, like `<cs-select>`'s own `cs-clear`.
+
+:::warning
+**Always write the event in a Stimulus action on a `cs-*` element.** On a few native elements Stimulus lets
+you leave the event out and fills in a default, such as `click` for `<button>` and `change` for `<select>`.
+It picks that default by tag name, and no `cs-*` tag is on its list. So a bare `modal#open` on a
+`<cs-button>` never binds, and nothing tells you: Stimulus throws `missing event name` while it reads the
+attribute, then catches that error itself and never reports it. The console stays empty.
+
+```erb
+<%# Before: never fires, and logs nothing %>
+<cs-button data-action="modal#open">Open</cs-button>
+
+<%# After %>
+<cs-button data-action="click->modal#open">Open</cs-button>
+```
+
+Write the event Stimulus would have filled in for the native element: `click->` on `<cs-button>`, `input->`
+on `<cs-input>` and `<cs-textarea>`, and `change->` on `<cs-select>`.
+:::
 
 Read the value off the element rather than the event, as you would natively: `event.target.value`.
 
@@ -202,6 +221,9 @@ Checked in a generated Rails 8.1.3.1 app with Propshaft, importmap-rails and Tur
   them unregistered. It holds the render exactly as advertised.
 - **Propshaft for the stylesheet** — the theme's fonts applied, so the `@import` chain resolved. The logical
   path and the `:app` behaviour above were both measured against Propshaft's own resolver.
+
+The Stimulus warning was checked outside that app, against Stimulus 3.2.2: in its source, and by running it
+under jsdom, where a bare action on a `cs-*` element bound nothing and logged nothing.
 
 Two things worth knowing before you copy into `public/`: `npm install` in a generated Rails app creates a
 `package.json` and lock file at the app root, since one does not exist; and the copy is **11 MB across 1,114
