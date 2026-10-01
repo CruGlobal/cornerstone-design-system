@@ -140,6 +140,29 @@ This is often desirable, but you can change this behavior using the `disable-sti
 <cs-page disable-sticky="header aside"> ... </cs-page>
 ```
 
+### Header Heights
+
+The page measures its `banner`, `header` and `subheader` and keeps each height in a custom property on itself: `--banner-height`, `--header-height` and `--subheader-height`. It uses them to place its sticky sections below one another. Your own styles can use them too, because everything inside the page inherits them. This makes the page's `<main>` a panel that fills the screen below the header and scrolls on its own:
+
+```css
+cs-page > main {
+  block-size: calc(100dvh - var(--header-height));
+  overflow: auto;
+}
+```
+
+Each height is `0px` until the page has measured it, so a layout sized from one shifts when the page loads. The panel above starts as tall as the whole screen, then shrinks by the header's height.
+
+If you know a height ahead of time, set it on `<cs-page>` in your stylesheet, and the layout is right from the start. The page still measures, and its value replaces yours. So a guess that's a little off costs only a small shift, and the value stays right if the header's size changes later.
+
+```css
+cs-page {
+  --header-height: 64px;
+}
+```
+
+Set it on `cs-page` itself, not on `:root` or another ancestor. The page gives each height a `0px` default on its own element, and that default wins over a value inherited from above.
+
 ### Skip to Content
 
 The layout provides a "skip to content" link that's visually hidden until the user tabs into it. You don't have to do anything to configure this, unless you want to change the text displayed in the link. In that case, you can slot in your own text using the `skip-to-content` slot.
@@ -168,6 +191,8 @@ Most slots lay out the element you put in them, so its children are arranged bef
 | `main-footer`, `footer`                                                 | row       | `align-items: start`, `justify-content: space-between`  | yes   |
 | `banner`                                                                | row       | `align-items: center`, `justify-content: center`        | no    |
 | `navigation-header`, `navigation`, `navigation-footer`, `menu`, `aside` | column    | not set, so children stretch across                     | no    |
+
+The [desktop and mobile navigation slots](#different-navigation-on-mobile-and-desktop) are columns too, like the navigation slots they stand in for.
 
 The default slot is the exception. A `<main>` or `<section>` there gets padding, but its display is left alone.
 
@@ -250,6 +275,36 @@ cs-page[view='desktop'] [data-toggle-nav] {
 If you use [native styles](/utilities/native/), this is handled for you, and the `data-toggle-nav` button is already hidden on wider screens.
 :::
 
+#### Different Navigation on Mobile and Desktop
+
+The navigation appears in two places: the sidebar on desktop and the drawer on mobile. The `navigation-header`, `navigation` and `navigation-footer` slots fill both. To show something different in one place, fill that place's own slot. It replaces the shared slot there, and the other place keeps showing the shared one.
+
+| Shared slot         | Sidebar only (desktop)      | Drawer only (mobile)       |
+| ------------------- | --------------------------- | -------------------------- |
+| `navigation-header` | `desktop-navigation-header` | `mobile-navigation-header` |
+| `navigation`        | `desktop-navigation`        | `mobile-navigation`        |
+| `navigation-footer` | `desktop-navigation-footer` | `mobile-navigation-footer` |
+
+A drawer often needs a title that the sidebar doesn't, because on desktop the page's header already names the app. This gives the drawer a header and leaves the sidebar without one.
+
+```html
+<cs-page>
+  <header slot="header">...</header>
+  <strong slot="mobile-navigation-header">Menu</strong>
+  <nav slot="navigation">...</nav>
+  ...
+</cs-page>
+```
+
+:::warning
+Don't use `cs-mobile-only` on a `navigation-header` to keep it out of the sidebar. It hides the header on desktop, but it breaks the sidebar's layout. The sidebar is a grid of three rows: the header, then the navigation in a row that grows to fill the column, then the footer. A hidden element drops out of that grid, so the navigation moves up into the header's row and stops filling the sidebar, and the footer moves up off the bottom. Use `mobile-navigation-header` instead, which leaves the sidebar's grid alone.
+:::
+
+Two gaps to know about for now:
+
+- **Content in a `desktop-navigation-*` slot still shows on mobile.** It stays at the side of the page, beside the main content, where the sidebar would be. Add `cs-desktop-only` to it as well. The sidebar isn't meant to show on mobile at all, so hiding its content there doesn't disturb anything.
+- **The menu button only appears when a shared slot has content.** The page decides whether to show its button from `navigation`, `navigation-header` and `navigation-footer` alone. If you fill only the `mobile-navigation-*` slots, add your own button with `data-toggle-nav`.
+
 #### Custom Widths
 
 You specify widths for some slots on your page with [CSS custom properties](#css-custom-properties) for `--menu-width`, `--main-width`, and `--aside-width`.
@@ -287,9 +342,15 @@ You can override the default spacing for each slot with your own CSS. In this ex
 }
 ```
 
+### Rules Between Regions
+
+The page doesn't offer a rule (divider) between its regions yet, such as a line under the header. There's no attribute that adds one, and no slot sits between two regions where a `<cs-divider>` could go.
+
 ## Utility Classes
 
 [Native styles](/utilities/native/) define a few useful defaults for `<cs-page>`, as well as two utility classes you can use for common responsive design tasks:
 
 - `.cs-mobile-only` hides an element on the desktop view
 - `.cs-desktop-only` hides an element on the mobile view
+
+Before you use them on navigation content, read [Different Navigation on Mobile and Desktop](#different-navigation-on-mobile-and-desktop).
