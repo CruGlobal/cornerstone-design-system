@@ -30,7 +30,9 @@ import type CsPopup from '../popup/popup.js';
 import styles from './color-picker.styles.js';
 
 export interface CsColorPickerSwatch {
+  /** Any color the picker can parse, or a `var(--name)` that resolves to one. */
   color: string;
+  /** The swatch's accessible name. */
   label: string;
 }
 
@@ -43,6 +45,61 @@ interface EyeDropperInterface {
 }
 
 declare const EyeDropper: EyeDropperConstructor;
+
+/** Matches a swatch written as `var(--name)` or `var(--name, fallback)`. The fallback may itself be a `var()`. */
+const cssVarPattern = /^var\(\s*(--[^\s,()]+)\s*(?:,\s*([\s\S]*?))?\s*\)$/i;
+
+function isCssVar(value: string) {
+  return typeof value === 'string' && cssVarPattern.test(value.trim());
+}
+
+/**
+ * Resolves a swatch written as `var(--name)` or `var(--name, fallback)` against a computed style. Returns the custom
+ * property's value, else the fallback, else `null`. Also returns `null` for anything that isn't a `var()`.
+ */
+function resolveCssVar(styles: CSSStyleDeclaration, value: string): string | null {
+  const match = typeof value === 'string' ? cssVarPattern.exec(value.trim()) : null;
+  if (!match) {
+    return null;
+  }
+
+  const [, name, fallback] = match;
+
+  // Firefox keeps a comment written inside a custom property's value, and the default palette writes one after each
+  // color (`#0071ec /* oklch(...) */`). The color parser rejects the comment, so strip it.
+  const resolved = styles
+    .getPropertyValue(name)
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .trim();
+
+  if (resolved) {
+    return resolved;
+  }
+
+  if (fallback === undefined) {
+    return null;
+  }
+
+  return isCssVar(fallback) ? resolveCssVar(styles, fallback) : fallback.trim() || null;
+}
+
+/**
+ * The accessible name for a swatch given as a bare string. A `var()` is named after its custom property, so
+ * `var(--cs-color-brand-fill-loud)` reads as "brand fill loud" rather than as the raw `var(...)` text.
+ */
+function getSwatchLabel(color: string) {
+  const name = cssVarPattern.exec(color.trim())?.[1];
+  if (!name) {
+    return color;
+  }
+
+  return (
+    name
+      .replace(/^--(cs-)?(color-)?/, '')
+      .replace(/-/g, ' ')
+      .trim() || color
+  );
+}
 
 /**
  * @summary Color pickers let users choose a color from a visual palette or by entering a value. They support HEX, RGB,
@@ -150,6 +207,9 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
   @state() private brightness = 100;
   @state() private alpha = 100;
 
+  /** Resolved values for `var()` swatches, keyed by the swatch's color as written. Set by `resolveSwatchVars()`. */
+  @state() private resolvedSwatchVars = new Map<string, string>();
+
   private _value: string | null = null;
 
   /** The current value of the input, submitted as a name/value pair with form data. */
@@ -194,8 +254,8 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
   @state() private hasEyeDropper: boolean = false;
 
   /**
-   * The color picker's label. This will not be displayed, but it will be announced by assistive devices. If you need to
-   * display HTML, you can use the `label` slot` instead.
+   * The color picker's label. It is displayed with the trigger and gives the trigger its accessible name. If you need to
+   * display HTML, use the `label` slot instead.
    */
   @property() label = '';
 
@@ -258,6 +318,12 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
    * semicolon (`;`). Alternatively, you can pass an array of color values or an array of `{ color, label }` objects to
    * this property using JavaScript. When using objects with labels, the label will be used for the swatch's accessible
    * name instead of the raw color value.
+   *
+   * A swatch can also be a CSS custom property, written as `var(--name)` or `var(--name, fallback)`, in any of these
+   * forms. The picker resolves it against its own computed style each time it opens, so a theme set on any ancestor
+   * applies, and selecting the swatch sets the resolved color in the picker's `format`. A swatch that doesn't resolve to
+   * a color the picker can parse is skipped. Without a label, a `var()` swatch is named after its custom property, so
+   * `var(--cs-color-brand-fill-loud)` is announced as "brand fill loud".
    */
   @property() swatches: string | string[] | CsColorPickerSwatch[] = '';
 
@@ -795,6 +861,43 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
     }
   }
 
+  /** The `swatches` property in whichever of its three forms it was given, as `{ color, label }` objects. */
+  private getNormalizedSwatches(): CsColorPickerSwatch[] {
+    if (Array.isArray(this.swatches)) {
+      return this.swatches.map((swatch) =>
+        typeof swatch === 'string' ? { color: swatch, label: getSwatchLabel(swatch) } : swatch,
+      );
+    }
+
+    return this.swatches
+      .split(';')
+      .map((color) => color.trim())
+      .filter((color) => color !== '')
+      .map((color) => ({ color, label: getSwatchLabel(color) }));
+  }
+
+  /**
+   * Resolves every `var()` swatch against the picker's own computed style, so a theme class or custom property set on
+   * any ancestor applies. Client only: it runs after the first render, which is after hydration, so the server and the
+   * first client render agree on leaving these swatches out.
+   */
+  private resolveSwatchVars() {
+    const styles = getComputedStyle(this);
+    const resolved = new Map<string, string>();
+
+    for (const { color } of this.getNormalizedSwatches()) {
+      const value = resolveCssVar(styles, color);
+      if (value !== null) {
+        resolved.set(color, value);
+      }
+    }
+
+    // Skip the re-render when there were no var() swatches before and there are none now.
+    if (resolved.size > 0 || this.resolvedSwatchVars.size > 0) {
+      this.resolvedSwatchVars = resolved;
+    }
+  }
+
   /** Generates a hex string from HSV values. Hue must be 0-360. All other arguments must be 0-100. */
   getHexString(hue: number, saturation: number, brightness: number, alpha = 100) {
     const color = new TinyColor(`hsva(${hue}, ${saturation}%, ${brightness}%, ${alpha / 100})`);
@@ -824,6 +927,16 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
     // this is for the server to be honest, but it needs to be here to get properly synced values. Without this, the server just sees nothing for a value
     if (changedProperties.has('value') || changedProperties.has('defaultValue')) {
       this.handleValueChange(changedProperties.get('value') || '', this.value || '');
+    }
+
+    // Resolve var() swatches again when they change, and each time the picker opens so a theme switch since the last
+    // open is picked up. The first resolve happens in firstUpdated().
+    if (
+      !isServer &&
+      this.hasUpdated &&
+      (changedProperties.has('swatches') || (changedProperties.has('open') && this.open))
+    ) {
+      this.resolveSwatchVars();
     }
 
     super.willUpdate(changedProperties);
@@ -949,6 +1062,7 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
     super.firstUpdated(changedProperties);
 
     this.hasEyeDropper = 'EyeDropper' in window;
+    this.resolveSwatchVars();
   }
 
   private handleKeyDown = (event: KeyboardEvent) => {
@@ -1114,12 +1228,7 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
 
     const gridHandleX = this.saturation;
     const gridHandleY = 100 - this.brightness;
-    const normalizedSwatches: CsColorPickerSwatch[] = Array.isArray(this.swatches)
-      ? this.swatches.map((s) => (typeof s === 'string' ? { color: s, label: s } : s))
-      : this.swatches
-          .split(';')
-          .filter((color) => color.trim() !== '')
-          .map((color) => ({ color: color.trim(), label: color.trim() }));
+    const normalizedSwatches = this.getNormalizedSwatches();
 
     const colorPicker = html`
       <div
@@ -1316,10 +1425,12 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
             ? html`
                 <div part="swatches" class="swatches">
                   ${normalizedSwatches.map((swatch) => {
-                    const parsedColor = this.parseColor(swatch.color);
+                    // A var() swatch renders in the color it resolved to, and not at all until it has resolved
+                    const color = isCssVar(swatch.color) ? this.resolvedSwatchVars.get(swatch.color) : swatch.color;
+                    const parsedColor = color ? this.parseColor(color) : null;
 
                     // If we can't parse it, skip it
-                    if (!parsedColor) {
+                    if (!color || !parsedColor) {
                       return '';
                     }
 
@@ -1330,11 +1441,11 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
                         tabindex=${ifDefined(this.disabled ? undefined : '0')}
                         role="button"
                         aria-label=${swatch.label}
-                        @click=${() => this.selectSwatch(swatch.color)}
+                        @click=${() => this.selectSwatch(color)}
                         @keydown=${(event: KeyboardEvent) => {
                           if (event.key === 'Enter' || event.key === ' ') {
                             event.preventDefault();
-                            this.selectSwatch(swatch.color);
+                            this.selectSwatch(color);
                           }
                         }}
                       >
