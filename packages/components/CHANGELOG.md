@@ -1,5 +1,11 @@
 # @cruglobal/cornerstone-components
 
+## 0.6.3
+
+### Patch Changes
+
+- [#169](https://github.com/CruGlobal/cornerstone-design-system/pull/169) [`241dd19`](https://github.com/CruGlobal/cornerstone-design-system/commit/241dd19f8e1034ebec592fbae895ed4f31c1c80f) Thanks [@rguinee](https://github.com/rguinee)! - Fixed: the button page's Customizing example now builds its pink shadow from the shadow geometry longhands. It appended a colour to `--cs-shadow-m`, which already ends in one, so the declaration held two colours, was invalid, and the shadow never rendered.
+
 ## 0.6.2
 
 ### Patch Changes
