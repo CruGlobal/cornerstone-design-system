@@ -136,22 +136,46 @@ function toLength(px: number | string): string {
 export default class CsPage extends CornerstoneElement {
   static css = [visuallyHidden, styles];
 
+  // The last height each ResizeObserver measured, keyed by custom property, so it can be written back.
+  private measuredHeights = new Map<string, string>();
+
   // SSR guard: ResizeObserver is not available during server-side rendering
   private headerResizeObserver = !isServer ? this.slotResizeObserver('header') : null;
   private subheaderResizeObserver = !isServer ? this.slotResizeObserver('subheader') : null;
   private bannerResizeObserver = !isServer ? this.slotResizeObserver('banner') : null;
   private footerResizeObserver = !isServer ? this.slotResizeObserver('footer') : null;
+
+  // A DOM morph (Turbo 8, idiomorph, Alpine) resets the host's style attribute to the server's HTML, which never
+  // holds the measured heights. Nothing changes size, so the ResizeObservers never measure again. This puts them back.
+  // SSR guard: MutationObserver is not available during server-side rendering
+  private styleObserver = !isServer ? new MutationObserver(() => this.restoreMeasuredHeights()) : null;
+
   private slotResizeObserver(slot: string) {
     return new ResizeObserver((entries) => {
       requestAnimationFrame(() => {
         for (const entry of entries) {
           if (entry.contentBoxSize) {
             const contentBoxSize = entry.borderBoxSize[0];
-            this.style.setProperty(`--${slot}-height`, `${Math.round(contentBoxSize.blockSize)}px`);
+            const property = `--${slot}-height`;
+            const height = `${Math.round(contentBoxSize.blockSize)}px`;
+            this.measuredHeights.set(property, height);
+            this.style.setProperty(property, height);
           }
         }
       });
     });
+  }
+
+  /**
+   * Writes back each measured height that the host's style attribute has lost or holds a different value for. Its
+   * own writes come back to it as style mutations, and comparing first means that second round finds nothing to do.
+   */
+  private restoreMeasuredHeights() {
+    for (const [property, height] of this.measuredHeights) {
+      if (this.style.getPropertyValue(property) !== height) {
+        this.style.setProperty(property, height);
+      }
+    }
   }
 
   private handleNavigationToggle = (e: Event) => {
@@ -283,6 +307,8 @@ export default class CsPage extends CornerstoneElement {
 
     // SSR guard: browser APIs are not available during server-side rendering
     if (!isServer) {
+      this.styleObserver?.observe(this, { attributes: true, attributeFilter: ['style'] });
+
       // setTimeout to wait for DOM to finish, then RAF to start observing.
       setTimeout(() => {
         requestAnimationFrame(() => {
@@ -338,6 +364,7 @@ export default class CsPage extends CornerstoneElement {
     this.subheaderResizeObserver?.unobserve(this.subheader);
     this.footerResizeObserver?.unobserve(this.footer);
     this.bannerResizeObserver?.unobserve(this.banner);
+    this.styleObserver?.disconnect();
   }
 
   /**
