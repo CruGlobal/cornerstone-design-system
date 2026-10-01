@@ -234,7 +234,10 @@ Build the override out of [design tokens](/tokens) rather than literal values, a
     border-right-color: var(--cs-color-pink-20);
     color: var(--cs-color-pink-95);
     font-size: var(--cs-font-size-l);
-    box-shadow: var(--cs-shadow-m) var(--cs-color-pink-20);
+    /* The geometry longhands, not --cs-shadow-m: that shorthand already ends in its own
+       colour, and a shadow layer with two colours is invalid. */
+    box-shadow: var(--cs-shadow-offset-x-m) var(--cs-shadow-offset-y-m) var(--cs-shadow-blur-m)
+      var(--cs-shadow-spread-m) var(--cs-color-pink-20);
     transition: all var(--cs-transition-slow) var(--cs-transition-easing);
   }
 
