@@ -712,6 +712,7 @@ const SKILL_PAGES = [
   ['theming-overview.md', '', 'theming-overview.md'],
   ['frameworks/react.md', 'frameworks', 'react.md'],
   ['frameworks/rails.md', 'frameworks', 'rails.md'],
+  ['frameworks/tailwind.md', 'frameworks', 'tailwind.md'],
   ['frameworks/wordpress.md', 'frameworks', 'wordpress.md'],
   ['utilities/native.md', 'utilities', 'native.md'],
   ['utilities/text.md', 'utilities', 'text.md'],
