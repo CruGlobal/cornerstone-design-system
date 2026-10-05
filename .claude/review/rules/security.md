@@ -86,10 +86,12 @@ concern. What this lane protects here is the **release**, the **CI**, the **supp
 - `ci.yml` uses `cancel-in-progress: true`, which is safe only because nothing in it deploys or publishes.
   `pages.yml` deliberately uses `cancel-in-progress: false`. Do not copy the first into a workflow that
   deploys.
-- The `agent-review*.yml` callers use reusable workflows from `CruGlobal/agent-review@main`. A change to
-  which repository or ref they call is a trust change, and a change to `auto_approve` or `rollout_mode`
-  changes who can merge.
-- Dependabot PRs receive no repository secrets, so they are never robot-reviewed. A human reviews them.
+- `agent-review-approve.yml` calls a reusable workflow from `CruGlobal/agent-review@main` and approves a PR
+  when a report posted by someone with write access passes. A change to the repository or ref it calls, or
+  to `auto_approve`, changes who can merge. There is no CI review workflow by design: reviews run from a
+  maintainer's terminal, so no model API key lives in this repository's secrets. A workflow that adds one is a
+  finding until the team has decided to run the model in CI.
+- Dependabot PRs can be reviewed from the terminal like any other; nothing reviews them on its own.
 
 **Dependencies**
 

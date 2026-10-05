@@ -481,9 +481,9 @@ context:
   enabled: false
   manifest: context/repositories.json
 
-# Advisory rollout: reviews post and, when clean, approve. The `agent-review`
-# label gates the CI review; drop the label condition in the caller once the
-# open-PR backlog has proven the signal.
+# Advisory rollout: a review run from a maintainer's terminal posts its report, and
+# agent-review-approve.yml approves when that report passes. No CI review workflow is
+# installed, so nothing here runs on its own; `label` is unused until one is.
 rollout:
   mode: advisory
   label: agent-review
