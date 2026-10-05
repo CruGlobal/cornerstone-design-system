@@ -1,0 +1,7 @@
+id: no-static-styles
+valid:
+  - 'class CsBadge extends CornerstoneElement { static css = [variantStyles, styles]; }'
+  - 'class CsBadge extends CornerstoneElement { static shadowRootOptions = { delegatesFocus: true }; }'
+invalid:
+  - 'class CsBadge extends CornerstoneElement { static styles = [variantStyles, styles]; }'
+  - 'class CsBadge extends LitElement { static styles = styles; }'

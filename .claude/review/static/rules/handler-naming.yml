@@ -1,0 +1,14 @@
+id: handler-naming
+language: TypeScript
+severity: info
+message: Event handlers are named `handle<Subject>`, not `on<Subject>`.
+note: >-
+  House convention from packages/components/CLAUDE.md: `handleInput`, `handleClearClick`. `on*` reads
+  as a DOM property or a framework hook and is not what the other 69 components do.
+files:
+  - '**/packages/components/src/components/**/*.ts'
+rule:
+  kind: method_definition
+  has:
+    field: name
+    regex: '^on[A-Z]'

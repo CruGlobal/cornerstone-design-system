@@ -1,0 +1,13 @@
+id: no-foreign-token-vocabulary
+language: Css
+severity: error
+message: Component styles read `--cs-*`; `--ref-*`, `--sys-*` and `--cmp-*` belong to the token package and never resolve here.
+note: >-
+  The two published packages share no custom-property names (CONTEXT-MAP.md). A component bound to
+  a `--cmp-*` name renders its fallback or nothing. Bind to the `--cs-*` name the theme defines. See
+  .claude/review/rules/tokens-and-theming.md.
+files:
+  - '**/packages/components/src/**/*.ts'
+rule:
+  kind: call_expression
+  regex: '^var\(\s*--(ref|sys|cmp)-'

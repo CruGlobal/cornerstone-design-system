@@ -1,0 +1,20 @@
+diff --git a/.changeset/tabs-indicator-contrast.md b/.changeset/tabs-indicator-contrast.md
+new file mode 100644
+--- /dev/null
++++ b/.changeset/tabs-indicator-contrast.md
+@@ -0,0 +1,5 @@
++---
++'@cruglobal/cornerstone-design-system': patch
++---
++
++Fixed: the tabs active indicator now meets 3:1 against its surface in cru-light.
+diff --git a/packages/tokens/tokens/sys/cru-light.json b/packages/tokens/tokens/sys/cru-light.json
+--- a/packages/tokens/tokens/sys/cru-light.json
++++ b/packages/tokens/tokens/sys/cru-light.json
+@@ -4,5 +4,5 @@
+       "primary": {
+         "default": {
+           "$type": "color",
+-          "$value": "{_ref.color.cru.yellow.500}"
++          "$value": "{_ref.color.cru.yellow.700}"
+         },

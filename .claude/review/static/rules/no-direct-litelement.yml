@@ -1,0 +1,12 @@
+id: no-direct-litelement
+language: TypeScript
+severity: error
+message: Extend `CornerstoneElement` or `CornerstoneFormAssociatedElement`, never `LitElement` directly.
+note: >-
+  The base classes in src/internal/ prepend host styles, wire ElementInternals, custom states and SSR
+  hydration. A component on bare LitElement loses all four silently. See
+  packages/components/CLAUDE.md and .claude/review/rules/architecture.md.
+files:
+  - '**/packages/components/src/components/**/*.ts'
+rule:
+  pattern: class $NAME extends LitElement { $$$BODY }

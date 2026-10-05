@@ -1,0 +1,524 @@
+# agent-review configuration (v2)
+#
+# Lives at `.claude/review/config.yml` in the repo being reviewed.
+# Validate any edit with: `agent-review config validate`
+#
+# Bootstrapped by `/agent-review:init` from a scan of this workspace and 46 merged pull
+# requests (#49–#169). The lanes follow the repo's own ownership model: each of the four
+# specialist personas under `plugins/cornerstone-dev/agents/` has a lane that reviews its
+# domain, beside the plugin's generic lanes. There is no `data-integrity` lane because this
+# repo has no data layer to bind one to.
+
+version: 2
+
+# Global severity/verbosity dial.
+# chill     → fewer, high-confidence findings; raises the consensus threshold
+# standard  → default behavior
+# assertive → more findings, lower threshold, may be nitpicky
+profile: standard
+
+# Branch every review diffs against unless `--base` is passed.
+base_branch: main
+
+# ── Risk scoring ──────────────────────────────────────────────────────────────
+risk:
+  # File-pattern contributions. `tier` is descriptive; `points` drives the score.
+  # Per file, the highest-scoring matching pattern wins (patterns don't stack on
+  # one file; files sum across the diff). A 0-point entry never changes the score
+  # (max starts at 0) — it documents that a path was considered and deemed
+  # no-risk; use `excluded_paths` to actually exclude.
+  patterns:
+    # ── critical (3) ──────────────────────────────────────────────────────────
+    - { glob: '.github/workflows/**', points: 3, tier: critical }
+    # Release mechanics: `exports`, `files`, `publishConfig`, `prepublishOnly`, the
+    # Playwright `overrides` pin, and which packages changesets releases together.
+    - { glob: 'package.json', points: 3, tier: critical }
+    - { glob: 'packages/*/package.json', points: 3, tier: critical }
+    - { glob: '.changeset/config.json', points: 3, tier: critical }
+    - { glob: '.npmrc', points: 3, tier: critical }
+    # Every one of the 70 components extends one of these two.
+    - { glob: 'packages/components/src/internal/cornerstone-element.ts', points: 3, tier: critical }
+    - { glob: 'packages/components/src/internal/cornerstone-form-associated-element.ts', points: 3, tier: critical }
+    # Shared by every component: cascade order, the size ramp, the variant roles.
+    - { glob: 'packages/components/src/styles/layers.css', points: 3, tier: critical }
+    - { glob: 'packages/components/src/styles/component/**', points: 3, tier: critical }
+    # The build, and the modules the library and the docs share.
+    - { glob: 'packages/components/scripts/build.js', points: 3, tier: critical }
+    - { glob: 'packages/build-tools/**', points: 3, tier: critical }
+    # The shipped agent personas, and the review harness itself — weakening either
+    # weakens every future session or review.
+    - { glob: 'plugins/**', points: 3, tier: critical }
+    - { glob: '.claude/**', points: 3, tier: critical }
+
+    # ── high (2) ──────────────────────────────────────────────────────────────
+    # Token source: `_ref` primitives and the four `_sys` brand × mode files. Their
+    # names are a contract with consumers outside this repo.
+    - { glob: 'packages/tokens/tokens/ref.json', points: 2, tier: high }
+    - { glob: 'packages/tokens/tokens/sys/**', points: 2, tier: high }
+    - { glob: 'packages/tokens/tokens/cmp/**', points: 2, tier: high }
+    - { glob: 'packages/tokens/build.mjs', points: 2, tier: high }
+    - { glob: 'packages/tokens/scripts/**', points: 2, tier: high }
+    # Consumer bridges that embed resolved values by hand (see rules/tokens-and-theming.md).
+    - { glob: 'packages/tokens/libraries/**', points: 2, tier: high }
+    # Palettes, variants, generated themes, utilities.
+    - { glob: 'packages/components/src/styles/**', points: 2, tier: high }
+    # Every component file is public API. Tests are carved out so a test-only diff
+    # scores low (see the 0-point entry below).
+    - { glob: 'packages/components/src/components/**/!(*.test).ts', points: 2, tier: high }
+    - { glob: 'packages/components/src/events/**', points: 2, tier: high }
+    - { glob: 'packages/components/src/internal/**', points: 2, tier: high }
+    - { glob: 'packages/components/src/utilities/**', points: 2, tier: high }
+    # Skill generators, the four check scripts, the Plop templates.
+    - { glob: 'packages/components/scripts/**', points: 2, tier: high }
+    - { glob: 'packages/components/tools/**', points: 2, tier: high }
+    - { glob: 'packages/components/web-test-runner.config.js', points: 2, tier: high }
+    # The remark plugins and checks that generate most of the site.
+    - { glob: 'packages/docs/src/plugins/**', points: 2, tier: high }
+    - { glob: 'packages/docs/scripts/**', points: 2, tier: high }
+    - { glob: 'packages/docs/public/scripts/**', points: 2, tier: high }
+    - { glob: 'packages/docs/astro.config.*', points: 2, tier: high }
+    # The most repeated defect in this repo's history lives here.
+    - { glob: '.changeset/*.md', points: 2, tier: high }
+
+    # ── medium (1) ────────────────────────────────────────────────────────────
+    # Not zero: pages named in SKILL_PAGES and every components/*.md compile into
+    # the published package.
+    - { glob: 'packages/docs/src/content/docs/**', points: 1, tier: medium }
+    - { glob: 'packages/docs/src/**', points: 1, tier: medium }
+    - { glob: 'packages/components/src/translations/**', points: 1, tier: medium }
+    - { glob: 'CLAUDE.md', points: 1, tier: medium }
+    - { glob: 'packages/*/CLAUDE.md', points: 1, tier: medium }
+
+    # ── low (0) — documentation of intent; these never change the score ───────
+    - { glob: '**/*.test.ts', points: 0, tier: low }
+    - { glob: 'packages/docs/public/**', points: 0, tier: low }
+    - { glob: '**/cspell.json', points: 0, tier: low }
+    - { glob: 'docs/**', points: 0, tier: low }
+    - { glob: '**/*.md', points: 0, tier: low }
+
+  # Unknown paths are not zero-risk. Each non-excluded file that matches none of
+  # the patterns above gets this many points, preventing a newly introduced
+  # directory from being silently skipped by auto mode.
+  unmatched_file_points: 1
+
+  # Dependency manifests and lockfiles, used by the special detections below.
+  # Matched by basename, so one entry covers the root and every workspace package.
+  manifests: ['package.json']
+  lockfiles: ['package-lock.json']
+
+  # Change-volume → points (lines changed across the diff).
+  volume_multiplier:
+    - { upTo: 50, points: 0 }
+    - { upTo: 200, points: 1 }
+    - { upTo: 500, points: 2 }
+    - { upTo: 1000, points: 3 }
+    - { upTo: null, points: 4 } # 1000+
+
+  # Scope multiplier applied to the pattern+volume subtotal. A diff that crosses
+  # package boundaries is `cross_cutting`; one that touches build-tools or the base
+  # classes is `core_infra`.
+  scope_multiplier:
+    single_file: 1.0
+    single_feature: 1.0
+    multi_feature: 1.3
+    cross_cutting: 1.7
+    core_infra: 2.0
+
+  # Special detections. Entries with empty `paths`/`files`/`packages` never fire —
+  # fill them in to enable the detection.
+  special:
+    # package.json is a JSON manifest, so both dependency detections work here.
+    - { when: new_dependency, points: 2 }
+    - {
+        when: critical_pkg_update,
+        points: 3,
+        packages:
+          [
+            lit,
+            '@lit/react',
+            '@lit/context',
+            '@lit-labs/ssr',
+            '@lit-labs/ssr-client',
+            '@lit-labs/testing',
+            esbuild,
+            playwright,
+            playwright-core,
+            '@web/test-runner',
+            '@web/test-runner-playwright',
+            '@web/dev-server-esbuild',
+            '@open-wc/testing',
+            '@custom-elements-manifest/analyzer',
+            '@floating-ui/dom',
+            style-dictionary,
+            astro,
+            '@astrojs/starlight',
+            '@astrojs/markdown-remark',
+            typescript,
+            '@changesets/cli',
+          ],
+      }
+    # package-lock.json moving without package.json = resolution drift or a hand edit.
+    - { when: lockfile_only_change, points: 1 }
+    # No database and no migrations in this repo — the detection stays inert.
+    - { when: migration_change, points: 3, paths: [] }
+    # `files` = the settings `npm publish`, `npm ci` and GitHub Actions read;
+    # `keywords` = diff text that signals a release- or permission-relevant edit.
+    - {
+        when: config_security_change,
+        points: 2,
+        files:
+          [
+            '.github/workflows/*.yml',
+            '.github/dependabot.yml',
+            '.npmrc',
+            'package.json',
+            'packages/*/package.json',
+            '.changeset/config.json',
+          ],
+        keywords:
+          [
+            publishConfig,
+            provenance,
+            NPM_TOKEN,
+            id-token,
+            pull_request_target,
+            'permissions:',
+            'secrets.',
+            overrides,
+            prepublishOnly,
+            '"access"',
+            '"files"',
+            '"exports"',
+          ],
+      }
+
+  # Score → risk level + required reviewer.
+  levels:
+    - { range: [0, 3], level: LOW, reviewer: entry }
+    - { range: [4, 6], level: MEDIUM, reviewer: entry }
+    - { range: [7, 9], level: HIGH, reviewer: experienced }
+    - { range: [10, null], level: CRITICAL, reviewer: 'senior maintainer' }
+
+# ── Agents ────────────────────────────────────────────────────────────────────
+# `always: true` runs the agent on every review. Otherwise the agent runs only
+# when a changed file matches `triggers.paths` or the diff contains one of
+# `triggers.content`. `rules[]` paths resolve against `.claude/review/`.
+#
+# Lane ids are domains, not persona names: a posted report must never `@`-mention a
+# persona, because `@Esther`-style text pings real GitHub accounts (PR #203).
+agents:
+  # Kept under the engine's `security` id so its escalation defaults still find a
+  # lane. There is no auth or data here; what this lane protects is the release,
+  # the CI, the supply chain, and the prompts that ship to consumers.
+  - id: security
+    title: Supply Chain, CI & Release Review Agent
+    expertise: GitHub Actions permissions and triggers, npm trusted publishing and provenance, dependency and lockfile changes, and the agent personas and review config as a trust surface.
+    enabled: true
+    model: smart # smart | opus | sonnet | haiku
+    always: false
+    escalates: true # deserves Opus on HIGH/CRITICAL PRs
+    triggers:
+      paths:
+        - '.github/**'
+        - '.changeset/config.json'
+        - '.npmrc'
+        - 'package.json'
+        - 'packages/*/package.json'
+        - 'package-lock.json'
+        - 'plugins/**'
+        - '.claude/**'
+        - 'packages/components/scripts/build.js'
+        - 'packages/build-tools/**'
+      content:
+        - 'publishConfig'
+        - 'provenance'
+        - 'NPM_TOKEN'
+        - 'id-token'
+        - 'pull_request_target'
+        - 'permissions:'
+        - 'secrets.'
+        - 'overrides'
+        - 'prepublishOnly'
+        - 'innerHTML'
+        - 'unsafeHTML'
+        - 'unsafeSVG'
+        - 'eval('
+        - 'new Function('
+    rules: ['rules/security.md']
+
+  - id: architecture
+    title: Architecture Review Agent
+    expertise: Base classes and controllers, placement across the four packages, SSR guards, reuse of internal helpers, load-bearing values, and keeping 70 components reading like one library.
+    enabled: true
+    always: true
+    escalates: true # deserves Opus on HIGH/CRITICAL PRs
+    rules: ['rules/architecture.md']
+
+  # Joseph's domain: the public contract of every cs-* element and its semver cost.
+  - id: api-surface
+    title: Component API Surface Review Agent
+    expertise: Attributes, slots, parts, events, custom properties and states of every cs-* element; the JSDoc that generates the manifest, docs, React wrappers and agent skill; the changeset bump a surface change takes.
+    enabled: true
+    model: smart
+    always: false
+    escalates: true # a stable component's surface is a contract with every consumer
+    triggers:
+      paths:
+        - 'packages/components/src/components/**'
+        - 'packages/components/src/events/**'
+        - 'packages/components/package.json'
+        - 'packages/components/scripts/make-react.js'
+        - 'packages/components/scripts/plop/**'
+      content:
+        - '@property'
+        - '@slot'
+        - '@csspart'
+        - '@cssproperty'
+        - '@cssstate'
+        - '@event'
+        - '@status'
+        - '@since'
+        - 'part='
+        - 'exportparts'
+        - '<slot'
+        - 'dispatchEvent'
+        - 'static css'
+    rules: ['rules/api-surface.md']
+
+  # Esther's domain, and the lane most likely to block a component PR.
+  - id: accessibility
+    title: Accessibility Review Agent
+    expertise: WCAG 2.2 AA for shadow-DOM components — name, role and value; keyboard paths and focus; contrast as a resolved pair per brand and colour scheme; colour-alone state; reduced motion; and whether the axe tests actually assert.
+    enabled: true
+    model: smart
+    always: false
+    escalates: true
+    triggers:
+      paths:
+        - 'packages/components/src/components/**'
+        - 'packages/components/src/styles/**'
+        - 'packages/components/src/internal/**'
+        - 'packages/tokens/tokens/sys/**'
+        - 'packages/tokens/tokens/cmp/**'
+        - 'packages/docs/src/content/docs/resources/accessibility.md'
+      content:
+        - 'aria-'
+        - 'role='
+        - 'tabindex'
+        - 'tabIndex'
+        - ':focus'
+        - 'focus-visible'
+        - 'delegatesFocus'
+        - 'prefers-reduced-motion'
+        - 'live-announcer'
+        - 'announce('
+        - 'to.be.accessible'
+        - 'ssr-client-hydrated'
+        - 'outline:'
+        - 'disabled'
+        - 'contrast'
+    rules: ['rules/accessibility.md']
+
+  # Sarah's domain: both token systems and the generator steering them to one source.
+  - id: tokens-and-theming
+    title: Tokens & Theming Review Agent
+    expertise: The _ref/_sys/_cmp token package and its validated aliasing; the palette, variant and theme cascade tiers the library reads as --cs-*; brand knobs and the generated themes; bump levels for token changes; the MUI adapter.
+    enabled: true
+    model: smart
+    always: false
+    escalates: false
+    triggers:
+      paths:
+        - 'packages/tokens/**'
+        - 'packages/components/src/styles/color/**'
+        - 'packages/components/src/styles/themes/**'
+        - 'packages/components/src/styles/layers.css'
+        - 'packages/components/src/styles/component/variants.styles.ts'
+        - 'packages/components/src/styles/component/size.styles.ts'
+        - 'packages/components/tools/**'
+      content:
+        - '_ref'
+        - '_sys'
+        - '_cmp'
+        - '$value'
+        - '--cs-color-'
+        - '--cs-font-size'
+        - '--cs-border-radius'
+        - '--cs-form-control-height'
+        - '@layer cs-'
+        - '.cs-theme-'
+        - '.cs-light'
+        - '.cs-dark'
+        - 'palette.mjs'
+    rules: ['rules/tokens-and-theming.md']
+
+  # Anna's domain: the docs site and the agent skills compiled out of it.
+  - id: docs-and-skills
+    title: Documentation & Agent Skills Review Agent
+    expertise: The Astro/Starlight site, its remark plugins and built-output checks, the pages that compile into the shipped agent skills and llms.txt, live examples, the changelog, and the single-source site address.
+    enabled: true
+    model: smart
+    always: false
+    escalates: false
+    triggers:
+      paths:
+        - 'packages/docs/**'
+        - 'packages/components/scripts/agent-skill.js'
+        - 'packages/components/scripts/agent-skill/**'
+        - 'packages/components/scripts/design-skill.js'
+        - 'packages/components/scripts/design-skill/**'
+        - 'packages/components/scripts/llms.js'
+        - 'packages/components/scripts/check-docs-url.js'
+        - 'packages/components/scripts/verify-skills.js'
+        - 'packages/build-tools/site-url.js'
+      content:
+        - 'SKILL_PAGES'
+        - '{.example'
+        - ':::'
+        - 'hasAnatomy'
+        - 'remark'
+        - 'homepage'
+        - 'cruglobal.github.io'
+        - 'llms.txt'
+        - '@documentation'
+    rules: ['rules/docs-and-skills.md']
+
+  - id: testing
+    title: Testing & Quality Review Agent
+    expertise: web-test-runner idioms, CSR and SSR fixtures, form-control base tests, axe assertions that actually assert, tests that cannot fail, and the repo's deterministic check scripts.
+    enabled: true
+    always: true
+    rules: ['rules/testing.md']
+
+  - id: standards
+    title: Standards Compliance Review Agent
+    expertise: Repo conventions lint does not catch, changeset hygiene and bump levels, naming and glossary terms, JSDoc completeness, and whether the PR body describes the diff.
+    enabled: true
+    always: true
+    rules: ['rules/standards.md']
+
+  # Novel lane: the plugins and CLAUDE.md files are prompts, and a weak line fires on
+  # every run with no test to catch it. `path_rules` below also hands this document to
+  # every lane that touches those paths.
+  - id: agent-prompts
+    title: Agent Prompt Review Agent
+    expertise: Writing persona and skill prompts under plugins/** and .claude/**, CLAUDE.md and the CONTEXT files — pointers over restated facts, names that resolve, refusals keyed on ownership, hand-off versus escalation, and prompt shape.
+    enabled: true
+    model: smart
+    always: false
+    escalates: false
+    triggers:
+      paths:
+        - 'plugins/**'
+        - '.claude/**'
+        - 'CLAUDE.md'
+        - 'packages/*/CLAUDE.md'
+        - 'docs/agents/**'
+        - 'CONTEXT-MAP.md'
+        - 'packages/*/CONTEXT.md'
+      content:
+        - 'You are '
+        - 'Hand off'
+        - 'Escalate'
+        - 'SKILL.md'
+        - 'disable-model-invocation'
+    rules: ['rules/agent-prompts.md']
+
+  # Advisory lane: rules/simplification.md caps pure cleanups below the blocker
+  # threshold and requires cited proof for every reuse claim. Keep this entry
+  # LAST — quick mode's third slot takes the first plan entry after
+  # testing/standards, and it must never land on this lane.
+  - id: simplification
+    title: Simplification & Reuse Review Agent
+    expertise: Code reuse, duplication, unnecessary abstraction, dead weight, wasteful computation on real data paths.
+    enabled: true
+    always: true
+    rules: ['rules/simplification.md']
+
+# ── Per-path rules ────────────────────────────────────────────────────────────
+# Extra rule docs applied to EVERY agent reviewing a matching file.
+path_rules:
+  - { paths: ['plugins/**', '.claude/**'], rules: ['rules/agent-prompts.md'] }
+
+# ── Exclusions — never reviewed, never scored ─────────────────────────────────
+excluded_paths:
+  - 'packages/components/dist/**'
+  - 'packages/tokens/build/**'
+  - 'packages/docs/dist/**'
+  - 'packages/docs/.astro/**'
+  - 'packages/docs/public/dist/**' # the copied library build, not site source
+  - 'packages/components/src/react/**' # generated by scripts/make-react.js
+  - 'packages/*/CHANGELOG.md' # written by changesets at release
+  - 'packages/tokens/libraries/cru-icons/**' # icon assets
+  - 'packages/docs/public/assets/**'
+  - 'package-lock.json'
+  - '**/*.snap'
+  - '.claude/review/rules/**' # prose rule docs — config/guidance, not reviewable code
+
+# ── Deterministic evidence ────────────────────────────────────────────────────
+# ast-grep runs trusted, repo-authored AST rules before the model. Only matches
+# on added lines become ledger findings. Tests live beside the rules and ran
+# clean under 0.45.0 before this was enabled.
+static_analysis:
+  ast_grep:
+    enabled: true
+    config: static/sgconfig.yml
+    version: 0.45.0 # pin the CI binary; do not use "latest"
+    severity: { error: 8, warning: 6, info: 4, hint: 2 }
+    excluded_paths: []
+
+# Snapshot existing GitHub checks and their annotations into the review prompt.
+# Nothing in ci.yml fails on purpose; the changeset gate skips itself on release
+# and Dependabot branches rather than failing.
+ci:
+  enabled: true
+  ignore_checks: []
+
+# Optional SHA-pinned API/client/documentation repositories. Disabled: the
+# token package's external consumers are not pinned anywhere yet, and the Figma
+# side of the loop is not a repository.
+context:
+  enabled: false
+  manifest: context/repositories.json
+
+# Advisory rollout: reviews post and, when clean, approve. The `agent-review`
+# label gates the CI review; drop the label condition in the caller once the
+# open-PR backlog has proven the signal.
+rollout:
+  mode: advisory
+  label: agent-review
+  minimum_evaluated_runs: 50
+  minimum_dispositions: 30
+  thresholds:
+    dismissal_rate: 0.35
+    false_positive_dismissal_rate: 0.20
+
+# ── Index layer: file-level import graph for impact analysis ──────────────────
+# The resolver tries `<spec>` then `<spec> + ext`, so a NodeNext specifier like
+# `./button.styles.js` never resolves to `button.styles.ts`. The component library
+# is therefore left OUT of the roots on purpose: "not indexed" is honest, "no
+# dependents" would be a lie about the base classes. The JS-only surfaces index.
+# Blast radius for a component or token change comes from the grep the api-surface
+# and tokens-and-theming rules require instead.
+index:
+  enabled: true
+  path: '.claude/review/index'
+  roots:
+    - 'packages/components/scripts'
+    - 'packages/docs/src'
+    - 'packages/docs/scripts'
+    - 'packages/build-tools'
+    - 'packages/tokens/scripts'
+  extensions: ['.js', '.mjs', '.cjs']
+  aliases: []
+
+# ── Learning layer: approval-gated feedback loop ──────────────────────────────
+learning:
+  enabled: true
+  path: '.claude/review/learnings'
+  approval_required: true # not yet enforced — reserved; promotion is always approval-gated today
+  min_support: 3
+  scope: local # not yet enforced — reserved (local | shared)
+
+enforcement:
+  mode: warn # warn | block — reserved for future merge-gating

@@ -1,0 +1,18 @@
+{
+  "enabledPlugins": {
+    "cornerstone-dev@cru": true,
+    "cornerstone-skills@cru": true,
+    "cornerstone@cru": true,
+    "cornerstone-designer@cru": true,
+    "figma@claude-plugins-official": true,
+    "agent-review@cruglobal": true
+  },
+  "extraKnownMarketplaces": {
+    "cruglobal": {
+      "source": {
+        "source": "github",
+        "repo": "CruGlobal/agent-review"
+      }
+    }
+  }
+}
