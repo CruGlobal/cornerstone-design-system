@@ -174,3 +174,9 @@ The five canonical triage roles, each label string equal to its own name. See `d
 
 Multi-context: a root `CONTEXT-MAP.md` points at one `CONTEXT.md` per package, with root-level `docs/adr/` for
 decisions no single package owns. See `docs/agents/domain.md`.
+
+### Code review
+
+Pull requests are reviewed with agent-review, run from a maintainer's Claude Code session (`/agent-review:review`
+on a pushed PR); what a review checks lives in `.claude/review/`. Run one review at a time on a machine: the
+plugin keeps each run's state in fixed `/tmp` paths, and two runs at once overwrite each other's.
