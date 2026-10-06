@@ -86,9 +86,19 @@ concern. What this lane protects here is the **release**, the **CI**, the **supp
 - `ci.yml` uses `cancel-in-progress: true`, which is safe only because nothing in it deploys or publishes.
   `pages.yml` deliberately uses `cancel-in-progress: false`. Do not copy the first into a workflow that
   deploys.
-- `agent-review-approve.yml` calls a reusable workflow from `CruGlobal/agent-review@main` and approves a PR
-  when a report posted by someone with write access passes. A change to the repository or ref it calls, or
-  to `auto_approve`, changes who can merge. There is no CI review workflow by design: reviews run from a
+- `agent-review-approve.yml` approves a PR when an agent-review report passes for its current head, and
+  takes the approval back when a later report for that head fails. It runs agent-review's
+  `engine/approval.cjs`, fetched at `RULE_COMMIT` and checked against `RULE_SHA256`, and that rule trusts the
+  report's own markers. A report counts only when an account on the job's poster list posted it, fired the
+  run and holds write access, and when no unlisted account posted a report before it. A PR that changes the
+  review's own setup (any `.claude/` folder other than the outcome log, `.gitattributes`, `CLAUDE.local.md`,
+  `.mcp.json` or the workflow itself, matched without regard to case) is left for a person. A change to the
+  poster list, any of those checks, the pin and hash, or the `commit_id` the approval is posted against
+  changes what this workflow approves. It does not bound the bot: "Allow GitHub Actions to create and approve
+  pull requests" is repository-wide and code-owner review is off, so any writer can get a
+  `github-actions[bot]` approval from a workflow on their own branch. Putting back agent-review's template
+  caller (`uses: CruGlobal/agent-review/.github/workflows/approve.yml@main`), which
+  `/agent-review:update-files` offers, is a finding. There is no CI review workflow by design: reviews run from a
   maintainer's terminal, so no model API key lives in this repository's secrets. A workflow that adds one is a
   finding until the team has decided to run the model in CI.
 - Dependabot PRs can be reviewed from the terminal like any other; nothing reviews them on its own.
@@ -112,8 +122,9 @@ concern. What this lane protects here is the **release**, the **CI**, the **supp
 
 - `plugins/**` ships to every consumer who installs the `cru` marketplace. A weakened refusal, a wider tool
   permission, or a marketplace outside CruGlobal is a finding.
-- `.claude/review/**` and `.claude/settings.json` gate every future review. A change that lowers a lane's
-  severity, removes a static rule, or widens `excluded_paths` says why in the PR body.
+- `.claude/` (the review's policy under `.claude/review/`, and the settings, rules and commands every session
+  loads) gates every future review. A change that lowers a lane's severity, removes a static rule, or widens
+  `excluded_paths` says why in the PR body.
 - Branch protection is declared in `cru-terraform`
   (`github/CruGlobal/repos/cornerstone-design-system/github.tf`), not here. A PR that assumes a different
   rule set is wrong about what happens at merge.

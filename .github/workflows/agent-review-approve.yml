@@ -1,26 +1,167 @@
 # agent-review-template-version: 1.0.0
+#
+# Approves a pull request when an agent-review report posted by a listed account passes for the pull
+# request's current head, and takes back this bot's approval when a later report for that head fails.
+#
+# Adapted from agent-review's approve template and deliberately different from it. Keep this file when
+# /agent-review:update-files offers the template back: the template calls agent-review's main branch at
+# three levels and accepts any writer's report.
+# - The rule is agent-review's own engine/approval.cjs, fetched at a pinned commit and checked against its
+#   hash. It trusts the markers at the top of the report rather than recomputing them.
+# - A report counts only when a listed account posted it, made the edit that started the run, and holds
+#   write access, and only when no unlisted account posted a report on the pull request before it.
+# - A pull request that changes the review's own setup needs a person's approval, because a terminal
+#   review runs with what the branch it reviews holds: any .claude/ folder (other than the outcome log),
+#   .gitattributes, CLAUDE.local.md, .mcp.json or this file, matched without regard to case. CLAUDE.md and
+#   AGENTS.md steer the review too but stay reviewable, since ordinary pull requests edit them.
+# - A passing report counts the dismissals recorded on it, which any writer can add. So an approval records
+#   that the listed account's review run passed, not an independent review, and its text says so.
+# - The approval is posted against the exact commit the report covers, and taken back if the head moved.
+#
+# Comment-triggered workflows run from the default branch, so nothing here runs the pull request's code.
+# Approving needs "Allow GitHub Actions to create and approve pull requests", which cru-terraform turns on
+# for this repository. That setting is repository-wide, and main does not require code-owner review, so
+# anyone with push access can also get a github-actions[bot] approval from a workflow on their own branch.
+# The poster list bounds this workflow, not the bot.
 name: agent-review approve
+
 on:
   issue_comment:
     types: [created, edited]
+
+permissions: {}
+
 jobs:
   approve:
-    # A review run locally and posted with "Post review to GitHub" starts with
-    # the agent-review marker; a re-post edits the poster's own earlier comment,
-    # which is why edited fires too. Only posts by repository writers count,
-    # shadow reports never approve, and the report must cover the PR's current
-    # head, so an edited report for an older push cannot approve the newer one.
-    # auto_approve here trusts a writer's posted report — a stronger
-    # grant than the CI path, which judges only the bot's own report.
+    name: Approve a passing report
+    # List an account only when its own review runs should count as this repository's required approval.
+    # POSTERS below must hold the same list.
     if: >-
       github.event.issue.pull_request != null &&
       startsWith(github.event.comment.body, '<!-- agent-review -->') &&
-      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      github.event.sender.login == github.event.comment.user.login &&
+      contains(fromJSON('["rguinee"]'), github.event.comment.user.login)
+    runs-on: ubuntu-latest
+    # One run at a time per pull request, so an older run cannot approve after a newer one withdraws.
+    concurrency:
+      group: agent-review-approve-${{ github.event.issue.number }}
+      cancel-in-progress: false
     permissions:
       contents: read
       pull-requests: write
-    uses: CruGlobal/agent-review/.github/workflows/approve.yml@main
-    with:
-      pr_number: ${{ github.event.issue.number }}
-      comment_id: ${{ github.event.comment.id }}
-      auto_approve: true
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PR: ${{ github.event.issue.number }}
+      COMMENT_ID: ${{ github.event.comment.id }}
+      POSTER: ${{ github.event.comment.user.login }}
+      POSTERS: '["rguinee"]'
+      # agent-review v1.0.0. The rule reads the markers the plugin writes, so when maintainers move to a new
+      # plugin version, move these two and the version on line 1 with it. The rule declines a report whose
+      # rollout, head or status marker is missing or unreadable, and this job declines a status format other
+      # than v1, but an old pin ignores any other marker or field it does not know.
+      RULE_COMMIT: eaf8f22df28e5a3f13b1eaacf7afe1c421da523c
+      RULE_SHA256: c26d3eb7024ce479ed37cd04360a32990653abd0b48c746355b062900299127b
+    steps:
+      - name: Judge the report and approve it when it passes
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          # A report that does not pass, or cannot count, is a normal outcome: say why and stop without
+          # failing. Anything else that goes wrong fails the run, so it shows up instead of passing for a
+          # decline.
+          decline() { echo "Not approving #$PR: $1" | tee -a "$GITHUB_STEP_SUMMARY"; exit 0; }
+
+          # Judge exactly the text the poster submitted. Any writer can edit this comment and the REST API
+          # does not say who did; a later edit by the poster starts its own run.
+          gh api "repos/$REPO/issues/comments/$COMMENT_ID" > comment.json
+          jq -e --slurpfile ev "$GITHUB_EVENT_PATH" \
+            '(.body // "" | gsub("\r"; "")) == ($ev[0].comment.body // "" | gsub("\r"; ""))' \
+            comment.json > /dev/null || decline "the comment changed after the edit that started this run"
+          [ "$(jq -r '.user.login' comment.json)" = "$POSTER" ] || decline "the comment's author is not $POSTER"
+          [ "$(jq -r '.issue_url | split("/") | last' comment.json)" = "$PR" ] || decline "the comment is not on this pull request"
+          PERMISSION=$(gh api "repos/$REPO/collaborators/$POSTER/permission" --jq .permission)
+          case "$PERMISSION" in
+            admin | maintain | write) ;;
+            *) decline "$POSTER does not hold write access" ;;
+          esac
+          jq -r '.body // ""' comment.json > report.md
+
+          curl -fsSL "https://raw.githubusercontent.com/CruGlobal/agent-review/$RULE_COMMIT/engine/approval.cjs" -o approval.cjs
+          echo "$RULE_SHA256  approval.cjs" | sha256sum --check --quiet
+          gh api "repos/$REPO/pulls/$PR" > pull.json
+          HEAD_SHA=$(jq -r '.head.sha' pull.json)
+          node -e '
+            const { evaluateApproval } = require(process.argv[1]);
+            const report = require("fs").readFileSync(process.argv[2], "utf8").replace(/\r/g, "");
+            const decision = evaluateApproval(report, { head: process.argv[3] });
+            // The header rule approval.cjs applies: only the unbroken run of marker lines at the top counts.
+            const header = [];
+            for (const line of report.split("\n")) {
+              if (!/^<!-- agent-review(-[a-z]+: .*)? -->$/.test(line)) break;
+              header.push(line);
+            }
+            const marker = (name) => {
+              const m = header.join("\n").match(new RegExp("^<!-- agent-review-" + name + ": (.*) -->$", "m"));
+              return m ? m[1].trim() : "";
+            };
+            let version = null;
+            try { version = JSON.parse(marker("status")).v; } catch {}
+            if (decision.approve && version !== 1) {
+              decision.approve = false;
+              decision.reason = "status format v" + version + " is not the v1 this pinned rule knows";
+            }
+            decision.reportHead = marker("head").toLowerCase();
+            process.stdout.write(JSON.stringify(decision));
+          ' "$PWD/approval.cjs" report.md "$HEAD_SHA" > decision.json
+          REASON=$(jq -r '.reason | gsub("[\r\n]"; " ")' decision.json)
+
+          if [ "$(jq -r '.approve' decision.json)" != true ]; then
+            # A failing report for the current head takes back any approval this bot gave that head.
+            if [ "$(jq -r '.reportHead' decision.json)" = "$HEAD_SHA" ]; then
+              APPROVALS=$(gh api "repos/$REPO/pulls/$PR/reviews" --paginate \
+                --jq '.[] | select(.user.login == "github-actions[bot]" and .state == "APPROVED") | .id')
+              for ID in $APPROVALS; do
+                gh api --method PUT "repos/$REPO/pulls/$PR/reviews/$ID/dismissals" -f event=DISMISS \
+                  -f message="agent-review: the latest report for $HEAD_SHA does not pass ($REASON)." > /dev/null
+                echo "Withdrew approval $ID." | tee -a "$GITHUB_STEP_SUMMARY"
+              done
+            fi
+            decline "$REASON"
+          fi
+
+          # A local review takes its starting point and ledger from the poster's own report, or from the
+          # oldest report when the poster has none yet. So no unlisted account's report may come first.
+          gh api "repos/$REPO/issues/$PR/comments" --paginate > comments.json
+          FOREIGN=$(jq -s -r --argjson ok "$POSTERS" '
+            add // []
+            | map(select((.body // "") | startswith("<!-- agent-review -->")) | .user.login)
+            | (map(. as $u | $ok | any(. == $u)) | index(true)) as $first
+            | .[:($first // length)]
+            | map(select(. as $u | $ok | any(. == $u) | not)) | unique | join(" ")' comments.json)
+          [ -z "$FOREIGN" ] || decline "$FOREIGN posted a report on it first; delete that comment, then run /agent-review:review, not re-review"
+
+          [ "$(jq -r '.changed_files' pull.json)" -le 3000 ] || decline "it changes more files than the API lists"
+          gh api "repos/$REPO/pulls/$PR/files" --paginate \
+            --jq '.[] | .filename, (.previous_filename // empty)
+                  | select(ascii_downcase
+                           | (test("(^|/)\\.claude/") and . != ".claude/review/learnings/feedback.jsonl")
+                             or test("(^|/)(\\.gitattributes|claude\\.local\\.md)$")
+                             or . == ".mcp.json" or . == ".github/workflows/agent-review-approve.yml")' \
+            > guarded.txt
+          [ ! -s guarded.txt ] || decline "it changes the review's own setup ($(sort -u guarded.txt | paste -sd ' ' -)); a person must approve it"
+          [ "$(jq -r '.user.login' pull.json)" != "github-actions[bot]" ] || decline "github-actions[bot] opened it, and GitHub does not let an account approve its own pull request"
+
+          REVIEW_ID=$(gh api --method POST "repos/$REPO/pulls/$PR/reviews" \
+            -f event=APPROVE -f commit_id="$HEAD_SHA" \
+            -f body="agent-review: the report $POSTER posted for $HEAD_SHA passes, counting the dismissals recorded on it. This is not an independent review." \
+            --jq .id)
+          # A push that landed while this ran is not covered by the report, so take the approval back.
+          if [ "$(gh api "repos/$REPO/pulls/$PR" --jq .head.sha)" != "$HEAD_SHA" ]; then
+            if [ "$(gh api "repos/$REPO/pulls/$PR/reviews/$REVIEW_ID" --jq .state)" = APPROVED ]; then
+              gh api --method PUT "repos/$REPO/pulls/$PR/reviews/$REVIEW_ID/dismissals" -f event=DISMISS \
+                -f message="agent-review: the head moved past $HEAD_SHA while this approval was posted." > /dev/null
+            fi
+            decline "the head moved past $HEAD_SHA while this run judged it"
+          fi
+          echo "Approved #$PR at $HEAD_SHA: $REASON" | tee -a "$GITHUB_STEP_SUMMARY"
