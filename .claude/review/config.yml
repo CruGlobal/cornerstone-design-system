@@ -24,9 +24,13 @@ base_branch: main
 risk:
   # File-pattern contributions. `tier` is descriptive; `points` drives the score.
   # Per file, the highest-scoring matching pattern wins (patterns don't stack on
-  # one file; files sum across the diff). A 0-point entry never changes the score
-  # (max starts at 0) — it documents that a path was considered and deemed
-  # no-risk; use `excluded_paths` to actually exclude.
+  # one file; files sum across the diff). A file that matches no pattern scores
+  # `unmatched_file_points`, but one whose only match is a 0-point entry scores 0,
+  # so a 0-point entry lowers the score and can bring a small diff to 0, which auto
+  # mode skips (see the low tier). Keep every entry at 1 or more. `excluded_paths`
+  # takes a file out of review entirely, and a follow-up that touches only excluded
+  # files still skips; that is accepted for generated files, assets and the
+  # outcome log.
   patterns:
     # ── critical (3) ──────────────────────────────────────────────────────────
     - { glob: '.github/workflows/**', points: 3, tier: critical }
@@ -62,8 +66,8 @@ risk:
     - { glob: 'packages/tokens/libraries/**', points: 2, tier: high }
     # Palettes, variants, generated themes, utilities.
     - { glob: 'packages/components/src/styles/**', points: 2, tier: high }
-    # Every component file is public API. Tests are carved out so a test-only diff
-    # scores low (see the 0-point entry below).
+    # Every component file is public API. Tests are carved out so a test file scores
+    # 1 point instead of 2 (see the low tier below).
     - { glob: 'packages/components/src/components/**/!(*.test).ts', points: 2, tier: high }
     - { glob: 'packages/components/src/events/**', points: 2, tier: high }
     - { glob: 'packages/components/src/internal/**', points: 2, tier: high }
@@ -89,12 +93,18 @@ risk:
     - { glob: 'CLAUDE.md', points: 1, tier: medium }
     - { glob: 'packages/*/CLAUDE.md', points: 1, tier: medium }
 
-    # ── low (0) — documentation of intent; these never change the score ───────
-    - { glob: '**/*.test.ts', points: 0, tier: low }
-    - { glob: 'packages/docs/public/**', points: 0, tier: low }
-    - { glob: '**/cspell.json', points: 0, tier: low }
-    - { glob: 'docs/**', points: 0, tier: low }
-    - { glob: '**/*.md', points: 0, tier: low }
+    # ── low (1) ───────────────────────────────────────────────────────────────
+    # Little risk, but never 0. Auto mode turns a diff that scores 0 into a skip, and
+    # a local re-review that skips posts a passing status for the new head without
+    # any lane reading it, so a follow-up commit that touched only a test could be
+    # approved unread. To take a path out of review entirely, use `excluded_paths`.
+    # Points add up per file, as in every tier here, so a broad test or docs sweep
+    # can still reach HIGH or CRITICAL and get a deeper review.
+    - { glob: '**/*.test.ts', points: 1, tier: low }
+    - { glob: 'packages/docs/public/**', points: 1, tier: low }
+    - { glob: '**/cspell.json', points: 1, tier: low }
+    - { glob: 'docs/**', points: 1, tier: low }
+    - { glob: '**/*.md', points: 1, tier: low }
 
   # Unknown paths are not zero-risk. Each non-excluded file that matches none of
   # the patterns above gets this many points, preventing a newly introduced
@@ -453,23 +463,31 @@ excluded_paths:
   - 'packages/docs/public/assets/**'
   - 'package-lock.json'
   - '**/*.snap'
-  - '.claude/review/rules/**' # prose rule docs — config/guidance, not reviewable code
+  # The outcome log /agent-review:address commits each round. Only `agent-review
+  # learn` and `telemetry` read it, and learn's proposals reach reviews only once a
+  # person approves them into learnings.yml, which stays scored. Excluding it keeps
+  # a dismiss-only round from paying for a review of a data file.
+  - '.claude/review/learnings/feedback.jsonl'
 
 # ── Deterministic evidence ────────────────────────────────────────────────────
-# ast-grep runs trusted, repo-authored AST rules before the model. Only matches
-# on added lines become ledger findings. Tests live beside the rules and ran
-# clean under 0.45.0 before this was enabled.
+# A review run from the terminal never builds the evidence file these rules feed,
+# so here they reach no lane; only agent-review's CI review workflow, which this
+# repo does not install, runs them during a review. ci.yml runs the same rules on
+# every pull request instead ('Static rules (ast-grep)'), and an error-severity
+# match fails that check. Tests live beside the rules; ci.yml's 'Test the rules'
+# step runs them with `--skip-snapshot-tests`, because no snapshot baselines are kept.
 static_analysis:
   ast_grep:
     enabled: true
     config: static/sgconfig.yml
-    version: 0.45.0 # pin the CI binary; do not use "latest"
+    version: 0.45.0 # keep equal to the version ci.yml's static-rules job runs
     severity: { error: 8, warning: 6, info: 4, hint: 2 }
     excluded_paths: []
 
 # Snapshot existing GitHub checks and their annotations into the review prompt.
-# Nothing in ci.yml fails on purpose; the changeset gate skips itself on release
-# and Dependabot branches rather than failing.
+# Only agent-review's CI review workflow takes that snapshot, so a review run from
+# the terminal reads no checks. Nothing in ci.yml fails on purpose; the changeset
+# gate skips itself on release and Dependabot branches rather than failing.
 ci:
   enabled: true
   ignore_checks: []
@@ -482,8 +500,10 @@ context:
   manifest: context/repositories.json
 
 # Advisory rollout: a review run from a maintainer's terminal posts its report, and
-# agent-review-approve.yml approves when that report passes. No CI review workflow is
-# installed, so nothing here runs on its own; `label` is unused until one is.
+# agent-review-approve.yml approves it when it passes and its poster is on that
+# workflow's list. The terminal review reads this mode from the branch it reviews, so
+# to pause approvals, edit that list or disable the workflow. No CI review workflow
+# is installed, so nothing here runs on its own; `label` is unused until one is.
 rollout:
   mode: advisory
   label: agent-review

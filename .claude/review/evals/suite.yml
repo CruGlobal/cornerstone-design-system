@@ -82,7 +82,8 @@ cases:
     kind: seeded_bug
     category: tokens-and-theming
     # Binds cs-divider to a `--sys-*` name from the token package, which never
-    # resolves in a component stylesheet. The static rule fires at error.
+    # resolves in a component stylesheet. CI's Static rules check fires at error;
+    # a terminal review relies on the lanes.
     patch: patches/styles-foreign-token-vocabulary.patch
     expected:
       - id: foreign-vocabulary
@@ -115,7 +116,7 @@ cases:
     category: standards
     # Switches cs-badge to extend LitElement with `static styles`, dropping the host
     # styles, ElementInternals and SSR wiring the base class provides. Two static
-    # rules fire.
+    # rules fire in CI's Static rules check; a terminal review relies on the lanes.
     patch: patches/standards-extends-litelement.patch
     expected:
       - id: bare-litelement

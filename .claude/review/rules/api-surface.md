@@ -60,8 +60,8 @@ found.
 
 Components read `--cs-*`. The names `packages/tokens` publishes (`--ref-*`, `--sys-*`, `--cmp-*`) resolve
 to nothing in a component stylesheet. A `var(--cmp-…)` in `packages/components/src` is a hard bug (the
-static rule `no-foreign-token-vocabulary` blocks it); a docs example that tells a consumer to set one is a
-docs bug.
+static rule `no-foreign-token-vocabulary` fails CI's Static rules (ast-grep) check, which a terminal review
+does not read, so raise it here too); a docs example that tells a consumer to set one is a docs bug.
 
 **React wrappers and SSR**
 

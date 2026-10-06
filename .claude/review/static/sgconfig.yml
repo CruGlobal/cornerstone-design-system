@@ -4,7 +4,10 @@ testConfigs:
   - testDir: rule-tests
 # Component stylesheets are CSS inside a `css` tagged template in a .ts file. Parsing that
 # region as CSS lets a rule match the exact `var(...)` call, so the finding lands on the
-# added line rather than on the first line of the whole template.
+# added line rather than on the first line of the whole template. The pattern matches a
+# template that parses as one string piece, so a template holding an escape sequence or a
+# `${}` gets no CSS region and the CSS rules skip it (icon.styles.ts and spinner.styles.ts
+# today).
 languageInjections:
   - hostLanguage: ts
     rule:

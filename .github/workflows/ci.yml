@@ -49,6 +49,27 @@ jobs:
       # root build here would do it twice per PR.
       - run: npm run build --workspace @cruglobal/cornerstone-design-system
 
+  # agent-review's six ast-grep rules, kept in `.claude/review/static/`. A review run from the terminal
+  # never feeds them to a lane, so this job is where they gate: an error-severity match (a component on
+  # bare LitElement, a focused test, a `--ref-`/`--sys-`/`--cmp-` name in a component's `css` template)
+  # fails it, and warnings and notes only print. A template holding an escape or a `${}` is not parsed as
+  # CSS, so it goes unchecked (the icon and spinner styles today). The version is pinned because a new
+  # ast-grep can change what a pattern matches; keep it equal to `static_analysis.ast_grep.version` in
+  # `.claude/review/config.yml`. The rule tests skip snapshot checks, since no baselines are kept; each
+  # rule's valid and invalid cases still run. No `npm ci`: the rules need only the checkout.
+  static-rules:
+    name: Static rules (ast-grep)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+      - name: Test the rules
+        run: npx --yes --package @ast-grep/cli@0.45.0 ast-grep test --config .claude/review/static/sgconfig.yml --skip-snapshot-tests
+      - name: Scan the repository
+        run: npx --yes --package @ast-grep/cli@0.45.0 ast-grep scan --config .claude/review/static/sgconfig.yml
+
   # What changed decides what runs. The component suite drives three real browsers and takes ~35
   # minutes; a change to a documentation page has no way to affect it, and paying for it anyway is
   # how a gate stops being run.
