@@ -128,13 +128,15 @@ Then install by answering a single question: **are you using Cornerstone, or bui
 /plugin install cornerstone-dev@cru
 ```
 
+To give a whole team the consumer tier, commit it to the app's `.claude/settings.json` instead; the snippet is on the [Agent Skills](packages/docs/src/content/docs/ai/agent-skills.md) page of the documentation site.
+
 Whether you write code, design screens, or do both does not change the answer on the *using* side. Daniel serves all three, and there is no consumer-side Figma tooling to add — so a designer and a developer at the same consuming ministry install exactly the same thing. The craft split only appears once you are contributing.
 
 Install one, not several. Each tier declares the plugins it needs, and Claude Code installs that whole dependency closure for you — so `cornerstone-dev` gets you `cornerstone` as well, and a dependency it can't resolve disables the tier rather than half-loading it.
 
 | Tier | Install it if you | What it adds | Pulls in |
 | --- | --- | --- | --- |
-| `cornerstone` | use Cornerstone in a product | **Daniel**, the front-door persona | nothing |
+| `cornerstone` | use Cornerstone in a product | **Daniel**, the front-door persona; the `cornerstone` and `cornerstone-design` skills, which read the copy your installed package ships; and a session-start hook that points Claude at `cornerstone-design` when `package.json` depends on `@cruglobal/cornerstone-components` | nothing |
 | `cornerstone-dev` | contribute to this repository | the four contributor personas: **Joseph** (components), **Sarah** (tokens, theming, Figma sync), **Esther** (accessibility), **Anna** (docs and stories) | `cornerstone`, `mattpocock-skills`, `figma` |
 | `cornerstone-designer` | design with Cornerstone and don't write code | a Figma-only prototyping skill — compose existing components and see the idea, never emit code | `cornerstone`, `figma` |
 | `mattpocock-skills` | nothing; it arrives as a dependency | Matt Pocock's engineering and productivity skills, installed from [mattpocock/skills](https://github.com/mattpocock/skills) at a pinned release, not a copy | nothing |
@@ -151,7 +153,7 @@ Each dependency is there for a reason worth stating:
 
 `figma` lives in Anthropic's official marketplace rather than Cru's, which is why `.claude-plugin/marketplace.json` carries `allowCrossMarketplaceDependenciesOn: ["claude-plugins-official"]`. Cross-marketplace dependencies are refused outright without it, and only the allowlist of the marketplace you installed from is consulted — trust doesn't pass through a chain of dependencies.
 
-You never type a persona's name. They're subagents, and Claude routes to one by matching your request against its description, the same way it picks any other subagent. Daniel, Sarah and Joseph pin an Opus floor because their work is judgment-heavy — routing, hand-authoring primitives, writing component code; Esther and Anna inherit whatever model your session is running.
+You don't have to type a persona's name. They're subagents, and Claude routes to one by matching your request against its description, the same way it picks any other subagent; you can also ask for one by name. Sarah, Joseph, Esther and Anna pin an Opus floor because their work is judgment-heavy. Daniel inherits whatever model your session is running. The `cornerstone` plugin doesn't change a consuming app's main agent; inside this repo, `.claude/settings.json` makes Daniel the main agent.
 
 ### Check your own agent names before installing
 

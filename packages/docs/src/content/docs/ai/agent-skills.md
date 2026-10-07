@@ -54,7 +54,46 @@ How you reference them depends on your AI tool.
 
 ### Claude Code
 
-With [Claude Code](https://claude.ai/code), install either or both skills using the [skills CLI](https://skills.sh/):
+In [Claude Code](https://claude.ai/code), install the `cornerstone` plugin. Commit this to your app's
+`.claude/settings.json` so everyone who opens the project gets it:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "cru": { "source": { "source": "github", "repo": "CruGlobal/cornerstone-design-system" } }
+  },
+  "enabledPlugins": { "cornerstone@cru": true }
+}
+```
+
+It applies once each teammate trusts the folder. Claude Code only reads a repository's
+`extraKnownMarketplaces` in a trusted folder, because a marketplace can run code on their machine. It
+then fetches the marketplace in the background, so the first session may ask you to run
+`/reload-plugins`.
+
+To install it for yourself only, run `/plugin marketplace add CruGlobal/cornerstone-design-system`
+and then `/plugin install cornerstone@cru`.
+
+The plugin gives Claude Code three things:
+
+- **Both skills**, as `cornerstone` and `cornerstone-design`. They are thin pointers that read the copy
+  inside your installed package, so they always match the version in your `node_modules`, and
+  upgrading Cornerstone upgrades them. An app that loads Cornerstone from a CDN has no local copy, so
+  they fall back to the ones this site serves.
+- **A check when each session starts.** When your `package.json` depends on
+  `@cruglobal/cornerstone-components`, it tells Claude which version you have and to load
+  `cornerstone-design` before any UI work. It exists because a skill only loads when Claude decides your
+  request matches it, and a request like "port this header" does not read as design work. Without the
+  check, Claude tends to rebuild layout in custom CSS instead of using the layout utilities. In a
+  project that does not use Cornerstone it prints nothing.
+- **Daniel**, Cornerstone's front-door assistant, for token, theming and integration questions. The
+  plugin does not change your session's main agent or model. Ask for Daniel by name when you want him,
+  and he runs on whatever model you choose.
+
+### The skills CLI
+
+The [skills CLI](https://skills.sh/) installs the same two directories into Claude Code and the other
+agents it supports. Use it for a tool with no plugin support:
 
 ```bash
 # Install the component skill, the design skill, or both
@@ -66,9 +105,11 @@ npx skills remove cornerstone
 npx skills remove cornerstone-design
 ```
 
-Once installed, the skills are available to Claude Code automatically, and it loads the right one based on what you ask for. They're installed as symlinks, so they stay up to date when you update Cornerstone via npm.
+They're installed as symlinks, so they stay up to date when you update Cornerstone via npm. They carry
+no session-start check, so a request that does not sound like design work may not load
+`cornerstone-design`.
 
-You can also reference a skill directory manually, or point Claude at a specific reference file:
+You can also reference a skill directory manually, or point your tool at a specific reference file:
 
 ```
 @node_modules/@cruglobal/cornerstone-components/dist/unbundled/skills/cornerstone/
