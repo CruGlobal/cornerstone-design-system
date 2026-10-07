@@ -16,3 +16,8 @@ node_modules/
 build/
 storybook-static/
 *.log
+
+# Claude Code: personal settings and session files.
+**/.claude/settings.local.json
+**/.claude/scheduled_tasks.lock
+.claude/worktrees/

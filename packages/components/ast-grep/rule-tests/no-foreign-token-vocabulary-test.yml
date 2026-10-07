@@ -1,0 +1,8 @@
+id: no-foreign-token-vocabulary
+valid:
+  - 'a { color: var(--cs-color-on-quiet, var(--cs-color-neutral-on-quiet)); }'
+  - ':host { --color: var(--cs-color-surface-border); }'
+invalid:
+  - ':host { --color: var(--sys-color-outline-default); }'
+  - 'a { height: var(--cmp-tag-height); }'
+  - 'a { color: var( --ref-color-cru-yellow-500 ); }'

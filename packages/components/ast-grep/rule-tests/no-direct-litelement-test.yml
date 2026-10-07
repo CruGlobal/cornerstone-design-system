@@ -1,0 +1,7 @@
+id: no-direct-litelement
+valid:
+  - 'export default class CsBadge extends CornerstoneElement { static css = [styles]; }'
+  - 'export default class CsInput extends CornerstoneFormAssociatedElement {}'
+invalid:
+  - 'export default class CsBadge extends LitElement { static styles = [styles]; }'
+  - 'class CsThing extends LitElement {}'

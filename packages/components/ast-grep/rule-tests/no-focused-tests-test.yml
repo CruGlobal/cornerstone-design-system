@@ -1,0 +1,8 @@
+id: no-focused-tests
+valid:
+  - "it('renders', async () => {});"
+  - "describe('<cs-badge>', () => {});"
+  - "it.skip('not yet', async () => {});"
+invalid:
+  - "it.only('renders', async () => {});"
+  - "describe.only('<cs-badge>', () => {});"

@@ -1,0 +1,12 @@
+id: no-focused-tests
+language: TypeScript
+severity: error
+message: A focused test (`.only`) skips the rest of the suite in CI.
+note: Remove `.only` before merging. Use `npm run test:component -- --watch --group <name>` to focus locally.
+files:
+  - '**/*.test.ts'
+rule:
+  any:
+    - pattern: it.only($$$ARGS)
+    - pattern: describe.only($$$ARGS)
+    - pattern: test.only($$$ARGS)

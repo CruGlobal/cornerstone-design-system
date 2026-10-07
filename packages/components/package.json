@@ -74,7 +74,8 @@
     "test:watch": "web-test-runner --watch --group default",
     "prettier": "prettier --check --log-level=warn --ignore-path=\".prettierignore\" .",
     "prettier:fix": "prettier --write --log-level=warn --ignore-path=\".prettierignore\" .",
-    "lint": "eslint .",
+    "lint": "eslint . && npm run lint:ast-grep",
+    "lint:ast-grep": "ast-grep test --skip-snapshot-tests && ast-grep scan",
     "lint:fix": "eslint . --fix",
     "spellcheck": "cspell \"{src,scripts}/**/*.{js,ts,json,css,md}\" --no-progress --config=\"cspell.json\"",
     "check-types": "tsc --noEmit",
@@ -106,6 +107,7 @@
     "nanoid": "^5.1.5"
   },
   "devDependencies": {
+    "@ast-grep/cli": "0.45.0",
     "@cruglobal/cornerstone-build-tools": "*",
     "@custom-elements-manifest/analyzer": "^0.11.0",
     "@eslint/js": "^10.0.1",

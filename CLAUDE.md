@@ -174,3 +174,10 @@ The five canonical triage roles, each label string equal to its own name. See `d
 
 Multi-context: a root `CONTEXT-MAP.md` points at one `CONTEXT.md` per package, with root-level `docs/adr/` for
 decisions no single package owns. See `docs/agents/domain.md`.
+
+### Code review
+
+Review a branch with the `code-review` skill against a fixed point such as `main`. The standards it checks
+against live in `docs/standards/`, one file per area, each saying which paths it applies to. The ast-grep rules
+in `packages/components/ast-grep/` run in that package's `npm run lint`, locally and in CI, so a review leaves
+what they catch to them.
