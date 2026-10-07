@@ -14,7 +14,7 @@
   "keywords": ["design-system", "design-tokens", "cru", "cornerstone", "contributors"],
   "dependencies": [
     "cornerstone@cru",
-    "mattpocock-skills@claude-plugins-official",
+    "mattpocock-skills@cru",
     "figma@claude-plugins-official"
   ]
 }

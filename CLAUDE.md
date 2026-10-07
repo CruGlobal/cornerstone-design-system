@@ -172,7 +172,7 @@ The five canonical triage roles, each label string equal to its own name. See `d
 
 ### Domain docs
 
-Multi-context: a root `CONTEXT-MAP.md` points at one `CONTEXT.md` per package, with root-level `docs/adr/` for
+Multi-context: a root `GLOSSARY-MAP.md` points at one `GLOSSARY.md` per package, with root-level `docs/adr/` for
 decisions no single package owns. See `docs/agents/domain.md`.
 
 ### Code review
