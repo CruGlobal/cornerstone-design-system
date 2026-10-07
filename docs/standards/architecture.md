@@ -116,7 +116,7 @@ from, and for the component that composes yours. Assume more pairs exist than yo
 
 **One library, not seventy**
 
-A fix that should apply to every component is a cross-cutting policy (`packages/components/CONTEXT.md`);
+A fix that should apply to every component is a cross-cutting policy (`packages/components/GLOSSARY.md`);
 raise it rather than fixing one component in a way that forks the pattern. `size` sets one `font-size` on
 the host and everything inside is `em`; radius and border width are `rem`. A per-component dimension token
 or a `px` dimension inside a component breaks both.
