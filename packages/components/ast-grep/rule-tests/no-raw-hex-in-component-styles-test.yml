@@ -1,0 +1,7 @@
+id: no-raw-hex-in-component-styles
+valid:
+  - 'a { color: var(--cs-color-on-loud, var(--cs-color-brand-on-loud)); }'
+  - 'a { background: transparent; }'
+invalid:
+  - 'a { color: #ffd000; }'
+  - 'a { border-color: #FFF; }'

@@ -101,8 +101,15 @@ const TEXT_EXT = /\.(ts|js|mjs|cjs|css|json|md|html|njk|yml|yaml|txt|svg)$/;
 const SELF = basename(new URL(import.meta.url).pathname);
 // LICENSE.md is listed defensively rather than because a rule currently matches it: it is upstream's
 // notice, which the MIT grant requires be preserved verbatim, so it must never be a rewrite target.
-// CONTEXT.md is the glossary, where "Web Awesome" is a defined term.
-const SKIP_FILES = new Set(['package-lock.json', 'npm-shrinkwrap.json', 'yarn.lock', 'LICENSE.md', 'CONTEXT.md', SELF]);
+// GLOSSARY.md is the glossary, where "Web Awesome" is a defined term.
+const SKIP_FILES = new Set([
+  'package-lock.json',
+  'npm-shrinkwrap.json',
+  'yarn.lock',
+  'LICENSE.md',
+  'GLOSSARY.md',
+  SELF,
+]);
 
 async function walk(dir, out = []) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {

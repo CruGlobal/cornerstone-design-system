@@ -1,0 +1,8 @@
+id: handler-naming
+valid:
+  - 'class A { private handleClick(event: MouseEvent) {} }'
+  - 'class A { connectedCallback() { super.connectedCallback(); } }'
+  - 'class A { on() {} }'
+invalid:
+  - 'class A { private onClick(event: MouseEvent) {} }'
+  - 'class A { onSlotChange() {} }'

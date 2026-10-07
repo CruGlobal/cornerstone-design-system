@@ -6,9 +6,9 @@ Paths in this file are relative to the repo root.
 
 ## Before exploring, read these
 
-- **`CONTEXT-MAP.md`** at the repo root — it points at one `CONTEXT.md` per package. Read each one relevant
+- **`GLOSSARY-MAP.md`** at the repo root — it points at one `GLOSSARY.md` per package. Read each one relevant
   to the topic.
-- **`packages/<name>/CONTEXT.md`** — the glossary for that package's own domain.
+- **`packages/<name>/GLOSSARY.md`** — the glossary for that package's own domain.
 - **`docs/adr/`** — system-wide decisions, the ones that hold across packages. Read the ADRs that touch the
   area you're about to work in.
 - **`packages/<name>/docs/adr/`** — decisions scoped to a single package. Check these too whenever your work
@@ -27,19 +27,19 @@ and so are the decisions made in each.
 
 ```
 /
-├── CONTEXT-MAP.md
+├── GLOSSARY-MAP.md
 ├── docs/adr/                          ← system-wide decisions
 └── packages/
     ├── tokens/
-    │   ├── CONTEXT.md
+    │   ├── GLOSSARY.md
     │   └── docs/adr/                  ← token-pipeline decisions
     ├── components/
-    │   ├── CONTEXT.md
+    │   ├── GLOSSARY.md
     │   └── docs/adr/                  ← component-library decisions
     ├── docs/
-    │   └── CONTEXT.md
+    │   └── GLOSSARY.md
     └── build-tools/
-        └── CONTEXT.md
+        └── GLOSSARY.md
 ```
 
 A package gets its own `docs/adr/` only once it has a decision to record — an empty directory is noise. The
@@ -56,7 +56,7 @@ belongs at the root — duplicating it into both is how the two copies drift.
 ## Use the glossary's vocabulary
 
 When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name),
-use the term as defined in the relevant `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.
+use the term as defined in the relevant `GLOSSARY.md`. Don't drift to synonyms the glossary explicitly avoids.
 
 If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the
 project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).

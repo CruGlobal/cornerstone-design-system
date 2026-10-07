@@ -1,0 +1,12 @@
+id: no-raw-hex-in-component-styles
+language: Css
+severity: info
+message: A component stylesheet reads a `--cs-*` role; raw colour values live in `src/styles/color/palettes/` and nowhere else.
+note: >-
+  A literal colour cannot follow the brand or the colour scheme. Read the role
+  (`var(--cs-color-fill-quiet, var(--cs-color-neutral-fill-quiet))`) and let the theme resolve it.
+  See docs/standards/tokens-and-theming.md.
+files:
+  - 'src/components/**/*.styles.ts'
+rule:
+  kind: color_value
