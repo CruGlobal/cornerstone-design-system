@@ -17,16 +17,7 @@ build/
 storybook-static/
 *.log
 
-# Claude Code: personal settings and session files, and what agent-review writes during a local review.
-# Of agent-review's files, only the learning store (learnings/feedback.jsonl and learnings/learnings.yml)
-# is meant to be committed. A metrics commit, for one, would move a PR's head past the commit its report
-# covers, and the approval would then decline.
+# Claude Code: personal settings and session files.
 **/.claude/settings.local.json
 **/.claude/scheduled_tasks.lock
 .claude/worktrees/
-.claude/review/index/
-.claude/review/metrics/
-.claude/review/learnings/findings.json
-.claude/review/learnings/pending/
-.claude/review/evals/results/*
-!.claude/review/evals/results/.gitkeep

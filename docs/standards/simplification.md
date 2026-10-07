@@ -1,29 +1,27 @@
 # Simplification & Reuse — Focus Areas
 
-Generic baseline. `/agent-review:init` appends the repo-specific concerns; keep both.
+A generic baseline, followed by where Cornerstone's existing helpers live; keep both.
 
-This is an advisory lane. Its job is to make this diff smaller and simpler — not to restyle the
+This is advisory. Its job is to make this diff smaller and simpler — not to restyle the
 codebase, and not to propose generalizations. Report only cleanups the author can act on inside
 this PR.
 
-**Lane boundary** — neighboring lanes own the adjacent ground:
+**Boundary**: neighbouring documents own the adjacent ground:
 
-- Layering, placement, and pattern-consistency judgments belong to `architecture`
-- Lint-level hygiene (unused imports, debug output, commented-out code) belongs to `standards`
-- This lane owns code that need not exist: additions duplicating something the repo already has,
+- Layering, placement, and pattern-consistency judgments belong to `architecture.md`
+- Lint-level hygiene (unused imports, debug output, commented-out code) belongs to `standards.md`
+- This document owns code that need not exist: additions duplicating something the repo already has,
   abstractions with no second caller, computation the data path doesn't need, and code the PR
   adds but never exercises
 
-**Severity cap — cleanups never block**
+**Cleanups never block**
 
-- Rate pure reuse/simplification/efficiency findings 1–4
-- Use 5–6 only for substantial reimplementation of an existing, tested helper, or a demonstrable
-  algorithmic problem on a data path that grows with users or records
-- Never rate a pure cleanup ≥ 7 — the blocker machinery is for defects. The cross-cutting duty
-  still applies: a real bug noticed while reading is reported at its honest severity
+- A pure reuse, simplification or efficiency finding is a suggestion. Raise it above that only for a
+  substantial reimplementation of an existing, tested helper, or a demonstrable algorithmic problem on a
+  data path that grows with users or records
+- A real bug noticed while reading is still reported as a bug
 
-**Proof requirements** — every finding cites evidence the author can check, using your discovery
-grep budget:
+**Proof requirements** — every finding cites evidence the author can check:
 
 - A reuse claim names the existing helper at file:line, after you have read it and confirmed its
   semantics actually match this call site (arguments, edge cases, error behavior). A name-alike
@@ -62,10 +60,8 @@ grep budget:
   from the diff is not absence from the codebase
 
 **Finding budget.** Report at most 5 findings — the ones with the largest net line savings or
-clearest wins. Suggestion density is what gets an advisory lane dismissed; if you found more than
+clearest wins. Suggestion density is what gets advice dismissed; if you found more than
 5, keep the best and drop the rest silently.
-
-<!-- init: extend this file with the repo's shared-helper locations (where utilities, validators, and formatters live — the directories to grep before accepting new ones) -->
 
 ## Cornerstone — Where the existing helpers live
 

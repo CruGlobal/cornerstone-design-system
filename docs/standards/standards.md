@@ -1,11 +1,8 @@
 # Standards — Checklist
 
-Generic baseline. Every item here is mandatory unless the repo's own conventions override it —
-`/agent-review:init` appends the repo-specific checklist, and both layers are kept.
-
-This is an explicit checklist: report compliance for each **bold group below** in the
-`### Rule Checklist Results` section of your output (✅ / ⚠️ / ❌ / N/A), and raise anything
-non-compliant as a finding at the severity its impact warrants.
+A generic baseline, followed by Cornerstone's own checklist; both apply. Every item is mandatory unless the
+repo's own conventions override it. Check each **bold group** below and raise anything non-compliant as a
+finding.
 
 **Exports & Naming**
 
@@ -56,11 +53,9 @@ non-compliant as a finding at the severity its impact warrants.
 - [ ] No empty catch blocks that swallow errors silently
 - [ ] Package-manager usage matches the repo's lockfile (don't mix tools)
 
-<!-- init: extend this file with repo-specific focus areas and evidence links -->
-
 ## Cornerstone — Repo-Specific Checklist
 
-Report compliance for each bold group below alongside the generic ones. The canonical conventions are
+Check each bold group below alongside the generic ones. The canonical conventions are
 `packages/docs/src/content/docs/resources/contributing.md` (component structure, parts, slots, form
 controls, SSR) and `packages/components/CLAUDE.md` (the mechanical rules most often missed). Point at them;
 do not restate them. The groups **Input & Forms**, **Data** and **Dates & Numbers** above are N/A in this

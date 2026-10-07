@@ -2,10 +2,10 @@
 
 Cornerstone Components targets WCAG 2.2 AA. `packages/docs/src/content/docs/resources/accessibility.md`
 states the target, the floor every component meets, how each claim is verified, and the known gaps; keep
-that page true rather than restating it. This is the lane most likely to block a component pull request.
+that page true rather than restating it. This is the area most likely to block a component pull request.
 Be a gate on the defect, not on the person: every blocking finding arrives with what would make it pass.
 
-**Trigger this review when the diff touches** `packages/components/src/components/**`,
+**Applies when the diff touches** `packages/components/src/components/**`,
 `packages/components/src/styles/**`, `packages/components/src/internal/**`, `packages/tokens/tokens/sys/**`,
 `packages/tokens/tokens/cmp/**`, or any line carrying `aria-`, `role=`, `tabindex`, `:focus`,
 `delegatesFocus`, `prefers-reduced-motion`, `live-announcer`, `to.be.accessible`, `ssr-client-hydrated`,
@@ -69,7 +69,7 @@ useful. Never change a control's label and its state signal in the same moment.
   not are utilities rendering nothing interactive, by decision. A new interactive component without the
   assertion is a blocker.
 - **A test that returns early under the SSR fixture passes while asserting nothing** (`cs-callout`,
-  UIUX-119). Flag any new one; it is the exact gap this lane exists to catch.
+  UIUX-119). Flag any new one; it is the exact gap this document exists to catch.
 - axe covers the rendered DOM only: a popup, dialog or menu must be opened before the assertion. A green
   suite is a floor, not a conformance statement; say which half a finding rests on (established from code
   and computation, or needing a human at real assistive technology), and never word a finding so it reads

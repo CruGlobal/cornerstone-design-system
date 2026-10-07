@@ -8,7 +8,7 @@ library's themes live in `packages/components/src/styles/` as three cascade tier
 destination is one generator deriving both from a brand's knobs; until then, every change is measured
 against "adding a brand means adding a knob file and nothing else".
 
-**Trigger this review when the diff touches** `packages/tokens/**`,
+**Applies when the diff touches** `packages/tokens/**`,
 `packages/components/src/styles/color/**`, `packages/components/src/styles/themes/**`, `layers.css`,
 `size.styles.ts`, `variants.styles.ts`, `packages/components/tools/**`, or any line carrying `_ref`, `_sys`,
 `_cmp`, `$value`, `--cs-color-`, `--cs-font-size`, `--cs-border-radius`, `--cs-form-control-height`,

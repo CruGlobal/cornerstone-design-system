@@ -7,7 +7,7 @@ note: >-
   `static css` holds. A component that assigns `static styles` itself replaces that getter and drops
   the host styles. See packages/components/CLAUDE.md.
 files:
-  - '**/packages/components/src/components/**/*.ts'
+  - 'src/components/**/*.ts'
 rule:
   pattern:
     context: 'class A { static styles = $VALUE }'

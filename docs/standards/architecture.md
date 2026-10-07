@@ -1,6 +1,6 @@
 # Architecture — Focus Areas
 
-Generic baseline. `/agent-review:init` appends the repo-specific concerns; keep both.
+A generic baseline, followed by Cornerstone's own concerns; keep both.
 
 **Layering & boundaries**
 
@@ -52,8 +52,6 @@ Generic baseline. `/agent-review:init` appends the repo-specific concerns; keep 
 - Weigh debt added against debt removed. A refactor that only moves code without improving clarity
   is neutral, not positive. When a convention is ambiguous, raise it as a question rather than a
   blocking finding
-
-<!-- init: extend this file with repo-specific focus areas and evidence links -->
 
 ## Cornerstone — Repo-Specific Focus Areas
 
@@ -126,7 +124,7 @@ or a `px` dimension inside a component breaks both.
 **Status decides how far an API can move**
 
 `@status stable | experimental | deprecated` is on every component. Check it before changing a public
-surface, and see `rules/api-surface.md` for what counts as one.
+surface, and see `api-surface.md` for what counts as one.
 
 ---
 

@@ -177,6 +177,7 @@ decisions no single package owns. See `docs/agents/domain.md`.
 
 ### Code review
 
-Pull requests are reviewed with agent-review, run from a maintainer's Claude Code session (`/agent-review:review`
-on a pushed PR); what a review checks lives in `.claude/review/`. Run one review at a time on a machine: the
-plugin keeps each run's state in fixed `/tmp` paths, and two runs at once overwrite each other's.
+Review a branch with the `code-review` skill against a fixed point such as `main`. The standards it checks
+against live in `docs/standards/`, one file per area, each saying which paths it applies to. The ast-grep rules
+in `packages/components/ast-grep/` run in that package's `npm run lint`, locally and in CI, so a review leaves
+what they catch to them.

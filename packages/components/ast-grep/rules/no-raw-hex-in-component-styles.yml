@@ -5,8 +5,8 @@ message: A component stylesheet reads a `--cs-*` role; raw colour values live in
 note: >-
   A literal colour cannot follow the brand or the colour scheme. Read the role
   (`var(--cs-color-fill-quiet, var(--cs-color-neutral-fill-quiet))`) and let the theme resolve it.
-  See .claude/review/rules/tokens-and-theming.md.
+  See docs/standards/tokens-and-theming.md.
 files:
-  - '**/packages/components/src/components/**/*.styles.ts'
+  - 'src/components/**/*.styles.ts'
 rule:
   kind: color_value

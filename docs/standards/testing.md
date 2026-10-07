@@ -1,7 +1,6 @@
 # Testing — Focus Areas
 
-Generic baseline. `/agent-review:init` appends this repo's test conventions (runner, layout,
-mocking idioms); keep both.
+A generic baseline, followed by this repo's test conventions; keep both.
 
 **Prefer pure-function unit tests**
 
@@ -53,8 +52,6 @@ mocking idioms); keep both.
 - Look for: skipped or `.only` tests left behind; loosely-typed mocks that defeat type checking;
   assertions that can never fail (e.g. asserting on the mock's own return)
 
-<!-- init: extend this file with repo-specific focus areas and evidence links -->
-
 ## Cornerstone — Repo-Specific Focus Areas
 
 `@open-wc/testing` on `web-test-runner`, driving Chromium, Firefox and WebKit through Playwright, in two
@@ -72,7 +69,7 @@ and running only the group has tested the previous build.
   in both render modes. A test outside the loop is client-only; say so in its name or move it in.
 - **A branch that returns early under `fixture.type === 'ssr-client-hydrated'` passes while asserting
   nothing.** `cs-callout`'s variant axe test does this today (UIUX-119) while the accessibility page claims
-  axe runs in both modes. Flag any new one at blocker severity; an existing one the PR touches is fixed or
+  axe runs in both modes. Flag any new one as a blocker; an existing one the PR touches is fixed or
   gets its reason recorded in the test.
 - Form controls call `runFormControlBaseTests({ tagName, formValue })` from
   `src/internal/test/form-control-base-tests.js`. Omitting `formValue` leaves reset untested; it is omitted

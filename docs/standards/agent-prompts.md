@@ -1,15 +1,13 @@
 # Agent Prompts — Focus Areas
 
-`plugins/**` ships four Claude Code plugins to every consumer who installs the `cru` marketplace, and
+`plugins/**` ships Claude Code plugins to every consumer who installs the `cru` marketplace, and
 `.claude/**`, `CLAUDE.md`, `docs/agents/**` and the `CONTEXT*.md` files steer every session in this repo.
 These are prompts: a weak line in one is a defect that fires on every run, for every reader, with no test
-to catch it. The writing standard is
-`plugins/cornerstone-skills/skills/productivity/writing-for-agents/SKILL.md`; review against it rather
-than restating it.
+to catch it. The writing standard is the `writing-for-agents` skill; review against it rather than
+restating it.
 
-**Trigger this review when the diff touches** `plugins/**`, `.claude/**`, `CLAUDE.md`,
-`packages/*/CLAUDE.md`, `docs/agents/**`, `CONTEXT-MAP.md` or `packages/*/CONTEXT.md`. The `path_rules`
-entry in `config.yml` also hands this document to every lane reviewing `plugins/**` or `.claude/**`.
+**Applies when the diff touches** `plugins/**`, `.claude/**`, `CLAUDE.md`,
+`packages/*/CLAUDE.md`, `docs/agents/**`, `CONTEXT-MAP.md` or `packages/*/CONTEXT.md`.
 
 ---
 

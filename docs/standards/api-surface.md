@@ -2,11 +2,11 @@
 
 Every `cs-*` element is public API for every consumer of `@cruglobal/cornerstone-components`, and most of
 that API is declared in JSDoc rather than code: the Custom Elements Manifest, the docs page, the React
-wrapper and the shipped agent skill are all generated from it. This lane reviews the contract and its
-semver consequence. Markup and behaviour belong to `rules/architecture.md`; accessibility to
-`rules/accessibility.md`.
+wrapper and the shipped agent skill are all generated from it. This document covers the contract and its
+semver consequence. Markup and behaviour belong to `architecture.md`; accessibility to
+`accessibility.md`.
 
-**Trigger this review when the diff touches** `packages/components/src/components/**`,
+**Applies when the diff touches** `packages/components/src/components/**`,
 `packages/components/src/events/**`, `packages/components/package.json`, the Plop templates, or any line
 carrying `@property`, `@slot`, `@csspart`, `@cssproperty`, `@cssstate`, `@event`, `@status`, `part=`,
 `exportparts` or `<slot`. If no public surface moved, say "No public surface change in this PR" and review
@@ -60,8 +60,7 @@ found.
 
 Components read `--cs-*`. The names `packages/tokens` publishes (`--ref-*`, `--sys-*`, `--cmp-*`) resolve
 to nothing in a component stylesheet. A `var(--cmp-…)` in `packages/components/src` is a hard bug (the
-static rule `no-foreign-token-vocabulary` fails CI's Static rules (ast-grep) check, which a terminal review
-does not read, so raise it here too); a docs example that tells a consumer to set one is a docs bug.
+ast-grep rule `no-foreign-token-vocabulary` fails the component library's `npm run lint` on it); a docs example that tells a consumer to set one is a docs bug.
 
 **React wrappers and SSR**
 

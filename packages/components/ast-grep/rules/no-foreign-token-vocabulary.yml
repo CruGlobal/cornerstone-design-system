@@ -5,9 +5,9 @@ message: Component styles read `--cs-*`; `--ref-*`, `--sys-*` and `--cmp-*` belo
 note: >-
   The two published packages share no custom-property names (CONTEXT-MAP.md). A component bound to
   a `--cmp-*` name renders its fallback or nothing. Bind to the `--cs-*` name the theme defines. See
-  .claude/review/rules/tokens-and-theming.md.
+  docs/standards/tokens-and-theming.md.
 files:
-  - '**/packages/components/src/**/*.ts'
+  - 'src/**/*.ts'
 rule:
   kind: call_expression
   regex: '^var\(\s*--(ref|sys|cmp)-'

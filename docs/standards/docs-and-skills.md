@@ -6,7 +6,7 @@ also package output: `SKILL_PAGES` in `packages/components/scripts/agent-skill.j
 ships. **A page is finished when nothing on it can drift**: it is generated from the source it describes,
 or a check fails when it stops being true.
 
-**Trigger this review when the diff touches** `packages/docs/**`, the skill generators
+**Applies when the diff touches** `packages/docs/**`, the skill generators
 (`scripts/agent-skill*`, `scripts/design-skill*`, `scripts/llms.js`), `check-docs-url.js`,
 `build-tools/site-url.js`, or any line carrying `SKILL_PAGES`, `{.example`, `:::`, `hasAnatomy`, `remark`,
 `homepage`, `cruglobal.github.io`, `llms.txt` or `@documentation`.
