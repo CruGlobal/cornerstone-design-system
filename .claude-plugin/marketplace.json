@@ -12,7 +12,18 @@
     {
       "name": "cornerstone",
       "source": "./plugins/cornerstone",
-      "description": "Cornerstone's front door, for everyone — the design-system assistant that answers token, theming, component and integration questions, and routes deeper work to the specialist who owns it. Install this if you use Cornerstone in a product; install `cornerstone-dev` if you build Cornerstone itself."
+      "description": "Cornerstone's front door, for everyone — the design-system assistant that answers token, theming, component and integration questions, and routes deeper work to the specialist who owns it, plus the `cornerstone` and `cornerstone-design` agent skills for apps built with Cornerstone Components. Install this if you use Cornerstone in a product; install `cornerstone-dev` if you build Cornerstone itself.",
+      "relevance": {
+        "topic": "Cornerstone",
+        "signals": {
+          "manifestDeps": [
+            {
+              "file": "[/\\\\]package\\.json$",
+              "pattern": "\"@cruglobal/cornerstone-components\"\\s*:"
+            }
+          ]
+        }
+      }
     },
     {
       "name": "cornerstone-dev",
@@ -23,6 +34,16 @@
       "name": "cornerstone-designer",
       "source": "./plugins/cornerstone-designer",
       "description": "The designer tier — Cornerstone's front door plus Figma tooling and a Figma-only prototyping skill. Install this if you design with Cornerstone and don't write code."
+    },
+    {
+      "name": "mattpocock-skills",
+      "source": {
+        "source": "github",
+        "repo": "mattpocock/skills",
+        "ref": "v1.3.1",
+        "sha": "24fe0ef7737efae15c87225755e9f6f5965e4888"
+      },
+      "description": "Matt Pocock's engineering and productivity skills, installed from mattpocock/skills at the release Cornerstone has tested. It arrives as a dependency of `cornerstone-dev`."
     }
   ]
 }

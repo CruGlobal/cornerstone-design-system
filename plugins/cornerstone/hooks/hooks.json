@@ -1,0 +1,17 @@
+{
+  "description": "Tells Claude when the project depends on @cruglobal/cornerstone-components, so it loads the cornerstone-design skill before UI work.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh"],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

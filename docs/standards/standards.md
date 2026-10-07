@@ -114,7 +114,7 @@ relative import missing its `.js` extension.
 
 ### **Vocabulary**
 
-- [ ] Uses `packages/components/CONTEXT.md` terms: *Cornerstone Components* for the library and *Cornerstone*
+- [ ] Uses `packages/components/GLOSSARY.md` terms: *Cornerstone Components* for the library and *Cornerstone*
       only for the whole; *ministry* and *sub-brand*, not tenant; *palette* and *theme* as separate axes;
       *brand* for the variant and *primary* only for the action colour
 - [ ] Comments carry the non-obvious *why* in one line; a comment restating the next line is deleted

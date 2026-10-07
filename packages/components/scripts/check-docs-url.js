@@ -26,6 +26,7 @@ import { dirname, relative } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { DOCS_URL } from '@cruglobal/cornerstone-build-tools/site-url.js';
+import { repoDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
 import { globbySync } from 'globby';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -57,8 +58,11 @@ const KNOWN_ROOTS = [
 
 /**
  * Everything whose text reaches a consumer: component sources, the scaffolding template, the skill markdown
- * the agent files are compiled from, and the README npm renders. `site-url.js` and this file name the dead
- * hosts deliberately, so they are excluded rather than special-cased inside the loop.
+ * the agent files are compiled from, the README npm renders, and the Claude Code plugins at the repo root.
+ * The `cornerstone` plugin's skills are static pointers to the ones the package ships, and name the site
+ * as the fallback for apps with no `node_modules` copy; a plugin file has no build step to derive that
+ * address, so it is a literal, and this is what keeps it from outliving a move. `site-url.js` and this file
+ * name the dead hosts deliberately, so they are excluded rather than special-cased inside the loop.
  */
 const files = globbySync(
   [
@@ -70,6 +74,7 @@ const files = globbySync(
     `${root}/scripts/agent-skill/**/*.md`,
     `${root}/scripts/design-skill/**/*.md`,
     `${root}/README.md`,
+    `${repoDir()}/plugins/**/*.md`,
   ],
   {
     ignore: [`${root}/build-tools/site-url.js`, `${root}/scripts/check-docs-url.js`],

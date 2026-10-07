@@ -1,13 +1,13 @@
 # Agent Prompts — Focus Areas
 
 `plugins/**` ships Claude Code plugins to every consumer who installs the `cru` marketplace, and
-`.claude/**`, `CLAUDE.md`, `docs/agents/**` and the `CONTEXT*.md` files steer every session in this repo.
+`.claude/**`, `CLAUDE.md`, `docs/agents/**` and the `GLOSSARY*.md` files steer every session in this repo.
 These are prompts: a weak line in one is a defect that fires on every run, for every reader, with no test
 to catch it. The writing standard is the `writing-for-agents` skill; review against it rather than
 restating it.
 
 **Applies when the diff touches** `plugins/**`, `.claude/**`, `CLAUDE.md`,
-`packages/*/CLAUDE.md`, `docs/agents/**`, `CONTEXT-MAP.md` or `packages/*/CONTEXT.md`.
+`packages/*/CLAUDE.md`, `docs/agents/**`, `GLOSSARY-MAP.md` or `packages/*/GLOSSARY.md`.
 
 ---
 
@@ -45,7 +45,7 @@ Front matter `name`, `description` (leading word first; one trigger per branch),
 decision set a floor. A bar stated as "X is finished when Y", the domain, the boundaries (each naming the
 persona who owns the refused work), escalation, git policy. Around a hundred lines: the first drafts were
 2,400 to 3,800 words and were cut. Unbuilt work is named as roadmap with its ticket, in the future tense. A
-vocabulary not yet resolved is listed as missing, not drafted into a `CONTEXT.md`.
+vocabulary not yet resolved is listed as missing, not drafted into a `GLOSSARY.md`.
 
 **Consistency across the set**
 
@@ -75,7 +75,7 @@ plainly.
 
 Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from.
 
-- **AI failure mode: dead pointers.** `CONTEXT-MAP.md` was cited by `CLAUDE.md` and `docs/agents/domain.md`
+- **AI failure mode: dead pointers.** `CONTEXT-MAP.md` (now `GLOSSARY-MAP.md`) was cited by `CLAUDE.md` and `docs/agents/domain.md`
   before it existed; `needs-review` was named as a label that never existed on this repo; `triage`, a
   human-invoked skill, was written as a step in all five personas and had to be undone.
   <!-- evidence: PR #140, #153, #161 -->
