@@ -214,4 +214,4 @@ tokens/
     *.json          # _cmp.*  — component-level aliases
 ```
 
-All files use [W3C DTCG](https://design-tokens.github.io/community-group/format/) format (`$type` / `$value`). See `CLAUDE.md` for full details on aliasing rules, the build pipeline, and changeset conventions.
+All files use [W3C DTCG](https://design-tokens.github.io/community-group/format/) format (`$type` / `$value`). See `CLAUDE.md` for the aliasing rules and changeset conventions, and `packages/tokens/build.mjs` for the build pipeline.
