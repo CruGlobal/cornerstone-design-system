@@ -1,6 +1,6 @@
 ---
 title: Tailwind CSS
-description: Running Cornerstone and Tailwind v4 on the same page while your app moves from one to the other.
+description: Running Cornerstone Components and Tailwind v4 on the same page while your app moves from one to the other.
 officialDocs: https://tailwindcss.com/docs
 sidebar:
   badge:
@@ -16,24 +16,25 @@ sidebar:
   <cs-badge variant="neutral" appearance="filled" pill>esbuild</cs-badge>
 </div>
 
-Partway through a move from Tailwind v4 to Cornerstone, an app runs both on the same page. That works, but not
-with the obvious setup. Four things go wrong:
+Partway through a move from Tailwind v4 to Cornerstone Components, an app runs both on the same page. That works,
+but not with the obvious setup. Four things go wrong:
 
-1. **Cornerstone's stylesheet never loads.** Tailwind leaves its `@import url()` lines in place, and the browser
-   either skips them or looks for the files in the wrong folder.
+1. **The Cornerstone Components stylesheet never loads.** Tailwind leaves its `@import url()` lines in place, and
+   the browser either skips them or looks for the files in the wrong folder.
 2. **Preflight flattens components.** Tailwind's reset strips the padding, margins and borders that components give
    themselves, so dropdown items lose their padding and dividers disappear.
 3. **Spacing utilities grow inside some components.** Tailwind's `--spacing` unit has the same name as a component
    property, so `p-4` inside a card comes out six times too big.
 4. **The wrong library wins.** Whichever one you import second outranks the other, so either Preflight undoes
-   Cornerstone's element styles or Cornerstone overrides your Tailwind classes.
+   the styles Cornerstone Components gives native elements, or Cornerstone Components overrides your Tailwind
+   classes.
 
 The setup below fixes all four with one script that runs before Tailwind and one entry stylesheet.
 [Why each piece is there](#why-each-piece-is-there) says what breaks without it.
 
 ## Setup
 
-Install esbuild alongside Tailwind. The script uses it to flatten Cornerstone's stylesheet.
+Install esbuild alongside Tailwind. The script uses it to flatten the Cornerstone Components stylesheet.
 
 ```bash
 npm install @cruglobal/cornerstone-components tailwindcss @tailwindcss/cli esbuild
@@ -51,7 +52,7 @@ const require = createRequire(import.meta.url);
 const out = 'tmp/cornerstone';
 mkdirSync(out, { recursive: true });
 
-// 1. Cornerstone's stylesheet, flattened into one file.
+// 1. The Cornerstone Components stylesheet, flattened into one file.
 await build({
   entryPoints: [require.resolve('@cruglobal/cornerstone-components/styles/cornerstone.css')],
   bundle: true,
@@ -120,7 +121,8 @@ follows the chain. Tailwind does not: it inlines imports written as quoted paths
 [keeps `url()` imports in its output as they are](https://github.com/tailwindlabs/tailwindcss/blob/v4.3.3/packages/tailwindcss/src/at-import.ts#L106-L110).
 
 So `@import '@cruglobal/cornerstone-components/styles/cornerstone.css'` in a Tailwind entry builds without an error
-and loads none of Cornerstone: no theme, no native styles, no utilities. How it fails depends on where you put it:
+and loads nothing from Cornerstone Components: no theme, no native styles, no utilities. How it fails depends on
+where you put it:
 
 - **After `@import 'tailwindcss'`**, the lines sit below Tailwind's own rules, and
   [an `@import` after other rules is invalid](https://www.w3.org/TR/css-cascade-5/#at-import). The browser skips
@@ -148,13 +150,13 @@ every element:
 }
 ```
 
-Cornerstone components set their own padding, margins and borders on their host element, from inside their shadow
-root with `:host`. Any rule in the page that matches the same element beats a `:host` rule, whatever its layer or
+Each `cs-*` component sets its own padding, margins and borders on its host element, from inside its shadow root
+with `:host`. Any rule in the page that matches the same element beats a `:host` rule, whatever its layer or
 specificity, because the cascade [compares where a rule comes from](https://www.w3.org/TR/css-cascade-5/#cascade-context)
 first. So `*` wins: dropdown items lose their padding, dividers lose their line and margins, and cards lose their
 border. No layer order can fix that, which is why the script edits Preflight instead.
 
-The copy changes only that one selector, to `:where(:not(cs-badge, cs-button, …))`. The reset skips every Cornerstone
+The copy changes only that one selector, to `:where(:not(cs-badge, cs-button, …))`. The reset skips every `cs-*`
 element and still reaches everything else, and `:where()` keeps its specificity at zero, the same as `*`. The tag
 list comes from the `custom-elements.json` the package ships, so a new component is covered when you update. If a
 later Tailwind release changes how Preflight opens, the script stops with an error rather than writing a copy that
@@ -167,7 +169,7 @@ markup you have not ported yet depends on it.
 ### The spacing reset
 
 Tailwind v4 builds its spacing utilities from one theme variable: [`p-4` is `calc(var(--spacing) * 4)`](https://tailwindcss.com/docs/padding),
-and [`--spacing` is `0.25rem`](https://tailwindcss.com/docs/theme) unless you change it. Some Cornerstone components
+and [`--spacing` is `0.25rem`](https://tailwindcss.com/docs/theme) unless you change it. Some `cs-*` components
 have a `--spacing` property of their own, set on their host. Custom properties inherit, so content inside those
 components reads the component's value instead of Tailwind's. In the checks below, `p-4` came out 96px instead of
 16px inside a `<cs-card>`.
@@ -200,22 +202,22 @@ gone.
 ### The layer order
 
 Both libraries put their page styles in [cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer).
-Tailwind declares `theme`, `base` (where Preflight lives), `components` and `utilities`. Cornerstone declares its own
-`cs-*` layers in `styles/layers.css`, starting with its native element styles. Layers rank in the order they are
-first named, so with no statement at the top, the library you import second outranks the first:
+Tailwind declares `theme`, `base` (where Preflight lives), `components` and `utilities`. Cornerstone Components
+declares its own `cs-*` layers in `styles/layers.css`, starting with its native element styles. Layers rank in the
+order they are first named, so with no statement at the top, the library you import second outranks the first:
 
-- **Cornerstone first:** Preflight outranks Cornerstone's native element styles. Plain headings shrink to body text
-  and lists lose their bullets.
-- **Tailwind first:** Cornerstone outranks every Tailwind utility. `text-sm mb-8` on a heading does nothing, and
-  `bg-red-600` on a button loses to Cornerstone's button style.
+- **Cornerstone Components first:** Preflight outranks Cornerstone Components' native element styles. Plain
+  headings shrink to body text and lists lose their bullets.
+- **Tailwind first:** Cornerstone Components outranks every Tailwind utility. `text-sm mb-8` on a heading does
+  nothing, and `bg-red-600` on a button loses to Cornerstone Components' button style.
 
-The statement puts Preflight lowest, then Cornerstone, then Tailwind's components and utilities. So Cornerstone's
-native styles win over the reset, and any Tailwind class you write still wins over Cornerstone.
+The statement puts Preflight lowest, then Cornerstone Components, then Tailwind's components and utilities. So the
+native element styles win over the reset, and any Tailwind class you write still wins over Cornerstone Components.
 
-`layer(cornerstone)` puts all of Cornerstone into one layer, with its own layers nested inside in their own order.
-Naming Cornerstone's layers one by one in the statement gives the same result today. The difference is later: a layer
-the statement does not name ranks after `utilities`, so a layer added in a future Cornerstone release would outrank
-every Tailwind class. One parent layer cannot fall out of step.
+`layer(cornerstone)` puts all of Cornerstone Components into one layer, with its own layers nested inside in their
+own order. Naming its layers one by one in the statement gives the same result today. The difference is later: a
+layer the statement does not name ranks after `utilities`, so a layer added in a future Cornerstone Components
+release would outrank every Tailwind class. One parent layer cannot fall out of step.
 
 ## What has been verified
 
@@ -226,7 +228,7 @@ the same numbers in all three browsers.
 
 - **The `@import url()` chain:** Tailwind kept the lines. Placed after Tailwind, every browser dropped them with no
   request and no console message. Placed before it, every browser requested them from the compiled file's folder and
-  got 404s. Either way, no Cornerstone token was set. The flattened file gave the same value for every standard
+  got 404s. Either way, no `--cs-*` token was set. The flattened file gave the same value for every standard
   property on the test page, in light and dark. The only differences were in how esbuild spaces and quotes a few
   custom property values.
 - **Preflight:** `<cs-dropdown-item>` had no padding, and `<cs-divider>` had no line or margins. With the copy, the
@@ -235,9 +237,9 @@ the same numbers in all three browsers.
   `<cs-details>` and `<cs-accordion-item>`. With the reset it was 16px in all five, and the card kept its 24px padding.
   Without `inline`, `p-4` came out 0. Without `:not(…)`, a divider straight in a card dropped to 4px margins. A custom
   `--spacing` in `@theme` carried through to the reset.
-- **Layer order:** both failures above were reproduced. With the statement, Cornerstone's headings and list bullets
-  held, and `text-sm`, `mb-8` and `bg-red-600` all applied. Naming Cornerstone's layers one by one instead of using
-  `layer(cornerstone)` gave the same value for every property.
+- **Layer order:** both failures above were reproduced. With the statement, Cornerstone Components' heading styles
+  and list bullets held, and `text-sm`, `mb-8` and `bg-red-600` all applied. Naming Cornerstone Components' layers
+  one by one instead of using `layer(cornerstone)` gave the same value for every property.
 
 **Not yet verified:** Tailwind's Vite and PostCSS plugins. The `url()` handling is in Tailwind's core, but a bundler
 can process imports before Tailwind sees them, so check your compiled CSS for any leftover `@import url(` lines.
