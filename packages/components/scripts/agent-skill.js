@@ -68,10 +68,6 @@ function getComponentInfo(components, frontMatterCache) {
 
 /**
  * Generates the main SKILL.md content.
- *
- * `pageSlots` is `<cs-page>`'s named slots, read from the manifest. SKILL.md lists them as the only valid
- * names and says anything else is ignored, so a hand-typed copy that falls behind tells agents a real slot
- * does nothing. The typed list it replaces had fallen eight slots behind.
  */
 function generateSkillMd({ componentList, packageData, baseUrl, pageSlots }) {
   // Group components by category
