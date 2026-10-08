@@ -338,6 +338,28 @@ describe('<cs-tooltip>', () => {
           expect(body.hidden).to.be.true;
           expect(afterShowSpy.callCount).to.equal(0);
         });
+
+        it('should hide the body when opened while disabled during the hide animation', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip for="cs-button">This is a tooltip</cs-tooltip>
+              <cs-button id="cs-button">Hover Me</cs-button>
+            </div>
+          `);
+          const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
+          const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
+          await tooltip.show();
+
+          tooltip.open = false;
+          await tooltip.updateComplete;
+          tooltip.disabled = true;
+          await tooltip.updateComplete;
+          const afterHide = oneEvent(tooltip, 'cs-after-hide');
+          tooltip.open = true;
+          await afterHide;
+
+          expect(body.hidden).to.be.true;
+        });
       });
 
       describe('disabled behavior', () => {

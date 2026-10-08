@@ -664,6 +664,27 @@ describe('<cs-select>', () => {
           expect(listbox.hidden).to.be.true;
           expect(afterShowHandler.callCount).to.equal(0);
         });
+
+        it('should hide the listbox when opened while disabled during the hide animation', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+            </cs-select>
+          `);
+          const listbox = el.shadowRoot!.querySelector<HTMLElement>('.listbox')!;
+          await el.show();
+
+          el.open = false;
+          await el.updateComplete;
+          el.disabled = true;
+          await el.updateComplete;
+          const afterHide = oneEvent(el, 'cs-after-hide');
+          el.open = true;
+          await afterHide;
+
+          expect(listbox.hidden).to.be.true;
+        });
       });
 
       describe('keyboard navigation', () => {
