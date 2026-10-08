@@ -48,7 +48,7 @@ Use the `--spacing` custom property to change the amount of space between the di
 </div>
 ```
 
-Inside a layout utility, `--spacing` has no effect and the container's gap sets the space instead. `cs-cluster`, `cs-flank`, `cs-frame`, `cs-grid`, `cs-split` and `cs-stack` set the margins of their children to zero, the divider included, so the gap is the only space between items. Add a [`cs-gap-*`](/utilities/gap) class to the container to change it.
+Inside a layout utility such as `cs-stack` or `cs-cluster`, `--spacing` has no effect and the container's gap sets the space instead. These utilities set the margins of their children to zero, the divider included, so the gap is the only space between items. Add a [`cs-gap-*`](/utilities/gap) class to the container to change it.
 
 ```html {.example}
 <div class="cs-stack cs-gap-xl cs-text-center">
