@@ -49,12 +49,23 @@ const errors = [];
 const fixes = [];
 let checked = 0;
 
-/** Everything that has ever been this project's documentation root, newest first. */
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** Every docs address so far, newest first. Not derived from `homepage`, which loses the old one on a move. */
 const KNOWN_ROOTS = [
+  'https://cruglobal.github.io/cornerstone-design-system',
   'https://cruglobal.github.io/cornerstone-components',
   'https://cornerstone.ustech.app',
   'https://cornerstone.com',
 ];
+
+if (!KNOWN_ROOTS.includes(DOCS_URL)) {
+  console.error(
+    `KNOWN_ROOTS in scripts/check-docs-url.js does not list the current homepage, ${DOCS_URL}.\n` +
+      `Add it to the top of the list so a later move can re-point it, then run this again.`,
+  );
+  process.exit(1);
+}
 
 /**
  * Everything whose text reaches a consumer: component sources, the scaffolding template, the skill markdown
@@ -101,7 +112,9 @@ for (const file of files) {
     let fixed = text;
     for (const stale of KNOWN_ROOTS) {
       if (stale !== DOCS_URL) {
-        fixed = fixed.split(stale).join(DOCS_URL);
+        // Leave a stale root alone where the rest of `DOCS_URL` follows it, or a second run doubles the path.
+        const lookahead = DOCS_URL.startsWith(stale) ? `(?!${escapeRegExp(DOCS_URL.slice(stale.length))})` : '';
+        fixed = fixed.replace(new RegExp(escapeRegExp(stale) + lookahead, 'g'), () => DOCS_URL);
       }
     }
     // Bare hosts too, for the prose that links without a scheme.
