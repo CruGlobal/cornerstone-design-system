@@ -37,6 +37,17 @@ describe('<cs-color-picker>', () => {
           expect(trigger?.style.color).to.equal('rgb(255, 0, 0)');
         });
 
+        it('should display the label, not only announce it', async () => {
+          const el = await fixture<CsColorPicker>(html`<cs-color-picker label="Brand colour"></cs-color-picker>`);
+          const label = el.shadowRoot!.querySelector<HTMLElement>('[part~="form-control-label"]')!;
+          const { width, height } = label.getBoundingClientRect();
+
+          // A visually hidden label still has text, but is clipped to a 1px box.
+          expect(label.textContent.trim()).to.equal('Brand colour');
+          expect(width).to.be.greaterThan(1);
+          expect(height).to.be.greaterThan(1);
+        });
+
         it('should show opacity slider when opacity is enabled', async () => {
           const el = await fixture<CsColorPicker>(html` <cs-color-picker opacity></cs-color-picker> `);
           const opacitySlider = el.shadowRoot!.querySelector('[part*="opacity-slider"]')!;
@@ -239,6 +250,197 @@ describe('<cs-color-picker>', () => {
           expect(el.value).to.equal('rgb(255, 255, 255)');
           expect(changeHandler).to.have.been.calledOnce;
           expect(inputHandler).to.have.been.calledOnce;
+        });
+      });
+
+      describe('var() swatches', () => {
+        function getSwatches(el: CsColorPicker) {
+          return [...el.shadowRoot!.querySelectorAll<HTMLElement>('[part~="swatch"]')];
+        }
+
+        // Reads the background the picker wrote, not the computed one. With the popup closed, WebKit returned the old
+        // computed background for a swatch re-rendered in a new color, though its inline style was already the new one.
+        function getSwatchColors(el: CsColorPicker) {
+          return getSwatches(el).map((swatch) => swatch.querySelector('div')!.style.backgroundColor);
+        }
+
+        /** What the browser itself makes of a `var()` in this context, as a computed `rgb()` color. */
+        function resolveInBrowser(context: Element, value: string) {
+          const probe = document.createElement('span');
+          probe.style.color = value;
+          context.append(probe);
+          const color = getComputedStyle(probe).color;
+          probe.remove();
+          return color;
+        }
+
+        it('should render a var() swatch in the color its custom property resolves to', async () => {
+          // Under the SSR fixture this also checks the server skipped the swatch. Resolving it there would throw, and
+          // rendering it there would not match the first client render, which is a hydration error.
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--cs-swatch-red: #ff0000">
+              <cs-color-picker swatches="var(--cs-swatch-red); #008000"></cs-color-picker>
+            </div>
+          `);
+          const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
+          await el.updateComplete;
+
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(255, 0, 0)', 'rgb(0, 128, 0)']);
+        });
+
+        it('should resolve a --cs-* token, and a custom property whose value carries a comment', async () => {
+          // The default palette writes each color as `#0071ec /* oklch(...) */`, with the comment inside the value, and
+          // Firefox keeps it there. Without stripping it, every palette token fails in Firefox.
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--cs-swatch-commented: #ff0000 /* red */">
+              <cs-color-picker swatches="var(--cs-color-brand-fill-loud); var(--cs-swatch-commented)"></cs-color-picker>
+            </div>
+          `);
+          const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
+          await el.updateComplete;
+
+          expect(getSwatchColors(el)).to.deep.equal([
+            resolveInBrowser(wrapper, 'var(--cs-color-brand-fill-loud)'),
+            'rgb(255, 0, 0)',
+          ]);
+        });
+
+        it('should accept var() in a string array and in { color, label } objects', async () => {
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--cs-swatch-red: #ff0000; --cs-swatch-green: #008000">
+              <cs-color-picker></cs-color-picker>
+            </div>
+          `);
+          const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
+
+          el.swatches = ['var(--cs-swatch-red)'];
+          await el.updateComplete;
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(255, 0, 0)']);
+
+          el.swatches = [{ color: 'var(--cs-swatch-green)', label: 'Green' }];
+          await el.updateComplete;
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 128, 0)']);
+          expect(getSwatches(el)[0].getAttribute('aria-label')).to.equal('Green');
+        });
+
+        it('should name a var() swatch given as a string after its custom property', async () => {
+          const el = await fixture<CsColorPicker>(html`
+            <cs-color-picker swatches="var(--cs-color-brand-fill-loud)"></cs-color-picker>
+          `);
+          await el.updateComplete;
+
+          expect(getSwatches(el).map((swatch) => swatch.getAttribute('aria-label'))).to.deep.equal(['brand fill loud']);
+        });
+
+        it('should use the fallback when the custom property is not set', async () => {
+          const el = await fixture<CsColorPicker>(html`
+            <cs-color-picker
+              swatches="var(--cs-swatch-unset, #0000ff); var(--cs-swatch-unset, var(--cs-swatch-also-unset, rgb(0, 128, 0)))"
+            ></cs-color-picker>
+          `);
+          await el.updateComplete;
+
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 0, 255)', 'rgb(0, 128, 0)']);
+        });
+
+        it('should skip a var() swatch that does not resolve to a color, without throwing', async () => {
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--cs-swatch-size: 12px">
+              <cs-color-picker
+                swatches="var(--cs-swatch-unset); var(--cs-swatch-size); var(--cs-swatch-unset, var(--cs-swatch-also-unset)); var(--cs-swatch-unclosed; #008000"
+              ></cs-color-picker>
+            </div>
+          `);
+          const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
+          await el.updateComplete;
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 128, 0)']);
+
+          // Opening resolves the swatches again.
+          await el.show();
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 128, 0)']);
+        });
+
+        it('should skip a var() of a custom property outside --cs-*, even when it is set', async () => {
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--brand-blue: #0000ff">
+              <cs-color-picker
+                swatches="var(--brand-blue); var(--brand-blue, #0000ff); var(--cs-swatch-unset, var(--brand-blue)); #008000"
+              ></cs-color-picker>
+            </div>
+          `);
+          const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
+          await el.updateComplete;
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 128, 0)']);
+
+          await el.show();
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 128, 0)']);
+        });
+
+        it("should set the resolved color, in the picker's format, when a var() swatch is clicked", async () => {
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--cs-swatch-red: #ff0000">
+              <cs-color-picker format="rgb" swatches="var(--cs-swatch-red)"></cs-color-picker>
+            </div>
+          `);
+          const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
+          const changeHandler = sinon.spy();
+          const inputHandler = sinon.spy();
+          await el.updateComplete;
+
+          el.addEventListener('change', changeHandler);
+          el.addEventListener('input', inputHandler);
+
+          await el.show();
+          await clickOnElement(getSwatches(el)[0]);
+          await el.updateComplete;
+
+          expect(el.value).to.equal('rgb(255, 0, 0)');
+          expect(changeHandler).to.have.been.calledOnce;
+          expect(inputHandler).to.have.been.calledOnce;
+        });
+
+        it('should pick up a custom property change on an ancestor the next time it opens', async () => {
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--cs-swatch-theme: #ff0000">
+              <cs-color-picker swatches="var(--cs-swatch-theme)"></cs-color-picker>
+            </div>
+          `);
+          const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
+          await el.updateComplete;
+
+          await el.show();
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(255, 0, 0)']);
+          await el.hide();
+
+          wrapper.style.setProperty('--cs-swatch-theme', '#0000ff');
+          await el.show();
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 0, 255)']);
+
+          await clickOnElement(getSwatches(el)[0]);
+          await el.updateComplete;
+          expect(el.value).to.equal('#0000ff');
+        });
+
+        it('should pick up a light to dark switch on an ancestor the next time it opens', async () => {
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div class="cs-light">
+              <cs-color-picker swatches="var(--cs-color-brand-fill-quiet)"></cs-color-picker>
+            </div>
+          `);
+          const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
+          await el.updateComplete;
+
+          const light = resolveInBrowser(wrapper, 'var(--cs-color-brand-fill-quiet)');
+          await el.show();
+          expect(getSwatchColors(el)).to.deep.equal([light]);
+          await el.hide();
+
+          wrapper.classList.replace('cs-light', 'cs-dark');
+          const dark = resolveInBrowser(wrapper, 'var(--cs-color-brand-fill-quiet)');
+          expect(dark).to.not.equal(light);
+
+          await el.show();
+          expect(getSwatchColors(el)).to.deep.equal([dark]);
         });
       });
 
