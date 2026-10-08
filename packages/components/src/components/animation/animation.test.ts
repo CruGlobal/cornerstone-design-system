@@ -1,7 +1,20 @@
-import { aTimeout, expect, oneEvent } from '@open-wc/testing';
+import { aTimeout, expect, nextFrame, oneEvent } from '@open-wc/testing';
 import { html } from 'lit';
 import { clientFixture } from '../../internal/test/fixture.js';
 import type CsAnimation from './animation.js';
+
+function recordEvents(el: CsAnimation) {
+  const events: string[] = [];
+  for (const type of ['cs-start', 'cs-cancel', 'cs-finish']) {
+    el.addEventListener(type, () => events.push(type));
+  }
+  return events;
+}
+
+/** The Web Animations `Animation` that `<cs-animation>` runs on its slotted element. */
+function getAnimation(el: CsAnimation) {
+  return el.querySelector('div')?.getAnimations()[0];
+}
 
 describe('<cs-animation>', () => {
   // Animation component only uses clientFixture because SSR/hydration has issues with animation promises.
@@ -219,6 +232,179 @@ describe('<cs-animation>', () => {
           );
 
           expect(el.play).to.be.true;
+        });
+      });
+
+      describe('restart()', () => {
+        it('should replay a finished animation, emitting cs-start and cs-finish again', async () => {
+          const el = await fixture<CsAnimation>(
+            html`<cs-animation name="bounce" duration="1" iterations="1"><div></div></cs-animation>`,
+          );
+          const events = recordEvents(el);
+
+          el.play = true;
+          await oneEvent(el, 'cs-finish');
+          await el.updateComplete;
+          expect(el.hasAttribute('play')).to.be.false;
+
+          const finishPromise = oneEvent(el, 'cs-finish');
+          el.restart();
+          expect(el.play).to.be.true;
+          await el.updateComplete;
+          expect(el.hasAttribute('play')).to.be.true;
+          await finishPromise;
+
+          expect(events).to.deep.equal(['cs-start', 'cs-finish', 'cs-start', 'cs-finish']);
+        });
+
+        it('should replay when called from a cs-finish listener', async () => {
+          const el = await fixture<CsAnimation>(
+            html`<cs-animation name="bounce" duration="1" iterations="1"><div></div></cs-animation>`,
+          );
+          el.addEventListener('cs-finish', () => el.restart(), { once: true });
+
+          el.play = true;
+          await oneEvent(el, 'cs-finish');
+          expect(el.play).to.be.true;
+
+          await oneEvent(el, 'cs-finish');
+        });
+
+        it('should rewind a running animation to the start', async () => {
+          const el = await fixture<CsAnimation>(
+            html`<cs-animation name="bounce" duration="10000" iterations="1" play><div></div></cs-animation>`,
+          );
+          await nextFrame();
+          await nextFrame();
+          el.currentTime = 6000;
+          expect(el.currentTime).to.equal(6000);
+
+          el.restart();
+
+          expect(Number(el.currentTime)).to.be.below(100);
+          expect(el.play).to.be.true;
+          expect(getAnimation(el)?.playState).to.equal('running');
+        });
+
+        it('should play a paused animation from the start and set play', async () => {
+          const el = await fixture<CsAnimation>(
+            html`<cs-animation name="bounce" duration="10000" iterations="1" play><div></div></cs-animation>`,
+          );
+          el.play = false;
+          await el.updateComplete;
+          el.currentTime = 6000;
+          expect(getAnimation(el)?.playState).to.equal('paused');
+
+          el.restart();
+          await el.updateComplete;
+
+          expect(el.play).to.be.true;
+          expect(el.hasAttribute('play')).to.be.true;
+          expect(Number(el.currentTime)).to.be.below(100);
+          expect(getAnimation(el)?.playState).to.equal('running');
+        });
+
+        it('should replay a canceled animation', async () => {
+          const el = await fixture<CsAnimation>(
+            html`<cs-animation name="bounce" duration="10000" iterations="1" play><div></div></cs-animation>`,
+          );
+          const cancelPromise = oneEvent(el, 'cs-cancel');
+          el.cancel();
+          await cancelPromise;
+          expect(el.play).to.be.false;
+
+          const startPromise = oneEvent(el, 'cs-start');
+          el.restart();
+          await startPromise;
+          expect(el.play).to.be.true;
+
+          const finishPromise = oneEvent(el, 'cs-finish');
+          el.finish();
+          await finishPromise;
+        });
+
+        it('should emit cs-start, and neither cs-cancel nor cs-finish, when it interrupts a run', async () => {
+          const el = await fixture<CsAnimation>(
+            html`<cs-animation name="bounce" duration="10000" iterations="1" play><div></div></cs-animation>`,
+          );
+          const events = recordEvents(el);
+          el.currentTime = 6000;
+
+          el.restart();
+          await nextFrame();
+          await nextFrame();
+
+          expect(events).to.deep.equal(['cs-start']);
+        });
+
+        it('should emit cs-start twice when an option changes in the same tick, since that starts a new run', async () => {
+          const el = await fixture<CsAnimation>(
+            html`<cs-animation name="bounce" duration="10000" iterations="1" play><div></div></cs-animation>`,
+          );
+          const events = recordEvents(el);
+          el.currentTime = 6000;
+
+          el.duration = 500;
+          el.restart();
+          await el.updateComplete;
+          await nextFrame();
+          await nextFrame();
+
+          expect(events).to.deep.equal(['cs-start', 'cs-start']);
+          expect(getAnimation(el)?.effect?.getTiming().duration).to.equal(500);
+          expect(Number(el.currentTime)).to.be.below(100);
+          expect(getAnimation(el)?.playState).to.equal('running');
+        });
+
+        it('should replay the delay, then begin again at the first iteration', async () => {
+          const el = await fixture<CsAnimation>(html`
+            <cs-animation name="bounce" delay="1000" duration="1000" iterations="2" direction="alternate" play>
+              <div></div>
+            </cs-animation>
+          `);
+          // Past the delay and into the second iteration, which "alternate" plays in reverse.
+          el.currentTime = 2250;
+          expect(getAnimation(el)?.effect?.getComputedTiming().currentIteration).to.equal(1);
+
+          el.restart();
+
+          // Back inside the delay, where a fill of "auto" applies no effect.
+          const inDelay = getAnimation(el)?.effect?.getComputedTiming();
+          expect(Number(inDelay?.localTime)).to.be.below(100);
+          expect(inDelay?.progress).to.equal(null);
+
+          // A quarter of the way into the first iteration, which "alternate" plays forward.
+          el.currentTime = 1250;
+          const firstIteration = getAnimation(el)?.effect?.getComputedTiming();
+          expect(firstIteration?.currentIteration).to.equal(0);
+          expect(firstIteration?.progress).to.be.closeTo(0.25, 0.001);
+        });
+
+        it('should not throw when nothing is slotted, and should start once something is', async () => {
+          const el = await fixture<CsAnimation>(html`<cs-animation name="bounce" duration="10000"></cs-animation>`);
+
+          expect(() => el.restart()).not.to.throw();
+          expect(el.play).to.be.true;
+
+          const startPromise = oneEvent(el, 'cs-start');
+          el.append(document.createElement('div'));
+          await startPromise;
+        });
+
+        it('should not throw before the element has rendered, and should start once it has', async () => {
+          await customElements.whenDefined('cs-animation');
+          const container = await fixture<HTMLDivElement>(html`<div></div>`);
+          const el = document.createElement('cs-animation');
+          el.name = 'bounce';
+          el.duration = 10000;
+          el.append(document.createElement('div'));
+
+          expect(() => el.restart()).not.to.throw();
+          expect(el.play).to.be.true;
+
+          const startPromise = oneEvent(el, 'cs-start');
+          container.append(el);
+          await startPromise;
         });
       });
     });
