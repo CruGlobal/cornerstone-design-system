@@ -65,9 +65,7 @@ If the diff is empty, print `tokens are in sync with Figma` and exit. Skip Steps
 
 For each changed/new subtree key, run [#extraction-snippet](#extraction-snippet) with the corresponding `PREFIX` (and `MODE` for `sys/*`). The snippet returns the DTCG subtree exactly the way the existing files are shaped.
 
-If a subtree's return exceeds the ~20K budget, fall back to the historical chunk strategy for that subtree only (e.g. for `sys/color/<mode>` plus `sys/number/<mode>` plus `sys/string/<mode>` — but you'll usually only have one of those three in the diff at a time).
-
-**Known limitation:** The `use_figma` tool has a ~20 KB response budget. When multiple `sys/color/<mode>` subtrees change simultaneously, extract them one mode at a time to avoid silent truncation (see issue #23).
+The `use_figma` tool has a ~20 KB response budget and truncates a larger return without an error (see issue #122). When multiple `sys/color/<mode>` subtrees change simultaneously, extract them one mode at a time. If a single subtree's return still exceeds the budget, fall back to the historical chunk strategy for that subtree only (e.g. for `sys/color/<mode>` plus `sys/number/<mode>` plus `sys/string/<mode>` — but you'll usually only have one of those three in the diff at a time).
 
 ## Step 5 — Surgical merge
 
