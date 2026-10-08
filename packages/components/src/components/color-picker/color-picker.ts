@@ -31,7 +31,7 @@ import styles from './color-picker.styles.js';
 import { getSwatchLabel, parseCssVar, resolveCssVar } from './internal/swatch-vars.js';
 
 export interface CsColorPickerSwatch {
-  /** Any color the picker can parse, or a `var(--name)` that resolves to one. */
+  /** Any color the picker can parse, or a `var(--cs-*)` design token that resolves to one. */
   color: string;
   /** The swatch's accessible name. */
   label: string;
@@ -265,11 +265,12 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
    * this property using JavaScript. When using objects with labels, the label will be used for the swatch's accessible
    * name instead of the raw color value.
    *
-   * A swatch can also be a CSS custom property, written as `var(--name)` or `var(--name, fallback)`, in any of these
+   * A swatch can also be a design token, written as `var(--cs-name)` or `var(--cs-name, fallback)`, in any of these
    * forms. The picker resolves it against its own computed style each time it opens, so a theme set on any ancestor
    * applies, and selecting the swatch sets the resolved color in the picker's `format`. A swatch that doesn't resolve to
-   * a color the picker can parse is skipped. Without a label, a `var()` swatch is named after its custom property, so
-   * `var(--cs-color-brand-fill-loud)` is announced as "brand fill loud".
+   * a color the picker can parse is skipped, as is a `var()` of any custom property outside `--cs-*`. Without a label,
+   * a `var()` swatch is named after its custom property, so `var(--cs-color-brand-fill-loud)` is announced as "brand
+   * fill loud".
    */
   @property() swatches: string | string[] | CsColorPickerSwatch[] = '';
 

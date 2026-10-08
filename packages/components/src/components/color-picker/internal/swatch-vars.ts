@@ -1,12 +1,12 @@
 const cssVarPattern = /^var\(\s*(--[^\s,()]+)\s*(?:,\s*([\s\S]*?))?\s*\)$/i;
 
-/** Splits `var(--name)` or `var(--name, fallback)` into its parts. Returns `null` for anything else. */
+/** Splits `var(--cs-name)` or `var(--cs-name, fallback)` into its parts. Returns `null` for anything else. */
 export function parseCssVar(value: string): { name: string; fallback?: string } | null {
   const match = typeof value === 'string' ? cssVarPattern.exec(value.trim()) : null;
-  return match ? { name: match[1], fallback: match[2] } : null;
+  return match?.[1].startsWith('--cs-') ? { name: match[1], fallback: match[2] } : null;
 }
 
-/** The custom property's value, else the fallback, else `null`. Also `null` for anything that isn't a `var()`. */
+/** The custom property's value, else the fallback, else `null`. Also `null` for anything that isn't a `var(--cs-*)`. */
 export function resolveCssVar(styles: Pick<CSSStyleDeclaration, 'getPropertyValue'>, value: string): string | null {
   const cssVar = parseCssVar(value);
   if (!cssVar) {
@@ -40,7 +40,7 @@ export function getSwatchLabel(color: string) {
 
   return (
     name
-      .replace(/^--(cs-)?(color-)?/, '')
+      .replace(/^--cs-(color-)?/, '')
       .replace(/-/g, ' ')
       .trim() || color
   );

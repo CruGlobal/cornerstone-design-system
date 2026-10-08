@@ -124,7 +124,7 @@ Transparent swatches require the `opacity` attribute. Without it, the alpha chan
 
 ### Swatches From Design Tokens
 
-A swatch can be a CSS custom property, written as `var(--name)` or `var(--name, fallback)`, so brand colors don't have to be turned into hex in JavaScript first. The picker looks the value up on itself each time it opens, so a theme set on any ancestor applies, including a switch between light and dark. Selecting the swatch sets the color it resolved to, in the picker's `format`. The value must resolve to hex, `rgb()`, `hsl()` or a color name. Anything else is left out, including tokens built with `color-mix()`.
+A swatch can be a design token, written as `var(--cs-name)` or `var(--cs-name, fallback)`, so brand colors don't have to be turned into hex in JavaScript first. Only `--cs-*` custom properties are read; a `var()` of any other custom property is left out. The picker looks the value up on itself each time it opens, so a theme set on any ancestor applies, including a switch between light and dark. Selecting the swatch sets the color it resolved to, in the picker's `format`. The value must resolve to hex, `rgb()`, `hsl()` or a color name. Anything else is left out, including tokens built with `color-mix()`.
 
 ```html {.example}
 <cs-color-picker
@@ -136,7 +136,7 @@ A swatch can be a CSS custom property, written as `var(--name)` or `var(--name, 
 ></cs-color-picker>
 ```
 
-A `var()` swatch without a label is named after its custom property, so `var(--cs-color-brand-fill-loud)` is announced as "brand fill loud". For a friendlier name, pass a `{ color, label }` object instead.
+A `var(--cs-*)` swatch without a label is named after its custom property, so `var(--cs-color-brand-fill-loud)` is announced as "brand fill loud". For a friendlier name, pass a `{ color, label }` object instead.
 
 ```js
 picker.swatches = [

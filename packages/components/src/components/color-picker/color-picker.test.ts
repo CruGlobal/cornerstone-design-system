@@ -278,8 +278,8 @@ describe('<cs-color-picker>', () => {
           // Under the SSR fixture this also checks the server skipped the swatch. Resolving it there would throw, and
           // rendering it there would not match the first client render, which is a hydration error.
           const wrapper = await fixture<HTMLDivElement>(html`
-            <div style="--swatch-red: #ff0000">
-              <cs-color-picker swatches="var(--swatch-red); #008000"></cs-color-picker>
+            <div style="--cs-swatch-red: #ff0000">
+              <cs-color-picker swatches="var(--cs-swatch-red); #008000"></cs-color-picker>
             </div>
           `);
           const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
@@ -292,8 +292,8 @@ describe('<cs-color-picker>', () => {
           // The default palette writes each color as `#0071ec /* oklch(...) */`, with the comment inside the value, and
           // Firefox keeps it there. Without stripping it, every palette token fails in Firefox.
           const wrapper = await fixture<HTMLDivElement>(html`
-            <div style="--swatch-commented: #ff0000 /* red */">
-              <cs-color-picker swatches="var(--cs-color-brand-fill-loud); var(--swatch-commented)"></cs-color-picker>
+            <div style="--cs-swatch-commented: #ff0000 /* red */">
+              <cs-color-picker swatches="var(--cs-color-brand-fill-loud); var(--cs-swatch-commented)"></cs-color-picker>
             </div>
           `);
           const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
@@ -307,17 +307,17 @@ describe('<cs-color-picker>', () => {
 
         it('should accept var() in a string array and in { color, label } objects', async () => {
           const wrapper = await fixture<HTMLDivElement>(html`
-            <div style="--swatch-red: #ff0000; --swatch-green: #008000">
+            <div style="--cs-swatch-red: #ff0000; --cs-swatch-green: #008000">
               <cs-color-picker></cs-color-picker>
             </div>
           `);
           const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
 
-          el.swatches = ['var(--swatch-red)'];
+          el.swatches = ['var(--cs-swatch-red)'];
           await el.updateComplete;
           expect(getSwatchColors(el)).to.deep.equal(['rgb(255, 0, 0)']);
 
-          el.swatches = [{ color: 'var(--swatch-green)', label: 'Green' }];
+          el.swatches = [{ color: 'var(--cs-swatch-green)', label: 'Green' }];
           await el.updateComplete;
           expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 128, 0)']);
           expect(getSwatches(el)[0].getAttribute('aria-label')).to.equal('Green');
@@ -335,7 +335,7 @@ describe('<cs-color-picker>', () => {
         it('should use the fallback when the custom property is not set', async () => {
           const el = await fixture<CsColorPicker>(html`
             <cs-color-picker
-              swatches="var(--swatch-unset, #0000ff); var(--swatch-unset, var(--swatch-also-unset, rgb(0, 128, 0)))"
+              swatches="var(--cs-swatch-unset, #0000ff); var(--cs-swatch-unset, var(--cs-swatch-also-unset, rgb(0, 128, 0)))"
             ></cs-color-picker>
           `);
           await el.updateComplete;
@@ -345,9 +345,9 @@ describe('<cs-color-picker>', () => {
 
         it('should skip a var() swatch that does not resolve to a color, without throwing', async () => {
           const wrapper = await fixture<HTMLDivElement>(html`
-            <div style="--swatch-size: 12px">
+            <div style="--cs-swatch-size: 12px">
               <cs-color-picker
-                swatches="var(--swatch-unset); var(--swatch-size); var(--swatch-unset, var(--swatch-also-unset)); var(--swatch-unclosed; #008000"
+                swatches="var(--cs-swatch-unset); var(--cs-swatch-size); var(--cs-swatch-unset, var(--cs-swatch-also-unset)); var(--cs-swatch-unclosed; #008000"
               ></cs-color-picker>
             </div>
           `);
@@ -360,10 +360,26 @@ describe('<cs-color-picker>', () => {
           expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 128, 0)']);
         });
 
+        it('should skip a var() of a custom property outside --cs-*, even when it is set', async () => {
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--brand-blue: #0000ff">
+              <cs-color-picker
+                swatches="var(--brand-blue); var(--brand-blue, #0000ff); var(--cs-swatch-unset, var(--brand-blue)); #008000"
+              ></cs-color-picker>
+            </div>
+          `);
+          const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
+          await el.updateComplete;
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 128, 0)']);
+
+          await el.show();
+          expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 128, 0)']);
+        });
+
         it("should set the resolved color, in the picker's format, when a var() swatch is clicked", async () => {
           const wrapper = await fixture<HTMLDivElement>(html`
-            <div style="--swatch-red: #ff0000">
-              <cs-color-picker format="rgb" swatches="var(--swatch-red)"></cs-color-picker>
+            <div style="--cs-swatch-red: #ff0000">
+              <cs-color-picker format="rgb" swatches="var(--cs-swatch-red)"></cs-color-picker>
             </div>
           `);
           const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
@@ -385,8 +401,8 @@ describe('<cs-color-picker>', () => {
 
         it('should pick up a custom property change on an ancestor the next time it opens', async () => {
           const wrapper = await fixture<HTMLDivElement>(html`
-            <div style="--swatch-theme: #ff0000">
-              <cs-color-picker swatches="var(--swatch-theme)"></cs-color-picker>
+            <div style="--cs-swatch-theme: #ff0000">
+              <cs-color-picker swatches="var(--cs-swatch-theme)"></cs-color-picker>
             </div>
           `);
           const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
@@ -396,7 +412,7 @@ describe('<cs-color-picker>', () => {
           expect(getSwatchColors(el)).to.deep.equal(['rgb(255, 0, 0)']);
           await el.hide();
 
-          wrapper.style.setProperty('--swatch-theme', '#0000ff');
+          wrapper.style.setProperty('--cs-swatch-theme', '#0000ff');
           await el.show();
           expect(getSwatchColors(el)).to.deep.equal(['rgb(0, 0, 255)']);
 
