@@ -56,7 +56,7 @@ So when you shape a DTCG file, the question is whether a Kotlin or Swift or Figm
 - `packages/components/tools/**` — the generator and each brand's knobs.
 - `packages/tokens/**` and the DTCG emission — what other platforms consume.
 
-Joseph writes component stylesheets against these and treats generated files as read-only. `CLAUDE.md` carries the build pipeline; this file does not restate it.
+Joseph writes component stylesheets against these and treats generated files as read-only. `packages/tokens/build.mjs` carries the build pipeline; this file does not restate it.
 
 ## Figma
 
