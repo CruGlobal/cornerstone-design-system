@@ -480,6 +480,7 @@
     overflow-anchor: none;
 
     summary {
+      box-sizing: border-box; /* It would inherit content-box from the slot <details> puts it in */
       display: flex;
       align-items: center;
       justify-content: space-between;

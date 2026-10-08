@@ -1,23 +1,7 @@
-import { expect, fixture } from '@open-wc/testing';
+import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { html } from 'lit';
-
-async function loadNativeStyles() {
-  const existing = document.querySelector<HTMLLinkElement>('link[data-test-native-styles]');
-  if (existing) {
-    return;
-  }
-
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = '/dist/bundled/styles/native.css';
-  link.dataset.testNativeStyles = '';
-  document.head.append(link);
-
-  await new Promise<void>((resolve, reject) => {
-    link.addEventListener('load', () => resolve(), { once: true });
-    link.addEventListener('error', () => reject(new Error('Failed to load native styles')), { once: true });
-  });
-}
+import { formControlHeight } from './test/form-control-height.js';
+import { loadNativeStyles } from './test/native-styles.js';
 
 function resolvedColor(el: HTMLElement, value: string) {
   el.style.color = value;
@@ -57,5 +41,29 @@ describe('native styles', () => {
     expect(getComputedStyle(button).backgroundColor).to.equal(
       resolvedColor(token, 'var(--cs-color-neutral-fill-normal)'),
     );
+  });
+
+  it('should make a summary border-box so an icon-only button inside it stays square', async () => {
+    const el = await fixture<HTMLDetailsElement>(html`
+      <details>
+        <summary>
+          Name
+          <cs-button appearance="plain" size="xs" pill>
+            <cs-icon library="system" name="star" label="Favorite"></cs-icon>
+          </cs-button>
+        </summary>
+        Content
+      </details>
+    `);
+    const summary = el.querySelector('summary')!;
+    const button = el.querySelector('cs-button')!;
+    await waitUntil(() => button.matches(':state(icon-button)'));
+
+    const { width, height } = button.getBoundingClientRect();
+    const expected = formControlHeight(button);
+
+    expect(getComputedStyle(summary).boxSizing).to.equal('border-box');
+    expect(width).to.equal(expected, 'width');
+    expect(height).to.equal(expected, 'height');
   });
 });

@@ -81,6 +81,11 @@ export default css`
     }
   }
 
+  /* The summary would inherit content-box from the <details> slot; "summary" alone loses to ":host *" */
+  [part~='header'] {
+    box-sizing: border-box;
+  }
+
   :host([open]) summary {
     border-end-start-radius: 0;
     border-end-end-radius: 0;
