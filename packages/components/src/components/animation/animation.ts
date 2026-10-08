@@ -233,6 +233,8 @@ export default class CsAnimation extends CornerstoneElement {
    * running. Each restart is a new run: the delay and every iteration play again as the current options describe them,
    * `play` is set to `true`, and `cs-start` is emitted. The run it interrupts emits neither `cs-cancel` nor `cs-finish`.
    * If the animation doesn't exist yet, for example because nothing is slotted, it starts as soon as it does.
+   * Changing an option such as `duration` while the animation plays also starts a new run, so changing one in the same
+   * tick as `restart()` emits `cs-start` twice.
    */
   restart() {
     this.play = true;

@@ -337,6 +337,25 @@ describe('<cs-animation>', () => {
           expect(events).to.deep.equal(['cs-start']);
         });
 
+        it('should emit cs-start twice when an option changes in the same tick, since that starts a new run', async () => {
+          const el = await fixture<CsAnimation>(
+            html`<cs-animation name="bounce" duration="10000" iterations="1" play><div></div></cs-animation>`,
+          );
+          const events = recordEvents(el);
+          el.currentTime = 6000;
+
+          el.duration = 500;
+          el.restart();
+          await el.updateComplete;
+          await nextFrame();
+          await nextFrame();
+
+          expect(events).to.deep.equal(['cs-start', 'cs-start']);
+          expect(getAnimation(el)?.effect?.getTiming().duration).to.equal(500);
+          expect(Number(el.currentTime)).to.be.below(100);
+          expect(getAnimation(el)?.playState).to.equal('running');
+        });
+
         it('should replay the delay, then begin again at the first iteration', async () => {
           const el = await fixture<CsAnimation>(html`
             <cs-animation name="bounce" delay="1000" duration="1000" iterations="2" direction="alternate" play>
