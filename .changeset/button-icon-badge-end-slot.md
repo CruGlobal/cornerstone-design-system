@@ -2,4 +2,4 @@
 '@cruglobal/cornerstone-components': patch
 ---
 
-Added: the button page shows how to put a badge on an icon button, in the `end` slot, with the count in the icon's label.
+Added: the Button page, and so the shipped `cornerstone` skill, shows an icon button with a badge in the `end` slot, the count in the icon's label, and how to announce a count the user changed.
