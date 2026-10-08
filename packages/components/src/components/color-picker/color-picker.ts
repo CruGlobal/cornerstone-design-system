@@ -1487,7 +1487,8 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
 // - @watch('value') handler sets multiple @state properties (isEmpty, hue, saturation, brightness, alpha, inputValue)
 //    and calls syncValues() and requestUpdate() during the update cycle to keep color state in sync.
 // - @watch('opacity') and @watch('format') handlers set @state properties during update to synchronize color values.
-// - firstUpdated() sets the @state property hasEyeDropper based on browser capability detection.
+// - firstUpdated() sets the @state property hasEyeDropper based on browser capability detection, and
+//    resolveSwatchVars() sets resolvedSwatchVars.
 //
 // See https://lit.dev/docs/tools/development/#development-build-runtime-warnings
 CsColorPicker.disableWarning?.('change-in-update');
