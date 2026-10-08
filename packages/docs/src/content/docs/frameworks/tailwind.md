@@ -63,22 +63,22 @@ await build({
 const manifest = require('@cruglobal/cornerstone-components/custom-elements.json');
 const components = manifest.modules.flatMap((module) => module.declarations ?? []).filter((d) => d.tagName);
 const tags = components.map((d) => d.tagName).join(', ');
-const spacing = components
+const spacingTags = components
   .filter((d) => d.cssProperties?.some((property) => property.name === '--spacing'))
   .map((d) => d.tagName)
   .join(', ');
 
 // 2. Preflight, with its universal reset kept off every cs-* element.
 const preflight = readFileSync(require.resolve('tailwindcss/preflight.css'), 'utf8');
-const reset = '*,\n::after,';
-if (!preflight.includes(reset)) {
+const resetSelector = '*,\n::after,';
+if (!preflight.includes(resetSelector)) {
   throw new Error('tailwindcss/preflight.css no longer opens with `*,`. Update this script.');
 }
-writeFileSync(`${out}/preflight.css`, preflight.replace(reset, `:where(:not(${tags})),\n::after,`));
+writeFileSync(`${out}/preflight.css`, preflight.replace(resetSelector, `:where(:not(${tags})),\n::after,`));
 
 // 3. Tailwind's spacing unit, back on the content of components with a --spacing of their own.
-const rule = `:is(${spacing}) > :not(${spacing}) {\n  --spacing: --theme(--spacing inline);\n}\n`;
-writeFileSync(`${out}/spacing.css`, spacing ? rule : '');
+const rule = `:is(${spacingTags}) > :not(${spacingTags}) {\n  --spacing: --theme(--spacing inline);\n}\n`;
+writeFileSync(`${out}/spacing.css`, spacingTags ? rule : '');
 ```
 
 It writes three files to `tmp/cornerstone/`. Keep that folder out of git, because the files are rebuilt from
