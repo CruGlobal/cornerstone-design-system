@@ -149,7 +149,7 @@ To show a [badge](/components/badge) on an icon button, such as an unread count,
 </cs-button>
 ```
 
-Put the count in the icon's `label` as well. The badge holds its text in a status region, which is left out of the button's accessible name, so a label of just "Notifications" would drop the count. Adding `aria-hidden="true"` to the badge keeps the count from being exposed twice. Update both when the count changes.
+Put the count in the icon's `label` as well. The badge holds its text in a status region, which is left out of the button's accessible name, so a label of just "Notifications" would drop the count. Adding `aria-hidden="true"` to the badge keeps the count from being exposed twice. Update both when the count changes. This pattern does not announce a new count, because `aria-hidden` also hides the badge's status region.
 
 ### Start & End Decorations
 
