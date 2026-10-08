@@ -9,32 +9,35 @@ reasoning behind them.
 ### The Inspiration library
 
 **Inspiration library**:
-The browsable catalogue of Patterns, Screens and Flows. Prescriptive: every entry is the endorsed Cornerstone
-implementation, not one option among several. The component reference documents an API; the Inspiration
-library documents a design decision.
+The browsable catalogue of Patterns, Screens and Flows. Prescriptive: every Inspiration entry is the endorsed
+Cornerstone implementation, not one option among several. The component reference documents an API; the
+Inspiration library documents a design decision.
 _Avoid_: pattern library (names one tier as if it were the whole)
 
-**Entry**:
-One Pattern, Screen or Flow in the Inspiration library, carrying its markup and the reasoning that justifies it.
+**Inspiration entry**:
+One Pattern, Screen or Flow in the Inspiration library, published with the reasoning that justifies it.
+Patterns and Screens also carry markup; a Flow carries only its sequence.
+_Avoid_: entry on its own (already means a sidebar, roadmap or changelog entry)
 
 **Tier**:
-Which of the three kinds of entry something is: Pattern, Screen or Flow. Each tier composes the one below it.
+Which of the three levels an Inspiration entry sits at: Pattern, Screen or Flow. Each tier composes the one
+below it.
 
 **Pattern**:
 An arrangement of Cornerstone Components and CSS utilities making one piece of interface, published with its
-reasoning. Copied, pasted, then owned by the consumer. Adds no behaviour or accessibility contract its pieces do
-not already carry; a shape needing either is a component.
+reasoning and owned by the consumer once copied. It adds no behaviour or accessibility contract beyond what its
+pieces already carry, which is what separates it from a component.
 _Avoid_: snippet (markup without the reasoning, which is the half that matters)
 
 **Screen**:
-A complete viewport built from Patterns: a dashboard, a settings page, a sign-in page. Carries the same
+A complete viewport built from Patterns: a dashboard, a settings overview, a profile form. Carries the same
 reasoning a Pattern does.
 _Avoid_: page (`cs-page` scaffolds a screen; it is not the screen), template (implies filling in rather than
 reasoning about)
 
 **State**:
-One named variant of a Screen (default, wrong password, account locked), shown on that Screen's own page rather
-than as a separate entry.
+One named condition of a Screen (default, fix these fields, couldn't save), shown on that Screen's own page
+rather than as a separate Inspiration entry. A step in a Flow may point at a State as well as at a Screen.
 _Avoid_: variant (already means a component attribute value)
 
 **Flow**:
@@ -45,23 +48,17 @@ _Avoid_: wizard (one implementation of a flow, not the concept)
 ### Browsing
 
 **Goal**:
-What the user is trying to get done on a Screen or Flow, such as Authentication. The category axis for Screens
-and Flows.
-_Avoid_: category on its own (ambiguous between Goal and Kind), surface (where an entry is used, not what it is
-for), role (already an ARIA role and a token role)
+What the user is trying to get done on a Screen or Flow, such as Account management. The category axis for
+Screens and Flows, written in their `category` field.
+_Avoid_: category on its own in prose (ambiguous between Goal and Kind), surface (where an Inspiration entry is
+used, not what it is for), role (already an ARIA role and a semantic role)
 
 **Kind**:
-What sort of interface piece a Pattern is, such as Forms or Feedback. The category axis for Patterns. A Kind
-that shares a label with a component category shares its meaning.
-_Avoid_: category on its own, type, role
-
-**Authentication**:
-The Goal of proving who you are: signing in, signing up, recovering access, and confirming with a code.
-_Avoid_: sign in (one part of it), account access (blurs with account management)
+What sort of interface piece a Pattern is, such as Forms or Feedback. The category axis for Patterns, written in
+their `category` field. A Kind that shares a label with a component category shares its meaning.
+_Avoid_: category on its own in prose, type, role
 
 **Account management**:
 The Goal of changing what an app knows about you and how it behaves for you: your profile details, your
-preferences. Excludes your sign-in identity, which is Authentication and, where an app signs in through a shared
-identity provider, is managed there rather than in the app.
-_Avoid_: settings (names a place, not a goal), account on its own (reads as the sign-in identity), personalization
-(too narrow for profile details)
+preferences. Excludes your sign-in identity.
+_Avoid_: settings (names the place in an app, not the goal), account on its own (reads as the sign-in identity)
