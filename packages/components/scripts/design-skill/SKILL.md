@@ -138,13 +138,11 @@ old framework, and carrying it over builds the parallel design language the ladd
 1. **Strip the old framework's classes.** Remove its utility and component classes from every element you
    port, including `<html>`, `<body>`, and the layout wrappers. Left in place, they keep styling the page
    and fight Cornerstone's own styles, so you can't tell which one is doing the work.
-2. **Don't recreate the old look in custom CSS.** Matching the old spacing, sizes, colors, and borders by
-   hand builds a second design on top of Cornerstone's. You maintain it, and it overrides the theme
+2. **Let Cornerstone's theme set the look.** Matching the old spacing, sizes, colors, and borders by hand in
+   custom CSS builds a second design on top of Cornerstone's. You maintain it, and it overrides the theme
    instead of following it.
 3. **Start from Cornerstone's defaults.** Use each component (and `<cs-page>`, for a full page) as shipped,
-   and look at the result first. Then change only what needs it, working down the ladder above: a
-   component, a layout utility, a token, the component's styling API, and only then a little custom CSS
-   built on the tokens.
+   and look at the result first. Then change only what needs it, working down the ladder above.
 
 **Already carrying custom CSS from the old look?** Switch each declaration off and look at the page at each
 breakpoint, in light and dark, and in each interactive state (hover, focus, open). Delete every one whose
