@@ -469,6 +469,30 @@ navigation sidebar, main content, a sticky table-of-contents aside, and a footer
 
 ---
 
+## Slot wrappers have a layout; change it with utilities
+
+`<cs-page>` lays out the element you slot into each region. The `navigation` wrapper, for one, is a column.
+The [Default Slot Styles](https://cruglobal.github.io/cornerstone-design-system/components/page/#default-slot-styles)
+table in the Page docs lists every slot's defaults, and so does `references/components/page.md` in the
+companion `cornerstone` skill.
+
+A style on the slotted element always beats these defaults, so **to rearrange a wrapper, put layout
+utilities on it; don't write CSS.** For a rail beside a sidebar in `slot="navigation"`:
+
+```html
+<nav slot="navigation" class="cs-split cs-align-items-stretch cs-justify-content-start">
+  <div class="cs-stack cs-gap-xs"><!-- rail: icon-only cs-buttons --></div>
+  <div class="cs-stack cs-gap-2xs"><!-- sidebar: links --></div>
+</nav>
+```
+
+`cs-split` makes the row (`cs-cluster` sets no direction, so the column stays). `cs-align-items-stretch`
+runs both parts full height instead of centering them. `cs-justify-content-start` stops the split pushing
+them apart in the mobile drawer. Add `cs-gap-0` if the parts should meet edge to edge. A split wraps, so a
+fixed `--menu-width` must fit both parts.
+
+---
+
 ## Anti-patterns
 
 | ❌ Don't                                                                                                         | ✅ Do                                                                                                                                                                               |
