@@ -146,8 +146,9 @@ old framework, and carrying it over builds the parallel design language the ladd
    component, a layout utility, a token, the component's styling API, and only then a little custom CSS
    built on the tokens.
 
-**Already carrying custom CSS from the old look?** Switch each declaration off and look at the page. Delete
-every one whose removal changes nothing. In one real port, most of them changed nothing.
+**Already carrying custom CSS from the old look?** Switch each declaration off and look at the page at each
+breakpoint, in light and dark, and in each interactive state (hover, focus, open). Delete every one whose
+removal changes nothing in any of them. In one real port, most of them changed nothing.
 
 ---
 
