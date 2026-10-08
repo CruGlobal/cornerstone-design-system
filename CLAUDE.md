@@ -154,8 +154,9 @@ with `build_type = "workflow"` — not a branch source, which would run Jekyll a
 directory.
 
 Every documentation URL derives from `packages/components/package.json`'s `homepage`, by way of
-`packages/build-tools/site-url.js`. Change it there, nowhere else; `scripts/check-docs-url.js` fails the
-build if a literal address appears anywhere.
+`packages/build-tools/site-url.js`. Change it there, nowhere else. Treat a typed address as unchecked:
+`packages/components/scripts/check-docs-url.js` runs in that package's `npm run verify` and checks only what
+its rules and its `globbySync` call name.
 
 ## Agent skills
 

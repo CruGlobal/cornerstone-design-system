@@ -26,7 +26,7 @@ scripts/design-skill/                  ← EDIT THESE (source of truth, in git)
     patterns.md                          best-practice recipes
     getting-started.md                   the opinionated default
         │
-        ▼  copied verbatim + version injected by scripts/design-skill.js (runs in eleventy.after)
+        ▼  copied verbatim + version injected by scripts/design-skill.js (called by scripts/build.js in npm run build)
 dist/unbundled/skills/cornerstone-design/         ← GENERATED, do not edit
 dist/bundled/skills/cornerstone-design/     ← GENERATED, do not edit
 ```

@@ -48,11 +48,11 @@ diff.
 **One address, one base path**
 
 Every URL derives from `packages/components/package.json`'s `homepage` through `build-tools/site-url.js`;
-`check-docs-url.js` fails the build on a literal, but it globs `packages/components` only. Every site path
-(`href`, `src`, `value`, redirect, sidebar link) is built with `path()` from `src/site-sections.js` in
-Astro code or `DOCS_BASE_PATH` in remark plugins; a bare `/components` is a 404 under the Pages base path
-and renders fine on a developer's machine. Repository links derive from `package.json`'s `repository`, as
-`remark-roadmap.js` does.
+`check-docs-url.js` checks only what its rules and `globbySync` call name, so treat a typed address as
+unchecked. Every site path (`href`, `src`, `value`, redirect, sidebar link) is built with `path()` from
+`src/site-sections.js` in Astro code or `DOCS_BASE_PATH` in remark plugins; a bare `/components` is a 404
+under the Pages base path and renders fine on a developer's machine. Repository links derive from
+`package.json`'s `repository`, as `remark-roadmap.js` does.
 
 **The anatomy renderer is roadmap**
 
