@@ -49,6 +49,8 @@ const errors = [];
 const fixes = [];
 let checked = 0;
 
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 /**
  * Every address the documentation has ever lived at, newest first, and that includes the current one.
  *
@@ -118,7 +120,9 @@ for (const file of files) {
     let fixed = text;
     for (const stale of KNOWN_ROOTS) {
       if (stale !== DOCS_URL) {
-        fixed = fixed.split(stale).join(DOCS_URL);
+        // Leave a stale root alone where the rest of `DOCS_URL` follows it, or a second run doubles the path.
+        const lookahead = DOCS_URL.startsWith(stale) ? `(?!${escapeRegExp(DOCS_URL.slice(stale.length))})` : '';
+        fixed = fixed.replace(new RegExp(escapeRegExp(stale) + lookahead, 'g'), () => DOCS_URL);
       }
     }
     // Bare hosts too, for the prose that links without a scheme.
