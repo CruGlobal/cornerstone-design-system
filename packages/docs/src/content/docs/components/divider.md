@@ -48,12 +48,22 @@ Use the `--spacing` custom property to change the amount of space between the di
 </div>
 ```
 
+As a direct child of a layout utility such as `cs-stack` or `cs-cluster`, `--spacing` has no effect and the container's gap sets the space instead. These utilities set the margins of their children to zero, the divider included, so the gap is the only space between items. Add a [`cs-gap-*`](/utilities/gap) class to the container to change it.
+
+```html {.example}
+<div class="cs-stack cs-gap-xl cs-text-center">
+  Above
+  <cs-divider></cs-divider>
+  Below
+</div>
+```
+
 ### Orientation
 
 The default orientation for dividers is `horizontal`. Set the `orientation` attribute to `vertical` to draw a vertical divider. The divider will span the full height of its [Flexbox](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout/Flexbox) or [CSS Grid](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/grid) container.
 
 ```html {.example}
-<div class="cs-cluster cs-gap-0">
+<div class="cs-cluster">
   First
   <cs-divider orientation="vertical"></cs-divider>
   Middle
