@@ -129,6 +129,27 @@ system already has it, and using it gives you theming, dark mode, accessibility,
 
 ---
 
+## Porting an existing app from another framework
+
+Moving a page or app to Cornerstone from another framework (a utility framework, a component kit, or your
+own hand-written CSS) is a new build on Cornerstone, not the old app restyled. The old look belongs to the
+old framework, and carrying it over builds the parallel design language the ladder above rules out.
+
+1. **Strip the old framework's classes.** Remove its utility and component classes from every element you
+   port, including `<html>`, `<body>`, and the layout wrappers. Left in place, they keep styling the page
+   and fight Cornerstone's own styles, so you can't tell which one is doing the work.
+2. **Let Cornerstone's theme set the look.** Matching the old spacing, sizes, colors, and borders by hand in
+   custom CSS builds a second design on top of Cornerstone's. You maintain it, and it overrides the theme
+   instead of following it.
+3. **Start from Cornerstone's defaults.** Use each component (and `<cs-page>`, for a full page) as shipped,
+   and look at the result first. Then change only what needs it, working down the ladder above.
+
+**Already carrying custom CSS from the old look?** Switch each declaration off and look at the page at each
+breakpoint, in light and dark, and in each interactive state (hover, focus, open). Delete every one whose
+removal changes nothing in any of them. In one real port, most of them changed nothing.
+
+---
+
 ## The rules that matter most
 
 These are the things that go wrong most often. Treat them as hard constraints.
