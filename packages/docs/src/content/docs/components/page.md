@@ -93,7 +93,7 @@ If you use [native styles](/utilities/native/), this is already taken care of.
 
 ### DOM Morphing
 
-`<cs-page>` measures its banner, header, subheader and footer as they render, and writes each height to its own inline style as `--header-height` and so on. DOM-diffing libraries such as Turbo 8 morph refreshes, idiomorph with htmx, and Alpine's morph plugin reset that inline style to the server's HTML, which doesn't have those heights.
+`<cs-page>` writes the heights it measures to its own inline style, as [Header Heights](#header-heights) describes. DOM-diffing libraries such as Turbo 8 morph refreshes, idiomorph with htmx, and Alpine's morph plugin reset that inline style to the server's HTML, which doesn't have those heights.
 
 The page puts its measured heights back when that happens, and leaves the rest of the server's inline styles alone. You don't need a `turbo:before-morph-attribute` listener to keep Turbo off the page's `style` attribute.
 
