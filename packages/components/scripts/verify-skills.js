@@ -392,10 +392,9 @@ const AGENT_SKILL_DIR = path.join(__dirname, 'agent-skill');
 const filesToScan = [
   ...new Set([CHOOSING_COMPONENTS, ...walkMarkdown(AGENT_SKILL_DIR), ...walkMarkdown(DESIGN_SKILL_DIR)]),
 ];
+const linesByFile = filesToScan.map((file) => [file, fs.readFileSync(file, 'utf-8').split('\n')]);
 
-for (const file of filesToScan) {
-  const content = fs.readFileSync(file, 'utf-8');
-  const lines = content.split('\n');
+for (const [file, lines] of linesByFile) {
   lines.forEach((line, idx) => {
     let m;
     const re = new RegExp(linkRegex.source, 'g');
@@ -431,35 +430,32 @@ for (const file of filesToScan) {
 
 // --- Check 4b: absolute links into the docs site name a page that exists ---
 //
-// Check 4 skips every `https:` link, which is how the design skill shipped fourteen links under a `/docs/`
-// prefix: upstream serves its docs there, and this site serves them at its root. A link is resolved
-// against the docs source rather than fetched, so the check stays offline. A route is a page when the
-// content collection holds `<route>.md` or `<route>/index.md`, or an asset when `public/` holds that file.
-// A redirect source in `astro.config.mjs` does not count: a skill should link the page itself.
+// Check 4 skips every `https:` link. A link is resolved against the docs source rather than fetched, so the
+// check stays offline. A route is a page when the content collection holds `<route>.md` or
+// `<route>/index.md`, or an asset when `public/` holds that file. A redirect source in `astro.config.mjs`
+// does not count: a skill should link the page itself.
 const DOCS_CONTENT_DIR = path.join(docsDir(), 'src', 'content', 'docs');
 const DOCS_PUBLIC_DIR = path.join(docsDir(), 'public');
 const docsUrlRegex = new RegExp(`${DOCS_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^\\s)>\`"']*`, 'g');
 let docsLinksChecked = 0;
 
-for (const file of filesToScan) {
-  fs.readFileSync(file, 'utf-8')
-    .split('\n')
-    .forEach((line, idx) => {
-      for (const [url] of line.matchAll(docsUrlRegex)) {
-        docsLinksChecked += 1;
-        const route = url
-          .slice(DOCS_URL.length)
-          .split('#')[0]
-          .replace(/[.,;:]+$/, '')
-          .replace(/^\/+|\/+$/g, '');
-        const page = ['.md', '.mdx', '/index.md', '/index.mdx'].some((ext) =>
-          fs.existsSync(path.join(DOCS_CONTENT_DIR, (route || 'index') + ext)),
-        );
-        if (!page && !fs.statSync(path.join(DOCS_PUBLIC_DIR, route), { throwIfNoEntry: false })?.isFile()) {
-          errors.push(`${path.relative(PACKAGE_ROOT, file)}:${idx + 1}: '${url}' names no page on the docs site`);
-        }
+for (const [file, lines] of linesByFile) {
+  lines.forEach((line, idx) => {
+    for (const [url] of line.matchAll(docsUrlRegex)) {
+      docsLinksChecked += 1;
+      const route = url
+        .slice(DOCS_URL.length)
+        .split('#')[0]
+        .replace(/[.,;:]+$/, '')
+        .replace(/^\/+|\/+$/g, '');
+      const page = ['.md', '.mdx', '/index.md', '/index.mdx'].some((ext) =>
+        fs.existsSync(path.join(DOCS_CONTENT_DIR, (route || 'index') + ext)),
+      );
+      if (!page && !fs.statSync(path.join(DOCS_PUBLIC_DIR, route), { throwIfNoEntry: false })?.isFile()) {
+        errors.push(`${path.relative(PACKAGE_ROOT, file)}:${idx + 1}: '${url}' names no page on the docs site`);
       }
-    });
+    }
+  });
 }
 
 // --- Prose claims ---
