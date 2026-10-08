@@ -169,7 +169,7 @@ repeated defect in this repository's history.
   <!-- evidence: PR #49, #50, #51, #52, #53, #88, #89, #90, #91, #92, #94 -->
 - **Prose next to changed behaviour is part of the diff.** A PR that changes how releases, the changelog
   or a directory layout works updates the instructions describing the old way in the same diff.
-  `packages/components/CLAUDE.md` still tells an agent to hand-edit an Unreleased changelog section that
-  `::changelog` replaced; `contributing.md`, which ships inside the agent skill, still names `docs-site/`;
+  `packages/components/CLAUDE.md` kept telling agents to hand-edit an Unreleased changelog section after
+  `::changelog` replaced it; `contributing.md`, which ships inside the agent skill, still names `docs-site/`;
   a dependency's major version written into prose went stale on the next bump.
   <!-- evidence: PR #81, #94, #138, #163 -->
