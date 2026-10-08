@@ -1,11 +1,14 @@
-import { aTimeout, expect, oneEvent } from '@open-wc/testing';
+import { aTimeout, expect, nextFrame, oneEvent } from '@open-wc/testing';
 import { html } from 'lit';
 import { clientFixture } from '../../internal/test/fixture.js';
 import type CsAnimation from './animation.js';
 
-/** Resolves after two animation frames, so any event the Web Animations API has queued has been dispatched. */
-function nextFrames() {
-  return new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+function recordEvents(el: CsAnimation) {
+  const events: string[] = [];
+  for (const type of ['cs-start', 'cs-cancel', 'cs-finish']) {
+    el.addEventListener(type, () => events.push(type));
+  }
+  return events;
 }
 
 /** The Web Animations `Animation` that `<cs-animation>` runs on its slotted element. */
@@ -237,10 +240,7 @@ describe('<cs-animation>', () => {
           const el = await fixture<CsAnimation>(
             html`<cs-animation name="bounce" duration="1" iterations="1"><div></div></cs-animation>`,
           );
-          const events: string[] = [];
-          for (const type of ['cs-start', 'cs-cancel', 'cs-finish']) {
-            el.addEventListener(type, () => events.push(type));
-          }
+          const events = recordEvents(el);
 
           el.play = true;
           await oneEvent(el, 'cs-finish');
@@ -274,7 +274,8 @@ describe('<cs-animation>', () => {
           const el = await fixture<CsAnimation>(
             html`<cs-animation name="bounce" duration="10000" iterations="1" play><div></div></cs-animation>`,
           );
-          await nextFrames();
+          await nextFrame();
+          await nextFrame();
           el.currentTime = 6000;
           expect(el.currentTime).to.equal(6000);
 
@@ -326,14 +327,12 @@ describe('<cs-animation>', () => {
           const el = await fixture<CsAnimation>(
             html`<cs-animation name="bounce" duration="10000" iterations="1" play><div></div></cs-animation>`,
           );
-          const events: string[] = [];
-          for (const type of ['cs-start', 'cs-cancel', 'cs-finish']) {
-            el.addEventListener(type, () => events.push(type));
-          }
+          const events = recordEvents(el);
           el.currentTime = 6000;
 
           el.restart();
-          await nextFrames();
+          await nextFrame();
+          await nextFrame();
 
           expect(events).to.deep.equal(['cs-start']);
         });

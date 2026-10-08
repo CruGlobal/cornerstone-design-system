@@ -151,13 +151,17 @@ export default class CsAnimation extends CornerstoneElement {
     this.animation.addEventListener('finish', this.handleAnimationFinish);
 
     if (this.play) {
-      this.hasStarted = true;
-      this.dispatchEvent(new CsStartEvent());
+      this.dispatchStart();
     } else {
       this.animation.pause();
     }
 
     return true;
+  }
+
+  private dispatchStart() {
+    this.hasStarted = true;
+    this.dispatchEvent(new CsStartEvent());
   }
 
   private destroyAnimation() {
@@ -193,8 +197,7 @@ export default class CsAnimation extends CornerstoneElement {
   handlePlayChange() {
     if (this.animation) {
       if (this.play && !this.hasStarted) {
-        this.hasStarted = true;
-        this.dispatchEvent(new CsStartEvent());
+        this.dispatchStart();
       }
 
       if (this.play) {
@@ -241,8 +244,7 @@ export default class CsAnimation extends CornerstoneElement {
     // play() alone resumes a paused or running animation where it is, so seek to the start first.
     this.animation.currentTime = 0;
     this.animation.play();
-    this.hasStarted = true;
-    this.dispatchEvent(new CsStartEvent());
+    this.dispatchStart();
   }
 
   render() {
