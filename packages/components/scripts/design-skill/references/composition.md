@@ -202,7 +202,7 @@ Font sizes follow a 1.125 modular scale (`--cs-font-size-*`):
 
 ## Icons
 
-Use the [`<cs-icon>`](https://cruglobal.github.io/cornerstone-design-system/docs/components/icon) component for icons. **Never use
+Use the [`<cs-icon>`](https://cruglobal.github.io/cornerstone-design-system/components/icon) component for icons. **Never use
 emojis in the UI** unless the user explicitly asks for them — emojis render inconsistently across
 platforms and don't inherit color, size, or weight the way icons do.
 
@@ -493,7 +493,7 @@ cs-button.full-width-control::part(button) {
 ```
 
 **Look up each component's parts, custom properties, and attributes in the
-[`cornerstone` skill](https://cruglobal.github.io/cornerstone-design-system/docs/ai/)** (the companion component-API skill) or that
+[`cornerstone` skill](https://cruglobal.github.io/cornerstone-design-system/ai/)** (the companion component-API skill) or that
 component's docs page — every component lists its "CSS parts" and "CSS custom properties." Do this for
 **whatever** `<cs-*>` element you're styling, not just the common ones; the right hook differs by
 component. Don't guess internal class names — they aren't stable and aren't selectable. If a component
