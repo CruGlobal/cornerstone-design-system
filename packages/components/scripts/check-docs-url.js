@@ -51,13 +51,7 @@ let checked = 0;
 
 const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/**
- * Every address the documentation has ever lived at, newest first, and that includes the current one.
- *
- * This has to be a written list. It cannot be derived from `homepage`: after a move, `homepage` holds the new
- * address, so the old one would drop out at the very moment `--fix` needs it. Listing the live address is
- * safe, because both fix loops below skip whichever entry `DOCS_URL` matches.
- */
+/** Every docs address so far, newest first. Not derived from `homepage`, which loses the old one on a move. */
 const KNOWN_ROOTS = [
   'https://cruglobal.github.io/cornerstone-design-system',
   'https://cruglobal.github.io/cornerstone-components',
@@ -65,8 +59,6 @@ const KNOWN_ROOTS = [
   'https://cornerstone.com',
 ];
 
-// A move that changes `homepage` but not this list would leave the new address off it, and the move after
-// that could not re-point it. So refuse to run, `--fix` included, until the current address is listed.
 if (!KNOWN_ROOTS.includes(DOCS_URL)) {
   console.error(
     `KNOWN_ROOTS in scripts/check-docs-url.js does not list the current homepage, ${DOCS_URL}.\n` +
