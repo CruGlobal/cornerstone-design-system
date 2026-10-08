@@ -256,6 +256,10 @@ export default class CsTooltip extends CornerstoneElement {
     }
   }
 
+  private get isOpenAndEnabled() {
+    return this.open && !this.disabled;
+  }
+
   @watch('open', { waitUntilFirstUpdate: true })
   async handleOpenChange() {
     if (this.open) {
@@ -277,6 +281,12 @@ export default class CsTooltip extends CornerstoneElement {
       this.body.hidden = false;
       this.popup.active = true;
       await animateWithClass(this.popup.popup, 'show-with-scale');
+
+      // Closed during the show animation: the hide that closed it owns the final state.
+      if (!this.isOpenAndEnabled) {
+        return;
+      }
+
       this.popup.reposition();
 
       this.dispatchEvent(new CsAfterShowEvent());
@@ -293,6 +303,12 @@ export default class CsTooltip extends CornerstoneElement {
       unregisterDismissible(this);
 
       await animateWithClass(this.popup.popup, 'hide-with-scale');
+
+      // Reopened during the hide animation: the show branch has already made the body visible.
+      if (this.isOpenAndEnabled) {
+        return;
+      }
+
       this.popup.active = false;
       this.body.hidden = true;
 

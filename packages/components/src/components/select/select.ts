@@ -908,9 +908,13 @@ export default class CsSelect extends CornerstoneFormAssociatedElement {
     this.updateValidity();
   }
 
+  private get isOpenAndEnabled() {
+    return this.open && !this.disabled;
+  }
+
   @watch('open', { waitUntilFirstUpdate: true })
   async handleOpenChange() {
-    if (this.open && !this.disabled) {
+    if (this.isOpenAndEnabled) {
       // Reset the current option
       this.setCurrentOption(this.selectedOptions[0] || this.getFirstOption());
 
@@ -933,6 +937,11 @@ export default class CsSelect extends CornerstoneFormAssociatedElement {
 
       await animateWithClass(this.popup.popup, 'show');
 
+      // Closed during the show animation: the hide that closed it owns the final state.
+      if (!this.isOpenAndEnabled) {
+        return;
+      }
+
       // Make sure the current option is scrolled into view (required for Safari)
       if (this.currentOption) {
         scrollIntoView(this.currentOption, this.listbox, 'vertical', 'auto');
@@ -944,12 +953,18 @@ export default class CsSelect extends CornerstoneFormAssociatedElement {
       const csHideEvent = new CsHideEvent();
       this.dispatchEvent(csHideEvent);
       if (csHideEvent.defaultPrevented) {
-        this.open = false;
+        this.open = true;
         return;
       }
 
       this.removeOpenListeners();
       await animateWithClass(this.popup.popup, 'hide');
+
+      // Reopened during the hide animation: the show branch has already made the listbox visible.
+      if (this.isOpenAndEnabled) {
+        return;
+      }
+
       this.listbox.hidden = true;
       this.popup.active = false;
 

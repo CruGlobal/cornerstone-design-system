@@ -1,4 +1,4 @@
-import { aTimeout, expect, waitUntil } from '@open-wc/testing';
+import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { resetMouse, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
@@ -570,6 +570,29 @@ describe('<cs-select>', () => {
           expect(afterHideHandler).to.have.been.calledOnce;
         });
 
+        it('should stay open when cs-hide is cancelled', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+            </cs-select>
+          `);
+          const listbox = el.shadowRoot!.querySelector<HTMLElement>('.listbox')!;
+          await el.show();
+
+          el.addEventListener('cs-hide', (event) => event.preventDefault(), { once: true });
+          el.open = false;
+          await el.updateComplete;
+
+          expect(el.open).to.be.true;
+          expect(listbox.hidden).to.be.false;
+
+          // The next close is not cancelled, so it has to close the select.
+          await el.hide();
+          expect(el.open).to.be.false;
+          expect(listbox.hidden).to.be.true;
+        });
+
         // Regression: https://github.com/shoelace-style/shoelace/issues/2117
         // This can happen in on Microsoft Edge auto-filling an associated input element in the same form
         it('should not throw on incomplete events', async () => {
@@ -591,6 +614,76 @@ describe('<cs-select>', () => {
            *
            * @ts-expect-error - private property */
           el.handleDocumentKeyDown(event);
+        });
+      });
+
+      describe('rapid toggling', () => {
+        it('should keep the listbox visible when reopened during the hide animation', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+            </cs-select>
+          `);
+          const listbox = el.shadowRoot!.querySelector<HTMLElement>('.listbox')!;
+          const afterHideHandler = sinon.spy();
+          await el.show();
+          el.addEventListener('cs-after-hide', afterHideHandler);
+
+          // Start closing, then reopen before the hide animation ends.
+          el.open = false;
+          await el.updateComplete;
+          const afterShow = oneEvent(el, 'cs-after-show');
+          el.open = true;
+          await afterShow;
+
+          expect(el.open).to.be.true;
+          expect(listbox.hidden).to.be.false;
+          expect(afterHideHandler.callCount).to.equal(0);
+        });
+
+        it('should keep the listbox hidden when closed during the show animation', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+            </cs-select>
+          `);
+          const listbox = el.shadowRoot!.querySelector<HTMLElement>('.listbox')!;
+          const afterShowHandler = sinon.spy();
+          el.addEventListener('cs-after-show', afterShowHandler);
+
+          // Start opening, then close before the show animation ends.
+          el.open = true;
+          await el.updateComplete;
+          const afterHide = oneEvent(el, 'cs-after-hide');
+          el.open = false;
+          await afterHide;
+
+          expect(el.open).to.be.false;
+          expect(listbox.hidden).to.be.true;
+          expect(afterShowHandler.callCount).to.equal(0);
+        });
+
+        it('should hide the listbox when opened while disabled during the hide animation', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+            </cs-select>
+          `);
+          const listbox = el.shadowRoot!.querySelector<HTMLElement>('.listbox')!;
+          await el.show();
+
+          el.open = false;
+          await el.updateComplete;
+          el.disabled = true;
+          await el.updateComplete;
+          const afterHide = oneEvent(el, 'cs-after-hide');
+          el.open = true;
+          await afterHide;
+
+          expect(listbox.hidden).to.be.true;
         });
       });
 
