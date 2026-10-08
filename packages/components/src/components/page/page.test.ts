@@ -1,7 +1,23 @@
-import { expect, waitUntil } from '@open-wc/testing';
+import { aTimeout, expect, nextFrame, waitUntil } from '@open-wc/testing';
 import { html } from 'lit';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsPage from './page.js';
+
+function measuredHeight(el: CsPage, slot: 'banner' | 'header' | 'subheader' | 'footer') {
+  return getComputedStyle(el).getPropertyValue(`--${slot}-height`).trim();
+}
+
+async function waitForMeasurement(el: CsPage, header = '51px', banner = '30px') {
+  await waitUntil(
+    () => measuredHeight(el, 'header') === header && measuredHeight(el, 'banner') === banner,
+    `expected --header-height ${header} and --banner-height ${banner}`,
+  );
+}
+
+async function settle() {
+  await nextFrame();
+  await nextFrame();
+}
 
 describe('<cs-page>', () => {
   for (const fixture of fixtures) {
@@ -272,6 +288,163 @@ describe('<cs-page>', () => {
 
           expect(href).to.equal('#main-content');
           expect(el.querySelector(href)).to.exist;
+        });
+      });
+
+      // `removeAttribute('style')` is what idiomorph does when the server's element has no `style` at all.
+      describe('measured heights', () => {
+        it('should restore its measured heights when a morph removes the style attribute', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <div slot="banner" style="box-sizing: border-box; height: 30px;">Banner</div>
+              <div slot="header" style="box-sizing: border-box; height: 51px;">Header</div>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await waitForMeasurement(el);
+
+          el.removeAttribute('style');
+          await settle();
+
+          expect(measuredHeight(el, 'header')).to.equal('51px');
+          expect(measuredHeight(el, 'banner')).to.equal('30px');
+        });
+
+        it('should put back a measured height that a morph overwrites with a different value', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <div slot="banner" style="box-sizing: border-box; height: 30px;">Banner</div>
+              <div slot="header" style="box-sizing: border-box; height: 51px;">Header</div>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await waitForMeasurement(el);
+
+          // A server that presets the heights to avoid a layout shift sends them back on every morph
+          el.setAttribute('style', '--header-height: 40px;');
+          await settle();
+
+          expect(measuredHeight(el, 'header')).to.equal('51px');
+          expect(measuredHeight(el, 'banner')).to.equal('30px');
+        });
+
+        it("should keep the consumer's own inline styles when it restores its heights", async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <div slot="banner" style="box-sizing: border-box; height: 30px;">Banner</div>
+              <div slot="header" style="box-sizing: border-box; height: 51px;">Header</div>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await waitForMeasurement(el);
+
+          el.setAttribute('style', 'color: rgb(255, 0, 0); --menu-width: 200px;');
+          await settle();
+
+          expect(el.style.color).to.equal('rgb(255, 0, 0)');
+          expect(el.style.getPropertyValue('--menu-width').trim()).to.equal('200px');
+          expect(measuredHeight(el, 'header')).to.equal('51px');
+        });
+
+        it('should write only the heights that are missing, once each, and then stop', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <div slot="banner" style="box-sizing: border-box; height: 30px;">Banner</div>
+              <div slot="header" style="box-sizing: border-box; height: 51px;">Header</div>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await waitForMeasurement(el);
+
+          const heightsOnHost = [...el.style].filter((name) =>
+            /^--(banner|header|subheader|footer)-height$/.test(name),
+          );
+          const records: MutationRecord[] = [];
+          const watcher = new MutationObserver((list) => records.push(...list));
+          watcher.observe(el, { attributes: true, attributeFilter: ['style'] });
+
+          try {
+            // A style change that leaves the heights alone gets no write from the page
+            el.style.setProperty('color', 'rgb(255, 0, 0)');
+            await settle();
+            expect(records.length).to.equal(1);
+
+            // A morph that drops them gets one write per height the page had on its host, and no more
+            el.removeAttribute('style');
+            await settle();
+            expect(measuredHeight(el, 'header')).to.equal('51px');
+            expect(records.length).to.equal(2 + heightsOnHost.length);
+
+            // The page's own writes do not set off another round
+            await aTimeout(100);
+            expect(records.length).to.equal(2 + heightsOnHost.length);
+          } finally {
+            watcher.disconnect();
+          }
+        });
+
+        it('should follow a real change in size, and restore the new height after a morph', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <div slot="banner" style="box-sizing: border-box; height: 30px;">Banner</div>
+              <div slot="header" style="box-sizing: border-box; height: 51px;">Header</div>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await waitForMeasurement(el);
+
+          el.querySelector<HTMLElement>('[slot="header"]')!.style.height = '80px';
+          await waitForMeasurement(el, '80px');
+
+          el.removeAttribute('style');
+          await settle();
+
+          expect(measuredHeight(el, 'header')).to.equal('80px');
+        });
+
+        it('should restore an emptied slot at the height it measures now, not the one it had', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <div slot="banner" style="box-sizing: border-box; height: 30px;">Banner</div>
+              <div slot="header" style="box-sizing: border-box; height: 51px;">Header</div>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await waitForMeasurement(el);
+
+          el.querySelector('[slot="banner"]')!.remove();
+          await waitForMeasurement(el, '51px', '0px');
+
+          el.removeAttribute('style');
+          await settle();
+
+          expect(measuredHeight(el, 'banner')).to.equal('0px');
+          expect(measuredHeight(el, 'header')).to.equal('51px');
+        });
+
+        it('should leave its style alone while disconnected, and restore again once reconnected', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <div slot="banner" style="box-sizing: border-box; height: 30px;">Banner</div>
+              <div slot="header" style="box-sizing: border-box; height: 51px;">Header</div>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await waitForMeasurement(el);
+          const parent = el.parentElement!;
+
+          el.remove();
+          el.removeAttribute('style');
+          await settle();
+          expect(el.style.getPropertyValue('--header-height')).to.equal('');
+
+          parent.append(el);
+          await waitForMeasurement(el);
+
+          el.removeAttribute('style');
+          await settle();
+
+          expect(measuredHeight(el, 'header')).to.equal('51px');
         });
       });
     });
