@@ -56,7 +56,7 @@ The published [contributing guide](../docs/src/content/docs/resources/contributi
 - Event handler parameters are named `event`, not `e`. Read from it directly (`event.key`, `event.target`, `event.preventDefault()`).
 - Event handlers are named `handle<Subject>` (`handleInput`, `handleClearClick`), not `onX`.
 - Relative imports end in `.js` (NodeNext ESM), e.g. `import styles from './button.styles.js'`.
-- Custom events are one class per file in `src/events/`: `class Wa<Name>Event extends Event`, dispatched via `super('cs-<kebab>', { bubbles, cancelable, composed: true })`, augmenting `GlobalEventHandlersEventMap`. Fire them with `this.dispatchEvent(new Wa<Name>Event(...))`. There is no `emit()` helper.
+- Custom events are one class per file in `src/events/`: `class Cs<Name>Event extends Event`, dispatched via `super('cs-<kebab>', { bubbles, cancelable, composed: true })`, augmenting `GlobalEventHandlersEventMap`. Fire them with `this.dispatchEvent(new Cs<Name>Event(...))`. There is no `emit()` helper.
 - Multi-word properties declare an explicit kebab `attribute:`. Lit lowercases attribute names, so `passwordToggle` needs `attribute: 'password-toggle'`.
 
 ## Style Conventions
