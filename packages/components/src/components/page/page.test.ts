@@ -3,12 +3,10 @@ import { html } from 'lit';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsPage from './page.js';
 
-/** The value a page's measured height resolves to, the way a consumer reads it. */
 function measuredHeight(el: CsPage, slot: 'banner' | 'header' | 'subheader' | 'footer') {
   return getComputedStyle(el).getPropertyValue(`--${slot}-height`).trim();
 }
 
-/** Waits until the page has measured its header and banner at the sizes the fixture gives them. */
 async function waitForMeasurement(el: CsPage, header = '51px', banner = '30px') {
   await waitUntil(
     () => measuredHeight(el, 'header') === header && measuredHeight(el, 'banner') === banner,
@@ -16,7 +14,6 @@ async function waitForMeasurement(el: CsPage, header = '51px', banner = '30px') 
   );
 }
 
-/** Lets a style mutation and anything it triggers settle. */
 async function settle() {
   await nextFrame();
   await nextFrame();
@@ -294,12 +291,7 @@ describe('<cs-page>', () => {
         });
       });
 
-      /**
-       * A DOM morph (Turbo 8 morph refreshes, idiomorph with htmx, Alpine's morph plugin) syncs the host's `style`
-       * attribute back to the server's HTML, which never carries the heights the page measured. Nothing changes
-       * size, so the ResizeObservers never fire again, and every height read as 0px until the next full load.
-       * `removeAttribute('style')` is what idiomorph does when the server's element has no `style` at all.
-       */
+      // `removeAttribute('style')` is what idiomorph does when the server's element has no `style` at all.
       describe('measured heights', () => {
         it('should restore its measured heights when a morph removes the style attribute', async () => {
           const el = await fixture<CsPage>(html`

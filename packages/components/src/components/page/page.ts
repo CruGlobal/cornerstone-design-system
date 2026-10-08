@@ -136,7 +136,6 @@ function toLength(px: number | string): string {
 export default class CsPage extends CornerstoneElement {
   static css = [visuallyHidden, styles];
 
-  // The last height each ResizeObserver measured, keyed by custom property, so it can be written back.
   private measuredHeights = new Map<string, string>();
 
   // SSR guard: ResizeObserver is not available during server-side rendering
@@ -145,8 +144,7 @@ export default class CsPage extends CornerstoneElement {
   private bannerResizeObserver = !isServer ? this.slotResizeObserver('banner') : null;
   private footerResizeObserver = !isServer ? this.slotResizeObserver('footer') : null;
 
-  // A DOM morph (Turbo 8, idiomorph, Alpine) resets the host's style attribute to the server's HTML, which never
-  // holds the measured heights. Nothing changes size, so the ResizeObservers never measure again. This puts them back.
+  // A DOM morph resets the style attribute; put the measured heights back.
   // SSR guard: MutationObserver is not available during server-side rendering
   private styleObserver = !isServer ? new MutationObserver(() => this.restoreMeasuredHeights()) : null;
 
@@ -166,10 +164,7 @@ export default class CsPage extends CornerstoneElement {
     });
   }
 
-  /**
-   * Writes back each measured height that the host's style attribute has lost or holds a different value for. Its
-   * own writes come back to it as style mutations, and comparing first means that second round finds nothing to do.
-   */
+  // Compare first: its own writes come back as style mutations.
   private restoreMeasuredHeights() {
     for (const [property, height] of this.measuredHeights) {
       if (this.style.getPropertyValue(property) !== height) {
