@@ -16,6 +16,7 @@
     "dev": "astro dev --force",
     "postbuild": "node scripts/prune-pagefind.js",
     "prebuild": "node scripts/check-markdown-remark.js && node scripts/link-library.js",
+    "precheck": "node scripts/check-markdown-remark.js",
     "predev": "node scripts/check-markdown-remark.js && node scripts/link-library.js",
     "prettier": "prettier --check --log-level=warn --ignore-path=\".prettierignore\" .",
     "preview": "astro preview",
