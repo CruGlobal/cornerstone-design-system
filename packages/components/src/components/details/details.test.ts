@@ -206,11 +206,7 @@ describe('<cs-details>', () => {
         });
       });
 
-      // A native <details> puts its <summary> in a slot inside the browser's own shadow root, and that slot is
-      // content-box in Chromium, Firefox and WebKit alike. With `:host * { box-sizing: inherit }` the header
-      // inherited content-box from it, and a page rule such as native.css's `*, ::before, ::after { box-sizing:
-      // inherit }` carried that into whatever was slotted into the summary. Without such a page rule the slotted
-      // button keeps its own border-box, so native.css is loaded for this block and removed afterwards.
+      // Without native.css's inherited box-sizing, the button stays square even without the fix.
       describe('box sizing', () => {
         let nativeStyles: HTMLLinkElement;
 

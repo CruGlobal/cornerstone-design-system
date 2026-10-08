@@ -1,9 +1,4 @@
-/**
- * Loads the native styles (`native.css`) into the document, the way a page that uses them would, and resolves once
- * the sheet has applied. Loading it twice returns the `<link>` already there.
- *
- * Returns the `<link>`, so a test file whose other tests must run without the sheet can remove it afterwards.
- */
+/** Loads `native.css` into the document and resolves with its `<link>` once applied, reusing one already there. */
 export async function loadNativeStyles(): Promise<HTMLLinkElement> {
   const existing = document.querySelector<HTMLLinkElement>('link[data-test-native-styles]');
   if (existing) {

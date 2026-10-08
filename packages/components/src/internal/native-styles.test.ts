@@ -43,8 +43,6 @@ describe('native styles', () => {
     );
   });
 
-  // <details> puts its <summary> in a slot inside the browser's own shadow root, and that slot is content-box, so
-  // the `box-sizing: inherit` rule above would hand content-box to the summary and everything inside it.
   it('should make a summary border-box so an icon-only button inside it stays square', async () => {
     const el = await fixture<HTMLDetailsElement>(html`
       <details>

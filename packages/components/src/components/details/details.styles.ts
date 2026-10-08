@@ -81,12 +81,7 @@ export default css`
     }
   }
 
-  /*
-   * <details> puts its <summary> in a slot inside the browser's own shadow root, and that slot is content-box. The
-   * host styles' ":host * { box-sizing: inherit }" makes the summary inherit from that slot rather than from
-   * <details>, which hands content-box to everything in the header. A plain "summary" selector loses to ":host *"
-   * on specificity, so this one uses the part, as [part~='icon'] does below.
-   */
+  /* The summary would inherit content-box from the <details> slot; "summary" alone loses to ":host *" */
   [part~='header'] {
     box-sizing: border-box;
   }
