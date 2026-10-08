@@ -138,6 +138,21 @@ When an [icon](/components/icon) is the only thing slotted into the label, the b
 With no text to announce, a screen reader has nothing to read. Add `label` to the icon (`<cs-icon name="home" label="Home">`) so the button has an accessible name.
 :::
 
+### Icon Button With a Badge
+
+To show a [badge](/components/badge) on an icon button, such as an unread count, put the badge in the `end` slot. The button pins a badge to its top corner from any slot, but only the default slot decides whether it is an icon button: a badge there counts as content beside the icon, so the button loses its square icon-button shape. The `start` slot keeps the shape too, but its spacing pushes the badge in from the corner.
+
+```html {.example}
+<cs-button appearance="plain">
+  <cs-icon name="notifications" label="Notifications, 3 unread"></cs-icon>
+  <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+</cs-button>
+```
+
+A bare number does not say what it counts, so put the count and what it counts in the icon's `label`, and add `aria-hidden="true"` to the badge so it is not read twice. Update both when the count changes.
+
+This pattern does not announce a new count. If the count changes because of something the user did, such as adding an item to a cart, announce it as well. Keep an empty `<div class="cs-visually-hidden" role="status"></div>` on the page, outside the button, and set its text to the new count with context, such as "3 items in cart".
+
 ### Start & End Decorations
 
 Use the `start` and `end` slots to add presentational elements like `<cs-icon>` beside the button label.
