@@ -56,7 +56,7 @@ The published [contributing guide](../docs/src/content/docs/resources/contributi
 - Event handler parameters are named `event`, not `e`. Read from it directly (`event.key`, `event.target`, `event.preventDefault()`).
 - Event handlers are named `handle<Subject>` (`handleInput`, `handleClearClick`), not `onX`.
 - Relative imports end in `.js` (NodeNext ESM), e.g. `import styles from './button.styles.js'`.
-- Custom events are one class per file in `src/events/`: `class Wa<Name>Event extends Event`, dispatched via `super('cs-<kebab>', { bubbles, cancelable, composed: true })`, augmenting `GlobalEventHandlersEventMap`. Fire them with `this.dispatchEvent(new Wa<Name>Event(...))`. There is no `emit()` helper.
+- Custom events are one class per file in `src/events/`: `class Cs<Name>Event extends Event`, dispatched via `super('cs-<kebab>', { bubbles, cancelable, composed: true })`, augmenting `GlobalEventHandlersEventMap`. Fire them with `this.dispatchEvent(new Cs<Name>Event(...))`. There is no `emit()` helper.
 - Multi-word properties declare an explicit kebab `attribute:`. Lit lowercases attribute names, so `passwordToggle` needs `attribute: 'password-toggle'`.
 
 ## Style Conventions
@@ -135,4 +135,4 @@ Import specifiers do not contain `dist`: it is a container for the two builds, n
 - **Add a custom event**: Create event class in `src/events/`, dispatch with `this.dispatchEvent(new CsEventClass())`, add `@event cs-event-name` JSDoc tag.
 - **Add a test**: Import `{ fixtures }` from `src/internal/test/fixture.js`, loop `for (const fixture of fixtures)`, use `await fixture<Type>(html`...`)`.
 - **Doc page**: Create `../docs/src/content/docs/components/name.md` with front matter (`title`, `description`, `category`). Use ` ```html {.example} ` for live code blocks. The API reference is appended from the CEM by `remark-component-api`, so don't hand-write it.
-- **Update the changelog**: Add entries to the "Unreleased" section in `../docs/src/content/docs/resources/changelog.md`. Create the section if it doesn't exist. Group entries under `:::added`, `:::fixed`, `:::changed`, `:::deprecated`, `:::removed`, `:::breaking` containers in that order; omit any category with no entries. **Keep entries clear and succinct** — announce what changed at a glance, trim redundant prose, and nest closely related additions as sub-bullets so the parent reads as a topic and children carry the detail.
+- **Record a change**: Add a changeset (`npx changeset`), following the root `CLAUDE.md`'s Changeset Rules: lead the summary with its category, such as `Fixed:` or `Added:`. Don't edit `../docs/src/content/docs/resources/changelog.md` by hand. `remark-changelog.js` renders its releases from this package's `CHANGELOG.md`, which changesets writes at each version bump. Only the pre-changesets `0.1.0` section is hand-written.
