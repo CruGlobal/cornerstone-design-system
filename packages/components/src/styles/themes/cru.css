@@ -30,6 +30,11 @@
     --cs-color-text-link: var(--cs-color-link-50);
     --cs-color-overlay-modal: color-mix(in oklab, var(--cs-color-neutral-05) 50%, transparent);
     --cs-color-overlay-inline: color-mix(in oklab, var(--cs-color-neutral-80) 25%, transparent);
+    --cs-color-shadow: color-mix(
+      in oklab,
+      var(--cs-color-neutral-05) calc(var(--cs-shadow-blur-scale) * 4% + 8%),
+      transparent
+    );
     --cs-color-focus: var(--cs-color-brand-80);
     --cs-color-mix-hover: oklch(from currentColor calc(1 - l) c h) 10%;
     --cs-color-mix-active: var(--cs-color-surface-default) 10%;
@@ -129,6 +134,11 @@
     --cs-color-text-link: var(--cs-color-link-60);
     --cs-color-overlay-modal: color-mix(in oklab, black 60%, transparent);
     --cs-color-overlay-inline: color-mix(in oklab, var(--cs-color-neutral-50) 10%, transparent);
+    --cs-color-shadow: color-mix(
+      in oklab,
+      var(--cs-color-surface-lowered) calc(var(--cs-shadow-blur-scale) * 32% + 40%),
+      transparent
+    );
     --cs-color-focus: var(--cs-color-brand-80);
     --cs-color-mix-hover: oklch(from currentColor calc(1 - l) c h) 20%;
     --cs-color-mix-active: var(--cs-color-surface-default) 20%;

@@ -438,6 +438,10 @@ function surfaceFor(mode, brandKeyStep) {
       ['text-link', roleVar('link', LINK_STEP.light)],
       ['overlay-modal', `color-mix(in oklab, ${roleVar('neutral', 5)} 50%, transparent)`],
       ['overlay-inline', `color-mix(in oklab, ${roleVar('neutral', 80)} 25%, transparent)`],
+      [
+        'shadow',
+        `color-mix(in oklab, ${roleVar('neutral', 5)} calc(var(--cs-shadow-blur-scale) * 4% + 8%), transparent)`,
+      ],
       ['focus', roleVar('brand', brandKeyStep)],
       ['mix-hover', 'oklch(from currentColor calc(1 - l) c h) 10%'],
       ['mix-active', 'var(--cs-color-surface-default) 10%'],
@@ -453,6 +457,10 @@ function surfaceFor(mode, brandKeyStep) {
     ['text-link', roleVar('link', LINK_STEP.dark)],
     ['overlay-modal', 'color-mix(in oklab, black 60%, transparent)'],
     ['overlay-inline', `color-mix(in oklab, ${roleVar('neutral', 50)} 10%, transparent)`],
+    [
+      'shadow',
+      'color-mix(in oklab, var(--cs-color-surface-lowered) calc(var(--cs-shadow-blur-scale) * 32% + 40%), transparent)',
+    ],
     ['focus', roleVar('brand', brandKeyStep)],
     ['mix-hover', 'oklch(from currentColor calc(1 - l) c h) 20%'],
     ['mix-active', 'var(--cs-color-surface-default) 20%'],
