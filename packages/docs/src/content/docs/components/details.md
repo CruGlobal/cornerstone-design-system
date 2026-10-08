@@ -165,7 +165,7 @@ Use the `name` attribute to create accordion-like behavior where only one detail
 
 ### Reacting to Open & Close
 
-Listen for `cs-show` and `cs-hide` to keep your app's state in step with the details. Both fire on every open and close, whether it came from a click, the keyboard, code such as `show()`, or another details in the same `name` group. Both are cancelable with `event.preventDefault()`. Neither fires for the `open` attribute a details starts with, so read the starting value from `open`.
+Listen for `cs-show` and `cs-hide` to keep your app's state in step with the details. Both fire on every open and close, whether it came from a click, the keyboard, code such as `show()`, or another details in the same `name` group. Neither fires for the `open` attribute a details starts with, so read the starting value from `open`.
 
 :::warning
 <strong>Don't read `open` in a `click` handler.</strong><br />
