@@ -5,7 +5,7 @@ paths:
   - ".github/workflows/release.yml"
   - "package.json"
   - "packages/*/package.json"
-  - ".changeset/**"
+  - ".changeset/config.json"
 ---
 
 # Publishing: trusted publishing and provenance
