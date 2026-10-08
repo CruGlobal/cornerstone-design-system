@@ -46,7 +46,7 @@ export default class CsBadge extends CornerstoneElement {
         <slot name="start"></slot>
       </span>
 
-      <span part="badge" role="status">
+      <span part="badge">
         <slot></slot>
       </span>
 

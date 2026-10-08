@@ -182,3 +182,9 @@ One of the most common use cases for badges is attaching them to buttons. To mak
   <cs-badge variant="danger" pill>6</cs-badge>
 </cs-button>
 ```
+
+The badge's text is part of the button's accessible name, so the first button is named "Requests 30". An icon button has no text to say what its count means, so follow [Icon Button With a Badge](/components/button#icon-button-with-a-badge) instead.
+
+## Accessibility Considerations
+
+A badge is not a live region, so a screen reader does not announce a change to its text. If a count changes because of something the user did, such as adding an item to a cart, announce it as well. Keep an empty `<div class="cs-visually-hidden" role="status"></div>` on the page, outside the button or other control the badge is in, and set its text to the new count with context, such as "3 items in cart".

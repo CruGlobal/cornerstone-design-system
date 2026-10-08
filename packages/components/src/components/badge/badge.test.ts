@@ -1,9 +1,19 @@
 import { expect } from '@open-wc/testing';
+import { a11ySnapshot, findAccessibilityNode } from '@web/test-runner-commands';
 import { html } from 'lit';
 import { fixtures } from '../../internal/test/fixture.js';
+import type CsButton from '../button/button.js';
 import type CsBadge from './badge.js';
 
 const ignoredRules = ['color-contrast'];
+
+const liveRegion = '[role="alert"], [role="log"], [role="marquee"], [role="status"], [role="timer"], [aria-live]';
+
+interface AccessibilityNode {
+  role: string;
+  name: string;
+  children: AccessibilityNode[];
+}
 
 describe('<cs-badge>', () => {
   for (const fixture of fixtures) {
@@ -14,10 +24,20 @@ describe('<cs-badge>', () => {
           await expect(el).to.be.accessible({ ignoredRules });
         });
 
-        it('should have role="status" on the base part', async () => {
+        it('should not render a live region', async () => {
           const el = await fixture<CsBadge>(html`<cs-badge>Badge</cs-badge>`);
-          const base = el.shadowRoot!.querySelector('[part~="badge"]')!;
-          expect(base.getAttribute('role')).to.equal('status');
+          const liveRegions = [...el.shadowRoot!.querySelectorAll(liveRegion)].map((node) => node.outerHTML);
+          expect(liveRegions).to.deep.equal([]);
+        });
+
+        it('should add its text to the accessible name of a button it is in', async () => {
+          const el = await fixture<CsButton>(html`<cs-button>Requests <cs-badge pill>30</cs-badge></cs-button>`);
+          await expect(el).to.be.accessible();
+
+          const snapshot = (await a11ySnapshot({})) as unknown as AccessibilityNode;
+          const button = findAccessibilityNode(snapshot, (node) => node.role === 'button');
+          // WebKit joins the two without a space.
+          expect(button?.name).to.match(/^Requests ?30$/);
         });
       });
 
