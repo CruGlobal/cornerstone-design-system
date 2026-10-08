@@ -141,6 +141,7 @@ The page measures its `banner`, `header` and `subheader` and keeps each height i
 
 ```css
 cs-page > main {
+  box-sizing: border-box;
   block-size: calc(100dvh - var(--header-height));
   overflow: auto;
 }
