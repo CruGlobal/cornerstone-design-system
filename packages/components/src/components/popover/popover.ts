@@ -219,8 +219,7 @@ export default class CsPopover extends CornerstoneElement {
 
       await animateWithClass(this.popup.popup, 'show-with-scale');
 
-      // The popover was closed while the show animation ran. The hide that closed it owns the final state, and a
-      // show that never finished must not report that it did.
+      // Closed during the show animation: the hide that closed it owns the final state.
       if (!this.open) {
         return;
       }
@@ -245,8 +244,7 @@ export default class CsPopover extends CornerstoneElement {
 
       await animateWithClass(this.popup.popup, 'hide-with-scale');
 
-      // The popover was reopened while the hide animation ran, and the show branch has already opened the dialog.
-      // Closing it now would leave the popover open with nothing showing.
+      // Reopened during the hide animation: the show branch has already opened the dialog.
       if (this.open) {
         return;
       }
