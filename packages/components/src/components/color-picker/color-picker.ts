@@ -28,6 +28,7 @@ import type CsInput from '../input/input.js';
 import '../popup/popup.js';
 import type CsPopup from '../popup/popup.js';
 import styles from './color-picker.styles.js';
+import { getSwatchLabel, parseCssVar, resolveCssVar } from './internal/swatch-vars.js';
 
 export interface CsColorPickerSwatch {
   /** Any color the picker can parse, or a `var(--name)` that resolves to one. */
@@ -45,61 +46,6 @@ interface EyeDropperInterface {
 }
 
 declare const EyeDropper: EyeDropperConstructor;
-
-/** Matches a swatch written as `var(--name)` or `var(--name, fallback)`. The fallback may itself be a `var()`. */
-const cssVarPattern = /^var\(\s*(--[^\s,()]+)\s*(?:,\s*([\s\S]*?))?\s*\)$/i;
-
-function isCssVar(value: string) {
-  return typeof value === 'string' && cssVarPattern.test(value.trim());
-}
-
-/**
- * Resolves a swatch written as `var(--name)` or `var(--name, fallback)` against a computed style. Returns the custom
- * property's value, else the fallback, else `null`. Also returns `null` for anything that isn't a `var()`.
- */
-function resolveCssVar(styles: CSSStyleDeclaration, value: string): string | null {
-  const match = typeof value === 'string' ? cssVarPattern.exec(value.trim()) : null;
-  if (!match) {
-    return null;
-  }
-
-  const [, name, fallback] = match;
-
-  // Firefox keeps a comment written inside a custom property's value, and the default palette writes one after each
-  // color (`#0071ec /* oklch(...) */`). The color parser rejects the comment, so strip it.
-  const resolved = styles
-    .getPropertyValue(name)
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .trim();
-
-  if (resolved) {
-    return resolved;
-  }
-
-  if (fallback === undefined) {
-    return null;
-  }
-
-  return isCssVar(fallback) ? resolveCssVar(styles, fallback) : fallback.trim() || null;
-}
-
-/**
- * The accessible name for a swatch given as a bare string. A `var()` is named after its custom property, so
- * `var(--cs-color-brand-fill-loud)` reads as "brand fill loud" rather than as the raw `var(...)` text.
- */
-function getSwatchLabel(color: string) {
-  const name = cssVarPattern.exec(color.trim())?.[1];
-  if (!name) {
-    return color;
-  }
-
-  return (
-    name
-      .replace(/^--(cs-)?(color-)?/, '')
-      .replace(/-/g, ' ')
-      .trim() || color
-  );
-}
 
 /**
  * @summary Color pickers let users choose a color from a visual palette or by entering a value. They support HEX, RGB,
@@ -1426,7 +1372,7 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
                 <div part="swatches" class="swatches">
                   ${normalizedSwatches.map((swatch) => {
                     // A var() swatch renders in the color it resolved to, and not at all until it has resolved
-                    const color = isCssVar(swatch.color) ? this.resolvedSwatchVars.get(swatch.color) : swatch.color;
+                    const color = parseCssVar(swatch.color) ? this.resolvedSwatchVars.get(swatch.color) : swatch.color;
                     const parsedColor = color ? this.parseColor(color) : null;
 
                     // If we can't parse it, skip it
