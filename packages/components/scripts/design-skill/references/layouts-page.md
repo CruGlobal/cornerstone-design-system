@@ -471,12 +471,10 @@ navigation sidebar, main content, a sticky table-of-contents aside, and a footer
 
 ## Slot wrappers have a layout; change it with utilities
 
-`<cs-page>` lays out the element you slot into each region, with a `--cs-space-m` gap between its children:
-
-- `header`, `subheader`, `main-header`: a wrapping row, `align-items: center`, `justify-content: space-between`.
-- `main-footer`, `footer`: the same, with `align-items: start`.
-- `banner`: a centered row.
-- `navigation`, `navigation-header`, `navigation-footer`, `menu`, `aside`: a column.
+`<cs-page>` lays out the element you slot into each region. The `navigation` wrapper, for one, is a column.
+The [Default Slot Styles](https://cruglobal.github.io/cornerstone-design-system/components/page/#default-slot-styles)
+table in the Page docs lists every slot's defaults, and so does `references/components/page.md` in the
+companion `cornerstone` skill.
 
 A style on the slotted element always beats these defaults, so **to rearrange a wrapper, put layout
 utilities on it; don't write CSS.** For a rail beside a sidebar in `slot="navigation"`:
