@@ -23,7 +23,7 @@ description: "Accordions are a vertically stacked set of interactive headings th
     applications. It's built on open web standards and works with any framework.
   </cs-accordion-item>
   <cs-accordion-item label="Is it free to use?">
-    Yes. Cornerstone is free and open source under the MIT license.
+    Yes. Cornerstone Components is free and open source under the MIT license.
   </cs-accordion-item>
   <cs-accordion-item label="Does it work with my framework?">
     Yes! Cornerstone components are built as native web components, so they work with any framework including React,
