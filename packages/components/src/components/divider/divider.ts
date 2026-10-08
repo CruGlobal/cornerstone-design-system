@@ -14,8 +14,8 @@ import styles from './divider.styles.js';
  * @cssproperty --color - The color of the divider.
  * @cssproperty --width - The width of the divider.
  * @cssproperty --spacing - The margin on either side of the divider: above and below it when horizontal, left and
- *  right when vertical. Inside a layout utility such as `cs-stack` or `cs-cluster`, the container's gap sets this space
- *  instead, so use a `cs-gap-*` class on the container to change it.
+ *  right when vertical. As a direct child of a layout utility such as `cs-stack` or `cs-cluster`, the container's gap
+ *  sets this space instead, so use a `cs-gap-*` class on the container to change it.
  */
 @customElement('cs-divider')
 export default class CsDivider extends CornerstoneElement {
