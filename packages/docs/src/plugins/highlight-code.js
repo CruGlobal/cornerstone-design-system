@@ -18,6 +18,7 @@ import 'prismjs/plugins/custom-class/prism-custom-class.js';
  * there is one highlighter in the build rather than two.
  */
 
+// Prism's plugins attach to the global `Prism`, so a second `prismjs` copy leaves `customClass` undefined here.
 PrismLoader('diff');
 PrismLoader.silent = true;
 Prism.plugins.customClass.prefix('code-');
