@@ -24,7 +24,9 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { CATEGORIES, headingCategory } from '@cruglobal/cornerstone-build-tools/changelog-categories.js';
 import { getApiSections, getComponent, loadComponents } from '@cruglobal/cornerstone-build-tools/component-api.js';
+import { componentsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
 // `palettes` is still every palette: the showcase loads all of them, because each theme it previews imports
 // one. Only the reference page narrowed to the brand palette.
 import { brandPalette, brandTheme, palettes, variants } from '../src/plugins/remark-theming.js';
@@ -309,6 +311,59 @@ function checkRoadmap(failures) {
   return 1;
 }
 
+/**
+ * The changelog page, whose released versions are generated from the library's `CHANGELOG.md`.
+ *
+ * `:::added` and its siblings once shipped as unlabelled `<div>`s through three releases before anyone looked,
+ * and every generated release now renders through them, one block per `### <Category>` group the version step
+ * wrote. So the counts come from the two sources: one block per `###` group in `CHANGELOG.md` and per authored
+ * block on the page, a screen-reader label on every category block, and an anchor for every release.
+ */
+function checkChangelog(failures) {
+  const built = join(distDir, 'resources', 'changelog', 'index.html');
+
+  if (!existsSync(built)) {
+    failures.push('resources/changelog: no page was built');
+    return 0;
+  }
+
+  const html = readFileSync(built, 'utf-8');
+  const generated = readFileSync(join(componentsDir(), 'CHANGELOG.md'), 'utf-8');
+  const authored = readFileSync(join(siteDir, 'src', 'content', 'docs', 'resources', 'changelog.md'), 'utf-8');
+
+  const generatedHeadings = (generated.match(/^### .*$/gm) ?? []).map((line) => line.slice(4));
+  const authoredBlocks = (authored.match(/^:::[a-z-]+$/gm) ?? []).map((line) => line.slice(3));
+  const categoryBlocks =
+    generatedHeadings.filter((heading) => headingCategory(heading)).length +
+    authoredBlocks.filter((name) => CATEGORIES[name]).length;
+
+  const groups = count(html, /class="changelog-group"/g);
+  const labelled = count(html, /class="changelog-group" data-change="[a-z]+"><p class="cs-visually-hidden">/g);
+
+  if (groups !== generatedHeadings.length + authoredBlocks.length) {
+    failures.push(
+      `resources/changelog: ${generatedHeadings.length} groups in CHANGELOG.md and ${authoredBlocks.length} ` +
+        `authored blocks, ${groups} groups on the page`,
+    );
+  }
+
+  if (labelled !== categoryBlocks) {
+    failures.push(`resources/changelog: ${categoryBlocks} category blocks expected, ${labelled} rendered with a label`);
+  }
+
+  for (const [, version] of generated.matchAll(/^## (\d+\.\d+\.\d+)\s*$/gm)) {
+    if (!html.includes(`id="v${version.replace(/\./g, '-')}"`)) {
+      failures.push(`resources/changelog: ${version} has no #v${version.replace(/\./g, '-')} anchor`);
+    }
+  }
+
+  if (html.includes(':::')) {
+    failures.push('resources/changelog: a `:::` directive is on the page as text, so the plugin did not handle it');
+  }
+
+  return 1;
+}
+
 function main() {
   if (!existsSync(builtDir)) {
     console.error(`No build found at ${builtDir}. Run \`npm run build\` first.`);
@@ -392,6 +447,7 @@ function main() {
   checked += checkBrowsePage(failures);
   checked += checkTheming(failures);
   checked += checkRoadmap(failures);
+  checked += checkChangelog(failures);
 
   for (const failure of failures) {
     console.error(`  ${failure}`);

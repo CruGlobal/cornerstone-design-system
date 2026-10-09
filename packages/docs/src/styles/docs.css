@@ -1247,6 +1247,17 @@ cs-page[view='mobile'] .site-logo {
 }
 
 /*
+ * A rule between a release's category groups. The group's name is hidden for screen readers only, so to a
+ * sighted reader this line is the divider: without it, Added runs straight into Fixed and the grouping that
+ * `sort-changelog.js` does is invisible. Adjacent siblings only, so the version heading still separates one
+ * release from the next.
+ */
+.changelog-group + .changelog-group {
+  padding-block-start: var(--cs-space-l, 1.5rem);
+  border-block-start: var(--cs-border-width-s) solid var(--cs-color-neutral-border-quiet);
+}
+
+/*
  * The icon stands in for the list marker, so an entry carrying one gives up its own.
  *
  * Keyed on the icon rather than on the group, because the two halves of this page produce different markup

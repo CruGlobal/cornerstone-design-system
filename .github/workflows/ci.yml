@@ -167,6 +167,9 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
       - run: npm ci
+      # The shared build modules' own tests, including the changelog sorter the docs page reads from.
+      # Seconds, and the `docs` filter already fires on every path they cover.
+      - run: npm run verify --workspace @cruglobal/cornerstone-build-tools
       # The site reads the library's manifest and copies its bundled build, so the library has to be
       # built — but not tested. That is the whole saving: minutes instead of half an hour.
       - run: npm run build --workspace @cruglobal/cornerstone-components

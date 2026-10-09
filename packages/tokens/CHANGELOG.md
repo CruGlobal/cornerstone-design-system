@@ -2,31 +2,33 @@
 
 ## 0.7.0
 
-### Patch Changes
+### Changed
 
-- [#227](https://github.com/CruGlobal/cornerstone-design-system/pull/227) [`d65cdae`](https://github.com/CruGlobal/cornerstone-design-system/commit/d65cdaeb339fca0a18737c847bb076eae23c920a) Thanks [@rguinee](https://github.com/rguinee)! - Changed: decisions are recorded as resolved GitHub issues rather than ADR files, and each rule in `docs/standards/` links the issue that set it.
+- [#227](https://github.com/CruGlobal/cornerstone-design-system/pull/227) [`d65cdae`](https://github.com/CruGlobal/cornerstone-design-system/commit/d65cdaeb339fca0a18737c847bb076eae23c920a) Thanks [@rguinee](https://github.com/rguinee)! - decisions are recorded as resolved GitHub issues rather than ADR files, and each rule in `docs/standards/` links the issue that set it.
 
-- [#207](https://github.com/CruGlobal/cornerstone-design-system/pull/207) [`1622061`](https://github.com/CruGlobal/cornerstone-design-system/commit/1622061afd53dcda40ad6718ee6b58e4909505a3) Thanks [@rguinee](https://github.com/rguinee)! - Changed: `cornerstone-dev` now installs Matt Pocock's skills at v1.3.1 from Cru's marketplace, and the domain docs are renamed to `GLOSSARY.md` and `GLOSSARY-MAP.md`, the names those skills now read.
+- [#207](https://github.com/CruGlobal/cornerstone-design-system/pull/207) [`1622061`](https://github.com/CruGlobal/cornerstone-design-system/commit/1622061afd53dcda40ad6718ee6b58e4909505a3) Thanks [@rguinee](https://github.com/rguinee)! - `cornerstone-dev` now installs Matt Pocock's skills at v1.3.1 from Cru's marketplace, and the domain docs are renamed to `GLOSSARY.md` and `GLOSSARY-MAP.md`, the names those skills now read.
 
-- [#183](https://github.com/CruGlobal/cornerstone-design-system/pull/183) [`024b5fe`](https://github.com/CruGlobal/cornerstone-design-system/commit/024b5fe2ca7373d8702103c10a2f053c5b2750c1) Thanks [@rguinee](https://github.com/rguinee)! - Changed: the repo's agent guidance loads less up front. The release-publishing notes now load only when release config is touched.
+- [#183](https://github.com/CruGlobal/cornerstone-design-system/pull/183) [`024b5fe`](https://github.com/CruGlobal/cornerstone-design-system/commit/024b5fe2ca7373d8702103c10a2f053c5b2750c1) Thanks [@rguinee](https://github.com/rguinee)! - the repo's agent guidance loads less up front. The release-publishing notes now load only when release config is touched.
 
-- [#206](https://github.com/CruGlobal/cornerstone-design-system/pull/206) [`f69da1b`](https://github.com/CruGlobal/cornerstone-design-system/commit/f69da1b85d53ee83c8ef75d80d73764d33539d56) Thanks [@rguinee](https://github.com/rguinee)! - Removed: the `cornerstone-skills` plugin, a fork of Matt Pocock's skills. `cornerstone-dev` now installs `mattpocock-skills` from Anthropic's official marketplace instead.
+### Removed
+
+- [#206](https://github.com/CruGlobal/cornerstone-design-system/pull/206) [`f69da1b`](https://github.com/CruGlobal/cornerstone-design-system/commit/f69da1b85d53ee83c8ef75d80d73764d33539d56) Thanks [@rguinee](https://github.com/rguinee)! - the `cornerstone-skills` plugin, a fork of Matt Pocock's skills. `cornerstone-dev` now installs `mattpocock-skills` from Anthropic's official marketplace instead.
 
 ## 0.6.2
 
 ## 0.6.1
 
-### Patch Changes
+### Changed
 
-- [#161](https://github.com/CruGlobal/cornerstone-design-system/pull/161) [`e92e973`](https://github.com/CruGlobal/cornerstone-design-system/commit/e92e973d54f0b952096faa3a16cd15892269e92a) Thanks [@rguinee](https://github.com/rguinee)! - Changed: bug reports and feature requests now use structured GitHub Issue Forms that require the package and version, and untemplated blank issues are disabled.
+- [#161](https://github.com/CruGlobal/cornerstone-design-system/pull/161) [`e92e973`](https://github.com/CruGlobal/cornerstone-design-system/commit/e92e973d54f0b952096faa3a16cd15892269e92a) Thanks [@rguinee](https://github.com/rguinee)! - bug reports and feature requests now use structured GitHub Issue Forms that require the package and version, and untemplated blank issues are disabled.
 
-- [#163](https://github.com/CruGlobal/cornerstone-design-system/pull/163) [`ab4255c`](https://github.com/CruGlobal/cornerstone-design-system/commit/ab4255ccb1c7b238c966a60749a9c78e60262cc1) Thanks [@rguinee](https://github.com/rguinee)! - Changed: both packages now share a single version number. `@cruglobal/cornerstone-components` moves from `0.1.3` to align with the design-system package — `0.2` through `0.5` never existed, so no published version is affected.
+- [#163](https://github.com/CruGlobal/cornerstone-design-system/pull/163) [`ab4255c`](https://github.com/CruGlobal/cornerstone-design-system/commit/ab4255ccb1c7b238c966a60749a9c78e60262cc1) Thanks [@rguinee](https://github.com/rguinee)! - both packages now share a single version number. `@cruglobal/cornerstone-components` moves from `0.1.3` to align with the design-system package — `0.2` through `0.5` never existed, so no published version is affected.
 
-- [#153](https://github.com/CruGlobal/cornerstone-design-system/pull/153) [`fe59389`](https://github.com/CruGlobal/cornerstone-design-system/commit/fe59389d2895f8c80fbb543ac54e140e3c9d491d) Thanks [@rguinee](https://github.com/rguinee)! - Changed: the Claude Code plugin section now describes Daniel, the assistant the `cornerstone` plugin installs, instead of the `/onboard` and `/design-review` commands, which have been removed.
+- [#153](https://github.com/CruGlobal/cornerstone-design-system/pull/153) [`fe59389`](https://github.com/CruGlobal/cornerstone-design-system/commit/fe59389d2895f8c80fbb543ac54e140e3c9d491d) Thanks [@rguinee](https://github.com/rguinee)! - the Claude Code plugin section now describes Daniel, the assistant the `cornerstone` plugin installs, instead of the `/onboard` and `/design-review` commands, which have been removed.
 
 ## 0.6.0
 
-### Minor Changes
+### Other changes
 
 - [#90](https://github.com/CruGlobal/cornerstone-design-system/pull/90) [`f65c717`](https://github.com/CruGlobal/cornerstone-design-system/commit/f65c717deaae5007d9eaa45927b76817f488fd53) Thanks [@rguinee](https://github.com/rguinee)! - Add Anna, the docs-and-stories persona, at `plugins/cornerstone-dev/agents/anna.md` — one of the five agents from the persona architecture spec (#66, model floor per #74).
 
@@ -134,8 +136,6 @@
 
 - [#54](https://github.com/CruGlobal/cornerstone-design-system/pull/54) [`77c5121`](https://github.com/CruGlobal/cornerstone-design-system/commit/77c5121fd09c9f0ea294a537df44143897f1efdf) Thanks [@rguinee](https://github.com/rguinee)! - Add `_sys.color.primary-strong` and repoint `_cmp.tabs`'s active-tab indicator to it, fixing a WCAG 1.4.11 contrast failure: the indicator's prior color (`primary.default`, brand yellow) sat at 1.46:1 against `action-surface.default` in `cru-light` — well under the 3:1 required for a color-only state indicator. `primary-strong` darkens to `yellow.700` (3.94:1) in `cru-light` only; `cru-dark`, `fl-light`, and `fl-dark` already clear 3:1 with their existing `primary.default` value, so `primary-strong` aliases to the same value there.
 
-### Patch Changes
-
 - [#86](https://github.com/CruGlobal/cornerstone-design-system/pull/86) [`673d98e`](https://github.com/CruGlobal/cornerstone-design-system/commit/673d98eecd8bd32a6b163148765b6d2464eda3fe) Thanks [@rguinee](https://github.com/rguinee)! - Run CI on every pull request, not only those targeting `main`, and check the changeset gate against each PR's own base.
 
   The `pull_request: branches: [main]` filter meant a PR based on another feature branch reported **no checks at all** rather than running them — so every intermediate position in a stacked PR was unverified. Push stays filtered to `main` so a branch with an open PR doesn't build twice.
@@ -158,7 +158,7 @@
 
 ## 0.5.1
 
-### Patch Changes
+### Other changes
 
 - [#56](https://github.com/CruGlobal/cornerstone-design-system/pull/56) [`dbf7b8b`](https://github.com/CruGlobal/cornerstone-design-system/commit/dbf7b8bdcd81d83feb18eae0a04b0ef35a8319ee) Thanks [@rguinee](https://github.com/rguinee)! - Fix `cru-dark` font families for body, label and button text.
 
@@ -176,7 +176,7 @@
 
 ## 0.5.0
 
-### Minor Changes
+### Other changes
 
 - [#76](https://github.com/CruGlobal/cornerstone-design-system/pull/76) [`1e3069d`](https://github.com/CruGlobal/cornerstone-design-system/commit/1e3069dcd21399aa02fd744816b67cf8a08d4a22) Thanks [@rguinee](https://github.com/rguinee)! - Add the `cornerstone-skills` plugin: 25 general-purpose engineering and productivity skills forked from mattpocock/skills (MIT), scoped to Cornerstone's contributor personas. Two skills renamed (`ask-matt` → `ask`, `setup-matt-pocock-skills` → `setup-cornerstone-skills`) with all cross-references updated.
 
@@ -223,8 +223,6 @@
 
   Consumers referencing any removed token by its CSS custom property, SCSS variable, or JS export must migrate to the replacement above. `_cmp` tokens shipped in this package were updated in the same change, so components consuming only `_cmp` tokens need no action.
 
-### Patch Changes
-
 - [#78](https://github.com/CruGlobal/cornerstone-design-system/pull/78) [`8c7111a`](https://github.com/CruGlobal/cornerstone-design-system/commit/8c7111ae14953102cee94c6d5c252b54e95226c5) Thanks [@rguinee](https://github.com/rguinee)! - Bump js-yaml and brace-expansion (transitive dev dependencies) to patch Dependabot security advisories. No token API changes.
 
 - [#47](https://github.com/CruGlobal/cornerstone-design-system/pull/47) [`ddf0e1a`](https://github.com/CruGlobal/cornerstone-design-system/commit/ddf0e1a7b4599953085b3a8cf6dbd3412b205236) Thanks [@rguinee](https://github.com/rguinee)! - Make the `/design-review` command configurable via `$ARGUMENTS` flags: `--passes` (tokens/heuristics/wcag/all), `--scope` (diff/path/Figma/screenshot), `--output` (report/overlay/apply), and `--severity` (minimum severity to surface). Defaults reproduce the prior full-report behavior. `--output overlay` is capability-gated and syncs findings into a project's in-app audit overlay (via `ui_audit:add`) when available, falling back to a report otherwise.
@@ -252,47 +250,45 @@
 
 ## 0.4.1
 
-### Patch Changes
+### Other changes
 
 - [#45](https://github.com/CruGlobal/cornerstone-design-system/pull/45) [`899379d`](https://github.com/CruGlobal/cornerstone-design-system/commit/899379d873ddf853fdb5af50bca2a7422cc41ccd) Thanks [@rguinee](https://github.com/rguinee)! - Add a Claude Code plugin (`cornerstone@cru`) bundling the `/onboard` and `/design-review` commands, distributed via the `cru` plugin marketplace. Consumers install it with `/plugin marketplace add CruGlobal/cornerstone-design-system` then `/plugin install cornerstone@cru`.
 
 ## 0.4.0
 
-### Minor Changes
+### Other changes
 
 - [#43](https://github.com/CruGlobal/cornerstone-design-system/pull/43) [`ba80ca4`](https://github.com/CruGlobal/cornerstone-design-system/commit/ba80ca44719318a2af015502c7cc5791613f3455) Thanks [@rguinee](https://github.com/rguinee)! - Add Cru ministry icon library, `/onboard` and `/design-review` Claude commands, and improved consumer-facing README documentation.
 
 ## 0.3.2
 
-### Patch Changes
+### Other changes
 
 - [#40](https://github.com/CruGlobal/cornerstone-design-system/pull/40) [`6f78634`](https://github.com/CruGlobal/cornerstone-design-system/commit/6f786348014a21167afc70ec36feec63be5af45f) Thanks [@rguinee](https://github.com/rguinee)! - Upgrade the npm CLI used in the release workflow from the pinned 11.5.1 to the latest release. npm 11.5.1 is the GA-boundary version with known OIDC trusted-publishing bugs that surface as a misleading `ENEEDAUTH` error during publish; upgrading resolves the authentication failure so the package can publish via trusted publishing.
 
 ## 0.3.1
 
-### Patch Changes
+### Other changes
 
 - [#38](https://github.com/CruGlobal/cornerstone-design-system/pull/38) [`b9f3dc8`](https://github.com/CruGlobal/cornerstone-design-system/commit/b9f3dc874c291e54a1ae7ffaf7c933c486138a75) Thanks [@rguinee](https://github.com/rguinee)! - Fix the release pipeline so the package publishes via npm trusted publishing (OIDC). The previous version was versioned but never published because the publish step failed authentication and an empty changeset then blocked the retry. This patch routes the release through the normal changesets flow.
 
 ## 0.3.0
 
-### Minor Changes
+### Other changes
 
 - [#35](https://github.com/CruGlobal/cornerstone-design-system/pull/35) [`a8a42b7`](https://github.com/CruGlobal/cornerstone-design-system/commit/a8a42b7d1d39e5a47b785e5a774d7dd22b751ac9) Thanks [@rguinee](https://github.com/rguinee)! - Add DaisyUI theme overrides for `cru-light` and `cru-dark` in `libraries/daisyui.css`
 
 ## 0.2.1
 
-### Patch Changes
+### Other changes
 
 - [#30](https://github.com/CruGlobal/cornerstone-design-system/pull/30) [`93b8adc`](https://github.com/CruGlobal/cornerstone-design-system/commit/93b8adcef838f6c033ad2b98ac846697e33dce54) Thanks [@rguinee](https://github.com/rguinee)! - Fix version script to update package-lock.json after changeset version bump.
 
 ## 0.2.0
 
-### Minor Changes
+### Other changes
 
 - [#18](https://github.com/CruGlobal/cornerstone-design-system/pull/18) [`70398c8`](https://github.com/CruGlobal/cornerstone-design-system/commit/70398c802785c8d380ee44db2a2c93bd785d58d0) Thanks [@rguinee](https://github.com/rguinee)! - Add diff-detecting Figma token pipeline and initial W3C DTCG token tree: tokens/ref.json, four sys mode files (cru-light, cru-dark, fl-light, fl-dark), and eight cmp files (accordion, breadcrumb, button, card, links, menu, paper, text-field).
-
-### Patch Changes
 
 - [#26](https://github.com/CruGlobal/cornerstone-design-system/pull/26) [`df30415`](https://github.com/CruGlobal/cornerstone-design-system/commit/df304156da6c6305be5a4327cb6fe7a53f020700) Thanks [@rguinee](https://github.com/rguinee)! - Flatten `on-*` and `*-container` system color tokens to top-level roles
 

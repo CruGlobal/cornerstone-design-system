@@ -135,7 +135,7 @@ repeated defect in this repository's history.
   list, leads with its category prefix, and carries no rationale paragraph, no "Verified" line, no contrast
   ratios, no table beyond a removed-to-replacement mapping, and no recap of review rounds. Flag a body over
   roughly 60 words. One category per file: a PR that both adds and fixes writes two changesets rather than
-  nesting one under the other, because `remark-changelog.js` reads only the first line's prefix.
+  nesting one under the other, because the version step files a whole entry by its first line's prefix.
   Twenty-two changesets in this range ran 150 to 500 words and were trimmed after release, several within a
   day of the rule landing in `CLAUDE.md`.
   <!-- evidence: PR #50, #51, #52, #54, #55, #56, #57, #83, #84, #85, #86, #88, #89, #90, #91, #92, #93, #110, #112, #113, #114, #116, #130, #137, #138, #139, #141, #162 -->
