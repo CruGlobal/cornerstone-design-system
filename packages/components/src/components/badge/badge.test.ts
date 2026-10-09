@@ -1,18 +1,22 @@
 import { expect } from '@open-wc/testing';
-import { a11ySnapshot, findAccessibilityNode } from '@web/test-runner-commands';
+import { a11ySnapshot } from '@web/test-runner-commands';
 import { html } from 'lit';
 import { fixtures } from '../../internal/test/fixture.js';
+import { isWebkit } from '../../internal/test/pointer-utilities.js';
 import type CsButton from '../button/button.js';
 import type CsBadge from './badge.js';
 
-const ignoredRules = ['color-contrast'];
+const liveRoles = ['alert', 'log', 'marquee', 'status', 'timer'];
 
-const liveRegion = '[role="alert"], [role="log"], [role="marquee"], [role="status"], [role="timer"], [aria-live]';
+const liveRegion = [
+  ...liveRoles.map((role) => `[role="${role}"]`),
+  'output',
+  '[aria-live]:not([aria-live="off"])',
+].join(', ');
 
 interface AccessibilityNode {
   role: string;
   name: string;
-  children: AccessibilityNode[];
 }
 
 describe('<cs-badge>', () => {
@@ -21,23 +25,25 @@ describe('<cs-badge>', () => {
       describe('accessibility', () => {
         it('should pass accessibility tests', async () => {
           const el = await fixture<CsBadge>(html`<cs-badge>Badge</cs-badge>`);
-          await expect(el).to.be.accessible({ ignoredRules });
+          await expect(el).to.be.accessible();
         });
 
         it('should not render a live region', async () => {
           const el = await fixture<CsBadge>(html`<cs-badge>Badge</cs-badge>`);
           const liveRegions = [...el.shadowRoot!.querySelectorAll(liveRegion)].map((node) => node.outerHTML);
           expect(liveRegions).to.deep.equal([]);
+          expect(el.matches(liveRegion)).to.be.false;
+          expect(el.internals.role).not.to.be.oneOf(liveRoles);
+          expect(el.internals.ariaLive).to.be.oneOf([null, 'off']);
         });
 
         it('should add its text to the accessible name of a button it is in', async () => {
           const el = await fixture<CsButton>(html`<cs-button>Requests <cs-badge pill>30</cs-badge></cs-button>`);
           await expect(el).to.be.accessible();
 
-          const snapshot = (await a11ySnapshot({})) as unknown as AccessibilityNode;
-          const button = findAccessibilityNode(snapshot, (node) => node.role === 'button');
-          // WebKit joins the two without a space.
-          expect(button?.name).to.match(/^Requests ?30$/);
+          const button = (await a11ySnapshot({ selector: 'cs-button button' })) as unknown as AccessibilityNode;
+          // WebKit drops the space: a known gap in resources/accessibility.md.
+          expect(button).to.include({ role: 'button', name: isWebkit ? 'Requests30' : 'Requests 30' });
         });
       });
 
@@ -93,7 +99,7 @@ describe('<cs-badge>', () => {
           it(`should accept variant="${variant}"`, async () => {
             const el = await fixture<CsBadge>(html`<cs-badge variant="${variant}">Badge</cs-badge>`);
             expect(el.variant).to.equal(variant);
-            await expect(el).to.be.accessible({ ignoredRules });
+            await expect(el).to.be.accessible();
           });
         }
 

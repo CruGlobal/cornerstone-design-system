@@ -146,6 +146,7 @@ export default {
       target: 'es2020',
     }),
     litSsrPlugin(),
+    // Calls Playwright's deprecated `page.accessibility`. Check it still exists before raising the Playwright pin.
     a11ySnapshotPlugin(),
   ],
   browsers,

@@ -183,8 +183,8 @@ One of the most common use cases for badges is attaching them to buttons. To mak
 </cs-button>
 ```
 
-The badge's text is part of the button's accessible name, so the first button is named "Requests 30". An icon button has no text to say what its count means, so follow [Icon Button With a Badge](/components/button#icon-button-with-a-badge) instead.
+The badge's text is part of the accessible name of the button, link or other control it is in, so the first button is named "Requests 30". WebKit leaves out the space and names it "Requests30", a [known gap](/resources/accessibility#known-gaps). An icon button has no text to say what its count means, so follow [Icon Button With a Badge](/components/button#icon-button-with-a-badge) instead.
 
 ## Accessibility Considerations
 
-A badge is not a live region, so a screen reader does not announce a change to its text. If a count changes because of something the user did, such as adding an item to a cart, announce it as well. Keep an empty `<div class="cs-visually-hidden" role="status"></div>` on the page, outside the button or other control the badge is in, and set its text to the new count with context, such as "3 items in cart".
+A badge is not a live region, so a screen reader does not announce a change to its text. If people need to hear about a change, announce it as well. That goes for a count that changes because of something the user did, such as adding an item to a cart, and for one that changes on its own, such as a new message arriving. Keep an empty `<div class="cs-visually-hidden" role="status"></div>` on the page, outside the button or other control the badge is in, and set its text to the new count with context, such as "3 items in cart".
