@@ -76,6 +76,7 @@ visual order, and no focusable element is repositioned with `order`, `row-revers
 | Screen reader verification | No component has been verified against a screen reader by a person who relies on one. | Assistive-technology testing is arranged |
 | One WebKit keyboard divergence | `cs-otp-input` does not advance focus out of the field on Tab in WebKit. Its field is a visually hidden real `<input>` reached through `delegatesFocus`, and WebKit's sequential focus does not leave that combination. Chromium and Firefox behave correctly. | WebKit's behaviour changes |
 | One WebKit scroll divergence | `cs-carousel` with `loop` ends on the wrong slide in WebKit when paging backwards from the first slide. | The carousel's clone-and-jump approach is revisited |
+| `cs-callout` variants unchecked under SSR | The axe test that renders each `cs-callout` variant returns early under the server-rendered-then-hydrated fixture, so in that mode it passes without checking anything. The axe test on default properties still runs in both modes. Until this closes, the claim above that axe runs in both render modes does not hold for callout variants. | UIUX-119 lands |
 
 ## Reporting something
 
