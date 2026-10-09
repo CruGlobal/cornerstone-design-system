@@ -1,5 +1,17 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.7.0
+
+### Patch Changes
+
+- [#227](https://github.com/CruGlobal/cornerstone-design-system/pull/227) [`d65cdae`](https://github.com/CruGlobal/cornerstone-design-system/commit/d65cdaeb339fca0a18737c847bb076eae23c920a) Thanks [@rguinee](https://github.com/rguinee)! - Changed: decisions are recorded as resolved GitHub issues rather than ADR files, and each rule in `docs/standards/` links the issue that set it.
+
+- [#207](https://github.com/CruGlobal/cornerstone-design-system/pull/207) [`1622061`](https://github.com/CruGlobal/cornerstone-design-system/commit/1622061afd53dcda40ad6718ee6b58e4909505a3) Thanks [@rguinee](https://github.com/rguinee)! - Changed: `cornerstone-dev` now installs Matt Pocock's skills at v1.3.1 from Cru's marketplace, and the domain docs are renamed to `GLOSSARY.md` and `GLOSSARY-MAP.md`, the names those skills now read.
+
+- [#183](https://github.com/CruGlobal/cornerstone-design-system/pull/183) [`024b5fe`](https://github.com/CruGlobal/cornerstone-design-system/commit/024b5fe2ca7373d8702103c10a2f053c5b2750c1) Thanks [@rguinee](https://github.com/rguinee)! - Changed: the repo's agent guidance loads less up front. The release-publishing notes now load only when release config is touched.
+
+- [#206](https://github.com/CruGlobal/cornerstone-design-system/pull/206) [`f69da1b`](https://github.com/CruGlobal/cornerstone-design-system/commit/f69da1b85d53ee83c8ef75d80d73764d33539d56) Thanks [@rguinee](https://github.com/rguinee)! - Removed: the `cornerstone-skills` plugin, a fork of Matt Pocock's skills. `cornerstone-dev` now installs `mattpocock-skills` from Anthropic's official marketplace instead.
+
 ## 0.6.2
 
 ## 0.6.1
