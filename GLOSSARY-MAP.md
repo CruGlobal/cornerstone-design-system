@@ -4,8 +4,7 @@ This repo is multi-context: an npm workspace whose packages carry genuinely diff
 the index of those contexts — it points at each one's glossary and says what that glossary is for. It defines
 no terms itself; a term lives in exactly one `GLOSSARY.md`, and this map only says which.
 
-How the skills consume these files — and which context a given decision belongs to — is in
-`docs/agents/domain.md`.
+How the skills consume these files, and which context a given term belongs to, is in `docs/agents/domain.md`.
 
 ## The contexts
 
@@ -22,12 +21,8 @@ none, because it reads as settled. Add to one when a term genuinely gets pinned 
 
 ## Decisions
 
-- `docs/adr/` — decisions no single package owns: the three-layer token architecture, the release flow, the
-  plugin tiers.
-- `packages/<name>/docs/adr/` — decisions scoped to one package. A package gets this directory only once it
-  has a decision to record.
-
-Neither exists yet. Same rule: created lazily, when there is a decision worth the file.
+Decisions are resolved GitHub issues, not files. The rule a decision sets lives in the `docs/standards/` file it
+governs, linking the issue that decided it. See `docs/agents/domain.md`.
 
 ## One collision worth knowing about
 
