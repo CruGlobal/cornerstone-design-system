@@ -65,11 +65,12 @@ one-line summary is not enough — the two are a pair, and the brevity above onl
 here.
 
 **Lead the summary with its category** — `Fixed:`, `Added:`, `Changed:`, `Removed:`, `Breaking:` or
-`Deprecated:`. A changeset records the bump it causes, and a bump level is not a category: `patch` covers a
-bug fix, a chore and a tooling tweak alike. The prefix is what lets the docs changelog give a generated entry
-the same bullet icon an authored one gets; it reads as ordinary prose in the `CHANGELOG.md` npm and GitHub
-render, and `remark-changelog.js` strips it there. An entry without one still publishes fine — it just keeps
-a plain bullet rather than being guessed at.
+`Deprecated:`, the set `packages/build-tools/changelog-categories.js` defines. A changeset records the bump it
+causes, and a bump level is not a category: `patch` covers a bug fix, a chore and a tooling tweak alike. The
+prefix is what sorts the release: `npm run version` runs `packages/build-tools/sort-changelog.js` after
+`changeset version`, which files each entry under a `### Fixed`-style heading and drops the prefix the
+heading now states, so the release PR, GitHub, npm and the docs changelog all read by category. An entry
+without one still publishes fine — it lands under `### Other changes` rather than being guessed at.
 
 Both packages release through changesets; `.changeset/config.json` ignores neither. The documentation
 site is not published, but its pages are compiled into the agent skills the component library ships, so a

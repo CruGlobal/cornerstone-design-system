@@ -1,5 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import {
+  CATEGORIES,
+  declaredCategory,
+  headingCategory,
+} from '@cruglobal/cornerstone-build-tools/changelog-categories.js';
 import { componentsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
 import { visit } from 'unist-util-visit';
 
@@ -24,7 +29,13 @@ import { visit } from 'unist-util-visit';
  * screen-reader-only and each entry carries its category as the bullet itself, so a wrench next to a line
  * says "bug fix" without a heading repeating it fifteen times. Upstream's one weakness is that nothing
  * explains the wrench — there is no legend on their page — so `::changelog-legend` renders one here, from
- * this same table, listing only the categories the page actually uses.
+ * the table in `build-tools/changelog-categories.js`, listing only the categories the page actually uses.
+ *
+ * A generated release reaches the page already grouped. `npm run version` runs `build-tools/sort-changelog.js`
+ * after changesets, which files each entry under a `### Added`-style heading by the prefix its changeset
+ * declared, and here each heading becomes that category's block. So a generated release and the authored
+ * one take the same path: icons, the screen-reader label, and the rule `docs.css` draws between groups,
+ * which is the divider a sighted reader sees in place of the heading.
  *
  * The icons are Material Symbols equivalents of upstream's Font Awesome set, since the fork changed icon
  * libraries: `wrench` is `build`, `broom-wide` is `cleaning_services`, `plus` is `add`,
@@ -32,25 +43,11 @@ import { visit } from 'unist-util-visit';
  * Symbols name that does not renders nothing at all rather than falling back.
  */
 
-/** Category → its screen-reader label and its bullet icon. The legend reads from this too. */
-const CATEGORIES = {
-  breaking: { label: 'Breaking', icon: 'warning' },
-  added: { label: 'Added', icon: 'add' },
-  changed: { label: 'Changed', icon: 'cleaning_services' },
-  removed: { label: 'Removed', icon: 'close' },
-  fixed: { label: 'Fixed', icon: 'build' },
-  deprecated: { label: 'Deprecated', icon: 'schedule' },
-};
-
-/** Legend order, so it reads breaking-first like the release it describes rather than in object order. */
-const LEGEND_ORDER = ['breaking', 'added', 'changed', 'removed', 'fixed', 'deprecated'];
-
 /**
- * The wrapper a generated release's entries land in.
- *
- * They carry no category of their own: changesets records the bump a change causes, and a bump level is not
- * a category. It used to render as a "Patch" badge above the list, which said nothing the version heading
- * had not already said — and once every entry began carrying its own icon, said nothing at all.
+ * The block for a group that names no category: `### Other changes`, whose entries declared none, or a
+ * release still grouped by bump level, as changesets writes it before the sorter runs. A bump level is not a
+ * category, so the group gets no label or icon of its own, and an entry inside it that declares one still
+ * gets its icon from the prefix walk below.
  */
 const PLAIN_GROUP = 'changes';
 
@@ -71,7 +68,13 @@ const tidy = (body) =>
     (_match, ref, url, summary) => `- ${summary} [${ref}](${url})`,
   );
 
-/** Every released version in the generated changelog, newest first, as markdown this page can hold. */
+/**
+ * Every released version in the generated changelog, newest first, as markdown this page can hold.
+ *
+ * Each `### <Category>` group becomes that category's block, `### Fixed` → `:::fixed`. The heading's own text
+ * is dropped, because the block carries it as icons and a screen-reader label; any other heading becomes the
+ * plain block.
+ */
 function generatedReleases() {
   const source = readFileSync(join(componentsDir(), 'CHANGELOG.md'), 'utf-8');
 
@@ -82,19 +85,13 @@ function generatedReleases() {
       const newline = section.indexOf('\n');
       const lines = [`## ${section.slice(0, newline).trim()}`, ''];
 
-      // changesets groups a release by bump level — `### Patch Changes`. The heading is dropped: the version
-      // above it already says which bump it was, and a bump level is not a category, so it told a reader
-      // nothing once every entry began carrying its own.
-      const entries = section
-        .slice(newline)
-        .split(/^### /m)
-        .slice(1)
-        .map((group) => tidy(group.slice(group.indexOf('\n'))).trim())
-        .filter(Boolean)
-        .join('\n\n');
+      for (const group of section.slice(newline).split(/^### /m).slice(1)) {
+        const end = group.indexOf('\n');
+        const entries = end === -1 ? '' : tidy(group.slice(end)).trim();
 
-      if (entries) {
-        lines.push(`:::${PLAIN_GROUP}`, '', entries, '', ':::', '');
+        if (entries) {
+          lines.push(`:::${headingCategory(group.slice(0, end)) ?? PLAIN_GROUP}`, '', entries, '', ':::', '');
+        }
       }
 
       return lines.join('\n');
@@ -171,11 +168,11 @@ export function remarkChangelog() {
       }
     });
 
-    // An entry that names its own category takes the same bullet. Nothing in the changesets format records
-    // one — a bump level is not a category, and `patch` covers a bug fix, a chore and a tooling tweak alike
-    // — so the convention is a `Fixed:` prefix on the summary. It reads as ordinary prose in the CHANGELOG
-    // npm and GitHub render, and becomes the icon here. An entry without one keeps a plain bullet rather
-    // than being guessed at. Entries inside an authored block already hold their icon, so none matches twice.
+    // An entry that still names its own category with a `Fixed:` prefix takes the same bullet. The sorter
+    // strips that prefix from every entry it files under a heading, so what reaches this walk is a nested
+    // bullet that declared its own (`- Fixed: …` under an Added entry), or an entry in a plain group. An
+    // entry without one keeps a plain bullet rather than being guessed at. Top-level entries inside a
+    // category block already hold their icon, so none matches twice.
     visit(tree, 'listItem', (item) => {
       const paragraph = item.children.find((child) => child.type === 'paragraph');
       const first = paragraph?.children[0];
@@ -184,21 +181,20 @@ export function remarkChangelog() {
         return;
       }
 
-      const declared = /^(breaking|added|changed|deprecated|removed|fixed):\s*/i.exec(first.value);
+      const declared = declaredCategory(first.value);
 
       if (!declared) {
         return;
       }
 
-      const name = declared[1].toLowerCase();
-      first.value = first.value.slice(declared[0].length);
+      first.value = declared.rest;
 
       if (!first.value) {
         paragraph.children.shift();
       }
 
-      paragraph.children.unshift(bullet(CATEGORIES[name].icon));
-      used.add(name);
+      paragraph.children.unshift(bullet(CATEGORIES[declared.name].icon));
+      used.add(declared.name);
     });
 
     // Rendered after the walk above, so it can describe a category an entry declared as well as one a block
@@ -208,13 +204,15 @@ export function remarkChangelog() {
         return;
       }
 
-      const items = LEGEND_ORDER.filter((name) => used.has(name)).map((name) => {
-        const { label, icon } = CATEGORIES[name];
-        return (
-          `<span class="changelog-legend-item">` +
-          `<cs-icon name="${icon}" aria-hidden="true"></cs-icon>${label}</span>`
-        );
-      });
+      const items = Object.keys(CATEGORIES)
+        .filter((name) => used.has(name))
+        .map((name) => {
+          const { label, icon } = CATEGORIES[name];
+          return (
+            `<span class="changelog-legend-item">` +
+            `<cs-icon name="${icon}" aria-hidden="true"></cs-icon>${label}</span>`
+          );
+        });
 
       parent.children.splice(
         index,
