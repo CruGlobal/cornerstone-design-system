@@ -666,3 +666,266 @@ npx web-test-runner --config web-test-runner.reftarget.config.js --group referen
 ```
 
 Each observation is also logged as a `HOSTARIA {json}` line in the browser logs.
+
+---
+
+## 13. Accessibility ruling
+
+**Reviewer:** Esther (accessibility). **Date:** 2026-10-09. **Read against:** this branch at `658e588`.
+
+### Ruling: accepted with conditions
+
+No forwarding is accepted. Content names a wrapped control, `current` carries the one state apps need now, library
+components wire each other through an internal contract, and ARIA left on a wrapper host warns. Two answers change
+the research: **`cs-tooltip` describes its anchor** (settled, no longer "if the review agrees"), and **a form field
+with no visible label uses `label` with `cs-visually-hidden-label`**, not a visually hidden slotted label.
+
+Everything here was established from code and computation: each engine's accessibility tree, three engines, both
+render modes. No screen reader was run, and no one who relies on assistive technology tested anything. The
+accessibility page's "Screen reader verification" gap stays true.
+
+### What I re-ran
+
+All serial (`WTR_CONCURRENCY=1`), one group at a time, on Playwright's Chromium 136, Firefox 137 and WebKit 18.4.
+
+- `host-aria`: **56 of 56 on each engine.** Every value in section 4's table matches the logged records, including
+  the cases the tests record without asserting.
+- `reference-target`: 1 of 1 on each engine, and 1 of 1 on flagged Chromium.
+- A new probe, `packages/components/src/components/button/host-aria-ruling.test.ts`: **12 of 12 on each engine.** Same
+  research config: `--group host-aria-ruling`.
+
+What the probe adds. V1 to V4 ran in both render modes with the same result in each.
+
+| Case | What | Chromium | Firefox | WebKit |
+| --- | --- | --- | --- | --- |
+| V1 | `<cs-button>Edit<span class="cs-visually-hidden"> invoice 42</span></cs-button>`: button name | "Edit invoice 42" | same | same |
+| V2 | `<cs-input label="Search" class="cs-visually-hidden-label">`: field name | "Search" | same | same |
+| V3 | a slotted `<span slot="label" class="cs-visually-hidden">`, after hydration: field name | "Search" | same | same |
+| V4 | host `aria-label="Search"` on `cs-input`: wrapper / field | generic "Search" / textbox "" | text container "Search" / textbox "" | group "Search" / textbox "" |
+| V5 | server output before hydration: `label` attribute / slotted label / slotted label with `ssr-label` | "Search" / **""** / "Search" | "Search" / **""** / "Search" | "Search" / "Search" / "Search" |
+| E2 | its no-label row, logged but not in section 4's table: `internals.role = 'none'` with no `aria-label`: host | not in tree | not in tree | group "" |
+| W1-W6 | a plain `div`, with or without a click listener; a host with only `delegatesFocus`, only form association, or only a click listener | never a group | never a group | never a group |
+| W16-W18 | a host with `delegatesFocus` and form association / `delegatesFocus` and a click listener / form association and a click listener | generic / generic / generic | not in tree / text / text | **group ""** / inline / inline |
+| W14 | `cs-input` with a visible label: host | generic | not in tree | group "" |
+
+### Corrections to the research
+
+1. **Not every observation is asserted.** E6 and E10 only record. E5's tree rows and E2's no-label row are not
+   asserted either. Their logged values all match the table, but a build test should assert them.
+2. **Web Awesome's double-reading claim is untested by its own author.** Konnor Rogers' comment on PR #2345 ends
+   "(haven't tested this specifically yet)", which section 5.1's ellipsis drops. Cory LaViska's comment is about the
+   accessibility tree ("two labels to display in the AOM"), which P1 keep does measure. The screen reader evidence for
+   double announcement is Material's alone: commit `5df9410e` lists results for VoiceOver, TalkBack, ChromeVox, NVDA
+   and JAWS.
+3. **Stale state belongs to the plain strip shape, not to Material's.** Material v2's `mixinDelegatesAria` overrides
+   `getAttribute` and `removeAttribute`, so a later removal still works
+   ([delegate.ts @ 47adb65](https://github.com/material-components/material-web/blob/47adb655bd7a88c4d62e8faac2873084eed555dc/internal/aria/delegate.ts)).
+   Its real costs are different: its own doc comment says ID references are not supported, it returns the plain class
+   on the server so a server-rendered page keeps the attribute on the wrapper until hydration, and it broke
+   `querySelector('[aria-*]')`. That shape was not prototyped here, so it is weighed from its source, not measured.
+4. **WebKit's group is not about `cs-button`, or about ARIA.** It comes from `delegatesFocus` plus form association
+   on the host (W16), so every form-associated control with `delegatesFocus` has it (`cs-input`, W14).
+   `internals.role = 'none'` does not remove it (E2).
+5. **The answer for a field with no visible label needs changing.** A visually hidden slotted label leaves the field
+   unnamed before hydration in Chromium and Firefox unless `ssr-label` is set (V5). The library already documents a
+   path without that trap: `label` plus `cs-visually-hidden-label`
+   (`packages/docs/src/content/docs/utilities/visually-hidden.md:58`).
+
+### Checked against primary sources
+
+- **Material Web:** commit `5df9410e` (2024-07-02), titled as quoted, with a breaking-change note on `[role]` and
+  `[aria-*]` selectors. v2.0.0 published 2024-07-25. Confirmed.
+- **Web Awesome PR #2345:** closed unmerged 2026-05-01. Quotes confirmed, with the caveat in correction 2.
+- **Element reflection:** browser-compat-data gives Chrome 135, Firefox 136 and Safari 16.4 for all five properties.
+  Confirmed. Referencing outward from a shadow root was measured in Playwright's WebKit 18.4, not in a shipping Safari.
+- **Reference Target's scope:** the non-goal in the explainer at `21c29a63` is word for word; R1 reproduces.
+  WICG/webcomponents#917 last changed 2024-08-17. Mozilla's position is positive and WebKit has none. Confirmed.
+- **Not checked:** Chrome 152 shipping Reference Target, Firefox 144's flag, and the Ionic, FAST, Fluent, Spectrum,
+  Lion and Shoelace citations. None of them carries the decision.
+
+### The eight questions
+
+1. **Is a warning enough? Yes.** (4.1.2 Name, Role, Value; 1.3.1 Info and Relationships; 2.5.3 Label in Name)
+   - Every intent an app has gets a supported path that works in all three engines and both render modes: content
+     names (E1, V1), `current` (P5, P6), the tooltip by reflection (E15), and `label` with
+     `cs-visually-hidden-label` on fields (V2, V5).
+   - Both forwarding shapes measured here leave a wrong tree. Keep names and describes the wrapper as well (P1, P4).
+     Plain strip goes stale (P1, P3, P7), and a stale `aria-current="page"` or a stale name is a 4.1.2 failure that
+     only appears after the page changes, where tests rarely look.
+   - Material's shape avoids the stale state, but does nothing on the server, so a server-rendered page has the
+     wrapper named and the control not until hydration. It also supports no references.
+   - Forwarding host `aria-label` lets an app replace the visible label with a different name, which is how 2.5.3
+     failures get made. Content names keep the visible text in the name by construction.
+   - It is the choice that can be undone. If screen reader testing or a real app shows the supported paths fall
+     short, forwarding can still be added. Taking Material's shape out after 1.0.0 would be a major.
+   - The cost is real: third-party code that writes ARIA on a wrapper host gets a warning, not support. That goes in
+     the gap register (condition 10).
+2. **Names from content only: enough. No `label` on `cs-button`.** (2.5.3, 4.1.2) Visible text comes first, so the
+   name always contains it, and visually hidden text extends it in every engine and mode (V1). Revisit only for a real
+   case where the name must not contain the visible text, which 2.5.3 makes rare.
+3. **`current` accepts `page`, `step`, `location`, `date`, `time` and `true`, rendered exactly as given.** Unset, an
+   empty string and `false` render no `aria-current`. A bare `<cs-button current>` is an empty string, which ARIA reads
+   as false, so it marks nothing, and the docs say so. The visible signal is not color alone, is not a fill alone, and
+   survives forced colors (condition 2). (1.3.1, 4.1.2, 1.4.1 Use of Color, 1.4.11 Non-text Contrast)
+4. **`cs-tooltip` describes. It never names.** (2.5.3, 4.1.2) Naming replaces the visible label: on a native button,
+   an open tooltip turns "Save" into "Save your work" (E4). The APG tooltip pattern describes. The reason
+   `tooltip.ts:338-342` gives for naming (some screen readers need `aria-describedby` on the focusable element itself)
+   goes away once the contract puts the description on that element. An icon-only button keeps its slotted label as
+   its name. A tooltip never supplies a name.
+5. **Tooltip text exposed while closed: acceptable.** (1.3.1, 4.1.2) A description taken from hidden content is the
+   standard tooltip pattern. The text reaches a screen reader user at focus, the moment it is useful, and a sighted
+   user 150 ms later. It must be the same text and must go when the tooltip goes (conditions 3 and 4). 1.4.13 Content
+   on Hover or Focus governs the visible tooltip and is unchanged.
+6. **Before hydration: acceptable.** (4.1.2) Neither the tooltip nor the dropdown can open before hydration, so a
+   screen reader user loses nothing a sighted user has. Names and `current` are in the server output (P6), and those
+   are what a user needs to find their way. This holds only while nothing a user needs rides on the contract alone,
+   which is one reason a tooltip never names. V5 found a related gap: a slotted label without `ssr-label` leaves a
+   field unnamed until hydration in Chromium and Firefox.
+7. **No visible label: `label` plus `cs-visually-hidden-label`.** Not host `aria-label`, which leaves the field
+   unnamed (V4, a 4.1.2 failure today), and not a slotted hidden label, which needs `ssr-label` (V5). Use it only where
+   something visible already labels the field, such as a search field next to a "Search" button, and then the hidden
+   label contains that visible text. Otherwise the label stays visible. (4.1.2, 3.3.2 Labels or Instructions, 2.5.3)
+8. **WebKit's group: not part of this rule, and not known to matter yet.** It comes from `delegatesFocus` plus form
+   association (W16), is on every such control, appears with no ARIA at all, and no host role removes it (E2). Whether
+   VoiceOver speaks it or adds a stop cannot be read from the tree. Check 6 in condition 11 finds out. If VoiceOver
+   does speak it, it is its own defect on every form-associated control, with a WebKit bug to file. (1.3.1, 4.1.2)
+
+### Conditions
+
+Every test below runs in both render modes through the fixtures loop, with no early return under SSR.
+
+For the build (Joseph):
+
+1. **`current` on `cs-button` and `cs-breadcrumb-item`.** Typed as `'page' | 'step' | 'location' | 'date' | 'time' |
+   'true'` and rendered exactly as given, as `aria-current` on the element that owns the role, from `render()`. Unset,
+   `""` and `"false"` render none. Nothing goes on the host. `cs-breadcrumb` sets `current="page"` on its last item
+   instead of writing host `aria-current`.
+   *Test:* each token reaches the inner `<a>` or `<button>` unchanged, including in server output before hydration;
+   `""` and `"false"` render none; setting, changing and clearing leave no stale value; `cs-breadcrumb`'s last link has
+   `aria-current="page"` and its host has no `aria-current`.
+2. **A current `cs-button` is not marked by color alone.** The same rules as #179's condition 7: it differs from a
+   non-current button in a property other than color; a fill alone does not count (forced colors drops it, and #174
+   measured plain-to-filled at 1.25 to 1.47:1); it differs from hover and focus; a non-text mark has 3:1 against its
+   surface, as resolved pairs for both shipped brands in light and dark, listed in the pull request. Expose
+   `:state(current)` so apps can restyle it. For `cs-breadcrumb`, being last in the trail is the non-color signal.
+   *Test:* a non-color computed property differs; with forced colors emulated in Chromium, the mark is still drawn,
+   with a border or text and not a background or shadow.
+3. **`cs-tooltip` describes and never names.** It adds itself to the anchor's description: through the contract onto
+   the role element of a `cs-*` wrapper, and as `aria-describedby` on a plain element. It writes no `aria-labelledby`
+   anywhere and nothing on a `cs-*` host.
+   *Test:* for a text `cs-button`, an icon-only `cs-button` with a slotted label, and a native `<button>`: the name is
+   the same with the tooltip closed and open; the description is the tooltip text, closed and open, on Chromium and
+   Firefox (WebKit's is not readable with this instrument, so check 1 in condition 11 covers it); the wrapper has no
+   `aria-*`; retargeting `for` or removing the tooltip clears the description, with no stale value as in P7.
+4. **The tooltip's text is there while it is closed, and nothing else is.** The tooltip host is hidden while closed,
+   so it is out of the tree and the reading order and its text is still available by reference (E15).
+   *Test:* the description is there before the first open, while open, and after close; the tooltip host is not in the
+   tree while closed; the text exposed is the text shown.
+5. **One internal contract carries every library write onto a wrapper's role element.** `cs-tooltip`, `cs-dropdown`
+   and `cs-breadcrumb` write nothing on a `cs-*` wrapper host and reach into no other component's shadow root
+   (`dropdown.ts:754` goes). That includes `aria-posinset` and `aria-setsize`, which `cs-dropdown` writes on each item
+   host today (`dropdown.ts:526-527`) and which must reach a link item's `<a>`. Values survive `cs-button`'s swap
+   between `<button>` and `<a>`. A control that already describes itself with its own `hint` keeps the hint in the
+   same list.
+   *Test:* toggle `href` on a `cs-button` that has a tooltip and triggers a dropdown, and the description,
+   `aria-expanded` and `aria-haspopup` are on the new element; a `cs-input` with a `hint` and a tooltip is described by
+   both.
+6. **The warning.** It lands with or after conditions 3 and 5, so the library never sets it off. It fires for ARIA in
+   the first markup and for ARIA added later, once per attribute per element, and names the replacement:
+   - `aria-label`, `aria-labelledby`: content, a slotted `cs-icon` or `cs-avatar` `label`, or visually hidden text; on
+     a form control, `label` (with `cs-visually-hidden-label` if it must not show).
+   - `aria-describedby`, `aria-description`: `cs-tooltip`, or `hint` on a form control.
+   - `aria-current`: `current`.
+   - `aria-expanded`, `aria-haspopup`, `aria-controls`: `cs-dropdown`.
+   - `aria-pressed`: not supported yet, open an issue.
+   - Also `aria-disabled` (use `disabled`), and `role`, which lands on the wrapper and never on the control (E13).
+
+   It stays silent for `aria-hidden`, the live-region attributes, and any host that owns its role.
+   *Test:* a `console.warn` spy per wrapper control, per attribute, in markup and set later; silent for the exclusions
+   and on `cs-tab`, `cs-option` and a non-link `cs-dropdown-item`.
+7. **Tests read the accessibility tree, not just axe.** axe passes ARIA on a host (E12). The build asserts the name,
+   description and `aria-current` on the role element in all three engines, using UIUX-193's snapshot plugin or this
+   branch's `ax-node` command.
+
+For #179's link items (Joseph, in that build):
+
+8. **`current` on `cs-dropdown-item` ships in the same release as `href`.** Same tokens and rules as condition 1. It
+   renders on whichever element is the menu item: the inner `<a>` on a link item, the host on any other item. Host
+   `aria-current` on a link item warns (condition 6); on any other item it keeps working. `cs-tree-item` gets no
+   `current`: it keeps its role on the host, so host `aria-current` already lands there.
+   *Test:* `current="true"` and `current="page"` reach the `<a>` unchanged on a link item, and the host on a plain
+   item; turning `href` on and off moves it with no copy left behind.
+
+For the docs (Anna), each in the same change as the behavior it describes:
+
+9. **Pages.**
+   - Accessibility page: replace "ARIA references cannot cross a shadow root" with what is true now (an ID reference
+     cannot cross; element reflection can point outward, and Cornerstone uses it only inside its own components). Add
+     a short section on ARIA on a `cs-*` element: which hosts own their role (host ARIA works), which wrap a control
+     (use the properties and slots in condition 6), and that ARIA on a wrapper host warns and does nothing.
+   - Tooltip page: the tooltip describes its anchor and never names it, so the anchor needs its own name. Drop "wires
+     up positioning and accessibility for you".
+   - Button page: the `current` nav example held back in UIUX-210, with its non-color current style.
+   - Form control pages and the visually hidden page: a field with no visible label uses `label` with
+     `cs-visually-hidden-label`, only where something visible already labels it; never host `aria-label`; a slotted
+     label needs `ssr-label`.
+
+For the gap register (Esther):
+
+10. **Rows, each in the change that opens or closes it.**
+    - Opened with the warning (condition 6). Ready to paste:
+
+      ```md
+      | ARIA on a wrapper host is not applied | Where a `cs-*` host wraps the element that owns the role (`cs-button`, `cs-breadcrumb-item`, the form controls, a link `cs-dropdown-item`), ARIA written on the host stays on a generic wrapper and never reaches the control, so the control is not named, described or marked by it. Cornerstone's own components use an internal path instead, and the host warns in the console. Code outside Cornerstone that writes ARIA on a host, such as a third-party tooltip or a form library pointing `aria-describedby` at an error message, gets the warning, not support. | The platform can delegate attributes set on a host (WICG/webcomponents#917), or an app needs something the documented properties and slots cannot do |
+      ```
+
+    - UIUX-207's row "Tooltip text on a `cs-button` is not in its name or description" leaves the table in the change
+      that lands condition 3, or is never added if that change lands first.
+    - If check 6 below finds VoiceOver speaks WebKit's group, a new row for it, with its own ticket.
+
+Before release:
+
+11. **Screen reader checks.** A person runs these and writes the results in the build's pull request. The pairings
+    are the three `resources/browser-support.md` names, which also cover the three engines: **NVDA with Chrome, NVDA
+    with Firefox, and VoiceOver with Safari on macOS.** Check 6 also needs **VoiceOver with Safari on iOS.** JAWS with
+    Chrome when available. As in #179's ruling, a team member running a screen reader is enough for these checks; it
+    does not close the "Screen reader verification" gap, which asks for someone who relies on one.
+    1. An icon-only `cs-button` with a slotted `cs-icon` `label` and a `cs-tooltip`: the name is the icon's label,
+       spoken once; the tooltip text is spoken as a description on focus, before the tooltip shows; nothing doubles
+       when it opens.
+    2. A text `cs-button` with a `cs-tooltip`: the visible text is the name and the tooltip text is the description.
+    3. `cs-button href current="page"` in a `<nav>`, and `current="true"`: spoken as current page, and as current.
+    4. `cs-breadcrumb`: the last item is spoken as the current page.
+    5. With #179: `cs-dropdown-item href current` in an open menu is spoken as current (#179's check 6).
+    6. Moving through a row of `cs-button`s and a `cs-input` with VoiceOver on macOS and iOS: is "group" spoken, or is
+       there an extra stop?
+
+    A failure blocks the release that ships the change, with two exceptions. A tooltip result that is no worse than
+    today (where the tooltip reaches no `cs-button` at all, E3) does not block the tooltip fix, but it does block
+    1.0.0, which locks the tooltip's output. Check 6 does not block this build; a bad result opens its own row and
+    ticket. If no session can be arranged, that is an escalation, not a quiet release.
+
+### How the rule applies to #179
+
+- **The pairing holds, and is required.** A link `cs-dropdown-item` is a wrapper: its `<a role="menuitem">` owns the
+  role and the host has none. So the release that adds `href` is the release where host `aria-current` stops reaching
+  the menu item. Flightdeck writes `aria-current="true"` on item hosts today. Shipping `current` in the same release
+  means no version exists where a link item cannot be marked current.
+- **`current` keeps the token as given:** `page` for a nav menu, `true` for a switcher. Never a boolean.
+- **The warning is mode-dependent on `cs-dropdown-item` only:** a link item warns on host ARIA, any other item does
+  not, because there the host still owns the role.
+- **The library's own writes move with the role:** `aria-posinset` and `aria-setsize` go through the contract
+  (condition 5), matching #179's condition 1 ("on the `<a>` instead, never on both").
+- **`cs-tree-item` stays outside the rule.** #179 gives it no `href`, so its host keeps the role, host ARIA lands, and
+  it gets no `current`. Section 7's idea of `current` on `cs-tree-item` "for one API" is declined: two ways to set the
+  same state on a host that owns its role is the per-component exception this rule exists to avoid.
+
+### Not established here
+
+- No screen reader output for any case. The double announcement under keep rests on Material's report.
+- Descriptions in WebKit, and `aria-current` in any engine's tree. The instrument cannot read them; `aria-current` is
+  measured as the attribute on the element that owns the role.
+- Shipping browsers. Every result is from Playwright's engine builds, which are older than today's releases and, for
+  WebKit, not Safari.
+- Material's virtualized shape, which was read, not run.
+- How a DOM patcher such as Turbo's morph treats either the warning's "added later" case or a stripped attribute.
