@@ -1,5 +1,13 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.7.1
+
+### Changed
+
+- [#232](https://github.com/CruGlobal/cornerstone-design-system/pull/232) [`fcc8d22`](https://github.com/CruGlobal/cornerstone-design-system/commit/fcc8d22f201adff3b104f36c87b988ce6338f698) Thanks [@rguinee](https://github.com/rguinee)! - each release in `CHANGELOG.md` groups its entries under a heading per category (Added, Fixed, ...) instead of by bump level.
+
+- [#229](https://github.com/CruGlobal/cornerstone-design-system/pull/229) [`d398bec`](https://github.com/CruGlobal/cornerstone-design-system/commit/d398bece7332c5517164ef76d2cbfac8d73af320) Thanks [@rguinee](https://github.com/rguinee)! - CI skips the component browser suite when a pull request changes only Markdown in the component paths.
+
 ## 0.7.0
 
 ### Changed

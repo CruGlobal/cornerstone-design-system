@@ -1,5 +1,15 @@
 # @cruglobal/cornerstone-components
 
+## 0.7.1
+
+### Added
+
+- [#214](https://github.com/CruGlobal/cornerstone-design-system/pull/214) [`9f3ecc1`](https://github.com/CruGlobal/cornerstone-design-system/commit/9f3ecc13c6935d2fae316da388bb57120ae5247f) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - a glossary for the documentation site's Inspiration library. Docs only; nothing that ships changes.
+
+### Changed
+
+- [#232](https://github.com/CruGlobal/cornerstone-design-system/pull/232) [`fcc8d22`](https://github.com/CruGlobal/cornerstone-design-system/commit/fcc8d22f201adff3b104f36c87b988ce6338f698) Thanks [@rguinee](https://github.com/rguinee)! - each release in `CHANGELOG.md` groups its entries under a heading per category (Added, Fixed, ...) instead of by bump level.
+
 ## 0.7.0
 
 ### Added
