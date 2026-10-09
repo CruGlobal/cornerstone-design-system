@@ -60,6 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       components: ${{ steps.filter.outputs.components }}
+      component-code: ${{ steps.code.outputs.components }}
       docs: ${{ steps.filter.outputs.docs }}
     steps:
       - uses: actions/checkout@v4
@@ -80,6 +81,18 @@ jobs:
               - 'package.json'
               - 'package-lock.json'
               - '.github/workflows/ci.yml'
+      # The same paths minus Markdown, for the browser suite alone. A glossary, a CLAUDE.md or a skill
+      # reference cannot change how a component behaves, and the static gate above still runs prettier,
+      # cspell and the skill checks on them. `every` makes a file match both lines, so the one pattern
+      # carries the path list as a brace group.
+      - uses: dorny/paths-filter@v3
+        id: code
+        with:
+          predicate-quantifier: every
+          filters: |
+            components:
+              - '{packages/components/**,packages/build-tools/**,package.json,package-lock.json,.github/workflows/ci.yml}'
+              - '!**/*.md'
 
   # `npm run verify` used to be one job, on the principle that CI should run exactly the command a
   # developer runs and nothing else. Sharding the browser suite breaks that into two — so the split lives
@@ -117,7 +130,7 @@ jobs:
   verify-components-test:
     name: Verify components (tests ${{ matrix.shard }}/4)
     needs: changes
-    if: needs.changes.outputs.components == 'true'
+    if: needs.changes.outputs.component-code == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
