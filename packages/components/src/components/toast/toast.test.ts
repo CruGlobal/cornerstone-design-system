@@ -1,7 +1,9 @@
-import { aTimeout, expect, nextFrame, waitUntil } from '@open-wc/testing';
+import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys, setViewport } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { useFakeFrameClock } from '../../internal/test/fake-frame-clock.js';
+import { finishAnimations, settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { clickOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsToast from './toast.js';
@@ -206,16 +208,25 @@ describe('<cs-toast>', () => {
 
         it('should add a polite announcer for non-danger toasts and inject text on a later frame', async () => {
           const el = await fixture<CsToast>(html`<cs-toast></cs-toast>`);
-          await el.create('Hello world', { variant: 'success' });
+          // Step the frames by hand: the text lands on the second one, and a busy runner can go longer than any
+          // fixed wait without a frame.
+          const clock = useFakeFrameClock();
+          try {
+            await el.create('Hello world', { variant: 'success' });
 
-          const announcer = document.querySelector('[data-cs-toast-live-region] [aria-live="polite"]');
-          expect(announcer).to.exist;
-          expect(announcer?.getAttribute('role')).to.equal('status');
+            const announcer = document.querySelector('[data-cs-toast-live-region] [aria-live="polite"]');
+            expect(announcer).to.exist;
+            expect(announcer?.getAttribute('role')).to.equal('status');
+            expect(announcer?.textContent).to.equal('');
 
-          await waitUntil(() => announcer?.textContent === 'Hello world', 'Announcer should be populated', {
-            timeout: 500,
-          });
-          expect(announcer?.textContent).to.equal('Hello world');
+            clock.tick(16);
+            expect(announcer?.textContent).to.equal('', 'The first frame only mounts the empty region');
+
+            clock.tick(16);
+            expect(announcer?.textContent).to.equal('Hello world');
+          } finally {
+            clock.restore();
+          }
         });
 
         it('should add an assertive announcer for danger toasts', async () => {
@@ -256,10 +267,7 @@ describe('<cs-toast>', () => {
           expect(el.querySelectorAll('cs-toast-item').length).to.equal(1);
 
           toastItem.hide();
-
-          await waitUntil(() => el.querySelectorAll('cs-toast-item').length === 0, 'Toast item should be removed', {
-            timeout: 1000,
-          });
+          await settleAnimations(el);
 
           expect(el.querySelectorAll('cs-toast-item').length).to.equal(0);
         });
@@ -271,10 +279,7 @@ describe('<cs-toast>', () => {
           expect(el.matches(':popover-open')).to.be.true;
 
           toastItem.hide();
-
-          await waitUntil(() => !el.matches(':popover-open'), 'Popover should be hidden', {
-            timeout: 1000,
-          });
+          await settleAnimations(el);
 
           expect(el.matches(':popover-open')).to.be.false;
           expect(el.customStates.has('visible')).to.be.false;
@@ -286,17 +291,12 @@ describe('<cs-toast>', () => {
           const secondToast = await el.create('Second message', { duration: 0 });
 
           secondToast.hide();
+          // Settle the hide, then the move that slides the remaining toast into its place: the stack only decides
+          // whether to close once both are done, and the invariant under test is that settled state.
+          await settleAnimations(el);
+          await settleAnimations(el);
 
-          await waitUntil(() => el.querySelectorAll('cs-toast-item').length === 1, 'One toast item should remain', {
-            timeout: 1000,
-          });
-
-          // `length === 1` is observable mid-teardown, before the stack has reacted to the removal, so
-          // asserting straight after it races the component. Let the update settle first — the invariant
-          // under test is the settled state, not the instant the count changes.
-          await el.updateComplete;
-          await nextFrame();
-
+          expect(el.querySelectorAll('cs-toast-item').length).to.equal(1);
           expect(el.matches(':popover-open')).to.be.true;
           expect(el.customStates.has('visible')).to.be.true;
         });
@@ -346,12 +346,9 @@ describe('<cs-toast>', () => {
           // Need to click first to make sure the page is focused
           await clickOnElement(el);
           await sendKeys({ press: 'Escape' });
-
-          await waitUntil(
-            () => el.querySelectorAll('cs-toast-item').length === 2,
-            'One toast item should be dismissed',
-            { timeout: 1000 },
-          );
+          // The toast defers its Escape handling by a task; yield past it, then settle the hide it starts.
+          await aTimeout(0);
+          await settleAnimations(el);
 
           expect(el.querySelectorAll('cs-toast-item').length).to.equal(2);
           // The oldest (last in DOM order) should be dismissed, leaving the two most recent
@@ -378,8 +375,8 @@ describe('<cs-toast>', () => {
 
           await clickOnElement(el);
           await sendKeys({ press: 'Escape' });
-
-          await aTimeout(100);
+          await aTimeout(0);
+          await settleAnimations(el);
 
           // Toast should still be there since Escape was prevented
           expect(el.querySelectorAll('cs-toast-item').length).to.equal(1);
@@ -426,8 +423,8 @@ describe('<cs-toast>', () => {
           el.addEventListener('cs-after-show', afterShowHandler);
 
           await el.create('Test message');
+          await settleAnimations(el);
 
-          await waitUntil(() => afterShowHandler.calledOnce);
           expect(afterShowHandler).to.have.been.calledOnce;
         });
 
@@ -452,8 +449,8 @@ describe('<cs-toast>', () => {
 
           const toastItem = await el.create('Test message', { duration: 0 });
           toastItem.hide();
+          await settleAnimations(el);
 
-          await waitUntil(() => afterHideHandler.calledOnce);
           expect(afterHideHandler).to.have.been.calledOnce;
         });
       });
@@ -461,16 +458,25 @@ describe('<cs-toast>', () => {
       describe('auto-dismiss behavior', () => {
         it('should auto-dismiss toast item after duration', async () => {
           const el = await fixture<CsToast>(html`<cs-toast></cs-toast>`);
+          // The countdown is a frame loop; drive it by hand, and settle the show and hide animations around it.
+          const clock = useFakeFrameClock();
+          try {
+            const toastItem = await el.create('Test message', { duration: 100 });
+            expect(el.querySelectorAll('cs-toast-item').length).to.equal(1);
 
-          await el.create('Test message', { duration: 100 });
+            const shown = oneEvent(toastItem, 'cs-after-show');
+            finishAnimations(el);
+            await shown;
 
-          expect(el.querySelectorAll('cs-toast-item').length).to.equal(1);
+            clock.tick(120);
+            const hidden = oneEvent(toastItem, 'cs-after-hide');
+            finishAnimations(el);
+            await hidden;
 
-          await waitUntil(() => el.querySelectorAll('cs-toast-item').length === 0, 'Toast should auto-dismiss', {
-            timeout: 1000,
-          });
-
-          expect(el.querySelectorAll('cs-toast-item').length).to.equal(0);
+            expect(el.querySelectorAll('cs-toast-item').length).to.equal(0);
+          } finally {
+            clock.restore();
+          }
         });
       });
     });

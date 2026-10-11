@@ -1,7 +1,8 @@
-import { aTimeout, expect, waitUntil } from '@open-wc/testing';
+import { expect, nextFrame, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import { expectEvent } from '../../internal/test/expect-event.js';
+import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { clickOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsDialog from './dialog.js';
@@ -32,7 +33,9 @@ describe('<cs-dialog>', () => {
           const input = el.querySelector('cs-input')!;
 
           el.open = true;
-          await aTimeout(250);
+          // Opening requests the frame that moves focus; wait for that frame, not a guess at when it comes.
+          await el.updateComplete;
+          await nextFrame();
 
           expect(document.activeElement).to.equal(input);
         });
@@ -78,8 +81,10 @@ describe('<cs-dialog>', () => {
         it('should emit cs-show and cs-after-show when setting open = true', async () => {
           const el = await fixture<CsDialog>(html`<cs-dialog>Content</cs-dialog>`);
 
-          await expectEvent(el, ['cs-show', 'cs-after-show'], () => {
+          await expectEvent(el, ['cs-show', 'cs-after-show'], async () => {
             el.open = true;
+            await el.updateComplete;
+            await settleAnimations(el);
           });
 
           expect(el.open).to.be.true;
@@ -89,8 +94,10 @@ describe('<cs-dialog>', () => {
         it('should emit cs-hide and cs-after-hide when setting open = false', async () => {
           const el = await fixture<CsDialog>(html`<cs-dialog open>Content</cs-dialog>`);
 
-          await expectEvent(el, ['cs-hide', 'cs-after-hide'], () => {
+          await expectEvent(el, ['cs-hide', 'cs-after-hide'], async () => {
             el.open = false;
+            await el.updateComplete;
+            await settleAnimations(el);
           });
 
           expect(el.open).to.be.false;
@@ -106,7 +113,8 @@ describe('<cs-dialog>', () => {
 
           await clickOnElement(el);
           await sendKeys({ press: 'Escape' });
-          await aTimeout(250);
+          // A close would only land when the hide animation ends, so end any animation before asserting it didn't.
+          await settleAnimations(el);
 
           expect(el.open).to.be.true;
         });
@@ -174,6 +182,7 @@ describe('<cs-dialog>', () => {
           await expectEvent(el, 'cs-after-hide', async () => {
             await clickOnElement(el);
             await sendKeys({ press: 'Escape' });
+            await settleAnimations(el);
           });
 
           expect(el.open).to.be.false;
@@ -185,7 +194,7 @@ describe('<cs-dialog>', () => {
 
           const cancelEvent = new Event('cancel', { bubbles: true });
           input.dispatchEvent(cancelEvent);
-          await aTimeout(250);
+          await settleAnimations(el);
 
           expect(el.open).to.be.true;
         });
@@ -198,7 +207,7 @@ describe('<cs-dialog>', () => {
 
           // Simulate a backdrop click by dispatching pointerdown with the dialog as the target
           dialog.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
-          await aTimeout(250);
+          await settleAnimations(el);
 
           expect(el.open).to.be.true;
         });
@@ -207,9 +216,10 @@ describe('<cs-dialog>', () => {
           const el = await fixture<CsDialog>(html`<cs-dialog open light-dismiss>Content</cs-dialog>`);
           const dialog = el.shadowRoot!.querySelector<HTMLDialogElement>('.dialog')!;
 
-          await expectEvent(el, 'cs-after-hide', () => {
+          await expectEvent(el, 'cs-after-hide', async () => {
             // Simulate a backdrop click by dispatching pointerdown with the dialog as the target
             dialog.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+            await settleAnimations(el);
           });
 
           expect(el.open).to.be.false;
@@ -221,7 +231,7 @@ describe('<cs-dialog>', () => {
 
           // pointerdown originates from the body, not the backdrop, so it should not dismiss
           body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
-          await aTimeout(250);
+          await settleAnimations(el);
 
           expect(el.open).to.be.true;
         });

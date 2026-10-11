@@ -1,9 +1,22 @@
 import { aTimeout, expect, waitUntil } from '@open-wc/testing';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { useFakeFrameClock } from '../../internal/test/fake-frame-clock.js';
+import { finishAnimations, settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { clickOnElement, moveMouseOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsToastItem from './toast-item.js';
+
+/**
+ * Starts the timer and settles the show animation, so the countdown is running when this resolves. The countdown is a
+ * frame loop, so tests that time it run under `useFakeFrameClock()` and tick it by hand.
+ */
+async function startTimerSettled(el: CsToastItem) {
+  const started = el.startTimer();
+  await el.updateComplete;
+  finishAnimations(el);
+  await started;
+}
 
 describe('<cs-toast-item>', () => {
   for (const fixture of fixtures) {
@@ -100,9 +113,8 @@ describe('<cs-toast-item>', () => {
           el.addEventListener('cs-show', showHandler);
           el.addEventListener('cs-after-show', afterShowHandler);
           el.startTimer();
-
-          await waitUntil(() => showHandler.calledOnce);
-          await waitUntil(() => afterShowHandler.calledOnce);
+          await el.updateComplete;
+          await settleAnimations(el);
 
           expect(showHandler).to.have.been.calledOnce;
           expect(afterShowHandler).to.have.been.calledOnce;
@@ -116,9 +128,7 @@ describe('<cs-toast-item>', () => {
           el.addEventListener('cs-hide', hideHandler);
           el.addEventListener('cs-after-hide', afterHideHandler);
           el.hide();
-
-          await waitUntil(() => hideHandler.calledOnce);
-          await waitUntil(() => afterHideHandler.calledOnce);
+          await settleAnimations(el);
 
           expect(hideHandler).to.have.been.calledOnce;
           expect(afterHideHandler).to.have.been.calledOnce;
@@ -131,8 +141,8 @@ describe('<cs-toast-item>', () => {
           el.addEventListener('cs-show', (event) => event.preventDefault());
           el.addEventListener('cs-after-show', afterShowHandler);
           el.startTimer();
-
-          await aTimeout(300);
+          await el.updateComplete;
+          await settleAnimations(el);
 
           expect(afterShowHandler).to.not.have.been.called;
         });
@@ -143,10 +153,9 @@ describe('<cs-toast-item>', () => {
 
           el.addEventListener('cs-hide', (event) => event.preventDefault());
           el.addEventListener('cs-after-hide', afterHideHandler);
-          await el.startTimer();
+          await startTimerSettled(el);
           el.hide();
-
-          await aTimeout(300);
+          await settleAnimations(el);
 
           expect(afterHideHandler).to.not.have.been.called;
         });
@@ -173,10 +182,18 @@ describe('<cs-toast-item>', () => {
           const hideHandler = sinon.spy();
 
           el.addEventListener('cs-hide', hideHandler);
-          el.startTimer();
+          const clock = useFakeFrameClock();
+          try {
+            await startTimerSettled(el);
 
-          await waitUntil(() => hideHandler.calledOnce, 'Expected cs-hide to be called', { timeout: 500 });
-          expect(hideHandler).to.have.been.calledOnce;
+            clock.tick(90);
+            expect(hideHandler).to.not.have.been.called;
+
+            clock.tick(30);
+            expect(hideHandler).to.have.been.calledOnce;
+          } finally {
+            clock.restore();
+          }
         });
 
         it('should not auto-dismiss when duration is 0', async () => {
@@ -184,11 +201,15 @@ describe('<cs-toast-item>', () => {
           const hideHandler = sinon.spy();
 
           el.addEventListener('cs-hide', hideHandler);
-          el.startTimer();
+          const clock = useFakeFrameClock();
+          try {
+            await startTimerSettled(el);
+            clock.tick(10_000);
 
-          await aTimeout(200);
-
-          expect(hideHandler).to.not.have.been.called;
+            expect(hideHandler).to.not.have.been.called;
+          } finally {
+            clock.restore();
+          }
         });
 
         it('should stop timer when stopTimer() is called', async () => {
@@ -238,14 +259,19 @@ describe('<cs-toast-item>', () => {
           const hideHandler = sinon.spy();
 
           el.addEventListener('cs-hide', hideHandler);
-          el.startTimer();
+          const clock = useFakeFrameClock();
+          try {
+            await startTimerSettled(el);
 
-          // Simulate touch pointer event
-          el.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'touch', bubbles: true }));
+            // Simulate touch pointer event while the countdown runs
+            el.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'touch', bubbles: true }));
 
-          // Should still hide since touch doesn't pause
-          await waitUntil(() => hideHandler.calledOnce, 'Expected cs-hide to be called', { timeout: 500 });
-          expect(hideHandler).to.have.been.calledOnce;
+            // Should still hide since touch doesn't pause
+            clock.tick(120);
+            expect(hideHandler).to.have.been.calledOnce;
+          } finally {
+            clock.restore();
+          }
         });
       });
 
@@ -358,15 +384,19 @@ describe('<cs-toast-item>', () => {
           const hideHandler = sinon.spy();
 
           el.addEventListener('cs-hide', hideHandler);
-          await el.startTimer();
+          const clock = useFakeFrameClock();
+          try {
+            await startTimerSettled(el);
 
-          // Remove from DOM
-          el.remove();
+            // Remove from DOM
+            el.remove();
+            clock.tick(1000);
 
-          await aTimeout(300);
-
-          // Timer should have been stopped, so no hide event
-          expect(hideHandler).to.not.have.been.called;
+            // Timer should have been stopped, so no hide event
+            expect(hideHandler).to.not.have.been.called;
+          } finally {
+            clock.restore();
+          }
         });
       });
     });

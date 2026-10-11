@@ -1,6 +1,7 @@
 import { expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsTreeItem from './tree-item.js';
 
@@ -119,6 +120,10 @@ describe('<cs-tree-item>', () => {
           parentItem.addEventListener('cs-after-expand', afterExpandSpy);
 
           parentItem.expanded = true;
+          // The after event waits on the expand animation; finish it so the deadline can't race a stalled
+          // frame loop.
+          await parentItem.updateComplete;
+          finishAnimations(parentItem);
           await waitUntil(() => expandSpy.calledOnce);
           await waitUntil(() => afterExpandSpy.calledOnce);
 
@@ -137,6 +142,8 @@ describe('<cs-tree-item>', () => {
           await oneEvent(parentItem, 'cs-after-expand');
 
           parentItem.expanded = false;
+          await parentItem.updateComplete;
+          finishAnimations(parentItem);
           await waitUntil(() => collapseSpy.calledOnce);
           await waitUntil(() => afterCollapseSpy.calledOnce);
 
@@ -212,7 +219,10 @@ describe('<cs-tree-item>', () => {
           await new Promise((resolve) => setTimeout(resolve, 20));
           parentItem.expanded = true;
 
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          const settled = oneEvent(parentItem, 'cs-after-expand');
+          await parentItem.updateComplete;
+          finishAnimations(parentItem);
+          await settled;
 
           expect(parentItem.expanded).to.be.true;
           expect(childrenContainer.hidden).to.be.false;
@@ -226,7 +236,10 @@ describe('<cs-tree-item>', () => {
           await new Promise((resolve) => setTimeout(resolve, 20));
           parentItem.expanded = false;
 
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          const settled = oneEvent(parentItem, 'cs-after-collapse');
+          await parentItem.updateComplete;
+          finishAnimations(parentItem);
+          await settled;
 
           expect(parentItem.expanded).to.be.false;
           expect(childrenContainer.hidden).to.be.true;
@@ -245,7 +258,10 @@ describe('<cs-tree-item>', () => {
           await new Promise((resolve) => setTimeout(resolve, 20));
           parentItem.expanded = true;
 
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          const settled = oneEvent(parentItem, 'cs-after-expand');
+          await parentItem.updateComplete;
+          finishAnimations(parentItem);
+          await settled;
 
           expect(afterExpandSpy.callCount).to.equal(1);
           expect(afterCollapseSpy.callCount).to.equal(0);

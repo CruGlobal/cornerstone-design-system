@@ -1,8 +1,9 @@
-import { expect, waitUntil } from '@open-wc/testing';
+import { expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { expectEvent } from '../../internal/test/expect-event.js';
+import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { formControlHeight } from '../../internal/test/form-control-height.js';
 import { loadNativeStyles } from '../../internal/test/native-styles.js';
@@ -151,16 +152,20 @@ describe('<cs-details>', () => {
         it('should emit cs-show and cs-after-show when setting open = true', async () => {
           const el = await fixture<CsDetails>(html`<cs-details summary="Test">Content</cs-details>`);
 
-          await expectEvent(el, ['cs-show', 'cs-after-show'], () => {
+          await expectEvent(el, ['cs-show', 'cs-after-show'], async () => {
             el.open = true;
+            await el.updateComplete;
+            finishAnimations(el);
           });
         });
 
         it('should emit cs-hide and cs-after-hide when setting open = false', async () => {
           const el = await fixture<CsDetails>(html`<cs-details open summary="Test">Content</cs-details>`);
 
-          await expectEvent(el, ['cs-hide', 'cs-after-hide'], () => {
+          await expectEvent(el, ['cs-hide', 'cs-after-hide'], async () => {
             el.open = false;
+            await el.updateComplete;
+            finishAnimations(el);
           });
         });
 
@@ -368,7 +373,11 @@ describe('<cs-details>', () => {
           await new Promise((resolve) => setTimeout(resolve, 20));
           el.open = true;
 
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          // Settle both animations instead of sleeping past them; a busy runner can outlast any sleep.
+          const settled = oneEvent(el, 'cs-after-show');
+          await el.updateComplete;
+          finishAnimations(el);
+          await settled;
 
           expect(el.open).to.be.true;
           expect(body.style.height).to.equal('auto');
@@ -384,7 +393,10 @@ describe('<cs-details>', () => {
           await new Promise((resolve) => setTimeout(resolve, 20));
           el.open = false;
 
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          const settled = oneEvent(el, 'cs-after-hide');
+          await el.updateComplete;
+          finishAnimations(el);
+          await settled;
 
           expect(el.open).to.be.false;
           expect(parseInt(getComputedStyle(body).height)).to.equal(0);
@@ -403,7 +415,10 @@ describe('<cs-details>', () => {
           await new Promise((resolve) => setTimeout(resolve, 20));
           el.open = true;
 
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          const settled = oneEvent(el, 'cs-after-show');
+          await el.updateComplete;
+          finishAnimations(el);
+          await settled;
 
           expect(afterShowSpy.callCount).to.equal(1);
           expect(afterHideSpy.callCount).to.equal(0);

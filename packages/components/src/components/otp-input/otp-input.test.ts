@@ -2,6 +2,7 @@ import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
 import { isWebkit } from '../../internal/test/pointer-utilities.js';
@@ -489,7 +490,9 @@ describe('<cs-otp-input>', () => {
           const unselectedBorderColor = getComputedStyle(segment).borderColor;
           await selectAllAndWait(el);
           await el.updateComplete;
-          await aTimeout(200); // let the border-color transition settle
+          // Settle the border-color transition rather than wait it out: a busy runner can skip the frame that
+          // starts it, and the read then returns the unselected color.
+          finishAnimations(segment);
           const selectedBorderColor = getComputedStyle(segment).borderColor;
           expect(selectedBorderColor).to.not.equal(unselectedBorderColor);
         });

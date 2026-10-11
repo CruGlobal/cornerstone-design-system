@@ -3,6 +3,7 @@ import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { expectEvent } from '../../internal/test/expect-event.js';
+import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { moveMouseOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsDropdownItem from '../dropdown-item/dropdown-item.js';
@@ -184,8 +185,10 @@ describe('<cs-dropdown>', () => {
 
           const trigger = el.querySelector<HTMLElement>('[slot="trigger"]')!;
 
-          await expectEvent(el, ['cs-show', 'cs-after-show'], () => {
+          await expectEvent(el, ['cs-show', 'cs-after-show'], async () => {
             trigger.click();
+            await el.updateComplete;
+            await settleAnimations(el);
           });
 
           expect(el.open).to.be.true;
@@ -199,12 +202,14 @@ describe('<cs-dropdown>', () => {
             </cs-dropdown>
           `);
           await el.updateComplete;
-          await aTimeout(200);
+          await settleAnimations(el);
 
           const trigger = el.querySelector<HTMLElement>('[slot="trigger"]')!;
 
-          await expectEvent(el, ['cs-hide', 'cs-after-hide'], () => {
+          await expectEvent(el, ['cs-hide', 'cs-after-hide'], async () => {
             trigger.click();
+            await el.updateComplete;
+            await settleAnimations(el);
           });
 
           expect(el.open).to.be.false;
@@ -229,9 +234,10 @@ describe('<cs-dropdown>', () => {
           el.addEventListener('cs-hide', (event) => event.preventDefault());
           el.addEventListener('cs-after-hide', afterHideSpy);
 
-          // Try to close
+          // Try to close. A hide that went ahead anyway would only report once its animation ended, so end it first.
           trigger.click();
-          await aTimeout(200);
+          await el.updateComplete;
+          await settleAnimations(el);
 
           expect(afterHideSpy.callCount).to.equal(0);
           expect(el.open).to.be.true;
@@ -371,7 +377,9 @@ describe('<cs-dropdown>', () => {
           const trigger = el.querySelector<HTMLElement>('[slot="trigger"]')!;
           trigger.click();
           await waitUntil(() => el.open);
-          await aTimeout(200);
+          // The first item is activated and focused when the show animation ends, not when open flips.
+          await el.updateComplete;
+          await settleAnimations(el);
 
           // First item should be focused on open
           const items = el.querySelectorAll('cs-dropdown-item');
@@ -398,7 +406,8 @@ describe('<cs-dropdown>', () => {
           const trigger = el.querySelector<HTMLElement>('[slot="trigger"]')!;
           trigger.click();
           await waitUntil(() => el.open);
-          await aTimeout(200);
+          await el.updateComplete;
+          await settleAnimations(el);
 
           // ArrowUp from first item should wrap to last
           await sendKeys({ press: 'ArrowUp' });
@@ -420,7 +429,8 @@ describe('<cs-dropdown>', () => {
           const trigger = el.querySelector<HTMLElement>('[slot="trigger"]')!;
           trigger.click();
           await waitUntil(() => el.open);
-          await aTimeout(200);
+          await el.updateComplete;
+          await settleAnimations(el);
 
           const selectSpy = sinon.spy();
           el.addEventListener('cs-select', selectSpy);
@@ -443,7 +453,8 @@ describe('<cs-dropdown>', () => {
           const trigger = el.querySelector<HTMLElement>('[slot="trigger"]')!;
           trigger.click();
           await waitUntil(() => el.open);
-          await aTimeout(200);
+          await el.updateComplete;
+          await settleAnimations(el);
 
           const selectSpy = sinon.spy();
           el.addEventListener('cs-select', selectSpy);
@@ -467,7 +478,8 @@ describe('<cs-dropdown>', () => {
           const trigger = el.querySelector<HTMLElement>('[slot="trigger"]')!;
           trigger.click();
           await waitUntil(() => el.open);
-          await aTimeout(200);
+          await el.updateComplete;
+          await settleAnimations(el);
 
           const items = el.querySelectorAll('cs-dropdown-item');
 
@@ -495,7 +507,8 @@ describe('<cs-dropdown>', () => {
           const trigger = el.querySelector<HTMLElement>('[slot="trigger"]')!;
           trigger.click();
           await waitUntil(() => el.open);
-          await aTimeout(200);
+          await el.updateComplete;
+          await settleAnimations(el);
 
           const items = el.querySelectorAll('cs-dropdown-item');
 
@@ -518,7 +531,8 @@ describe('<cs-dropdown>', () => {
           const trigger = el.querySelector<HTMLElement>('[slot="trigger"]')!;
           trigger.click();
           await waitUntil(() => el.open);
-          await aTimeout(200);
+          await el.updateComplete;
+          await settleAnimations(el);
 
           const items = el.querySelectorAll('cs-dropdown-item');
 
@@ -589,13 +603,14 @@ describe('<cs-dropdown>', () => {
       const child = el.querySelector<CsDropdownItem>('#child')!;
       const sibling = el.querySelector<CsDropdownItem>('#sibling')!;
 
+      // Settle each scale-in before pointing at it, so the pointer lands where the item finally sits.
       dropdown.open = true;
-      await waitUntil(() => dropdown.open);
-      await aTimeout(200);
+      await dropdown.updateComplete;
+      await settleAnimations(dropdown);
 
       await moveMouseOnElement(parent);
       await waitUntil(() => parent.submenuOpen);
-      await aTimeout(200);
+      await settleAnimations(dropdown);
 
       return { dropdown, parent, child, sibling };
     }

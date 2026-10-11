@@ -1,6 +1,7 @@
-import { expect } from '@open-wc/testing';
+import { expect, oneEvent } from '@open-wc/testing';
 import { html } from 'lit';
 import { expectEvent } from '../../internal/test/expect-event.js';
+import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsAccordionItem from './accordion-item.js';
 
@@ -274,7 +275,11 @@ describe('<cs-accordion-item>', () => {
           el.expanded = false;
           await new Promise((resolve) => setTimeout(resolve, 20));
           el.expanded = true;
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          // Settle both animations instead of sleeping past them; a busy runner can outlast any sleep.
+          const settled = oneEvent(el, 'cs-accordion-item-expanded');
+          await el.updateComplete;
+          finishAnimations(el);
+          await settled;
 
           expect(el.expanded).to.be.true;
           expect(panel.style.height).to.equal('auto');
@@ -287,7 +292,10 @@ describe('<cs-accordion-item>', () => {
           el.expanded = true;
           await new Promise((resolve) => setTimeout(resolve, 20));
           el.expanded = false;
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          const settled = oneEvent(el, 'cs-accordion-item-collapsed');
+          await el.updateComplete;
+          finishAnimations(el);
+          await settled;
 
           expect(el.expanded).to.be.false;
           expect(parseInt(getComputedStyle(panel).height)).to.equal(0);
@@ -306,7 +314,10 @@ describe('<cs-accordion-item>', () => {
           el.expanded = false;
           await new Promise((resolve) => setTimeout(resolve, 20));
           el.expanded = true;
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          const settled = oneEvent(el, 'cs-accordion-item-expanded');
+          await el.updateComplete;
+          finishAnimations(el);
+          await settled;
 
           expect(expandedCount).to.equal(1);
           expect(collapsedCount).to.equal(0);

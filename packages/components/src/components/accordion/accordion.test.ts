@@ -3,6 +3,7 @@ import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { expectEvent } from '../../internal/test/expect-event.js';
+import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { clickOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsAccordionItem from '../accordion-item/accordion-item.js';
@@ -114,7 +115,11 @@ describe('<cs-accordion>', () => {
           const item = el.querySelector('cs-accordion-item')!;
           const button = item.shadowRoot!.querySelector<HTMLButtonElement>('[part~="button"]')!;
 
-          await expectEvent(el, ['cs-accordion-expand', 'cs-accordion-after-expand'], () => clickOnElement(button));
+          await expectEvent(el, ['cs-accordion-expand', 'cs-accordion-after-expand'], async () => {
+            await clickOnElement(button);
+            await item.updateComplete;
+            finishAnimations(item);
+          });
         });
 
         it('should emit cs-accordion-collapse and cs-accordion-after-collapse when an item collapses via click', async () => {
@@ -126,8 +131,12 @@ describe('<cs-accordion>', () => {
           const item = el.querySelector('cs-accordion-item')!;
           const button = item.shadowRoot!.querySelector<HTMLButtonElement>('[part~="button"]')!;
 
+          // The after event waits on the collapse animation; finish it so a stalled frame loop cannot outlast
+          // expectEvent's deadline.
           await expectEvent(el, ['cs-accordion-collapse', 'cs-accordion-after-collapse'], async () => {
             await clickOnElement(button);
+            await item.updateComplete;
+            finishAnimations(item);
           });
         });
 

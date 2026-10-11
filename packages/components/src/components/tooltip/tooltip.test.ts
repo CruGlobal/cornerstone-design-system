@@ -3,6 +3,7 @@ import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { expectEvent } from '../../internal/test/expect-event.js';
+import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { clickOnElement, moveMouseOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsTooltip from './tooltip.js';
@@ -207,8 +208,10 @@ describe('<cs-tooltip>', () => {
           `);
           const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
 
-          await expectEvent(tooltip, ['cs-show', 'cs-after-show'], () => {
+          await expectEvent(tooltip, ['cs-show', 'cs-after-show'], async () => {
             tooltip.show();
+            await tooltip.updateComplete;
+            await settleAnimations(tooltip);
           });
 
           const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
@@ -225,8 +228,10 @@ describe('<cs-tooltip>', () => {
           const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
           await tooltip.updateComplete;
 
-          await expectEvent(tooltip, ['cs-hide', 'cs-after-hide'], () => {
+          await expectEvent(tooltip, ['cs-hide', 'cs-after-hide'], async () => {
             tooltip.hide();
+            await tooltip.updateComplete;
+            await settleAnimations(tooltip);
           });
 
           const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
@@ -242,8 +247,10 @@ describe('<cs-tooltip>', () => {
           `);
           const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
 
-          await expectEvent(tooltip, ['cs-show', 'cs-after-show'], () => {
+          await expectEvent(tooltip, ['cs-show', 'cs-after-show'], async () => {
             tooltip.open = true;
+            await tooltip.updateComplete;
+            await settleAnimations(tooltip);
           });
 
           const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
@@ -260,8 +267,10 @@ describe('<cs-tooltip>', () => {
           const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
           await tooltip.updateComplete;
 
-          await expectEvent(tooltip, ['cs-hide', 'cs-after-hide'], () => {
+          await expectEvent(tooltip, ['cs-hide', 'cs-after-hide'], async () => {
             tooltip.open = false;
+            await tooltip.updateComplete;
+            await settleAnimations(tooltip);
           });
 
           const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
@@ -282,7 +291,9 @@ describe('<cs-tooltip>', () => {
           tooltip.addEventListener('cs-after-show', afterShowSpy);
 
           tooltip.open = true;
-          await aTimeout(200);
+          // A show that went ahead would only report once its animation ends, so end it before asserting none came.
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
 
           expect(afterShowSpy.callCount).to.equal(0);
           expect(tooltip.open).to.be.false;
@@ -379,6 +390,8 @@ describe('<cs-tooltip>', () => {
           tooltip.addEventListener('cs-after-hide', afterHideHandler);
 
           tooltip.disabled = true;
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
 
           await waitUntil(() => hideHandler.calledOnce);
           await waitUntil(() => afterHideHandler.calledOnce);
