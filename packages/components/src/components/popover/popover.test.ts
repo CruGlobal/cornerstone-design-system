@@ -2,7 +2,9 @@ import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
+import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { clickOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsPopover from './popover.js';
@@ -131,6 +133,27 @@ describe('<cs-popover>', () => {
         });
       });
 
+      describe('animation', () => {
+        it('should run the show and hide animations for --cs-transition-fast', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button id="anchor">Anchor</cs-button>
+              <cs-popover for="anchor">Content</cs-popover>
+            </div>
+          `);
+          const popover = el.querySelector<CsPopover>('cs-popover')!;
+          const panel = popover.popup.popup;
+
+          popover.open = true;
+          await expectAnimationDuration(panel, '--cs-transition-fast');
+          await settleAnimations(popover);
+
+          popover.open = false;
+          await expectAnimationDuration(panel, '--cs-transition-fast');
+          await settleAnimations(popover);
+        });
+      });
+
       describe('events', () => {
         it('should fire cs-show and cs-after-show when opening via open property', async () => {
           const el = await fixture<HTMLDivElement>(html`
@@ -141,8 +164,10 @@ describe('<cs-popover>', () => {
           `);
           const popover = el.querySelector<CsPopover>('cs-popover')!;
 
-          await expectEvent(popover, ['cs-show', 'cs-after-show'], () => {
+          await expectEvent(popover, ['cs-show', 'cs-after-show'], async () => {
             popover.open = true;
+            await popover.updateComplete;
+            await settleAnimations(popover);
           });
 
           expect(popover.open).to.be.true;
@@ -157,10 +182,12 @@ describe('<cs-popover>', () => {
           `);
           const popover = el.querySelector<CsPopover>('cs-popover')!;
           await popover.updateComplete;
-          await aTimeout(200);
+          await settleAnimations(popover);
 
-          await expectEvent(popover, ['cs-hide', 'cs-after-hide'], () => {
+          await expectEvent(popover, ['cs-hide', 'cs-after-hide'], async () => {
             popover.open = false;
+            await popover.updateComplete;
+            await settleAnimations(popover);
           });
 
           expect(popover.open).to.be.false;
@@ -175,8 +202,10 @@ describe('<cs-popover>', () => {
           `);
           const popover = el.querySelector<CsPopover>('cs-popover')!;
 
-          await expectEvent(popover, ['cs-show', 'cs-after-show'], () => {
+          await expectEvent(popover, ['cs-show', 'cs-after-show'], async () => {
             popover.show();
+            await popover.updateComplete;
+            await settleAnimations(popover);
           });
 
           expect(popover.open).to.be.true;
@@ -191,10 +220,12 @@ describe('<cs-popover>', () => {
           `);
           const popover = el.querySelector<CsPopover>('cs-popover')!;
           await popover.updateComplete;
-          await aTimeout(200);
+          await settleAnimations(popover);
 
-          await expectEvent(popover, ['cs-hide', 'cs-after-hide'], () => {
+          await expectEvent(popover, ['cs-hide', 'cs-after-hide'], async () => {
             popover.hide();
+            await popover.updateComplete;
+            await settleAnimations(popover);
           });
 
           expect(popover.open).to.be.false;
@@ -214,7 +245,9 @@ describe('<cs-popover>', () => {
           popover.addEventListener('cs-after-show', afterShowSpy);
 
           popover.open = true;
-          await aTimeout(200);
+          // A show that went ahead would only report once its animation ends, so end it before asserting none came.
+          await popover.updateComplete;
+          await settleAnimations(popover);
 
           expect(afterShowSpy.callCount).to.equal(0);
           expect(popover.open).to.be.false;
@@ -229,14 +262,15 @@ describe('<cs-popover>', () => {
           `);
           const popover = el.querySelector<CsPopover>('cs-popover')!;
           await popover.updateComplete;
-          await aTimeout(200);
+          await settleAnimations(popover);
 
           const afterHideSpy = sinon.spy();
           popover.addEventListener('cs-hide', (event) => event.preventDefault());
           popover.addEventListener('cs-after-hide', afterHideSpy);
 
           popover.open = false;
-          await aTimeout(200);
+          await popover.updateComplete;
+          await settleAnimations(popover);
 
           expect(afterHideSpy.callCount).to.equal(0);
           expect(popover.open).to.be.true;
@@ -427,7 +461,8 @@ describe('<cs-popover>', () => {
 
       popover.open = true;
       await waitUntil(() => popover.open);
-      await aTimeout(200);
+      // The click lands where the button is measured, so let the popup finish scaling in first.
+      await settleAnimations(popover);
 
       const closeButton = popover.querySelector<HTMLElement>('[data-popover="close"]')!;
       await clickOnElement(closeButton);
