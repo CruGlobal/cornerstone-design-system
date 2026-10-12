@@ -1,5 +1,6 @@
 import { expect, oneEvent } from '@open-wc/testing';
 import { html } from 'lit';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -262,6 +263,25 @@ describe('<cs-accordion-item>', () => {
           expect(el.customStates.has('animating')).to.be.true;
           await expandPromise;
           expect(el.customStates.has('animating')).to.be.false;
+        });
+      });
+
+      describe('animation', () => {
+        it('should run the expand and collapse animations for --cs-transition-normal', async () => {
+          const el = await fixture<CsAccordionItem>(html`<cs-accordion-item label="Test">Content</cs-accordion-item>`);
+          const body = el.shadowRoot!.querySelector('.body')!;
+
+          const expanded = oneEvent(el, 'cs-accordion-item-expanded');
+          el.expanded = true;
+          await expectAnimationDuration(body, '--cs-transition-normal');
+          finishAnimations(el);
+          await expanded;
+
+          const collapsed = oneEvent(el, 'cs-accordion-item-collapsed');
+          el.expanded = false;
+          await expectAnimationDuration(body, '--cs-transition-normal');
+          finishAnimations(el);
+          await collapsed;
         });
       });
 

@@ -2,6 +2,7 @@ import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
@@ -78,6 +79,21 @@ describe('<cs-color-picker>', () => {
           expect(getComputedStyle(swatches[0]).backgroundColor).to.equal('rgb(255, 0, 0)');
           expect(getComputedStyle(swatches[1]).backgroundColor).to.equal('rgb(0, 128, 0)');
           expect(getComputedStyle(swatches[2]).backgroundColor).to.equal('rgb(0, 0, 255)');
+        });
+      });
+
+      describe('animation', () => {
+        it('should run the show and hide animations for --cs-transition-fast', async () => {
+          const el = await fixture<CsColorPicker>(html` <cs-color-picker></cs-color-picker> `);
+          const panel = el.popup.popup;
+
+          el.open = true;
+          await expectAnimationDuration(panel, '--cs-transition-fast');
+          await settleAnimations(el);
+
+          el.open = false;
+          await expectAnimationDuration(panel, '--cs-transition-fast');
+          await settleAnimations(el);
         });
       });
 

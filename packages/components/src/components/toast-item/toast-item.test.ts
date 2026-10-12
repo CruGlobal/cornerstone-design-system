@@ -1,6 +1,8 @@
-import { aTimeout, expect, waitUntil } from '@open-wc/testing';
+import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
+import { emulateMedia } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { useFakeFrameClock } from '../../internal/test/fake-frame-clock.js';
 import { finishAnimations, settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -101,6 +103,45 @@ describe('<cs-toast-item>', () => {
 
           const toastItemElement = el.shadowRoot!.querySelector('.toast-item');
           expect(toastItemElement?.classList.contains('toast-item--has-duration')).to.be.false;
+        });
+      });
+
+      describe('animation', () => {
+        it('should run the show and hide animations for --cs-transition-normal', async () => {
+          const el = await fixture<CsToastItem>(html`<cs-toast-item duration="0">Test message</cs-toast-item>`);
+          const panel = el.shadowRoot!.querySelector('.toast-item')!;
+
+          el.startTimer();
+          await expectAnimationDuration(panel, '--cs-transition-normal');
+          await settleAnimations(el);
+
+          el.hide();
+          await expectAnimationDuration(panel, '--cs-transition-normal');
+          await settleAnimations(el);
+        });
+
+        it('should show and hide without animating when the user prefers reduced motion', async () => {
+          const el = await fixture<CsToastItem>(html`<cs-toast-item duration="0">Test message</cs-toast-item>`);
+          const panel = el.shadowRoot!.querySelector('.toast-item')!;
+
+          await emulateMedia({ reducedMotion: 'reduce' });
+          try {
+            // The show and hide classes still go on, with `animation: none`, so each after event follows a frame later.
+            const shown = oneEvent(el, 'cs-after-show');
+            el.startTimer();
+            await el.updateComplete;
+            expect(panel.classList.contains('show')).to.be.true;
+            expect(panel.getAnimations()).to.be.empty;
+            await shown;
+
+            const hidden = oneEvent(el, 'cs-after-hide');
+            el.hide();
+            expect(panel.classList.contains('hide')).to.be.true;
+            expect(panel.getAnimations()).to.be.empty;
+            await hidden;
+          } finally {
+            await emulateMedia({ reducedMotion: 'no-preference' });
+          }
         });
       });
 

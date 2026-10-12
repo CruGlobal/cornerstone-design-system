@@ -1,6 +1,7 @@
 import { expect, nextFrame, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -100,6 +101,21 @@ describe('<cs-drawer>', () => {
         it('should default lightDismiss to false', async () => {
           const el = await fixture<CsDrawer>(html`<cs-drawer>Content</cs-drawer>`);
           expect(el.lightDismiss).to.be.false;
+        });
+      });
+
+      describe('animation', () => {
+        it('should run the show and hide animations for --cs-transition-normal', async () => {
+          const el = await fixture<CsDrawer>(html`<cs-drawer>Content</cs-drawer>`);
+          const panel = el.shadowRoot!.querySelector('.drawer')!;
+
+          el.open = true;
+          await expectAnimationDuration(panel, '--cs-transition-normal');
+          await settleAnimations(el);
+
+          el.open = false;
+          await expectAnimationDuration(panel, '--cs-transition-normal');
+          await settleAnimations(el);
         });
       });
 

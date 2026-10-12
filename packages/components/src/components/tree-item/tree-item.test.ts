@@ -1,6 +1,7 @@
 import { expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsTreeItem from './tree-item.js';
@@ -108,6 +109,24 @@ describe('<cs-tree-item>', () => {
           it('should be false for items with children', () => {
             expect(parentItem.isLeaf).to.be.false;
           });
+        });
+      });
+
+      describe('animation', () => {
+        it('should run the expand and collapse animations for --cs-transition-normal', async () => {
+          const children = parentItem.shadowRoot!.querySelector('.children')!;
+
+          const expanded = oneEvent(parentItem, 'cs-after-expand');
+          parentItem.expanded = true;
+          await expectAnimationDuration(children, '--cs-transition-normal');
+          finishAnimations(parentItem);
+          await expanded;
+
+          const collapsed = oneEvent(parentItem, 'cs-after-collapse');
+          parentItem.expanded = false;
+          await expectAnimationDuration(children, '--cs-transition-normal');
+          finishAnimations(parentItem);
+          await collapsed;
         });
       });
 

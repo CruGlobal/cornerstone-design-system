@@ -2,6 +2,7 @@ import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -129,6 +130,27 @@ describe('<cs-popover>', () => {
           `);
           const popover = el.querySelector<CsPopover>('cs-popover')!;
           expect(popover.withoutArrow).to.be.true;
+        });
+      });
+
+      describe('animation', () => {
+        it('should run the show and hide animations for --cs-transition-fast', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button id="anchor">Anchor</cs-button>
+              <cs-popover for="anchor">Content</cs-popover>
+            </div>
+          `);
+          const popover = el.querySelector<CsPopover>('cs-popover')!;
+          const panel = popover.popup.popup;
+
+          popover.open = true;
+          await expectAnimationDuration(panel, '--cs-transition-fast');
+          await settleAnimations(popover);
+
+          popover.open = false;
+          await expectAnimationDuration(panel, '--cs-transition-fast');
+          await settleAnimations(popover);
         });
       });
 

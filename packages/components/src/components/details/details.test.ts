@@ -2,6 +2,7 @@ import { expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -133,6 +134,25 @@ describe('<cs-details>', () => {
           const el = await fixture<CsDetails>(html`<cs-details summary="My Summary">Content</cs-details>`);
           const summarySlot = el.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="summary"]')!;
           expect(summarySlot.textContent).to.contain('My Summary');
+        });
+      });
+
+      describe('animation', () => {
+        it('should run the show and hide animations for --cs-transition-normal', async () => {
+          const el = await fixture<CsDetails>(html`<cs-details summary="Test">Content</cs-details>`);
+          const body = el.shadowRoot!.querySelector('.body')!;
+
+          const shown = oneEvent(el, 'cs-after-show');
+          el.open = true;
+          await expectAnimationDuration(body, '--cs-transition-normal');
+          finishAnimations(el);
+          await shown;
+
+          const hidden = oneEvent(el, 'cs-after-hide');
+          el.open = false;
+          await expectAnimationDuration(body, '--cs-transition-normal');
+          finishAnimations(el);
+          await hidden;
         });
       });
 

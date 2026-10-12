@@ -2,6 +2,7 @@ import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
@@ -495,6 +496,20 @@ describe('<cs-otp-input>', () => {
           finishAnimations(segment);
           const selectedBorderColor = getComputedStyle(segment).borderColor;
           expect(selectedBorderColor).to.not.equal(unselectedBorderColor);
+        });
+
+        it('should transition the selected border over --cs-transition-normal and its ring over --cs-transition-fast', async () => {
+          const el = await fixture<CsOtpInput>(html`<cs-otp-input value="123456"></cs-otp-input>`);
+          el.focus();
+          await el.updateComplete;
+          const segment = el.shadowRoot!.querySelector<HTMLElement>('[part~="segment"]')!;
+          // A transition needs a style to start from, so read one before the selection changes it.
+          getComputedStyle(segment).borderColor;
+
+          await selectAllAndWait(el);
+          await expectAnimationDuration(segment, '--cs-transition-normal', { name: /^border-/ });
+          await expectAnimationDuration(segment, '--cs-transition-fast', { name: /^outline-color$/ });
+          finishAnimations(segment);
         });
 
         it('should still replace the value when typing over a full selection', async () => {

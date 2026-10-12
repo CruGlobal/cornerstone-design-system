@@ -2,6 +2,7 @@ import { aTimeout, expect, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -171,6 +172,26 @@ describe('<cs-dropdown>', () => {
             </cs-dropdown>
           `);
           expect(el.skidding).to.equal(10);
+        });
+      });
+
+      describe('animation', () => {
+        it('should run the show and hide animations for --cs-transition-fast', async () => {
+          const el = await fixture<CsDropdown>(html`
+            <cs-dropdown>
+              <cs-button slot="trigger">Dropdown</cs-button>
+              <cs-dropdown-item>One</cs-dropdown-item>
+            </cs-dropdown>
+          `);
+          const menu = el.shadowRoot!.querySelector('#menu')!;
+
+          el.open = true;
+          await expectAnimationDuration(menu, '--cs-transition-fast');
+          await settleAnimations(el);
+
+          el.open = false;
+          await expectAnimationDuration(menu, '--cs-transition-fast');
+          await settleAnimations(el);
         });
       });
 

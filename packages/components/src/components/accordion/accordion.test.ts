@@ -1,7 +1,8 @@
-import { expect, waitUntil } from '@open-wc/testing';
+import { expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -102,6 +103,40 @@ describe('<cs-accordion>', () => {
           for (const item of items) {
             expect(item.iconPlacement).to.equal('start');
           }
+        });
+      });
+
+      describe('animation', () => {
+        it('should run each item expand and collapse animation for --cs-transition-normal', async () => {
+          const el = await fixture<CsAccordion>(html`
+            <cs-accordion>
+              <cs-accordion-item label="One">Content</cs-accordion-item>
+              <cs-accordion-item label="Two">Content</cs-accordion-item>
+            </cs-accordion>
+          `);
+          const [first, second] = el.querySelectorAll<CsAccordionItem>('cs-accordion-item');
+          const firstBody = first.shadowRoot!.querySelector('.body')!;
+          const secondBody = second.shadowRoot!.querySelector('.body')!;
+
+          const expanded = Promise.all([
+            oneEvent(first, 'cs-accordion-item-expanded'),
+            oneEvent(second, 'cs-accordion-item-expanded'),
+          ]);
+          el.expandAll();
+          await expectAnimationDuration(firstBody, '--cs-transition-normal');
+          await expectAnimationDuration(secondBody, '--cs-transition-normal');
+          finishAnimations(el);
+          await expanded;
+
+          const collapsed = Promise.all([
+            oneEvent(first, 'cs-accordion-item-collapsed'),
+            oneEvent(second, 'cs-accordion-item-collapsed'),
+          ]);
+          el.collapseAll();
+          await expectAnimationDuration(firstBody, '--cs-transition-normal');
+          await expectAnimationDuration(secondBody, '--cs-transition-normal');
+          finishAnimations(el);
+          await collapsed;
         });
       });
 

@@ -2,6 +2,7 @@ import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -195,6 +196,27 @@ describe('<cs-tooltip>', () => {
           const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
           await tooltip.updateComplete;
           expect(body.hidden).to.be.false;
+        });
+      });
+
+      describe('animation', () => {
+        it('should run the show and hide animations for --cs-transition-fast', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip for="cs-button">This is a tooltip</cs-tooltip>
+              <cs-button id="cs-button">Hover Me</cs-button>
+            </div>
+          `);
+          const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
+          const panel = tooltip.popup.popup;
+
+          tooltip.open = true;
+          await expectAnimationDuration(panel, '--cs-transition-fast');
+          await settleAnimations(tooltip);
+
+          tooltip.open = false;
+          await expectAnimationDuration(panel, '--cs-transition-fast');
+          await settleAnimations(tooltip);
         });
       });
 

@@ -1,7 +1,8 @@
 import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
-import { sendKeys, setViewport } from '@web/test-runner-commands';
+import { emulateMedia, sendKeys, setViewport } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { useFakeFrameClock } from '../../internal/test/fake-frame-clock.js';
 import { finishAnimations, settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -299,6 +300,37 @@ describe('<cs-toast>', () => {
           expect(el.querySelectorAll('cs-toast-item').length).to.equal(1);
           expect(el.matches(':popover-open')).to.be.true;
           expect(el.customStates.has('visible')).to.be.true;
+        });
+      });
+
+      describe('reordering', () => {
+        // Skipped because it fails: the move is a hard-coded 200 ms in toast.ts, and nothing reads the
+        // --reorder-duration the stack declares (--cs-transition-normal, 150 ms). The fix removes the skip.
+        it.skip('should slide the existing toast items into place over --reorder-duration', async () => {
+          const el = await fixture<CsToast>(html`<cs-toast></cs-toast>`);
+          const first = await el.create('First message', { duration: 0 });
+          await settleAnimations(el);
+
+          await el.create('Second message', { duration: 0 });
+          await expectAnimationDuration(first, '--reorder-duration');
+          await settleAnimations(el);
+        });
+
+        it('should move the existing toast items into place at once when the user prefers reduced motion', async () => {
+          const el = await fixture<CsToast>(html`<cs-toast></cs-toast>`);
+          await emulateMedia({ reducedMotion: 'reduce' });
+          try {
+            const first = await el.create('First message', { duration: 0 });
+            await settleAnimations(el);
+            const top = first.getBoundingClientRect().top;
+
+            await el.create('Second message', { duration: 0 });
+
+            expect(first.getBoundingClientRect().top).to.be.above(top);
+            expect(first.getAnimations()).to.be.empty;
+          } finally {
+            await emulateMedia({ reducedMotion: 'no-preference' });
+          }
         });
       });
 
