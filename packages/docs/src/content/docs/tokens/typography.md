@@ -16,7 +16,7 @@ Typography tokens give your theme consistent, scalable text styles across every 
 
 ## Font Family
 
-Font family tokens are assigned to specific roles — body text, headings, code, and long-form prose. By default, they use system fonts for maximum performance.
+Font family tokens are assigned to specific roles: body text, headings, code, and long-form prose. Each theme names its own fonts for these roles, but a theme doesn't load them. The library ships no font files, so your site has to load the fonts its theme names. Until it does, text falls back to the next font in the stack, which ends in a system font.
 
 <cs-scroller>
   <table class="token-table cs-hover-rows">

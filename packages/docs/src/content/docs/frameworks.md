@@ -85,14 +85,16 @@ Material's `primary` / `on-primary` / `container` vocabulary, so the mapping is 
 
 ### Theming
 
-Cornerstone dresses two brands — Cru and FamilyLife — each in light and dark, with no JavaScript theming layer
-at all. A theme is a class: `.cs-theme-cru` picks the brand, `.cs-light` and `.cs-dark` pick the scheme, and
-because classes cascade a dark page can hold a light section. [Theming Overview](/theming-overview) covers it.
+Cornerstone dresses two brands, Cru and FamilyLife, each in light and dark, with no JavaScript theming layer
+at all. The stylesheet you load picks the brand: `cornerstone.css` brings Cru's theme, and FamilyLife's loads
+after it. `.cs-light` and `.cs-dark` pick the scheme, and because classes cascade a dark page can hold a light
+section. [Theming Overview](/theming-overview) covers it.
 
 React libraries theme through a provider: a context object near the root of the tree, read by hooks inside
 each component. It works well inside React and stops dead at the boundary — a Rails layout, a Lightning page
 and a WordPress template have no React root to hang a provider on. Custom properties inherit down the DOM,
-including through shadow boundaries, so a class on `<html>` re-themes the page no matter what rendered it.
+including through shadow boundaries, so a stylesheet and a class on `<html>` theme the page no matter what
+rendered it.
 
 ### React support
 

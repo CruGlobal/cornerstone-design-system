@@ -261,6 +261,82 @@ function checkTheming(failures) {
 }
 
 /**
+ * The variant table on the Color tokens page, checked against the generated variant stylesheets.
+ *
+ * The table is written by hand because the agent skill ships this page as markdown and drops every `::`
+ * directive, so a generated table would never reach the skill. Written by hand, it listed only Cru's
+ * defaults after FamilyLife's theme shipped. So each brand's default hue per role is read from the comment
+ * `tools/palette.mjs` writes into `color/variants/<brand>.css`, and every brand has to match one column of
+ * the table, role for role. Columns are matched by content rather than by heading, because a brand's
+ * display name exists nowhere in source.
+ */
+function checkVariantDefaults(failures) {
+  const variantDir = join(componentsDir(), 'src', 'styles', 'color', 'variants');
+  const brands = readdirSync(variantDir)
+    .filter((name) => name.endsWith('.css'))
+    .map((name) => ({
+      name,
+      defaults: Object.fromEntries(
+        [...readFileSync(join(variantDir, name), 'utf-8').matchAll(/\/\* ([a-z]+) — defaults to ([a-z-]+) \*\//g)].map(
+          (match) => [match[1], match[2]],
+        ),
+      ),
+    }))
+    // The reference theme's role files carry no such comment; only generated brands do.
+    .filter((brand) => Object.keys(brand.defaults).length > 0);
+
+  const lines = readFileSync(join(siteDir, 'src', 'content', 'docs', 'tokens', 'color.md'), 'utf-8').split('\n');
+  const start = lines.findIndex((line) => line.startsWith('| Variant | Use |'));
+
+  if (start === -1) {
+    failures.push('tokens/color: no table headed `| Variant | Use |`, so no variant defaults were checked');
+    return;
+  }
+
+  const cells = (line) =>
+    line
+      .split('|')
+      .slice(1, -1)
+      .map((cell) => cell.trim());
+  const rows = [];
+
+  for (const line of lines.slice(start + 2)) {
+    if (!line.startsWith('|')) {
+      break;
+    }
+
+    rows.push(cells(line));
+  }
+
+  // Each column after Use, as role → hue. A Cru cell leads with a swatch, so the markup is stripped first.
+  const columns = cells(lines[start])
+    .slice(2)
+    .map((heading, offset) => ({
+      heading,
+      defaults: Object.fromEntries(
+        rows.map((row) => [row[0].toLowerCase(), (row[offset + 2] ?? '').replace(/<[^>]*>/g, '').trim()]),
+      ),
+    }));
+
+  const same = (a, b) =>
+    Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([role, hue]) => b[role] === hue);
+
+  for (const brand of brands) {
+    if (!columns.some((column) => same(column.defaults, brand.defaults))) {
+      failures.push(
+        `tokens/color: no column of the variant table matches the defaults in color/variants/${brand.name}`,
+      );
+    }
+  }
+
+  for (const column of columns) {
+    if (!brands.some((brand) => same(column.defaults, brand.defaults))) {
+      failures.push(`tokens/color: the "${column.heading}" column matches no generated variant stylesheet`);
+    }
+  }
+}
+
+/**
  * The roadmap page, which is generated from GitHub over the network.
  *
  * Checked differently from every other page here, and the difference is the point. `remarkRoadmap` will not
@@ -446,6 +522,7 @@ function main() {
 
   checked += checkBrowsePage(failures);
   checked += checkTheming(failures);
+  checkVariantDefaults(failures);
   checked += checkRoadmap(failures);
   checked += checkChangelog(failures);
 
