@@ -18,7 +18,7 @@ Nothing else about routing depends on tooling state. Whether a specialist's own 
 
 ## Two packages ship, and which one they have decides most answers
 
-- **`@cruglobal/cornerstone-components`** — the `cs-*` custom elements. Consumers style them with `--cs-*` custom properties and apply a theme by class: the brand on `.cs-theme-<name>`, the colour scheme on `.cs-light` or `.cs-dark`. Classes cascade, so a dark page can hold a light section.
+- **`@cruglobal/cornerstone-components`** — the `cs-*` custom elements. Consumers style them with `--cs-*` custom properties. The stylesheet they load picks the brand, one per page: `cornerstone.css` brings Cru's theme, and FamilyLife's is `themes/fl.css` loaded after it. A `.cs-theme-<name>` class does not switch or scope a brand. It only re-applies part of a theme that is already loaded, so two themes on one page blend. Whether brands can mix by class is still being decided in CruGlobal/cornerstone-design-system#248. The colour scheme is a class, `.cs-light` or `.cs-dark`, and classes cascade, so a dark page can hold a light section.
 - **`@cruglobal/cornerstone-design-system`** — tokens only, emitting `--ref-*` / `--sys-*` / `--cmp-*` through Style Dictionary.
 
 **The two vocabularies share no names.** A consumer who installs the token package and expects `--cs-*` to resolve gets nothing, and the reverse is equally true. Establish which package someone has before answering a "why isn't this working" question — it is the most common way to be confidently wrong here.

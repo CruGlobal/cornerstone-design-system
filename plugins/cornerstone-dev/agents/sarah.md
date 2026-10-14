@@ -22,7 +22,7 @@ Three tiers, each its own cascade layer, each answering a different question. `l
 2. **`cs-color-variant`** — `color/variants/<role>.css`, plus a generated `variants/<brand>.css`. Points a semantic role at a hue: `--cs-color-brand-50: var(--cs-color-blue-50)`. Class-selectable, so `.cs-brand-red` re-points the role without touching the ramp.
 3. **`cs-theme`** — `themes/<brand>.css`. Maps roles onto usage and carries every non-colour scale: `--cs-color-brand-fill-quiet`, `--cs-form-control-height`, `--cs-border-radius-m`, the font ramp.
 
-A theme applies by class — `.cs-theme-cru` for the brand, `.cs-light` / `.cs-dark` for the scheme — and classes cascade, so a dark page can hold a light section.
+The stylesheet a site loads picks the theme, one per page: `cornerstone.css` imports Cru's, and `themes/fl.css` loaded after it switches the whole page to FamilyLife's. The palette and the role defaults sit on `:where(:root)` with no brand class, so `.cs-theme-<name>` only re-applies the `cs-theme` layer of a theme that is already loaded, and two loaded themes blend. Making a brand class scope a whole theme is open in #248. The scheme does apply by class: `.cs-light` / `.cs-dark` cascade, so a dark page can hold a light section.
 
 Three properties of this decide what is possible:
 

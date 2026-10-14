@@ -48,7 +48,7 @@ overlay that does not register with `dismissible-stack`, so Escape closes every 
 **Contrast is a resolved pair on a named surface**
 
 A ratio is a property of two resolved values on one surface, never of a token, and the same name resolves
-differently per brand (`.cs-theme-cru`, FamilyLife) and per scheme (`.cs-light`, `.cs-dark`). Composite
+differently per brand (Cru, FamilyLife) and per scheme (`.cs-light`, `.cs-dark`). Composite
 alpha before computing. Text in a disabled control is excused by 1.4.3, and disabled must still not rest on
 colour alone. For a fix, prefer a narrow new token over retargeting a widely aliased one, and scope it to
 the criterion that motivated it: a value that clears the 3:1 non-text floor does not clear 4.5:1 for text.
