@@ -69,7 +69,7 @@ function getComponentInfo(components, frontMatterCache) {
 /**
  * Generates the main SKILL.md content.
  */
-function generateSkillMd({ componentList, packageData, baseUrl, pageSlots }) {
+function generateSkillMd({ componentList, packageData, baseUrl, pageSlots, themes, steps }) {
   // Group components by category
   const categorize = (list) => {
     const categories = {};
@@ -324,19 +324,22 @@ ${baseUrl}/components/page.
 
 ## Themes
 
-Cornerstone includes pre-built themes. Apply a theme by adding its class to the \`<html>\` element.
+The stylesheet you load picks the theme, not a class. Load one theme per page.
 
-- **Default** - The foundational theme
-- **Awesome** - Bright, vibrant color palette
-- **Shoelace** - Classic Shoelace styling
+${themes.map(({ slug, name, theme }) => `- **${name}** (\`styles/themes/${slug}.css\`) - ${theme}`).join('\n')}
 
-See [Themes Reference](references/themes.md) for usage details.
+Each theme also matches a \`cs-theme-{name}\` class, but the class doesn't switch to a theme or scope
+one to a subtree. It re-applies part of a theme that is already loaded. With one theme loaded you
+don't need it.
+
+See [Themes Reference](references/themes.md) for load order and details.
 
 ## Color Palettes
 
-Each palette provides 10 color hues with 11 tints each.
+Each theme loads its own palette, so there is nothing to apply. Every hue in a palette has
+${renderScale(steps)}.
 
-- Default, Base, Bright, Shoelace
+${renderPaletteItems(themes)}
 
 See [Themes Reference](references/themes.md) for palette usage.
 
@@ -440,11 +443,12 @@ See [Support Reference](references/support.md) for more details.
 }
 
 /**
- * The themes the library ships, in the order the themes reference lists them.
+ * The themes the library ships, in the order `SKILL.md` and the themes reference list them.
  *
  * Kept by hand because a theme's display name and description exist nowhere in source:
- * `tools/brands/*.json` names a brand only by its slug. Each palette's hue count is read from its
- * stylesheet instead, because a typed count went stale here once already (Cru's read 18, not 19).
+ * `tools/brands/*.json` names a brand only by its slug. Each palette's hue count and step scale are
+ * read from its stylesheet instead, because typed lists went stale here twice already: Cru's read
+ * 18 hues, not 19, and `SKILL.md` kept listing themes and palettes the library no longer ships.
  */
 const SKILL_THEMES = [
   {
@@ -469,32 +473,61 @@ const SKILL_THEMES = [
 ];
 
 /**
- * How many hues a palette stylesheet defines. Every hue has a `95` step, so counting those counts the
- * hues, which is how the docs site's palette grid enumerates them too.
+ * What a palette stylesheet defines: how many hues, and the steps each hue's ramp has. Every hue has a
+ * `95` step, so counting those counts the hues, which is how the docs site's palette grid enumerates
+ * them too.
  */
-function paletteHueCount(slug) {
+function readPalette(slug) {
   const file = path.join(getRootDir(), 'src', 'styles', 'color', 'palettes', `${slug}.css`);
-  const css = fs.readFileSync(file, 'utf-8');
-  const hues = new Set([...css.matchAll(/--cs-color-([a-z-]+)-95:/g)].map((match) => match[1]));
+  const ramps = [...fs.readFileSync(file, 'utf-8').matchAll(/--cs-color-([a-z-]+)-(\d+):/g)];
+  const hues = new Set(ramps.filter(([, , step]) => step === '95').map(([, hue]) => hue));
 
   if (hues.size === 0) {
     // A count of zero would ship as "0 hues". Fail rather than publish that.
-    throw new Error(`No hues found in ${file}; the themes reference needs each palette's hue count.`);
+    throw new Error(`No hues found in ${file}; the skill needs each palette's hue count.`);
   }
 
-  return hues.size;
+  return { hueCount: hues.size, steps: [...new Set(ramps.map(([, , step]) => step))].sort() };
+}
+
+/**
+ * `SKILL_THEMES` with each palette read from its stylesheet, and the step scale they share. Read once
+ * and passed to both `SKILL.md` and the themes reference, so the summary and the reference it links to
+ * print the same lists and counts.
+ */
+function loadSkillThemes() {
+  const themes = SKILL_THEMES.map((entry) => ({ ...entry, ...readPalette(entry.slug) }));
+  const [{ slug, steps }] = themes;
+  const other = themes.find((entry) => entry.steps.join() !== steps.join());
+
+  if (other) {
+    // Both files give one scale for every palette. Fail rather than publish that once it stops being true.
+    throw new Error(
+      `The ${other.slug} palette's steps (${other.steps.join(', ')}) differ from ${slug}'s (${steps.join(', ')}); ` +
+        'the skill gives one scale for every palette.',
+    );
+  }
+
+  return { themes, steps };
+}
+
+/** How many steps a hue's ramp has, and its first and last, such as "11 steps (`05` to `95`)". */
+function renderScale(steps) {
+  return `${steps.length} steps (\`${steps[0]}\` to \`${steps.at(-1)}\`)`;
+}
+
+/** One line per palette, printed the same way in `SKILL.md` and the themes reference. */
+function renderPaletteItems(themes) {
+  return themes.map(({ name, palette, hueCount }) => `- **${name}** (${hueCount} hues) - ${palette}`).join('\n');
 }
 
 /**
  * Generates the themes reference documentation.
  */
-function generateThemesReference(baseUrl) {
-  const themeRows = SKILL_THEMES.map(
-    ({ slug, name, theme }) => `| **${name}** | \`styles/themes/${slug}.css\` | ${theme} |`,
-  ).join('\n');
-  const paletteItems = SKILL_THEMES.map(
-    ({ slug, name, palette }) => `- **${name}** (${paletteHueCount(slug)} hues) - ${palette}`,
-  ).join('\n');
+function generateThemesReference(baseUrl, { themes, steps }) {
+  const themeRows = themes
+    .map(({ slug, name, theme }) => `| **${name}** | \`styles/themes/${slug}.css\` | ${theme} |`)
+    .join('\n');
 
   return `# Themes & Color Palettes
 
@@ -533,10 +566,10 @@ New brands are generated rather than picked from a list — see \`tools/palette.
 
 ## Color Palettes
 
-A palette provides the hue ramps a theme's roles read, each on a scale of 11 steps
-(\`05\` to \`95\`). Each brand names its own hues.
+A palette provides the hue ramps a theme's roles read, each on a scale of ${renderScale(steps)}.
+Each brand names its own hues.
 
-${paletteItems}
+${renderPaletteItems(themes)}
 
 ## Applying Palettes
 
@@ -834,13 +867,14 @@ export async function generateAgentSkill(options = {}) {
     // An empty list would ship "Valid slots: ." and call every slot invalid. Fail rather than publish that.
     throw new Error(`No <cs-page> slots found in ${cemPath}; SKILL.md needs them for its list of valid slots.`);
   }
-  const skillMd = generateSkillMd({ componentList, packageData, baseUrl, pageSlots });
+  const skillThemes = loadSkillThemes();
+  const skillMd = generateSkillMd({ componentList, packageData, baseUrl, pageSlots, ...skillThemes });
   fs.writeFileSync(path.join(outdir, 'SKILL.md'), skillMd, 'utf-8');
 
   copyAllComponentDocsFromMarkdown(contentDir, refsDir, baseUrl, apiComponents);
 
-  // Generate themes reference (static content)
-  const themesRef = generateThemesReference(baseUrl);
+  // Generate themes reference, from the same theme and palette data as SKILL.md's summary
+  const themesRef = generateThemesReference(baseUrl, skillThemes);
   fs.writeFileSync(path.join(refsDir, 'themes.md'), themesRef, 'utf-8');
 
   // Generate support reference (static content)
