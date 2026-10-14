@@ -1,24 +1,39 @@
 ---
 const asset = (path) => `${import.meta.env.BASE_URL.replace(/\/$/, '')}${path}`;
-import { fonts, palettes, themes } from '../../../themer.js';
+import { basename } from 'node:path';
+import { themeStylesheets, themes } from '../../../themer.js';
 
 /**
- * The theme showcase, rendered in the two frames on the Built-in Themes page.
+ * The theme showcase, rendered in the frames on the Built-in Themes page.
  *
  * A standalone document rather than a content page: it is the thing being previewed, so it carries its own
- * `<head>`, loads every theme and palette, and takes the one to apply from the query string. Both frames on
- * the themes page point here — one with `color-scheme=dark` — and the picker reclasses their documents in
- * place rather than reloading them.
+ * `<head>`. Each preview on the themes page points two frames here, one with `color-scheme=dark`, and names
+ * its theme's stylesheets in the query string: `?theme=fl&palette=fl&variants=fl`.
  *
- * A page under `src/pages/` rather than a file in `public/`, because the three `<link>` lists are generated
- * from the themer data. Dropping a palette into `docs/_data/themer.js` puts it in here as well as in the
- * picker, which is the whole point of generating both from one list.
+ * It loads only those, after `cornerstone.css`, which is how a consumer loads a theme. It used to load every
+ * theme and palette and pick one by class, but palettes and role defaults sit on `:where(:root)` with no class,
+ * so the last file loaded won and Cru's frames showed the reference theme's colours. One theme per frame is
+ * what keeps them apart (#248 asks how one page could hold two). With no query string the frame is Cru's,
+ * because `cornerstone.css` carries it.
+ *
+ * A page under `src/pages/` rather than a file in `public/`, because the table of stylesheets a frame may
+ * ask for is built from the themer data: a theme added to `themer.js` can be previewed with no edit here.
  *
  * Ported from `docs/examples/themes/showcase.njk`. The markup is upstream's, unchanged except for the
  * icons: upstream's names are Font Awesome, several of them Pro, and this fork resolves Material Symbols,
  * so each is swapped for the glyph that means the same thing. The demo's copy is still upstream's — Star
  * Wars and Tolkien — and is a candidate for Cru's own content when someone revises it.
  */
+
+/** Every stylesheet a frame may ask for, as `{ theme: { fl: '<base>/dist/styles/themes/fl.css' }, ... }`. */
+const stylesheets: Record<string, Record<string, string>> = {};
+
+for (const theme of themes) {
+  for (const [parameter, file] of Object.entries(themeStylesheets(theme))) {
+    stylesheets[parameter] ??= {};
+    stylesheets[parameter][basename(file, '.css')] = asset(`/dist/styles/${file}`);
+  }
+}
 ---
 <!doctype html>
 <html lang="en" class="cs-cloak">
@@ -32,38 +47,28 @@ import { fonts, palettes, themes } from '../../../themer.js';
 
     <script type="module" is:inline src={asset("/dist/cornerstone.loader.js")}></script>
 
-    <!-- Every theme, palette and webfont, so switching one needs no reload -->
-    {themes.map((theme) => <link rel="stylesheet" href={asset(`/dist/styles/themes/${theme.filename}`)} />)}
-    {palettes.map((palette) => <link rel="stylesheet" href={asset(`/dist/styles/color/palettes/${palette.filename}`)} />)}
-    {fonts.filter((font) => font.href).map((font) => <link rel="stylesheet" href={font.href} />)}
+    <!-- The theme, palette and variant stylesheets the query string names, and the colour scheme. A classic
+         script rather than a module, so it runs while the parser is still in <head>. -->
+    <script is:inline type="application/json" id="showcase-stylesheets" set:html={JSON.stringify(stylesheets)}></script>
+    <script is:inline>
+      const params = new URLSearchParams(location.search);
+      const stylesheets = JSON.parse(document.getElementById('showcase-stylesheets').textContent);
 
-    <!-- Set the initial theme, palette, variants, and color scheme based on URL params -->
-    <script type="module" is:inline>
-      const htmlElement = document.documentElement;
-      const urlParams = new URLSearchParams(window.location.search);
+      for (const [parameter, files] of Object.entries(stylesheets)) {
+        const name = params.get(parameter);
 
-      function setClass(prefix, value) {
-        if (!value) return;
-        htmlElement.classList.forEach(className => {
-          if (className.startsWith(prefix)) htmlElement.classList.remove(className);
-        });
-        htmlElement.classList.add(`${prefix}${value}`);
+        // Only a name the build listed. Anything else is ignored rather than turned into a URL.
+        if (name && Object.hasOwn(files, name)) {
+          // Written into the parser's stream rather than appended, so the link is parser-inserted and holds
+          // first paint the way a link in the markup does. An appended one need not, and a FamilyLife frame
+          // could paint Cru's colours first.
+          document.write(`<link rel="stylesheet" href="${files[name]}" />`);
+        }
       }
 
-      // Color scheme
-      const colorScheme = urlParams.get('color-scheme');
-      if (colorScheme === 'dark') {
-        htmlElement.classList.add('cs-dark');
-      } else if (colorScheme === 'light') {
-        htmlElement.classList.remove('cs-dark');
+      if (params.get('color-scheme') === 'dark') {
+        document.documentElement.classList.add('cs-dark');
       }
-
-      // Theme, palette, and variant color assignments
-      setClass('cs-theme-', urlParams.get('theme'));
-      setClass('cs-palette-', urlParams.get('palette'));
-      ['brand', 'neutral', 'success', 'warning', 'danger'].forEach(variant => {
-        setClass(`cs-${variant}-`, urlParams.get(`color-${variant}`));
-      });
     </script>
 
   </head>

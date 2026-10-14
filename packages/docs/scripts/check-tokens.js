@@ -182,8 +182,8 @@ if (!existsSync(distDir)) {
  * Emphatically **not** every `.css` under `dist/`, and emphatically **per page**. `link-library.js` copies
  * the library's whole build into `public/dist`, so `color/palettes/default.css` ships on the site and
  * defines all of `indigo` — while `cornerstone.css` imports only `themes/cru.css`, which defines none of
- * it. And `/examples/themes/showcase` legitimately links that default palette, so treating definitions as
- * one global pool lets its hues leak to the other 118 pages. Either mistake waves through the exact bug
+ * it. And `/examples/themes/showcase` once linked that default palette, so treating definitions as one
+ * global pool let its hues leak to the other 118 pages. Either mistake waves through the exact bug
  * this exists to catch, so each page is resolved against its own cascade.
  */
 function reachableFrom(html, cache) {

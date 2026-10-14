@@ -1,10 +1,9 @@
 import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { basename, join } from 'node:path';
 import { componentsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
 import { asset } from '@cruglobal/cornerstone-build-tools/site-url.js';
 import { visit } from 'unist-util-visit';
-import { palettes as paletteList, themes, tints } from '../themer.js';
+import { palettes as paletteList, themeStylesheets, themes, tints } from '../themer.js';
 
 /**
  * The Color Palettes and Built-in Themes pages, generated from the themer data.
@@ -27,7 +26,7 @@ import { palettes as paletteList, themes, tints } from '../themer.js';
  *   ::variant-colors    every variant's core colour, on colour and default hue
  *   ::variant-matrix    the fill/border/on × quiet/normal/loud matrix, one column per variant
  *   ::palette-install   the brand palette's install instructions
- *   ::theme-preview     the brand theme, in light and dark, either side of a comparison slider
+ *   ::theme-preview     the brand theme, or the one `theme` names, in light and dark either side of a slider
  *   ::theme-install     the brand theme's install instructions
  *
  * Three things the Eleventy pages did are deliberately not carried across:
@@ -296,20 +295,42 @@ function colorPalette() {
 }
 
 /**
- * The brand theme's before/after preview.
+ * The theme a `::theme-preview` names, or the brand theme when it names none.
+ *
+ * An unknown name fails the build. Falling back would render Cru's preview under another theme's heading.
+ */
+function namedTheme(name) {
+  if (!name) {
+    return brandTheme;
+  }
+
+  const theme = themes.find((candidate) => stripExtension(candidate.filename) === name);
+
+  if (!theme) {
+    const known = themes.map((candidate) => stripExtension(candidate.filename)).join(', ');
+    throw new Error(`::theme-preview{theme="${name}"} names no theme in themer.js. It lists: ${known}.`);
+  }
+
+  return theme;
+}
+
+/**
+ * One theme's before/after preview: `::theme-preview` for the brand theme, `::theme-preview{theme="fl"}` for
+ * another, by its stylesheet's name.
  *
  * There is no picker any more, for the reason there is no palette picker: the page documented four themes
  * because the page it was ported from did, and three of them are not choices in this fork. What is left is the
  * thing worth showing — the theme itself, in light and dark, either side of a comparison slider.
  *
  * Both frames are the same showcase page under two colour schemes, so the slider reads as one theme in two
- * schemes rather than as two themes. The theme, its palette and its brand colour go in the query string: the
- * showcase applies whatever it is given, which is what makes the preview right on first paint with no script.
+ * schemes rather than as two themes. The query string names the theme's own stylesheets and the showcase
+ * loads only those, so each frame is a document with one theme in it, as a consumer's page is.
  */
-function themePreview() {
-  const query =
-    `theme=${stripExtension(brandTheme.filename)}&palette=${stripExtension(brandTheme.palette.filename)}` +
-    `&color-brand=${brandTheme.colorBrand.color}`;
+function themePreview(node) {
+  const theme = namedTheme(node.attributes?.theme);
+  const query = Object.entries(themeStylesheets(theme))
+    .map(([parameter, file]) => `${parameter}=${basename(file, '.css')}`)
+    .join('&');
 
   const frame = (slot, extra = '') =>
     `<cs-zoomable-frame slot="${slot}" src="/examples/themes/showcase?${query}${extra}" zoom="0.65"` +
@@ -318,8 +339,8 @@ function themePreview() {
   return (
     `<div class="theming-preview cs-stack cs-not-prose">` +
     `<header class="cs-stack cs-gap-2xs">` +
-    `<div class="cs-heading-m">${escape(brandTheme.name)}</div>` +
-    `<p class="cs-font-size-s cs-color-text-quiet">${escape(brandTheme.description)}</p>` +
+    `<div class="cs-heading-m">${escape(theme.name)}</div>` +
+    `<p class="cs-font-size-s cs-color-text-quiet">${escape(theme.description)}</p>` +
     `</header>` +
     `<cs-comparison class="theme-comparison" position="80">` +
     `${frame('before', '&color-scheme=dark')}${frame('after')}` +
