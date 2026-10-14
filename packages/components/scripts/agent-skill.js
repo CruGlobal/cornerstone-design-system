@@ -5,7 +5,7 @@ import { loadComponents, renderApiMarkdown } from '@cruglobal/cornerstone-build-
 import { DOCS_URL } from '@cruglobal/cornerstone-build-tools/site-url.js';
 import matter from 'gray-matter';
 import { getAllComponents } from './shared.js';
-import { getBundledDir, getContentDir, getUnbundledDir } from './utils.js';
+import { getBundledDir, getContentDir, getRootDir, getUnbundledDir } from './utils.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -440,54 +440,109 @@ See [Support Reference](references/support.md) for more details.
 }
 
 /**
+ * The themes the library ships, in the order the themes reference lists them.
+ *
+ * Kept by hand because a theme's display name and description exist nowhere in source:
+ * `tools/brands/*.json` names a brand only by its slug. Each palette's hue count is read from its
+ * stylesheet instead, because a typed count went stale here once already (Cru's read 18, not 19).
+ */
+const SKILL_THEMES = [
+  {
+    slug: 'cru',
+    name: 'Cru',
+    theme:
+      "The default, imported by `cornerstone.css`. Cru's brand, generated from its key colours on a luminance ladder",
+    palette: "Cru's brand hues, generated",
+  },
+  {
+    slug: 'fl',
+    name: 'FamilyLife',
+    theme: "Opt in by loading it after `cornerstone.css`. FamilyLife's brand, generated the same way",
+    palette: "FamilyLife's brand hues, generated",
+  },
+  {
+    slug: 'default',
+    name: 'Default',
+    theme: "An unbranded reference theme, for a product that is not using Cru's brand",
+    palette: 'The reference hues',
+  },
+];
+
+/**
+ * How many hues a palette stylesheet defines. Every hue has a `95` step, so counting those counts the
+ * hues, which is how the docs site's palette grid enumerates them too.
+ */
+function paletteHueCount(slug) {
+  const file = path.join(getRootDir(), 'src', 'styles', 'color', 'palettes', `${slug}.css`);
+  const css = fs.readFileSync(file, 'utf-8');
+  const hues = new Set([...css.matchAll(/--cs-color-([a-z-]+)-95:/g)].map((match) => match[1]));
+
+  if (hues.size === 0) {
+    // A count of zero would ship as "0 hues". Fail rather than publish that.
+    throw new Error(`No hues found in ${file}; the themes reference needs each palette's hue count.`);
+  }
+
+  return hues.size;
+}
+
+/**
  * Generates the themes reference documentation.
  */
 function generateThemesReference(baseUrl) {
+  const themeRows = SKILL_THEMES.map(
+    ({ slug, name, theme }) => `| **${name}** | \`styles/themes/${slug}.css\` | ${theme} |`,
+  ).join('\n');
+  const paletteItems = SKILL_THEMES.map(
+    ({ slug, name, palette }) => `- **${name}** (${paletteHueCount(slug)} hues) - ${palette}`,
+  ).join('\n');
+
   return `# Themes & Color Palettes
 
 **Full documentation:** ${baseUrl}/themes
 
 ## Applying Themes
 
-Cru's theme is the default and needs no class — importing the library applies it. The class form
-exists so a theme can be scoped to a subtree, or so a second theme can be switched to:
-
-\`\`\`html
-<html class="cs-theme-cru cs-light">
-\`\`\`
-
-For npm/CDN users, \`cornerstone.css\` already imports Cru's theme. Import a stylesheet only to
-choose a different one:
+The stylesheet you load picks the theme, not a class. Cru's theme is the default: \`cornerstone.css\`
+imports it, so it needs no class and no extra stylesheet. To use FamilyLife's theme, load its
+stylesheet after \`cornerstone.css\`:
 
 \`\`\`js
-import '@cruglobal/cornerstone-components/styles/themes/default.css';
+import '@cruglobal/cornerstone-components/styles/cornerstone.css';
+import '@cruglobal/cornerstone-components/styles/themes/fl.css';
 \`\`\`
+
+The order matters. Each theme sets its palette, its role colors and the rest of its values on
+\`:root\` with the same specificity, so the theme loaded last wins. Loaded before \`cornerstone.css\`,
+FamilyLife's values are replaced by Cru's. Keep \`cornerstone.css\` either way: it also carries the
+native element styles and the utility classes, which a theme stylesheet doesn't. Load one theme per page.
+
+Each theme also matches a \`cs-theme-{name}\` class, but the class doesn't switch to a theme or scope
+one to a subtree. It re-applies part of a theme that is already loaded: its fonts, sizes, and which
+shades it uses for surfaces, text and fills. The hues still come from \`:root\`, so on a page with
+two themes loaded, a \`cs-theme-*\` section gets a mix of both. With one theme loaded you don't need it.
+
+A theme names its fonts but doesn't load them, so the site has to supply them.
 
 ## Themes
 
-| Theme | Description |
-|-------|-------------|
-| **Cru** | The default. Cru's brand, generated from its key colours on a luminance ladder |
-| **Default** | An unbranded reference theme, for a product that is not using Cru's brand |
+| Theme | Stylesheet | Description |
+|-------|------------|-------------|
+${themeRows}
 
 New brands are generated rather than picked from a list — see \`tools/palette.mjs\`.
 
 ## Color Palettes
 
 A palette provides the hue ramps a theme's roles read, each on a scale of 11 steps
-(\`05\`–\`95\`). Cru's carries 18 hues; the reference palette carries 10.
+(\`05\` to \`95\`). Each brand names its own hues.
 
-- **Cru** - Cru's brand hues, generated
-- **Default** - The reference hues
+${paletteItems}
 
 ## Applying Palettes
 
-Each theme imports its own palette, so there is normally nothing to apply. The class form scopes
-one to a subtree:
-
-\`\`\`html
-<html class="cs-palette-default">
-\`\`\`
+Each theme imports its own palette, so there is nothing to apply. Cru's and FamilyLife's palettes
+have no class: each applies at \`:root\` when its theme loads. Only the reference palette has one,
+\`cs-palette-default\`.
 
 CSS variables follow the pattern \`--cs-color-{hue}-{tint}\`:
 
