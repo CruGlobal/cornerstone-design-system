@@ -15,9 +15,10 @@ Three themes ship, and Cru's is the one you get: `cornerstone.css` imports it. I
 its own [color palette](/color-palettes) and [variant colors](/tokens/color#variant-colors) rather than
 layering over another theme. FamilyLife's is built the same way. To use it, load `styles/themes/fl.css`
 after `cornerstone.css`; the whole page switches, with or without a class, so use one theme per page. It
-names Akkurat LL for body and headings but doesn't load it, so your site has to supply that font. Default
-is the unbranded reference theme, kept as an opt-in starting point rather than the base. The Awesome and
-Shoelace themes this library was forked alongside have been removed.
+asks for font family `Akkurat` for body and headings but doesn't load it, so your site has to supply it:
+Regular for weights up to 500 and Bold for 600 and up. Semibold and bold look the same in this theme.
+Default is the unbranded reference theme, kept as an opt-in starting point rather than the base. The
+Awesome and Shoelace themes this library was forked alongside have been removed.
 
 Below is Cru's theme in both color schemes: drag the slider to compare dark against light.
 
