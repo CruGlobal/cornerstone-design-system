@@ -1,0 +1,56 @@
+{
+  "$comment": "FamilyLife brand key colours, from the theme builder's request for fl. They match the fl ref layer of @cruglobal/cornerstone-design-system. Update them here and re-run tools/palette.mjs. This file is the seam: everything downstream is derived.",
+  "brand": "fl",
+  "source": {
+    "repo": "CruGlobal/cornerstone-design-system",
+    "layer": "ref/color/fl"
+  },
+  "roles": {
+    "brand": "dark-green",
+    "neutral": "off-white",
+    "highlight": "cool-gray",
+    "information": "blue",
+    "success": "dark-green",
+    "warning": "orange",
+    "danger": "pink"
+  },
+  "$rolesComment": "The request mapped neutral to dark-green. Neutral sets body text, borders, lowered surfaces and the dark-mode page colour, so it points at the gray scale instead, the way Cru's neutral points at its light gray.",
+  "link": "blue",
+  "neutralPoints": {
+    "cool-gray": "#b1b1b1",
+    "off-white": "#f1f1f1",
+    "soft-black": "#24272a"
+  },
+  "synthesized": {
+    "purple": "purple"
+  },
+  "hues": {
+    "yellow": "#f3bd48",
+    "orange": "#e47e3d",
+    "pink": "#ebb1b9",
+    "blue": "#1573a2",
+    "dark-green": "#006c5b",
+    "soft-black": "#24272a",
+    "off-white": "#f1f1f1",
+    "cool-gray": "#b1b1b1"
+  },
+  "fonts": {
+    "body": "\"Akkurat LL\", ui-sans-serif, system-ui, sans-serif",
+    "heading": "\"Akkurat LL\", ui-sans-serif, system-ui, sans-serif"
+  },
+  "$fontsComment": "FamilyLife uses Akkurat LL for both body and headings.",
+  "metrics": {
+    "border-radius-scale": "1",
+    "border-width-scale": "1",
+    "space-scale": "1",
+    "font-size-scale": "1",
+    "shadow-offset-y-scale": "1",
+    "shadow-blur-scale": "1",
+    "shadow-spread-scale": "-0.5",
+    "border-style": "solid",
+    "form-control-border-radius": "var(--cs-border-radius-m)",
+    "panel-border-radius": "var(--cs-border-radius-l)",
+    "tooltip-border-radius": "var(--cs-border-radius-s)"
+  },
+  "$metricsComment": "Every value here is the reference theme's default, and tools/palette.mjs on main does not read metrics yet. They are kept so the file is ready when the generator learns them."
+}
