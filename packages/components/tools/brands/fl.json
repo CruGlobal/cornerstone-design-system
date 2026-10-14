@@ -34,9 +34,14 @@
     "cool-gray": "#b1b1b1"
   },
   "fonts": {
-    "body": "\"Akkurat LL\", ui-sans-serif, system-ui, sans-serif",
-    "heading": "\"Akkurat LL\", ui-sans-serif, system-ui, sans-serif"
+    "body": "Akkurat, \"Akkurat LL\", ui-sans-serif, system-ui, sans-serif",
+    "heading": "Akkurat, \"Akkurat LL\", ui-sans-serif, system-ui, sans-serif"
   },
-  "$fontsComment": "FamilyLife uses Akkurat LL for both body and headings. It is a licensed font and the library does not load it yet, so a site using this theme has to supply it.",
+  "$fontsComment": "A site using this theme supplies the font as family Akkurat, with Regular covering weights up to 500 and Bold covering 600 and up, as FamilyLife's own sites do (\"Akkurat LL\" catches a desktop install). The library doesn't load it because the license covers FamilyLife's domains only.",
+  "fontWeights": {
+    "semibold": 700,
+    "bold": 700
+  },
+  "$fontWeightsComment": "FamilyLife licenses only Regular (400) and Bold (700), so semibold is 700 to render Bold instead of Regular, and bold says 700 to match what renders.",
   "$focusComment": "Known exception: in dark mode the focus ring (brand key step, #006c5b) measures 2.94:1 on #121212, just under 3:1. Accepted for now; the fix is a generator change that picks a lighter brand step when the key misses 3:1 against that mode's surface."
 }

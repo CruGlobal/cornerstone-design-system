@@ -488,10 +488,11 @@ const SELECTORS = (brand) => ({
 
 /**
  * The mode-independent block, carried from the reference theme verbatim. Font stacks, scales, spacing
- * ratios, shadow geometry, form-control metrics and tooltip sizing are structure rather than brand — with
- * one exception, the font families, which are a brand's own.
+ * ratios, shadow geometry, form-control metrics and tooltip sizing are structure rather than brand. A brand's
+ * knobs can override two things in it: its font families (`fonts`), and any font weight its licensed cuts
+ * cannot render (`fontWeights`).
  */
-function carriedBlock(fonts) {
+function carriedBlock(fonts, fontWeights) {
   const ref = readFileSync(join(ROOT, 'src/styles/color/../themes/default.css'), 'utf8');
   const start = ref.indexOf('  :where(:root),\n  .cs-theme-default,\n  .cs-light,\n  .cs-dark,\n  .cs-invert {');
   if (start === -1) {
@@ -512,8 +513,12 @@ function carriedBlock(fonts) {
     }
   }
   let body = ref.slice(open + 1, end);
-  for (const [prop, value] of Object.entries(fonts)) {
-    const re = new RegExp(`(--cs-font-family-${prop}:)[^;]*;`);
+  const overrides = [
+    ...Object.entries(fonts).map(([prop, value]) => [`family-${prop}`, value]),
+    ...Object.entries(fontWeights).map(([prop, value]) => [`weight-${prop}`, value]),
+  ];
+  for (const [prop, value] of overrides) {
+    const re = new RegExp(`(--cs-font-${prop}:)[^;]*;`);
     if (re.test(body)) {
       body = body.replace(re, `$1 ${value};`);
     }
@@ -571,7 +576,7 @@ export function buildTheme(brandName, brand, ramps) {
       .map((x) => `  ${x}`)
       .join(',\n') + ' {',
   );
-  out.push(carriedBlock(brand.fonts ?? {}));
+  out.push(carriedBlock(brand.fonts ?? {}, brand.fontWeights ?? {}));
   out.push('  }');
   out.push('}');
   return out.join('\n');

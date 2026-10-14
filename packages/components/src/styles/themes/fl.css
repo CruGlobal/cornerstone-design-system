@@ -229,8 +229,8 @@
     font-family: var(--cs-font-family-body);
 
     /* #region Fonts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-    --cs-font-family-body: 'Akkurat LL', ui-sans-serif, system-ui, sans-serif;
-    --cs-font-family-heading: 'Akkurat LL', ui-sans-serif, system-ui, sans-serif;
+    --cs-font-family-body: Akkurat, 'Akkurat LL', ui-sans-serif, system-ui, sans-serif;
+    --cs-font-family-heading: Akkurat, 'Akkurat LL', ui-sans-serif, system-ui, sans-serif;
     --cs-font-family-code: ui-monospace, monospace;
     --cs-font-family-longform: ui-serif, serif;
 
@@ -255,8 +255,8 @@
 
     --cs-font-weight-light: 300;
     --cs-font-weight-normal: 400;
-    --cs-font-weight-semibold: 500;
-    --cs-font-weight-bold: 600;
+    --cs-font-weight-semibold: 700;
+    --cs-font-weight-bold: 700;
 
     --cs-font-weight-body: var(--cs-font-weight-normal);
     --cs-font-weight-heading: var(--cs-font-weight-bold);

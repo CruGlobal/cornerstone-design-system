@@ -53,7 +53,9 @@ per page.
 - **Cru:** `.cs-theme-cru` — the default. Generated from Cru's key colors on a luminance ladder.
 - **FamilyLife:** `.cs-theme-fl`. Generated from FamilyLife's key colors the same way. Opt in by
   loading `styles/themes/fl.css` after `cornerstone.css`. It switches the whole page with or without
-  the class, so don't mix it with another theme on one page. It names Akkurat LL but doesn't load it.
+  the class, so don't mix it with another theme on one page. It asks for font family `Akkurat` but
+  doesn't load it, so the site supplies Regular for weights up to 500 and Bold for 600 and up.
+  Semibold and bold look the same in this theme.
 - **Default:** `.cs-theme-default` — an unbranded reference, for a product not using Cru's brand.
   Opt in by importing `styles/themes/default.css`.
 
