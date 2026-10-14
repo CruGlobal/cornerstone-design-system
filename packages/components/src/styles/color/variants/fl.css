@@ -89,9 +89,43 @@
     --cs-color-brand-20: var(--cs-color-blue-20);
     --cs-color-brand-10: var(--cs-color-blue-10);
     --cs-color-brand-05: var(--cs-color-blue-05);
-    --cs-color-brand: var(--cs-color-blue-50);
-    --cs-color-brand-key: 50;
+    --cs-color-brand: var(--cs-color-blue-60);
+    --cs-color-brand-key: 60;
     --cs-color-brand-on: var(--cs-color-blue-on);
+  }
+
+  .cs-brand-mint {
+    --cs-color-brand-95: var(--cs-color-mint-95);
+    --cs-color-brand-90: var(--cs-color-mint-90);
+    --cs-color-brand-80: var(--cs-color-mint-80);
+    --cs-color-brand-70: var(--cs-color-mint-70);
+    --cs-color-brand-60: var(--cs-color-mint-60);
+    --cs-color-brand-50: var(--cs-color-mint-50);
+    --cs-color-brand-40: var(--cs-color-mint-40);
+    --cs-color-brand-30: var(--cs-color-mint-30);
+    --cs-color-brand-20: var(--cs-color-mint-20);
+    --cs-color-brand-10: var(--cs-color-mint-10);
+    --cs-color-brand-05: var(--cs-color-mint-05);
+    --cs-color-brand: var(--cs-color-mint-80);
+    --cs-color-brand-key: 80;
+    --cs-color-brand-on: var(--cs-color-mint-on);
+  }
+
+  .cs-brand-ruby {
+    --cs-color-brand-95: var(--cs-color-ruby-95);
+    --cs-color-brand-90: var(--cs-color-ruby-90);
+    --cs-color-brand-80: var(--cs-color-ruby-80);
+    --cs-color-brand-70: var(--cs-color-ruby-70);
+    --cs-color-brand-60: var(--cs-color-ruby-60);
+    --cs-color-brand-50: var(--cs-color-ruby-50);
+    --cs-color-brand-40: var(--cs-color-ruby-40);
+    --cs-color-brand-30: var(--cs-color-ruby-30);
+    --cs-color-brand-20: var(--cs-color-ruby-20);
+    --cs-color-brand-10: var(--cs-color-ruby-10);
+    --cs-color-brand-05: var(--cs-color-ruby-05);
+    --cs-color-brand: var(--cs-color-ruby-30);
+    --cs-color-brand-key: 30;
+    --cs-color-brand-on: var(--cs-color-ruby-on);
   }
 
   .cs-brand-soft-black {
@@ -143,23 +177,6 @@
     --cs-color-brand: var(--cs-color-cool-gray-70);
     --cs-color-brand-key: 70;
     --cs-color-brand-on: var(--cs-color-cool-gray-on);
-  }
-
-  .cs-brand-purple {
-    --cs-color-brand-95: var(--cs-color-purple-95);
-    --cs-color-brand-90: var(--cs-color-purple-90);
-    --cs-color-brand-80: var(--cs-color-purple-80);
-    --cs-color-brand-70: var(--cs-color-purple-70);
-    --cs-color-brand-60: var(--cs-color-purple-60);
-    --cs-color-brand-50: var(--cs-color-purple-50);
-    --cs-color-brand-40: var(--cs-color-purple-40);
-    --cs-color-brand-30: var(--cs-color-purple-30);
-    --cs-color-brand-20: var(--cs-color-purple-20);
-    --cs-color-brand-10: var(--cs-color-purple-10);
-    --cs-color-brand-05: var(--cs-color-purple-05);
-    --cs-color-brand: var(--cs-color-purple-50);
-    --cs-color-brand-key: 50;
-    --cs-color-brand-on: var(--cs-color-purple-on);
   }
 
   /* neutral — defaults to off-white */
@@ -244,8 +261,8 @@
     --cs-color-neutral-20: var(--cs-color-blue-20);
     --cs-color-neutral-10: var(--cs-color-blue-10);
     --cs-color-neutral-05: var(--cs-color-blue-05);
-    --cs-color-neutral: var(--cs-color-blue-50);
-    --cs-color-neutral-key: 50;
+    --cs-color-neutral: var(--cs-color-blue-60);
+    --cs-color-neutral-key: 60;
     --cs-color-neutral-on: var(--cs-color-blue-on);
   }
 
@@ -264,6 +281,40 @@
     --cs-color-neutral: var(--cs-color-dark-green-40);
     --cs-color-neutral-key: 40;
     --cs-color-neutral-on: var(--cs-color-dark-green-on);
+  }
+
+  .cs-neutral-mint {
+    --cs-color-neutral-95: var(--cs-color-mint-95);
+    --cs-color-neutral-90: var(--cs-color-mint-90);
+    --cs-color-neutral-80: var(--cs-color-mint-80);
+    --cs-color-neutral-70: var(--cs-color-mint-70);
+    --cs-color-neutral-60: var(--cs-color-mint-60);
+    --cs-color-neutral-50: var(--cs-color-mint-50);
+    --cs-color-neutral-40: var(--cs-color-mint-40);
+    --cs-color-neutral-30: var(--cs-color-mint-30);
+    --cs-color-neutral-20: var(--cs-color-mint-20);
+    --cs-color-neutral-10: var(--cs-color-mint-10);
+    --cs-color-neutral-05: var(--cs-color-mint-05);
+    --cs-color-neutral: var(--cs-color-mint-80);
+    --cs-color-neutral-key: 80;
+    --cs-color-neutral-on: var(--cs-color-mint-on);
+  }
+
+  .cs-neutral-ruby {
+    --cs-color-neutral-95: var(--cs-color-ruby-95);
+    --cs-color-neutral-90: var(--cs-color-ruby-90);
+    --cs-color-neutral-80: var(--cs-color-ruby-80);
+    --cs-color-neutral-70: var(--cs-color-ruby-70);
+    --cs-color-neutral-60: var(--cs-color-ruby-60);
+    --cs-color-neutral-50: var(--cs-color-ruby-50);
+    --cs-color-neutral-40: var(--cs-color-ruby-40);
+    --cs-color-neutral-30: var(--cs-color-ruby-30);
+    --cs-color-neutral-20: var(--cs-color-ruby-20);
+    --cs-color-neutral-10: var(--cs-color-ruby-10);
+    --cs-color-neutral-05: var(--cs-color-ruby-05);
+    --cs-color-neutral: var(--cs-color-ruby-30);
+    --cs-color-neutral-key: 30;
+    --cs-color-neutral-on: var(--cs-color-ruby-on);
   }
 
   .cs-neutral-soft-black {
@@ -300,42 +351,8 @@
     --cs-color-neutral-on: var(--cs-color-cool-gray-on);
   }
 
-  .cs-neutral-purple {
-    --cs-color-neutral-95: var(--cs-color-purple-95);
-    --cs-color-neutral-90: var(--cs-color-purple-90);
-    --cs-color-neutral-80: var(--cs-color-purple-80);
-    --cs-color-neutral-70: var(--cs-color-purple-70);
-    --cs-color-neutral-60: var(--cs-color-purple-60);
-    --cs-color-neutral-50: var(--cs-color-purple-50);
-    --cs-color-neutral-40: var(--cs-color-purple-40);
-    --cs-color-neutral-30: var(--cs-color-purple-30);
-    --cs-color-neutral-20: var(--cs-color-purple-20);
-    --cs-color-neutral-10: var(--cs-color-purple-10);
-    --cs-color-neutral-05: var(--cs-color-purple-05);
-    --cs-color-neutral: var(--cs-color-purple-50);
-    --cs-color-neutral-key: 50;
-    --cs-color-neutral-on: var(--cs-color-purple-on);
-  }
-
-  /* highlight — defaults to cool-gray */
+  /* highlight — defaults to yellow */
   :where(:root), /* default */
-  .cs-highlight-cool-gray {
-    --cs-color-highlight-95: var(--cs-color-cool-gray-95);
-    --cs-color-highlight-90: var(--cs-color-cool-gray-90);
-    --cs-color-highlight-80: var(--cs-color-cool-gray-80);
-    --cs-color-highlight-70: var(--cs-color-cool-gray-70);
-    --cs-color-highlight-60: var(--cs-color-cool-gray-60);
-    --cs-color-highlight-50: var(--cs-color-cool-gray-50);
-    --cs-color-highlight-40: var(--cs-color-cool-gray-40);
-    --cs-color-highlight-30: var(--cs-color-cool-gray-30);
-    --cs-color-highlight-20: var(--cs-color-cool-gray-20);
-    --cs-color-highlight-10: var(--cs-color-cool-gray-10);
-    --cs-color-highlight-05: var(--cs-color-cool-gray-05);
-    --cs-color-highlight: var(--cs-color-cool-gray-70);
-    --cs-color-highlight-key: 70;
-    --cs-color-highlight-on: var(--cs-color-cool-gray-on);
-  }
-
   .cs-highlight-yellow {
     --cs-color-highlight-95: var(--cs-color-yellow-95);
     --cs-color-highlight-90: var(--cs-color-yellow-90);
@@ -399,8 +416,8 @@
     --cs-color-highlight-20: var(--cs-color-blue-20);
     --cs-color-highlight-10: var(--cs-color-blue-10);
     --cs-color-highlight-05: var(--cs-color-blue-05);
-    --cs-color-highlight: var(--cs-color-blue-50);
-    --cs-color-highlight-key: 50;
+    --cs-color-highlight: var(--cs-color-blue-60);
+    --cs-color-highlight-key: 60;
     --cs-color-highlight-on: var(--cs-color-blue-on);
   }
 
@@ -419,6 +436,40 @@
     --cs-color-highlight: var(--cs-color-dark-green-40);
     --cs-color-highlight-key: 40;
     --cs-color-highlight-on: var(--cs-color-dark-green-on);
+  }
+
+  .cs-highlight-mint {
+    --cs-color-highlight-95: var(--cs-color-mint-95);
+    --cs-color-highlight-90: var(--cs-color-mint-90);
+    --cs-color-highlight-80: var(--cs-color-mint-80);
+    --cs-color-highlight-70: var(--cs-color-mint-70);
+    --cs-color-highlight-60: var(--cs-color-mint-60);
+    --cs-color-highlight-50: var(--cs-color-mint-50);
+    --cs-color-highlight-40: var(--cs-color-mint-40);
+    --cs-color-highlight-30: var(--cs-color-mint-30);
+    --cs-color-highlight-20: var(--cs-color-mint-20);
+    --cs-color-highlight-10: var(--cs-color-mint-10);
+    --cs-color-highlight-05: var(--cs-color-mint-05);
+    --cs-color-highlight: var(--cs-color-mint-80);
+    --cs-color-highlight-key: 80;
+    --cs-color-highlight-on: var(--cs-color-mint-on);
+  }
+
+  .cs-highlight-ruby {
+    --cs-color-highlight-95: var(--cs-color-ruby-95);
+    --cs-color-highlight-90: var(--cs-color-ruby-90);
+    --cs-color-highlight-80: var(--cs-color-ruby-80);
+    --cs-color-highlight-70: var(--cs-color-ruby-70);
+    --cs-color-highlight-60: var(--cs-color-ruby-60);
+    --cs-color-highlight-50: var(--cs-color-ruby-50);
+    --cs-color-highlight-40: var(--cs-color-ruby-40);
+    --cs-color-highlight-30: var(--cs-color-ruby-30);
+    --cs-color-highlight-20: var(--cs-color-ruby-20);
+    --cs-color-highlight-10: var(--cs-color-ruby-10);
+    --cs-color-highlight-05: var(--cs-color-ruby-05);
+    --cs-color-highlight: var(--cs-color-ruby-30);
+    --cs-color-highlight-key: 30;
+    --cs-color-highlight-on: var(--cs-color-ruby-on);
   }
 
   .cs-highlight-soft-black {
@@ -455,21 +506,21 @@
     --cs-color-highlight-on: var(--cs-color-off-white-on);
   }
 
-  .cs-highlight-purple {
-    --cs-color-highlight-95: var(--cs-color-purple-95);
-    --cs-color-highlight-90: var(--cs-color-purple-90);
-    --cs-color-highlight-80: var(--cs-color-purple-80);
-    --cs-color-highlight-70: var(--cs-color-purple-70);
-    --cs-color-highlight-60: var(--cs-color-purple-60);
-    --cs-color-highlight-50: var(--cs-color-purple-50);
-    --cs-color-highlight-40: var(--cs-color-purple-40);
-    --cs-color-highlight-30: var(--cs-color-purple-30);
-    --cs-color-highlight-20: var(--cs-color-purple-20);
-    --cs-color-highlight-10: var(--cs-color-purple-10);
-    --cs-color-highlight-05: var(--cs-color-purple-05);
-    --cs-color-highlight: var(--cs-color-purple-50);
-    --cs-color-highlight-key: 50;
-    --cs-color-highlight-on: var(--cs-color-purple-on);
+  .cs-highlight-cool-gray {
+    --cs-color-highlight-95: var(--cs-color-cool-gray-95);
+    --cs-color-highlight-90: var(--cs-color-cool-gray-90);
+    --cs-color-highlight-80: var(--cs-color-cool-gray-80);
+    --cs-color-highlight-70: var(--cs-color-cool-gray-70);
+    --cs-color-highlight-60: var(--cs-color-cool-gray-60);
+    --cs-color-highlight-50: var(--cs-color-cool-gray-50);
+    --cs-color-highlight-40: var(--cs-color-cool-gray-40);
+    --cs-color-highlight-30: var(--cs-color-cool-gray-30);
+    --cs-color-highlight-20: var(--cs-color-cool-gray-20);
+    --cs-color-highlight-10: var(--cs-color-cool-gray-10);
+    --cs-color-highlight-05: var(--cs-color-cool-gray-05);
+    --cs-color-highlight: var(--cs-color-cool-gray-70);
+    --cs-color-highlight-key: 70;
+    --cs-color-highlight-on: var(--cs-color-cool-gray-on);
   }
 
   /* information — defaults to blue */
@@ -486,8 +537,8 @@
     --cs-color-information-20: var(--cs-color-blue-20);
     --cs-color-information-10: var(--cs-color-blue-10);
     --cs-color-information-05: var(--cs-color-blue-05);
-    --cs-color-information: var(--cs-color-blue-50);
-    --cs-color-information-key: 50;
+    --cs-color-information: var(--cs-color-blue-60);
+    --cs-color-information-key: 60;
     --cs-color-information-on: var(--cs-color-blue-on);
   }
 
@@ -559,6 +610,40 @@
     --cs-color-information-on: var(--cs-color-dark-green-on);
   }
 
+  .cs-information-mint {
+    --cs-color-information-95: var(--cs-color-mint-95);
+    --cs-color-information-90: var(--cs-color-mint-90);
+    --cs-color-information-80: var(--cs-color-mint-80);
+    --cs-color-information-70: var(--cs-color-mint-70);
+    --cs-color-information-60: var(--cs-color-mint-60);
+    --cs-color-information-50: var(--cs-color-mint-50);
+    --cs-color-information-40: var(--cs-color-mint-40);
+    --cs-color-information-30: var(--cs-color-mint-30);
+    --cs-color-information-20: var(--cs-color-mint-20);
+    --cs-color-information-10: var(--cs-color-mint-10);
+    --cs-color-information-05: var(--cs-color-mint-05);
+    --cs-color-information: var(--cs-color-mint-80);
+    --cs-color-information-key: 80;
+    --cs-color-information-on: var(--cs-color-mint-on);
+  }
+
+  .cs-information-ruby {
+    --cs-color-information-95: var(--cs-color-ruby-95);
+    --cs-color-information-90: var(--cs-color-ruby-90);
+    --cs-color-information-80: var(--cs-color-ruby-80);
+    --cs-color-information-70: var(--cs-color-ruby-70);
+    --cs-color-information-60: var(--cs-color-ruby-60);
+    --cs-color-information-50: var(--cs-color-ruby-50);
+    --cs-color-information-40: var(--cs-color-ruby-40);
+    --cs-color-information-30: var(--cs-color-ruby-30);
+    --cs-color-information-20: var(--cs-color-ruby-20);
+    --cs-color-information-10: var(--cs-color-ruby-10);
+    --cs-color-information-05: var(--cs-color-ruby-05);
+    --cs-color-information: var(--cs-color-ruby-30);
+    --cs-color-information-key: 30;
+    --cs-color-information-on: var(--cs-color-ruby-on);
+  }
+
   .cs-information-soft-black {
     --cs-color-information-95: var(--cs-color-soft-black-95);
     --cs-color-information-90: var(--cs-color-soft-black-90);
@@ -610,40 +695,23 @@
     --cs-color-information-on: var(--cs-color-cool-gray-on);
   }
 
-  .cs-information-purple {
-    --cs-color-information-95: var(--cs-color-purple-95);
-    --cs-color-information-90: var(--cs-color-purple-90);
-    --cs-color-information-80: var(--cs-color-purple-80);
-    --cs-color-information-70: var(--cs-color-purple-70);
-    --cs-color-information-60: var(--cs-color-purple-60);
-    --cs-color-information-50: var(--cs-color-purple-50);
-    --cs-color-information-40: var(--cs-color-purple-40);
-    --cs-color-information-30: var(--cs-color-purple-30);
-    --cs-color-information-20: var(--cs-color-purple-20);
-    --cs-color-information-10: var(--cs-color-purple-10);
-    --cs-color-information-05: var(--cs-color-purple-05);
-    --cs-color-information: var(--cs-color-purple-50);
-    --cs-color-information-key: 50;
-    --cs-color-information-on: var(--cs-color-purple-on);
-  }
-
-  /* success — defaults to dark-green */
+  /* success — defaults to mint */
   :where(:root), /* default */
-  .cs-success-dark-green {
-    --cs-color-success-95: var(--cs-color-dark-green-95);
-    --cs-color-success-90: var(--cs-color-dark-green-90);
-    --cs-color-success-80: var(--cs-color-dark-green-80);
-    --cs-color-success-70: var(--cs-color-dark-green-70);
-    --cs-color-success-60: var(--cs-color-dark-green-60);
-    --cs-color-success-50: var(--cs-color-dark-green-50);
-    --cs-color-success-40: var(--cs-color-dark-green-40);
-    --cs-color-success-30: var(--cs-color-dark-green-30);
-    --cs-color-success-20: var(--cs-color-dark-green-20);
-    --cs-color-success-10: var(--cs-color-dark-green-10);
-    --cs-color-success-05: var(--cs-color-dark-green-05);
-    --cs-color-success: var(--cs-color-dark-green-40);
-    --cs-color-success-key: 40;
-    --cs-color-success-on: var(--cs-color-dark-green-on);
+  .cs-success-mint {
+    --cs-color-success-95: var(--cs-color-mint-95);
+    --cs-color-success-90: var(--cs-color-mint-90);
+    --cs-color-success-80: var(--cs-color-mint-80);
+    --cs-color-success-70: var(--cs-color-mint-70);
+    --cs-color-success-60: var(--cs-color-mint-60);
+    --cs-color-success-50: var(--cs-color-mint-50);
+    --cs-color-success-40: var(--cs-color-mint-40);
+    --cs-color-success-30: var(--cs-color-mint-30);
+    --cs-color-success-20: var(--cs-color-mint-20);
+    --cs-color-success-10: var(--cs-color-mint-10);
+    --cs-color-success-05: var(--cs-color-mint-05);
+    --cs-color-success: var(--cs-color-mint-80);
+    --cs-color-success-key: 80;
+    --cs-color-success-on: var(--cs-color-mint-on);
   }
 
   .cs-success-yellow {
@@ -709,9 +777,43 @@
     --cs-color-success-20: var(--cs-color-blue-20);
     --cs-color-success-10: var(--cs-color-blue-10);
     --cs-color-success-05: var(--cs-color-blue-05);
-    --cs-color-success: var(--cs-color-blue-50);
-    --cs-color-success-key: 50;
+    --cs-color-success: var(--cs-color-blue-60);
+    --cs-color-success-key: 60;
     --cs-color-success-on: var(--cs-color-blue-on);
+  }
+
+  .cs-success-dark-green {
+    --cs-color-success-95: var(--cs-color-dark-green-95);
+    --cs-color-success-90: var(--cs-color-dark-green-90);
+    --cs-color-success-80: var(--cs-color-dark-green-80);
+    --cs-color-success-70: var(--cs-color-dark-green-70);
+    --cs-color-success-60: var(--cs-color-dark-green-60);
+    --cs-color-success-50: var(--cs-color-dark-green-50);
+    --cs-color-success-40: var(--cs-color-dark-green-40);
+    --cs-color-success-30: var(--cs-color-dark-green-30);
+    --cs-color-success-20: var(--cs-color-dark-green-20);
+    --cs-color-success-10: var(--cs-color-dark-green-10);
+    --cs-color-success-05: var(--cs-color-dark-green-05);
+    --cs-color-success: var(--cs-color-dark-green-40);
+    --cs-color-success-key: 40;
+    --cs-color-success-on: var(--cs-color-dark-green-on);
+  }
+
+  .cs-success-ruby {
+    --cs-color-success-95: var(--cs-color-ruby-95);
+    --cs-color-success-90: var(--cs-color-ruby-90);
+    --cs-color-success-80: var(--cs-color-ruby-80);
+    --cs-color-success-70: var(--cs-color-ruby-70);
+    --cs-color-success-60: var(--cs-color-ruby-60);
+    --cs-color-success-50: var(--cs-color-ruby-50);
+    --cs-color-success-40: var(--cs-color-ruby-40);
+    --cs-color-success-30: var(--cs-color-ruby-30);
+    --cs-color-success-20: var(--cs-color-ruby-20);
+    --cs-color-success-10: var(--cs-color-ruby-10);
+    --cs-color-success-05: var(--cs-color-ruby-05);
+    --cs-color-success: var(--cs-color-ruby-30);
+    --cs-color-success-key: 30;
+    --cs-color-success-on: var(--cs-color-ruby-on);
   }
 
   .cs-success-soft-black {
@@ -763,23 +865,6 @@
     --cs-color-success: var(--cs-color-cool-gray-70);
     --cs-color-success-key: 70;
     --cs-color-success-on: var(--cs-color-cool-gray-on);
-  }
-
-  .cs-success-purple {
-    --cs-color-success-95: var(--cs-color-purple-95);
-    --cs-color-success-90: var(--cs-color-purple-90);
-    --cs-color-success-80: var(--cs-color-purple-80);
-    --cs-color-success-70: var(--cs-color-purple-70);
-    --cs-color-success-60: var(--cs-color-purple-60);
-    --cs-color-success-50: var(--cs-color-purple-50);
-    --cs-color-success-40: var(--cs-color-purple-40);
-    --cs-color-success-30: var(--cs-color-purple-30);
-    --cs-color-success-20: var(--cs-color-purple-20);
-    --cs-color-success-10: var(--cs-color-purple-10);
-    --cs-color-success-05: var(--cs-color-purple-05);
-    --cs-color-success: var(--cs-color-purple-50);
-    --cs-color-success-key: 50;
-    --cs-color-success-on: var(--cs-color-purple-on);
   }
 
   /* warning — defaults to orange */
@@ -847,8 +932,8 @@
     --cs-color-warning-20: var(--cs-color-blue-20);
     --cs-color-warning-10: var(--cs-color-blue-10);
     --cs-color-warning-05: var(--cs-color-blue-05);
-    --cs-color-warning: var(--cs-color-blue-50);
-    --cs-color-warning-key: 50;
+    --cs-color-warning: var(--cs-color-blue-60);
+    --cs-color-warning-key: 60;
     --cs-color-warning-on: var(--cs-color-blue-on);
   }
 
@@ -867,6 +952,40 @@
     --cs-color-warning: var(--cs-color-dark-green-40);
     --cs-color-warning-key: 40;
     --cs-color-warning-on: var(--cs-color-dark-green-on);
+  }
+
+  .cs-warning-mint {
+    --cs-color-warning-95: var(--cs-color-mint-95);
+    --cs-color-warning-90: var(--cs-color-mint-90);
+    --cs-color-warning-80: var(--cs-color-mint-80);
+    --cs-color-warning-70: var(--cs-color-mint-70);
+    --cs-color-warning-60: var(--cs-color-mint-60);
+    --cs-color-warning-50: var(--cs-color-mint-50);
+    --cs-color-warning-40: var(--cs-color-mint-40);
+    --cs-color-warning-30: var(--cs-color-mint-30);
+    --cs-color-warning-20: var(--cs-color-mint-20);
+    --cs-color-warning-10: var(--cs-color-mint-10);
+    --cs-color-warning-05: var(--cs-color-mint-05);
+    --cs-color-warning: var(--cs-color-mint-80);
+    --cs-color-warning-key: 80;
+    --cs-color-warning-on: var(--cs-color-mint-on);
+  }
+
+  .cs-warning-ruby {
+    --cs-color-warning-95: var(--cs-color-ruby-95);
+    --cs-color-warning-90: var(--cs-color-ruby-90);
+    --cs-color-warning-80: var(--cs-color-ruby-80);
+    --cs-color-warning-70: var(--cs-color-ruby-70);
+    --cs-color-warning-60: var(--cs-color-ruby-60);
+    --cs-color-warning-50: var(--cs-color-ruby-50);
+    --cs-color-warning-40: var(--cs-color-ruby-40);
+    --cs-color-warning-30: var(--cs-color-ruby-30);
+    --cs-color-warning-20: var(--cs-color-ruby-20);
+    --cs-color-warning-10: var(--cs-color-ruby-10);
+    --cs-color-warning-05: var(--cs-color-ruby-05);
+    --cs-color-warning: var(--cs-color-ruby-30);
+    --cs-color-warning-key: 30;
+    --cs-color-warning-on: var(--cs-color-ruby-on);
   }
 
   .cs-warning-soft-black {
@@ -920,40 +1039,23 @@
     --cs-color-warning-on: var(--cs-color-cool-gray-on);
   }
 
-  .cs-warning-purple {
-    --cs-color-warning-95: var(--cs-color-purple-95);
-    --cs-color-warning-90: var(--cs-color-purple-90);
-    --cs-color-warning-80: var(--cs-color-purple-80);
-    --cs-color-warning-70: var(--cs-color-purple-70);
-    --cs-color-warning-60: var(--cs-color-purple-60);
-    --cs-color-warning-50: var(--cs-color-purple-50);
-    --cs-color-warning-40: var(--cs-color-purple-40);
-    --cs-color-warning-30: var(--cs-color-purple-30);
-    --cs-color-warning-20: var(--cs-color-purple-20);
-    --cs-color-warning-10: var(--cs-color-purple-10);
-    --cs-color-warning-05: var(--cs-color-purple-05);
-    --cs-color-warning: var(--cs-color-purple-50);
-    --cs-color-warning-key: 50;
-    --cs-color-warning-on: var(--cs-color-purple-on);
-  }
-
-  /* danger — defaults to pink */
+  /* danger — defaults to ruby */
   :where(:root), /* default */
-  .cs-danger-pink {
-    --cs-color-danger-95: var(--cs-color-pink-95);
-    --cs-color-danger-90: var(--cs-color-pink-90);
-    --cs-color-danger-80: var(--cs-color-pink-80);
-    --cs-color-danger-70: var(--cs-color-pink-70);
-    --cs-color-danger-60: var(--cs-color-pink-60);
-    --cs-color-danger-50: var(--cs-color-pink-50);
-    --cs-color-danger-40: var(--cs-color-pink-40);
-    --cs-color-danger-30: var(--cs-color-pink-30);
-    --cs-color-danger-20: var(--cs-color-pink-20);
-    --cs-color-danger-10: var(--cs-color-pink-10);
-    --cs-color-danger-05: var(--cs-color-pink-05);
-    --cs-color-danger: var(--cs-color-pink-80);
-    --cs-color-danger-key: 80;
-    --cs-color-danger-on: var(--cs-color-pink-on);
+  .cs-danger-ruby {
+    --cs-color-danger-95: var(--cs-color-ruby-95);
+    --cs-color-danger-90: var(--cs-color-ruby-90);
+    --cs-color-danger-80: var(--cs-color-ruby-80);
+    --cs-color-danger-70: var(--cs-color-ruby-70);
+    --cs-color-danger-60: var(--cs-color-ruby-60);
+    --cs-color-danger-50: var(--cs-color-ruby-50);
+    --cs-color-danger-40: var(--cs-color-ruby-40);
+    --cs-color-danger-30: var(--cs-color-ruby-30);
+    --cs-color-danger-20: var(--cs-color-ruby-20);
+    --cs-color-danger-10: var(--cs-color-ruby-10);
+    --cs-color-danger-05: var(--cs-color-ruby-05);
+    --cs-color-danger: var(--cs-color-ruby-30);
+    --cs-color-danger-key: 30;
+    --cs-color-danger-on: var(--cs-color-ruby-on);
   }
 
   .cs-danger-yellow {
@@ -990,6 +1092,23 @@
     --cs-color-danger-on: var(--cs-color-orange-on);
   }
 
+  .cs-danger-pink {
+    --cs-color-danger-95: var(--cs-color-pink-95);
+    --cs-color-danger-90: var(--cs-color-pink-90);
+    --cs-color-danger-80: var(--cs-color-pink-80);
+    --cs-color-danger-70: var(--cs-color-pink-70);
+    --cs-color-danger-60: var(--cs-color-pink-60);
+    --cs-color-danger-50: var(--cs-color-pink-50);
+    --cs-color-danger-40: var(--cs-color-pink-40);
+    --cs-color-danger-30: var(--cs-color-pink-30);
+    --cs-color-danger-20: var(--cs-color-pink-20);
+    --cs-color-danger-10: var(--cs-color-pink-10);
+    --cs-color-danger-05: var(--cs-color-pink-05);
+    --cs-color-danger: var(--cs-color-pink-80);
+    --cs-color-danger-key: 80;
+    --cs-color-danger-on: var(--cs-color-pink-on);
+  }
+
   .cs-danger-blue {
     --cs-color-danger-95: var(--cs-color-blue-95);
     --cs-color-danger-90: var(--cs-color-blue-90);
@@ -1002,8 +1121,8 @@
     --cs-color-danger-20: var(--cs-color-blue-20);
     --cs-color-danger-10: var(--cs-color-blue-10);
     --cs-color-danger-05: var(--cs-color-blue-05);
-    --cs-color-danger: var(--cs-color-blue-50);
-    --cs-color-danger-key: 50;
+    --cs-color-danger: var(--cs-color-blue-60);
+    --cs-color-danger-key: 60;
     --cs-color-danger-on: var(--cs-color-blue-on);
   }
 
@@ -1022,6 +1141,23 @@
     --cs-color-danger: var(--cs-color-dark-green-40);
     --cs-color-danger-key: 40;
     --cs-color-danger-on: var(--cs-color-dark-green-on);
+  }
+
+  .cs-danger-mint {
+    --cs-color-danger-95: var(--cs-color-mint-95);
+    --cs-color-danger-90: var(--cs-color-mint-90);
+    --cs-color-danger-80: var(--cs-color-mint-80);
+    --cs-color-danger-70: var(--cs-color-mint-70);
+    --cs-color-danger-60: var(--cs-color-mint-60);
+    --cs-color-danger-50: var(--cs-color-mint-50);
+    --cs-color-danger-40: var(--cs-color-mint-40);
+    --cs-color-danger-30: var(--cs-color-mint-30);
+    --cs-color-danger-20: var(--cs-color-mint-20);
+    --cs-color-danger-10: var(--cs-color-mint-10);
+    --cs-color-danger-05: var(--cs-color-mint-05);
+    --cs-color-danger: var(--cs-color-mint-80);
+    --cs-color-danger-key: 80;
+    --cs-color-danger-on: var(--cs-color-mint-on);
   }
 
   .cs-danger-soft-black {
@@ -1075,23 +1211,6 @@
     --cs-color-danger-on: var(--cs-color-cool-gray-on);
   }
 
-  .cs-danger-purple {
-    --cs-color-danger-95: var(--cs-color-purple-95);
-    --cs-color-danger-90: var(--cs-color-purple-90);
-    --cs-color-danger-80: var(--cs-color-purple-80);
-    --cs-color-danger-70: var(--cs-color-purple-70);
-    --cs-color-danger-60: var(--cs-color-purple-60);
-    --cs-color-danger-50: var(--cs-color-purple-50);
-    --cs-color-danger-40: var(--cs-color-purple-40);
-    --cs-color-danger-30: var(--cs-color-purple-30);
-    --cs-color-danger-20: var(--cs-color-purple-20);
-    --cs-color-danger-10: var(--cs-color-purple-10);
-    --cs-color-danger-05: var(--cs-color-purple-05);
-    --cs-color-danger: var(--cs-color-purple-50);
-    --cs-color-danger-key: 50;
-    --cs-color-danger-on: var(--cs-color-purple-on);
-  }
-
   /* link — defaults to blue */
   :where(:root), /* default */
   .cs-link-blue {
@@ -1106,8 +1225,8 @@
     --cs-color-link-20: var(--cs-color-blue-20);
     --cs-color-link-10: var(--cs-color-blue-10);
     --cs-color-link-05: var(--cs-color-blue-05);
-    --cs-color-link: var(--cs-color-blue-50);
-    --cs-color-link-key: 50;
+    --cs-color-link: var(--cs-color-blue-60);
+    --cs-color-link-key: 60;
     --cs-color-link-on: var(--cs-color-blue-on);
   }
 
@@ -1179,6 +1298,40 @@
     --cs-color-link-on: var(--cs-color-dark-green-on);
   }
 
+  .cs-link-mint {
+    --cs-color-link-95: var(--cs-color-mint-95);
+    --cs-color-link-90: var(--cs-color-mint-90);
+    --cs-color-link-80: var(--cs-color-mint-80);
+    --cs-color-link-70: var(--cs-color-mint-70);
+    --cs-color-link-60: var(--cs-color-mint-60);
+    --cs-color-link-50: var(--cs-color-mint-50);
+    --cs-color-link-40: var(--cs-color-mint-40);
+    --cs-color-link-30: var(--cs-color-mint-30);
+    --cs-color-link-20: var(--cs-color-mint-20);
+    --cs-color-link-10: var(--cs-color-mint-10);
+    --cs-color-link-05: var(--cs-color-mint-05);
+    --cs-color-link: var(--cs-color-mint-80);
+    --cs-color-link-key: 80;
+    --cs-color-link-on: var(--cs-color-mint-on);
+  }
+
+  .cs-link-ruby {
+    --cs-color-link-95: var(--cs-color-ruby-95);
+    --cs-color-link-90: var(--cs-color-ruby-90);
+    --cs-color-link-80: var(--cs-color-ruby-80);
+    --cs-color-link-70: var(--cs-color-ruby-70);
+    --cs-color-link-60: var(--cs-color-ruby-60);
+    --cs-color-link-50: var(--cs-color-ruby-50);
+    --cs-color-link-40: var(--cs-color-ruby-40);
+    --cs-color-link-30: var(--cs-color-ruby-30);
+    --cs-color-link-20: var(--cs-color-ruby-20);
+    --cs-color-link-10: var(--cs-color-ruby-10);
+    --cs-color-link-05: var(--cs-color-ruby-05);
+    --cs-color-link: var(--cs-color-ruby-30);
+    --cs-color-link-key: 30;
+    --cs-color-link-on: var(--cs-color-ruby-on);
+  }
+
   .cs-link-soft-black {
     --cs-color-link-95: var(--cs-color-soft-black-95);
     --cs-color-link-90: var(--cs-color-soft-black-90);
@@ -1228,22 +1381,5 @@
     --cs-color-link: var(--cs-color-cool-gray-70);
     --cs-color-link-key: 70;
     --cs-color-link-on: var(--cs-color-cool-gray-on);
-  }
-
-  .cs-link-purple {
-    --cs-color-link-95: var(--cs-color-purple-95);
-    --cs-color-link-90: var(--cs-color-purple-90);
-    --cs-color-link-80: var(--cs-color-purple-80);
-    --cs-color-link-70: var(--cs-color-purple-70);
-    --cs-color-link-60: var(--cs-color-purple-60);
-    --cs-color-link-50: var(--cs-color-purple-50);
-    --cs-color-link-40: var(--cs-color-purple-40);
-    --cs-color-link-30: var(--cs-color-purple-30);
-    --cs-color-link-20: var(--cs-color-purple-20);
-    --cs-color-link-10: var(--cs-color-purple-10);
-    --cs-color-link-05: var(--cs-color-purple-05);
-    --cs-color-link: var(--cs-color-purple-50);
-    --cs-color-link-key: 50;
-    --cs-color-link-on: var(--cs-color-purple-on);
   }
 }

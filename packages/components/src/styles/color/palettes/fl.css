@@ -55,19 +55,19 @@
     --cs-color-pink-key: 80;
 
     /* blue */
-    --cs-color-blue-95: #ecf4fa; /* oklch(96.286% 0.01174 239.91) */
-    --cs-color-blue-90: #d7e8f3; /* oklch(92.162% 0.02354 235.99) */
-    --cs-color-blue-80: #aecee3; /* oklch(83.480% 0.04518 236.86) */
-    --cs-color-blue-70: #86b5d3; /* oklch(75.035% 0.06611 236.81) */
-    --cs-color-blue-60: #5b9cc4; /* oklch(66.524% 0.08944 237.22) */
-    --cs-color-blue-50: #1573a2; /* brand value */
-    --cs-color-blue-40: #005e89; /* oklch(45.766% 0.10169 238.14) */
-    --cs-color-blue-30: #004b6d; /* oklch(39.117% 0.08545 237.03) */
-    --cs-color-blue-20: #003751; /* oklch(31.890% 0.06928 236.66) */
-    --cs-color-blue-10: #002033; /* oklch(23.175% 0.05230 239.10) */
-    --cs-color-blue-05: #001321; /* oklch(17.798% 0.04063 239.81) */
-    --cs-color-blue: var(--cs-color-blue-50);
-    --cs-color-blue-key: 50;
+    --cs-color-blue-95: #ebf4f6; /* oklch(96.097% 0.00994 212.52) */
+    --cs-color-blue-90: #d7e9eb; /* oklch(92.124% 0.01932 204.84) */
+    --cs-color-blue-80: #b5cfd2; /* oklch(83.614% 0.02824 205.08) */
+    --cs-color-blue-70: #91b5b9; /* oklch(74.800% 0.03929 204.71) */
+    --cs-color-blue-60: #7ca7ad; /* brand value */
+    --cs-color-blue-50: #557c81; /* oklch(55.922% 0.04420 206.01) */
+    --cs-color-blue-40: #3e5f63; /* oklch(46.171% 0.03883 205.50) */
+    --cs-color-blue-30: #304a4d; /* oklch(38.940% 0.03199 205.03) */
+    --cs-color-blue-20: #233638; /* oklch(31.746% 0.02472 204.24) */
+    --cs-color-blue-10: #121f21; /* oklch(22.819% 0.01851 207.99) */
+    --cs-color-blue-05: #081415; /* oklch(18.040% 0.01747 202.45) */
+    --cs-color-blue: var(--cs-color-blue-60);
+    --cs-color-blue-key: 60;
 
     /* dark-green */
     --cs-color-dark-green-95: #eef4f2; /* oklch(96.206% 0.00689 174.38) */
@@ -83,6 +83,36 @@
     --cs-color-dark-green-05: #001610; /* oklch(17.856% 0.03405 173.73) */
     --cs-color-dark-green: var(--cs-color-dark-green-40);
     --cs-color-dark-green-key: 40;
+
+    /* mint */
+    --cs-color-mint-95: #c9fee2; /* oklch(95.304% 0.06570 161.81) */
+    --cs-color-mint-90: #abf5cf; /* oklch(91.128% 0.09020 161.55) */
+    --cs-color-mint-80: #88e4b6; /* brand value */
+    --cs-color-mint-70: #6bbf96; /* oklch(73.989% 0.10246 161.23) */
+    --cs-color-mint-60: #5ba27f; /* oklch(65.549% 0.08975 161.08) */
+    --cs-color-mint-50: #498065; /* oklch(55.358% 0.07278 161.40) */
+    --cs-color-mint-40: #38624d; /* oklch(45.871% 0.05883 161.10) */
+    --cs-color-mint-30: #2d4b3c; /* oklch(38.422% 0.04440 161.59) */
+    --cs-color-mint-20: #1f382b; /* oklch(31.580% 0.03916 160.35) */
+    --cs-color-mint-10: #0c2117; /* oklch(22.659% 0.03374 161.32) */
+    --cs-color-mint-05: #04150d; /* oklch(17.718% 0.02978 162.51) */
+    --cs-color-mint: var(--cs-color-mint-80);
+    --cs-color-mint-key: 80;
+
+    /* ruby */
+    --cs-color-ruby-95: #faf1ef; /* oklch(96.460% 0.01009 32.52) */
+    --cs-color-ruby-90: #ede3e2; /* oklch(92.344% 0.01101 24.33) */
+    --cs-color-ruby-80: #d7c6c3; /* oklch(83.972% 0.01965 29.56) */
+    --cs-color-ruby-70: #c5a8a3; /* oklch(75.567% 0.03485 29.44) */
+    --cs-color-ruby-60: #be8880; /* oklch(67.771% 0.06788 28.42) */
+    --cs-color-ruby-50: #ac6057; /* oklch(57.413% 0.10044 27.72) */
+    --cs-color-ruby-40: #9c362f; /* oklch(47.892% 0.13746 27.39) */
+    --cs-color-ruby-30: #991313; /* brand value */
+    --cs-color-ruby-20: #6d0004; /* oklch(33.616% 0.13732 27.81) */
+    --cs-color-ruby-10: #460001; /* oklch(24.769% 0.10135 28.34) */
+    --cs-color-ruby-05: #2e0001; /* oklch(18.940% 0.07725 27.26) */
+    --cs-color-ruby: var(--cs-color-ruby-30);
+    --cs-color-ruby-key: 30;
 
     /* soft-black */
     --cs-color-soft-black-95: #f1f1f1; /* brand value */
@@ -129,31 +159,17 @@
     --cs-color-cool-gray: var(--cs-color-cool-gray-70);
     --cs-color-cool-gray-key: 70;
 
-    /* purple — synthesized from upstream purple */
-    --cs-color-purple-95: #f5f2fb; /* oklch(96.603% 0.01233 301.29) */
-    --cs-color-purple-90: #eae3f3; /* oklch(92.601% 0.02267 305.59) */
-    --cs-color-purple-80: #d2c5e4; /* oklch(84.372% 0.04477 304.43) */
-    --cs-color-purple-70: #baa7d3; /* oklch(75.936% 0.06530 304.52) */
-    --cs-color-purple-60: #a58ac5; /* oklch(67.950% 0.09000 305.06) */
-    --cs-color-purple-50: #8867ad; /* brand value */
-    --cs-color-purple-40: #6a4b8a; /* oklch(47.383% 0.10377 305.49) */
-    --cs-color-purple-30: #533a6f; /* oklch(40.105% 0.09042 304.40) */
-    --cs-color-purple-20: #3d2953; /* oklch(32.537% 0.07541 304.53) */
-    --cs-color-purple-10: #251735; /* oklch(23.890% 0.05787 303.89) */
-    --cs-color-purple-05: #180d24; /* oklch(18.761% 0.04709 304.33) */
-    --cs-color-purple: var(--cs-color-purple-50);
-    --cs-color-purple-key: 50;
-
     /* Auto-contrast: dark text on a light key, white on a dark one. */
     --cs-color-yellow-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-yellow-key), 1) * 100%));
     --cs-color-orange-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-orange-key), 1) * 100%));
     --cs-color-pink-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-pink-key), 1) * 100%));
     --cs-color-blue-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-blue-key), 1) * 100%));
     --cs-color-dark-green-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-dark-green-key), 1) * 100%));
+    --cs-color-mint-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-mint-key), 1) * 100%));
+    --cs-color-ruby-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-ruby-key), 1) * 100%));
     --cs-color-soft-black-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-soft-black-key), 1) * 100%));
     --cs-color-off-white-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-off-white-key), 1) * 100%));
     --cs-color-cool-gray-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-cool-gray-key), 1) * 100%));
-    --cs-color-purple-gte-60: calc(100% - (clamp(0, 60 - var(--cs-color-purple-key), 1) * 100%));
 
     --cs-color-yellow-on: color-mix(in oklab, var(--cs-color-yellow-10) var(--cs-color-yellow-gte-60), white);
     --cs-color-orange-on: color-mix(in oklab, var(--cs-color-orange-10) var(--cs-color-orange-gte-60), white);
@@ -164,6 +180,8 @@
       var(--cs-color-dark-green-10) var(--cs-color-dark-green-gte-60),
       white
     );
+    --cs-color-mint-on: color-mix(in oklab, var(--cs-color-mint-10) var(--cs-color-mint-gte-60), white);
+    --cs-color-ruby-on: color-mix(in oklab, var(--cs-color-ruby-10) var(--cs-color-ruby-gte-60), white);
     --cs-color-soft-black-on: color-mix(
       in oklab,
       var(--cs-color-soft-black-10) var(--cs-color-soft-black-gte-60),
@@ -171,6 +189,5 @@
     );
     --cs-color-off-white-on: color-mix(in oklab, var(--cs-color-off-white-10) var(--cs-color-off-white-gte-60), white);
     --cs-color-cool-gray-on: color-mix(in oklab, var(--cs-color-cool-gray-10) var(--cs-color-cool-gray-gte-60), white);
-    --cs-color-purple-on: color-mix(in oklab, var(--cs-color-purple-10) var(--cs-color-purple-gte-60), white);
   }
 }

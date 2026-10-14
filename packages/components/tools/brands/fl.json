@@ -1,5 +1,5 @@
 {
-  "$comment": "FamilyLife brand key colours, from the theme builder's request for fl. They match the fl ref layer of @cruglobal/cornerstone-design-system. Update them here and re-run tools/palette.mjs. This file is the seam: everything downstream is derived.",
+  "$comment": "FamilyLife brand key colours, from the fl ref layer of @cruglobal/cornerstone-design-system, plus two hues borrowed from Cru (see $rolesComment). Update them here and re-run tools/palette.mjs. This file is the seam: everything downstream is derived.",
   "brand": "fl",
   "source": {
     "repo": "CruGlobal/cornerstone-design-system",
@@ -8,28 +8,27 @@
   "roles": {
     "brand": "dark-green",
     "neutral": "off-white",
-    "highlight": "cool-gray",
+    "highlight": "yellow",
     "information": "blue",
-    "success": "dark-green",
+    "success": "mint",
     "warning": "orange",
-    "danger": "pink"
+    "danger": "ruby"
   },
-  "$rolesComment": "The request mapped neutral to dark-green. Neutral sets body text, borders, lowered surfaces and the dark-mode page colour, so it points at the gray scale instead, the way Cru's neutral points at its light gray.",
+  "$rolesComment": "Neutral points at the gray scale, the way Cru's neutral points at its light gray, because it sets body text, borders, lowered surfaces and the dark-mode page colour. Highlight is yellow, FamilyLife's secondary colour. Success (mint) and danger (ruby) are Cru's hexes, a stopgap until FamilyLife picks colours for those roles: the brand's own dark-green would make success look like brand, and its pink is too pale for errors. Ruby rather than Cru's cerise keeps the two danger colours apart.",
   "link": "blue",
   "neutralPoints": {
     "cool-gray": "#b1b1b1",
     "off-white": "#f1f1f1",
     "soft-black": "#24272a"
   },
-  "synthesized": {
-    "purple": "purple"
-  },
   "hues": {
     "yellow": "#f3bd48",
     "orange": "#e47e3d",
     "pink": "#ebb1b9",
-    "blue": "#1573a2",
+    "blue": "#7ca7ad",
     "dark-green": "#006c5b",
+    "mint": "#88e4b6",
+    "ruby": "#991313",
     "soft-black": "#24272a",
     "off-white": "#f1f1f1",
     "cool-gray": "#b1b1b1"
@@ -38,19 +37,6 @@
     "body": "\"Akkurat LL\", ui-sans-serif, system-ui, sans-serif",
     "heading": "\"Akkurat LL\", ui-sans-serif, system-ui, sans-serif"
   },
-  "$fontsComment": "FamilyLife uses Akkurat LL for both body and headings.",
-  "metrics": {
-    "border-radius-scale": "1",
-    "border-width-scale": "1",
-    "space-scale": "1",
-    "font-size-scale": "1",
-    "shadow-offset-y-scale": "1",
-    "shadow-blur-scale": "1",
-    "shadow-spread-scale": "-0.5",
-    "border-style": "solid",
-    "form-control-border-radius": "var(--cs-border-radius-m)",
-    "panel-border-radius": "var(--cs-border-radius-l)",
-    "tooltip-border-radius": "var(--cs-border-radius-s)"
-  },
-  "$metricsComment": "Every value here is the reference theme's default, and tools/palette.mjs on main does not read metrics yet. They are kept so the file is ready when the generator learns them."
+  "$fontsComment": "FamilyLife uses Akkurat LL for both body and headings. It is a licensed font and the library does not load it yet, so a site using this theme has to supply it.",
+  "$focusComment": "Known exception: in dark mode the focus ring (brand key step, #006c5b) measures 2.94:1 on #121212, just under 3:1. Accepted for now; the fix is a generator change that picks a lighter brand step when the key misses 3:1 against that mode's surface."
 }

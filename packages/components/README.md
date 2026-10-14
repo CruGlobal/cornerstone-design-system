@@ -4,7 +4,7 @@ Cru's web component library: 70 components built with [Lit](https://lit.dev/).
 
 - **Framework-agnostic.** They are custom elements, so they work in React, Vue, Rails, WordPress or plain HTML.
 - **Customizable with CSS.** Every component exposes CSS custom properties and parts, and the library themes from one set of design tokens.
-- **Light and dark.** Two themes ship — `default` and `cru` — and each carries both colour schemes.
+- **Light and dark.** Three themes ship: `cru` (the default), `fl` for FamilyLife, and the unbranded `default`. Each carries both colour schemes.
 - **Accessible.** 59 of the 70 components assert against axe in the test suite, on three engines and both render modes. The 11 that do not render nothing interactive.
 
 ---

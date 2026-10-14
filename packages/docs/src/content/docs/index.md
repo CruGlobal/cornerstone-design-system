@@ -133,7 +133,7 @@ applies it for you, `prefers-color-scheme` included, so a page that never sets i
 ```
 
 See [Theming](/theming-overview) for what else that class list can carry, and
-[Built-in Themes](/themes) for the two themes that ship.
+[Built-in Themes](/themes) for the themes that ship.
 
 ## Avoiding the flash
 

@@ -4,7 +4,7 @@
  * reference theme, because scales, spacing ratios, shadow geometry and control metrics are
  * structure rather than brand. Font families are the exception — those are this brand's own.
  *
- * Roles: brand → dark-green, neutral → off-white, highlight → cool-gray, information → blue, success → dark-green, warning → orange, danger → pink, link → blue.
+ * Roles: brand → dark-green, neutral → off-white, highlight → yellow, information → blue, success → mint, warning → orange, danger → ruby, link → blue.
  */
 @import url('../layers.css');
 @import url('../color/palettes/fl.css');
@@ -64,7 +64,7 @@
     /* highlight */
     --cs-color-highlight-fill-quiet: var(--cs-color-highlight-95);
     --cs-color-highlight-fill-normal: var(--cs-color-highlight-90);
-    --cs-color-highlight-fill-loud: var(--cs-color-highlight-70);
+    --cs-color-highlight-fill-loud: var(--cs-color-highlight-80);
     --cs-color-highlight-border-quiet: var(--cs-color-highlight-90);
     --cs-color-highlight-border-normal: var(--cs-color-highlight-80);
     --cs-color-highlight-border-loud: var(--cs-color-highlight-50);
@@ -75,24 +75,24 @@
     /* information */
     --cs-color-information-fill-quiet: var(--cs-color-information-95);
     --cs-color-information-fill-normal: var(--cs-color-information-90);
-    --cs-color-information-fill-loud: var(--cs-color-information-50);
+    --cs-color-information-fill-loud: var(--cs-color-information-60);
     --cs-color-information-border-quiet: var(--cs-color-information-90);
     --cs-color-information-border-normal: var(--cs-color-information-80);
     --cs-color-information-border-loud: var(--cs-color-information-50);
     --cs-color-information-on-quiet: var(--cs-color-information-40);
     --cs-color-information-on-normal: var(--cs-color-information-30);
-    --cs-color-information-on-loud: white;
+    --cs-color-information-on-loud: var(--cs-color-information-10);
 
     /* success */
     --cs-color-success-fill-quiet: var(--cs-color-success-95);
     --cs-color-success-fill-normal: var(--cs-color-success-90);
-    --cs-color-success-fill-loud: var(--cs-color-success-40);
+    --cs-color-success-fill-loud: var(--cs-color-success-80);
     --cs-color-success-border-quiet: var(--cs-color-success-90);
     --cs-color-success-border-normal: var(--cs-color-success-80);
     --cs-color-success-border-loud: var(--cs-color-success-50);
     --cs-color-success-on-quiet: var(--cs-color-success-40);
     --cs-color-success-on-normal: var(--cs-color-success-30);
-    --cs-color-success-on-loud: white;
+    --cs-color-success-on-loud: var(--cs-color-success-10);
 
     /* warning */
     --cs-color-warning-fill-quiet: var(--cs-color-warning-95);
@@ -108,13 +108,13 @@
     /* danger */
     --cs-color-danger-fill-quiet: var(--cs-color-danger-95);
     --cs-color-danger-fill-normal: var(--cs-color-danger-90);
-    --cs-color-danger-fill-loud: var(--cs-color-danger-80);
+    --cs-color-danger-fill-loud: var(--cs-color-danger-30);
     --cs-color-danger-border-quiet: var(--cs-color-danger-90);
     --cs-color-danger-border-normal: var(--cs-color-danger-80);
     --cs-color-danger-border-loud: var(--cs-color-danger-50);
     --cs-color-danger-on-quiet: var(--cs-color-danger-40);
     --cs-color-danger-on-normal: var(--cs-color-danger-30);
-    --cs-color-danger-on-loud: var(--cs-color-danger-10);
+    --cs-color-danger-on-loud: white;
   }
 
   .cs-dark,
@@ -168,7 +168,7 @@
     /* highlight */
     --cs-color-highlight-fill-quiet: var(--cs-color-highlight-10);
     --cs-color-highlight-fill-normal: var(--cs-color-highlight-20);
-    --cs-color-highlight-fill-loud: var(--cs-color-highlight-70);
+    --cs-color-highlight-fill-loud: var(--cs-color-highlight-80);
     --cs-color-highlight-border-quiet: var(--cs-color-highlight-20);
     --cs-color-highlight-border-normal: var(--cs-color-highlight-30);
     --cs-color-highlight-border-loud: var(--cs-color-highlight-50);
@@ -179,24 +179,24 @@
     /* information */
     --cs-color-information-fill-quiet: var(--cs-color-information-10);
     --cs-color-information-fill-normal: var(--cs-color-information-20);
-    --cs-color-information-fill-loud: var(--cs-color-information-50);
+    --cs-color-information-fill-loud: var(--cs-color-information-60);
     --cs-color-information-border-quiet: var(--cs-color-information-20);
     --cs-color-information-border-normal: var(--cs-color-information-30);
     --cs-color-information-border-loud: var(--cs-color-information-50);
     --cs-color-information-on-quiet: var(--cs-color-information-60);
     --cs-color-information-on-normal: var(--cs-color-information-70);
-    --cs-color-information-on-loud: white;
+    --cs-color-information-on-loud: var(--cs-color-information-10);
 
     /* success */
     --cs-color-success-fill-quiet: var(--cs-color-success-10);
     --cs-color-success-fill-normal: var(--cs-color-success-20);
-    --cs-color-success-fill-loud: var(--cs-color-success-40);
+    --cs-color-success-fill-loud: var(--cs-color-success-80);
     --cs-color-success-border-quiet: var(--cs-color-success-20);
     --cs-color-success-border-normal: var(--cs-color-success-30);
     --cs-color-success-border-loud: var(--cs-color-success-50);
     --cs-color-success-on-quiet: var(--cs-color-success-60);
     --cs-color-success-on-normal: var(--cs-color-success-70);
-    --cs-color-success-on-loud: white;
+    --cs-color-success-on-loud: var(--cs-color-success-10);
 
     /* warning */
     --cs-color-warning-fill-quiet: var(--cs-color-warning-10);
@@ -212,13 +212,13 @@
     /* danger */
     --cs-color-danger-fill-quiet: var(--cs-color-danger-10);
     --cs-color-danger-fill-normal: var(--cs-color-danger-20);
-    --cs-color-danger-fill-loud: var(--cs-color-danger-80);
+    --cs-color-danger-fill-loud: var(--cs-color-danger-30);
     --cs-color-danger-border-quiet: var(--cs-color-danger-20);
     --cs-color-danger-border-normal: var(--cs-color-danger-30);
     --cs-color-danger-border-loud: var(--cs-color-danger-50);
     --cs-color-danger-on-quiet: var(--cs-color-danger-60);
     --cs-color-danger-on-normal: var(--cs-color-danger-70);
-    --cs-color-danger-on-loud: var(--cs-color-danger-10);
+    --cs-color-danger-on-loud: white;
   }
 
   :where(:root),
