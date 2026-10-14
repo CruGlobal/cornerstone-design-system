@@ -207,6 +207,12 @@ export const themeStylesheets = (theme) => ({
 });
 
 /**
+ * The brand themes, in the order above: the ones generated from a brand's knobs, which is what gives a theme a
+ * variant stylesheet of its own. The site's header menu offers these, and `src/brands.js` builds on them.
+ */
+export const brandThemes = themes.filter((theme) => theme.variants);
+
+/**
  * All fonts used by themes, collected from the four font categories.
  */
 export const fonts = themes

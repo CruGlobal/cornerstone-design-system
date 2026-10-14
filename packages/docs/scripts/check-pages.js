@@ -27,7 +27,8 @@ import { fileURLToPath } from 'node:url';
 import { CATEGORIES, headingCategory } from '@cruglobal/cornerstone-build-tools/changelog-categories.js';
 import { getApiSections, getComponent, loadComponents } from '@cruglobal/cornerstone-build-tools/component-api.js';
 import { componentsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
-import { brandPalette, brandTheme, variants } from '../src/plugins/remark-theming.js';
+import { brandBlocks, brands as siteBrands } from '../src/brands.js';
+import { brandTheme, brandViews } from '../src/plugins/remark-theming.js';
 import { themeStylesheets, themes, tints } from '../src/themer.js';
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -141,9 +142,12 @@ function checkBrowsePage(failures) {
 }
 
 function checkTheming(failures) {
-  // The page documents one palette — the one the library applies at the document root — so every count comes
-  // from that palette's own stylesheet: nineteen hues for Cru, eleven tints each, one key step per hue.
-  const hues = brandPalette.hues;
+  // The pages that show a palette carry a version per brand, and the site shows the one picked in its header menu,
+  // so every count is summed over the brands and comes from each palette's own stylesheet: nineteen hues for Cru
+  // and ten for FamilyLife, eleven tints each, one key step per hue.
+  const hues = brandViews.reduce((sum, view) => sum + view.palette.hues.length, 0);
+  const roles = brandViews.find((view) => view.isDefault).variants;
+  const blocksOf = (slug) => new RegExp(`data-brand-only="${slug}"`, 'g');
   const themeName = (theme) => theme.filename.replace(/\.css$/, '');
 
   // The themes previewed, one entry per `::theme-preview` in the page's source, so a preview added there is
@@ -165,21 +169,63 @@ function checkTheming(failures) {
     }
   }
 
+  // The variant matrix is built once, from role tokens, which holds only while every brand has the same roles.
+  const roleSet = (view) => view.variants.map((variant) => `${variant.name}:${variant.attention}`).join(' ');
+
+  for (const view of brandViews) {
+    if (roleSet(view) !== roleSet(brandViews[0])) {
+      failures.push(
+        `tokens/color: ${view.name}'s roles differ from ${brandViews[0].name}'s, so one matrix cannot serve both`,
+      );
+    }
+  }
+
+  // The header menu offers every brand, and the pre-paint table lists each with stylesheets the site serves.
+  const anyPage = readFileSync(join(distDir, 'color-palettes', 'index.html'), 'utf-8');
+  const table = /<script type="application\/json" id="docs-brands">([^<]*)<\/script>/.exec(anyPage);
+  const listed = table ? JSON.parse(table[1]) : null;
+
+  if (!listed) {
+    failures.push('header: no brand table (#docs-brands) in the page head, so no pick can apply before first paint');
+  }
+
+  for (const brand of siteBrands) {
+    if (!new RegExp(`<cs-dropdown-item[^>]*value="${brand.slug}"[^>]*data-brand-choice`).test(anyPage)) {
+      failures.push(`header: the menu offers no ${brand.name} item`);
+    }
+
+    const sheets = listed?.stylesheets[brand.slug];
+
+    if (!sheets || (brand.isDefault ? sheets.length !== 0 : sheets.length === 0)) {
+      failures.push(`header: the brand table lists ${JSON.stringify(sheets)} for ${brand.name}`);
+    }
+
+    for (const href of sheets ?? []) {
+      if (!existsSync(join(distDir, href.replace(/^\/[^/]+(?=\/dist\/)/, '')))) {
+        failures.push(`header: ${brand.name}'s stylesheet ${href} is not in the built site`);
+      }
+    }
+  }
+
   const pages = [
     {
       label: 'color-palettes',
       path: join(distDir, 'color-palettes', 'index.html'),
       checks: [
-        ['swatches', /class="palette-swatch-button"/g, hues.length * tints.length],
-        ['hue scales', /class="palette-swatches/g, hues.length],
+        ['swatches', /class="palette-swatch-button"/g, hues * tints.length],
+        ['hue scales', /class="palette-swatches/g, hues],
         // Exactly one key step marked per scale. The marker is emphasis on the tint label, so a scale with
         // none — or two — means the key map stopped matching the tints.
-        ['marked key steps', /cs-text-center cs-font-weight-bold/g, hues.length],
-        ['palette stylesheets', /<link rel="stylesheet" href="[^"]*\/dist\/styles\/color\/palettes\//g, 1],
-        // One set of install instructions, and no picker: the three palettes that were tabs here are each
-        // imported by the theme that ships them, so none of them is a choice.
+        ['marked key steps', /cs-text-center cs-font-weight-bold/g, hues],
+        // None in the body. One was, and it would load after the picked brand's stylesheets and put its own
+        // palette's values back over theirs.
+        ['palette stylesheets', /<link rel="stylesheet" href="[^"]*\/dist\/styles\/color\/palettes\//g, 0],
+        // Tabs for the default brand's palette only: another brand's palette comes with its theme, so its version
+        // points at the theming page. No picker on the page; the header menu is the one.
         ['install tab groups', /<cs-tab panel="npm">/g, 1],
         ['pickers', /data-theming-picker/g, 0],
+        // Each brand's grid and install instructions.
+        ...brandViews.map((view) => [`${view.slug} blocks`, blocksOf(view.slug), 2]),
       ],
     },
     {
@@ -204,19 +250,28 @@ function checkTheming(failures) {
       checks: [
         // The three generated tables. Each was a Nunjucks loop over a hard-coded list, which is what kept this
         // page a draft — and the lists were upstream's, so they named hues and variants this fork does not have.
-        ['core colour rows', /<code>--cs-color-[a-z-]+-key<\/code>/g, hues.length],
-        // Matched on the variant names, because the hue table has an on-colour column too.
+        ['core colour rows', /<code>--cs-color-[a-z-]+-key<\/code>/g, hues],
+        // Matched on the variant names, because the hue table has an on-colour column too. One table per brand.
         [
           'variant rows',
-          new RegExp(`<code>--cs-color-(?:${variants.map((variant) => variant.name).join('|')})-on</code>`, 'g'),
-          variants.length,
+          new RegExp(`<code>--cs-color-(?:${roles.map((variant) => variant.name).join('|')})-on</code>`, 'g'),
+          roles.length * brandViews.length,
         ],
+        // One matrix: its cells are role tokens, which follow whichever brand is loaded.
         ['matrix rows', /id="token-color-/g, 9],
-        // Two swatch grids: the palette's hues, and the variant scales.
-        ['hue scales', /class="palette-swatches/g, hues.length + variants.length],
-        // Hues this fork does not define. The page named blue, indigo and red throughout, and every reference
-        // resolved to nothing.
-        ['undefined hue references', /--cs-color-(?:blue|indigo|red)-/g, 0],
+        // Two kinds of swatch grid: each brand palette's hues, and the role scales, which are shared.
+        ['hue scales', /class="palette-swatches/g, hues + roles.length],
+        // Per brand: the palette grid, the core-colour and variant-colour tables, and one swatch per role in the
+        // hand-written variant table.
+        ...brandViews.map((view) => [`${view.slug} blocks`, blocksOf(view.slug), 3 + roles.length]),
+      ],
+    },
+    {
+      label: 'theming-overview',
+      path: join(distDir, 'theming-overview', 'index.html'),
+      checks: [
+        ['palette stylesheets', /<link rel="stylesheet" href="[^"]*\/dist\/styles\/color\/palettes\//g, 0],
+        ...brandViews.map((view) => [`${view.slug} blocks`, blocksOf(view.slug), 1]),
       ],
     },
     {
@@ -256,26 +311,38 @@ function checkTheming(failures) {
       }
     }
 
+    // A block marked for a brand the site does not offer is hidden for every reader, whatever they pick.
+    const strays = brandBlocks(html)
+      .blocks.map((block) => block.slug)
+      .filter((slug) => !siteBrands.some((brand) => brand.slug === slug));
+
+    if (strays.length) {
+      failures.push(`${page.label}: blocks marked for brands the menu does not offer: ${[...new Set(strays)]}`);
+    }
+
     // A palette whose stylesheet defines no `.cs-palette-*` class cannot be selected with one. Naming it
     // anyway is the bug that had this page showing a mix of Cru's hues and the default palette's.
     if (page.label === 'color-palettes') {
-      if (!brandPalette.scoped && html.includes(`cs-palette-${brandPalette.slug}`)) {
-        failures.push(`${page.label}: ${brandPalette.name} is not class-scoped, but the page uses a class for it`);
-      }
+      for (const { palette } of brandViews) {
+        if (!palette.scoped && html.includes(`cs-palette-${palette.slug}`)) {
+          failures.push(`${page.label}: ${palette.name} is not class-scoped, but the page uses a class for it`);
+        }
 
-      const missing = hues.filter((hue) => !brandPalette.keys[hue]);
+        const missing = palette.hues.filter((hue) => !palette.keys[hue]);
 
-      if (missing.length) {
-        failures.push(`${page.label}: ${brandPalette.name} declares no key step for ${missing.join(', ')}`);
-      }
+        if (missing.length) {
+          failures.push(`${page.label}: ${palette.name} declares no key step for ${missing.join(', ')}`);
+        }
 
-      // Every swatch names its own value in the tooltip, which is also its accessible name.
-      const valued = hues.filter((hue) => tints.every((tint) => brandPalette.values[`${hue}-${tint}`]));
+        // Every swatch names its own value in the tooltip, which is also its accessible name.
+        const valued = palette.hues.filter((hue) => tints.every((tint) => palette.values[`${hue}-${tint}`]));
 
-      if (valued.length !== hues.length) {
-        failures.push(
-          `${page.label}: ${hues.length - valued.length} scales have steps with no value read from the stylesheet`,
-        );
+        if (valued.length !== palette.hues.length) {
+          failures.push(
+            `${page.label}: ${palette.name} has ${palette.hues.length - valued.length} scales with steps that ` +
+              'have no value read from the stylesheet',
+          );
+        }
       }
     }
 
@@ -337,11 +404,12 @@ function checkVariantDefaults(failures) {
     rows.push(cells(line));
   }
 
-  // Each column after Use, as role → hue. A Cru cell leads with a swatch, so the markup is stripped first.
+  // Each column after Use, as role → hue. A cell leads with a swatch, so the markup is stripped first.
   const columns = cells(lines[start])
     .slice(2)
     .map((heading, offset) => ({
       heading,
+      cells: rows.map((row) => row[offset + 2] ?? ''),
       defaults: Object.fromEntries(
         rows.map((row) => [row[0].toLowerCase(), (row[offset + 2] ?? '').replace(/<[^>]*>/g, '').trim()]),
       ),
@@ -351,10 +419,26 @@ function checkVariantDefaults(failures) {
     Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([role, hue]) => b[role] === hue);
 
   for (const brand of brands) {
-    if (!columns.some((column) => same(column.defaults, brand.defaults))) {
+    const column = columns.find((candidate) => same(candidate.defaults, brand.defaults));
+
+    if (!column) {
       failures.push(
         `tokens/color: no column of the variant table matches the defaults in color/variants/${brand.name}`,
       );
+      continue;
+    }
+
+    // Each cell's swatch shows only while its brand is loaded, and names the hue the cell does. A swatch on the
+    // wrong brand, or on another hue, shows a colour the brand does not default to.
+    const slug = brand.name.replace(/\.css$/, '');
+
+    for (const cell of column.cells) {
+      const hue = cell.replace(/<[^>]*>/g, '').trim();
+      const swatch = /<cs-icon\b[^>]*>/.exec(cell)?.[0] ?? '';
+
+      if (!swatch.includes(`data-brand-only="${slug}"`) || !swatch.includes(`var(--cs-color-${hue})`)) {
+        failures.push(`tokens/color: the "${column.heading}" ${hue} swatch is not ${slug}'s own: ${swatch}`);
+      }
     }
   }
 

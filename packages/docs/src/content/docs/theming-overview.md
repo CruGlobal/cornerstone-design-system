@@ -6,7 +6,7 @@ description: Style your project with Cornerstone's theming system — color pale
 Cornerstone's theming gives the whole library one look and feel. It has four layers: a [theme](/themes), a [color palette](/color-palettes), [variants](/tokens/color#variant-colors), and a light or dark color scheme. The stylesheet you load picks the theme, and the theme brings its own palette. Classes set the variants and the color scheme, on the `<html>` element or on any section.
 
 :::info
-**Try it live!** Use the <cs-tag class="tag-ui" appearance="outlined"><cs-icon name="light_mode"></cs-icon></cs-tag> color scheme menu in this site's header to switch between light and dark mode.
+**Try it live!** Use the <cs-tag class="tag-ui" appearance="outlined"><cs-icon name="light_mode"></cs-icon></cs-tag> color scheme menu in this site's header to switch between light and dark mode, or between Cru's and FamilyLife's themes. FamilyLife's theme shows the system font here rather than Akkurat, and [Built-in Themes](/themes) says why.
 :::
 
 ## Key Concepts
