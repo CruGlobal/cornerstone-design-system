@@ -27,10 +27,8 @@ import { fileURLToPath } from 'node:url';
 import { CATEGORIES, headingCategory } from '@cruglobal/cornerstone-build-tools/changelog-categories.js';
 import { getApiSections, getComponent, loadComponents } from '@cruglobal/cornerstone-build-tools/component-api.js';
 import { componentsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
-// `palettes` is still every palette: the showcase loads all of them, because each theme it previews imports
-// one. Only the reference page narrowed to the brand palette.
-import { brandPalette, brandTheme, palettes, variants } from '../src/plugins/remark-theming.js';
-import { themes, tints } from '../src/themer.js';
+import { brandPalette, brandTheme, variants } from '../src/plugins/remark-theming.js';
+import { themeStylesheets, themes, tints } from '../src/themer.js';
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const contentDir = join(siteDir, 'src', 'content', 'docs', 'components');
@@ -146,7 +144,26 @@ function checkTheming(failures) {
   // The page documents one palette — the one the library applies at the document root — so every count comes
   // from that palette's own stylesheet: nineteen hues for Cru, eleven tints each, one key step per hue.
   const hues = brandPalette.hues;
-  const brandThemeName = brandTheme.filename.replace(/\.css$/, '');
+  const themeName = (theme) => theme.filename.replace(/\.css$/, '');
+
+  // The themes previewed, one entry per `::theme-preview` in the page's source, so a preview added there is
+  // expected here. A bare directive previews the brand theme.
+  const previewed = [
+    ...readFileSync(join(siteDir, 'src', 'content', 'docs', 'themes.md'), 'utf-8').matchAll(
+      /^::theme-preview(?:\{theme="([a-z-]+)"\})?[ \t]*$/gm,
+    ),
+  ].map((match) => match[1] ?? themeName(brandTheme));
+
+  // Every stylesheet a showcase frame may ask for, which the showcase lists in its script.
+  const showcaseStylesheets = [...new Set(themes.flatMap((theme) => Object.values(themeStylesheets(theme))))];
+
+  // themer.js names each file by hand, so each has to be one the library has. A wrong name builds clean and
+  // leaves the frame on Cru's theme.
+  for (const file of showcaseStylesheets) {
+    if (!existsSync(join(componentsDir(), 'src', 'styles', file))) {
+      failures.push(`themer.js names styles/${file}, which the library does not have`);
+    }
+  }
 
   const pages = [
     {
@@ -169,10 +186,14 @@ function checkTheming(failures) {
       label: 'themes',
       path: join(distDir, 'themes', 'index.html'),
       checks: [
-        // Two frames, one comparison, one theme. The frames are the same showcase under two colour schemes, so
-        // both must carry the brand theme in their query string or the preview shows the showcase's default.
-        ['preview frames', /<cs-zoomable-frame/g, 2],
-        ['frames on the brand theme', new RegExp(`showcase\\?theme=${brandThemeName}&`, 'g'), 2],
+        // Two frames per preview, both on the preview's theme. The frames are the same showcase under two colour
+        // schemes, so both must name the theme in their query string or the preview shows the showcase's default.
+        ['preview frames', /<cs-zoomable-frame/g, previewed.length * 2],
+        ...[...new Set(previewed)].map((name) => [
+          `frames on the ${name} theme`,
+          new RegExp(`showcase\\?theme=${name}&`, 'g'),
+          previewed.filter((each) => each === name).length * 2,
+        ]),
         ['install tab groups', /<cs-tab panel="npm">/g, 1],
         ['pickers', /data-theming-picker/g, 0],
       ],
@@ -202,8 +223,16 @@ function checkTheming(failures) {
       label: 'examples/themes/showcase',
       path: join(distDir, 'examples', 'themes', 'showcase', 'index.html'),
       checks: [
-        ['theme stylesheets', /\/dist\/styles\/themes\//g, themes.length],
-        ['palette stylesheets', /\/dist\/styles\/color\/palettes\//g, palettes.length],
+        // A frame holds one theme, the one its query string names. A theme or palette linked in the markup
+        // would sit under every frame, and the last one loaded would win, as it did before.
+        ['theme stylesheets linked in the markup', /<link[^>]*\/dist\/styles\/themes\//g, 0],
+        ['palette stylesheets linked in the markup', /<link[^>]*\/dist\/styles\/color\/palettes\//g, 0],
+        // And each stylesheet a theme in themer.js is made of is one a frame may ask for.
+        ...showcaseStylesheets.map((file) => [
+          `${file} listed for the frames`,
+          new RegExp(`/dist/styles/${file.replace(/\./g, '\\.')}"`, 'g'),
+          1,
+        ]),
       ],
     },
   ];

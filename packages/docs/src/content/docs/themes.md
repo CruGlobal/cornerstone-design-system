@@ -20,10 +20,18 @@ Regular for weights up to 500 and Bold for 600 and up. Semibold and bold look th
 Default is the unbranded reference theme, kept as an opt-in starting point rather than the base. The
 Awesome and Shoelace themes this library was forked alongside have been removed.
 
-Below is Cru's theme in both color schemes: drag the slider to compare dark against light.
+Below are Cru's theme and FamilyLife's, each in both color schemes: drag a slider to compare dark against
+light.
 
 ::theme-preview
 
-## Using This Theme
+Next is FamilyLife's theme, loaded after `cornerstone.css`:
+
+::theme-preview{theme="fl"}
+
+This preview shows the system font, not Akkurat: Akkurat's license covers only FamilyLife's own sites, so a
+site using this theme supplies the font itself.
+
+## Using Cru's Theme
 
 ::theme-install
