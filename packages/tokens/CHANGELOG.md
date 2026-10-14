@@ -1,5 +1,7 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.8.0
+
 ## 0.7.1
 
 ### Changed

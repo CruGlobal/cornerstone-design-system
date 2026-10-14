@@ -1,5 +1,23 @@
 # @cruglobal/cornerstone-components
 
+## 0.8.0
+
+### Added
+
+- [#239](https://github.com/CruGlobal/cornerstone-design-system/pull/239) [`e241861`](https://github.com/CruGlobal/cornerstone-design-system/commit/e2418617165c085b69984262b0a0dab346b85d58) Thanks [@LizzyRandall](https://github.com/LizzyRandall)! - a FamilyLife theme, `styles/themes/fl.css`. Load it after `cornerstone.css` to switch a site to FamilyLife; Cru stays the default.
+
+### Fixed
+
+- [#246](https://github.com/CruGlobal/cornerstone-design-system/pull/246) [`860835a`](https://github.com/CruGlobal/cornerstone-design-system/commit/860835a8a1ea4dd5d3b9677847c297cdffa56cda) Thanks [@rguinee](https://github.com/rguinee)! - The FamilyLife theme now asks for the `Akkurat` family that FamilyLife's sites load, and sets semibold and bold to 700 so buttons, actions and form labels render in Bold. The theming docs also say which cuts a site supplies.
+
+- [#235](https://github.com/CruGlobal/cornerstone-design-system/pull/235) [`469c3a4`](https://github.com/CruGlobal/cornerstone-design-system/commit/469c3a4de2476e414578112b8ae17de2f99b239d) Thanks [@rguinee](https://github.com/rguinee)! - Component tests no longer wait a fixed time for an animation or a frame. They finish the animation, or step a faked frame clock, so a busy CI runner can't fail them, and check each animation's configured length against its duration token instead of timing it. Tests only; the published package is unchanged.
+
+- [#249](https://github.com/CruGlobal/cornerstone-design-system/pull/249) [`5d8f5a5`](https://github.com/CruGlobal/cornerstone-design-system/commit/5d8f5a5e30e55f36e7612514346a8e974f93b1e4) Thanks [@rguinee](https://github.com/rguinee)! - The Cornerstone agents and review standards now say the loaded stylesheet picks the theme, not a `cs-theme-*` class.
+
+- [#247](https://github.com/CruGlobal/cornerstone-design-system/pull/247) [`284804e`](https://github.com/CruGlobal/cornerstone-design-system/commit/284804e3b0e548c493c70e7aae54ccfdf49889c8) Thanks [@rguinee](https://github.com/rguinee)! - The shipped theming, color and typography docs and the themes reference now say the loaded stylesheet picks the theme, not a `cs-theme-*` class, and cover FamilyLife's theme.
+
+- [#245](https://github.com/CruGlobal/cornerstone-design-system/pull/245) [`2720e09`](https://github.com/CruGlobal/cornerstone-design-system/commit/2720e09f0e52f927e6286ed1bd16e17f8a8f3248) Thanks [@rguinee](https://github.com/rguinee)! - The design skill's theming reference no longer says a `cs-theme-*` or `cs-palette-*` class switches or scopes a theme, and it lists FamilyLife's 10 hues.
+
 ## 0.7.1
 
 ### Added
