@@ -262,4 +262,6 @@ A clamp keeps a long description from stretching a card, and every card in its r
 
 :::info
 Put `cs-text-truncate-2` through `cs-text-truncate-5` on the element that holds the text, not on one that also has a layout utility such as `cs-stack`, `cs-split`, `cs-cluster` or `cs-grid`. On the same element, the layout utility wins and the text is not clamped. Use a child element instead, as the `<p>` inside `cs-stack` does above.
+
+Do the same in a list item or table cell. These classes change the element's `display`, so on an `<li>` the bullet disappears and on a `<td>` the cell stops acting like a table cell. Wrap the text in a `<span>` or `<div>` inside the `<li>` or `<td>` and put the class there. Safari still hides the bullet even then. `cs-text-truncate` and `cs-text-truncate-1` leave `display` alone, so they are fine on either.
 :::
