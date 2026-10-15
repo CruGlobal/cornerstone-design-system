@@ -11,8 +11,8 @@ import { brandThemes } from '../themer.js';
  *
  * The trigger shows the scheme in force rather than marking the active item, again as upstream does: their items
  * are all `type="normal"` with nothing checked. Each item carries an icon in the `icon` slot, and "System" carries
- * both — the same scheme-swapped pair as the trigger, which is how upstream signals "whatever the OS says". Both icons are rendered and one is hidden per scheme, so the
- * swap costs no script and cannot flash the wrong glyph.
+ * both — the same scheme-swapped pair as the trigger, which is how upstream signals "whatever the OS says". Both
+ * icons are rendered and one is hidden per scheme, so the swap costs no script and cannot flash the wrong glyph.
  *
  * What is kept from the `cs-select` version this replaces: the `starlight-theme` storage key and the `data-theme`
  * attribute. Everything downstream keys off those — `theme-sync.js` mirrors the attribute onto the library's own
@@ -23,8 +23,8 @@ import { brandThemes } from '../themer.js';
  * says System, the change request says System, and this site has a single locale — the same reason
  * `FallbackContentNotice` is switched off — so the literal costs nothing and the label is the one asked for.
  *
- * `light_mode` and `dark_mode` rather than upstream's `sun-bright` and `moon-stars`: Font Awesome is no longer the
- * fork resolves icons from the free CDN, where a Pro name renders as nothing.
+ * `light_mode` and `dark_mode` rather than upstream's `sun-bright` and `moon-stars`: Cornerstone Components'
+ * default icon library is Material Symbols, not Font Awesome, so a Font Awesome name renders as nothing.
  *
  * The "Docs" target is `/themes`, not the light-and-dark section of the customizing page that upstream links to,
  * because `customizing.md` and `theming-overview.md` are both still `draft: true` and excluded from production
