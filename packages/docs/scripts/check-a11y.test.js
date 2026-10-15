@@ -1,9 +1,10 @@
 /**
- * Proves `check-a11y` can fail, against test Screens that are never built into the site.
+ * Proves `check-a11y` fails for each reason it claims to, against test Screens never built into the site.
  *
  * No real Screen exists yet, so on the site alone the check has only ever passed on an empty directory. A
  * check that has never failed is a check nobody knows works. These run it, through `--screens`, on fixtures
- * that differ by two known violations, and assert the exit code and the report. Run after `npm run build`.
+ * that each differ from the clean sign-in Screen by one kind of fault, and assert the exit code and the
+ * report. Run after `npm run build`.
  */
 
 import assert from 'node:assert/strict';
@@ -48,21 +49,66 @@ describe('check-a11y', () => {
     assert.match(output, /No Screens under .* yet/);
   });
 
-  it('passes every state file of a Screen with no violations', () => {
+  it('passes every state file of a Screen with no violations, in both modes, naming the axe version', () => {
     const { status, output } = check(join(fixtures, 'clean'));
 
     assert.equal(status, 0, output);
-    assert.match(output, /2 Screen state files checked with axe .*, no violations/);
+    assert.match(output, /2 Screen state files checked with axe \d+\.\d+\.\d+ in light and dark .*: no violations/);
   });
 
-  it('fails a Screen with known violations, naming file, rule, impact and selector', () => {
+  it('fails WCAG violations in each mode, naming file, mode, rule, impact and selector', () => {
     const { status, output } = check(join(fixtures, 'violation'));
 
     assert.equal(status, 1, output);
-    assert.match(output, /2 accessibility violations in 1 of 1 Screen state file/);
+    assert.match(output, /4 failures \(2 light, 2 dark\) in 1 of 1 file/);
     assert.match(output, /scripts\/fixtures\/check-a11y\/violation\/sign-in\.html/);
-    assert.match(output, /html-has-lang \(serious\): .*\n\s+html\n/);
-    assert.match(output, /image-alt \(critical\): .*\n\s+img\n/);
+
+    for (const mode of ['light', 'dark']) {
+      assert.match(output, new RegExp(`\\[${mode}\\] html-has-lang \\(serious\\): .*\\n\\s+html\\n`));
+      assert.match(output, new RegExp(`\\[${mode}\\] image-alt \\(critical\\): .*\\n\\s+img\\n`));
+    }
+  });
+
+  it('fails a Screen with no main landmark, a rule axe files under best-practice', () => {
+    const { status, output } = check(join(fixtures, 'no-main'));
+
+    assert.equal(status, 1, output);
+    assert.match(output, /\[light\] landmark-one-main \(moderate\): .*\n\s+html\n/);
+    assert.match(output, /\[dark\] landmark-one-main \(moderate\)/);
+  });
+
+  it('runs the dark mode as a dark page, not a second light one', () => {
+    const { status, output } = check(join(fixtures, 'dark-only'));
+
+    assert.equal(status, 1, output);
+    assert.match(output, /\[dark\] color-contrast \(serious\): .*\n\s+p\n/);
+    assert.doesNotMatch(output, /\[light\] color-contrast \(serious\)/);
+    assert.match(output, /1 failure \(0 light, 1 dark\)/);
+  });
+
+  it('fails a Screen whose stylesheet is missing, naming the URL and status', () => {
+    const { status, output } = check(join(fixtures, 'missing-asset'));
+
+    assert.equal(status, 1, output);
+    assert.match(output, /\[light\] check-a11y \(error\): \S+\/dist\/styles\/does-not-exist\.css returned 404/);
+    assert.match(output, /2 failures \(1 light, 1 dark\)/);
+  });
+
+  it('fails a Screen whose script throws, naming the error', () => {
+    const { status, output } = check(join(fixtures, 'page-error'));
+
+    assert.equal(status, 1, output);
+    assert.match(output, /\[light\] check-a11y \(error\): the page threw: fixture: the Screen script failed/);
+    assert.match(output, /2 failures \(1 light, 1 dark\)/);
+  });
+
+  it('lists what axe could not decide as needing review, without failing', () => {
+    const { status, output } = check(join(fixtures, 'needs-review'));
+
+    assert.equal(status, 0, output);
+    assert.match(output, /\[light\] needs review: color-contrast: .*\n\s+p\n/);
+    assert.match(output, /\[dark\] needs review: color-contrast: .*\n\s+p\n/);
+    assert.match(output, /no violations; \d+ needs review \(\d+ light, \d+ dark\), which never fails the check/);
   });
 
   it('fails without a value for --screens rather than checking the site', () => {

@@ -1,0 +1,25 @@
+<!doctype html>
+<!--
+  The clean sign-in test Screen with its <main> taken away, for check-a11y.test.js. Never built into the site.
+  It meets every WCAG-tagged rule, so it fails only on the document rules axe files under best-practice.
+-->
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+  </head>
+  <body>
+    <div class="cs-stack">
+      <h1>Sign in</h1>
+      <form class="cs-stack">
+        <cs-input label="Email" type="email" name="email"></cs-input>
+        <cs-input label="Password" type="password" name="password"></cs-input>
+        <cs-button type="submit" variant="brand">Sign in</cs-button>
+      </form>
+    </div>
+  </body>
+</html>

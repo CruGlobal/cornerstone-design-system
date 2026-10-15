@@ -24,15 +24,35 @@
  * axe's rules depend on, and one engine keeps the docs CI job to a single browser download. Engine coverage
  * of component behaviour is the component suite's job.
  *
+ * **Which rules.** Every rule axe tags WCAG 2.2 A or AA, plus three it files under `best-practice`:
+ * `landmark-one-main`, `page-has-heading-one` and `region`. Those three are the reason a Screen is checked as
+ * a document at all, and the WCAG tags alone skip them, so a Screen with no `<main>` and no `<h1>` passed.
+ * They are named by id rather than by adding the `best-practice` tag, which would bring in dozens of rules
+ * nobody has decided a Screen must meet.
+ *
+ * **Light and dark.** Each state file is run twice, once per mode, in separate browser contexts. The dark
+ * run emulates `prefers-color-scheme: dark` **and** puts `cs-dark` on `<html>`, because Cornerstone's
+ * themes switch on that class, not on the media query: emulation alone would rerun the light page and call
+ * it dark. The class is how a Screen is shown dark on the site too, since `cs-zoomable-frame` copies the
+ * page's `cs-dark` onto the framed document.
+ *
+ * **A state file fails** on any axe violation, on any response of 400 or above under the site's address (a
+ * missing stylesheet or script still renders, just wrongly, and axe would judge the wrong page), and on any
+ * uncaught page error. axe's `incomplete` results are printed as "needs review" and never fail: they are
+ * the checks axe could not decide, and only a person can.
+ *
  * **Readiness.** axe is run only once every `cs-*` element is defined, the loader has removed `cs-cloak`
  * (which holds the page at opacity 0 and would skew `color-contrast`), and every Lit element has finished
- * its update. A Screen that never gets there fails: axe on a half-rendered page is not a result.
+ * its update. A Screen that never gets there fails: axe on a half-rendered page is not a result. **Known
+ * limit:** both waits look only at `cs-*` elements in the page's own DOM, not at ones a component renders
+ * inside its shadow root, so a nested component can be judged before it defines or mid-update. A
+ * component the Screen's own markup uses that never defines does fail, with a message saying so.
  *
  * `--screens <dir>` reads the Screens from another directory, served at the same address. It exists so
- * `check-a11y.test.js` can prove the check fails on a known violation without a broken Screen ever being
- * built into the site.
+ * `check-a11y.test.js` can prove the check fails for each reason without a broken Screen ever being built
+ * into the site.
  *
- * Run after `npm run build`. Exits non-zero listing every violation by file, rule, impact and selector.
+ * Run after `npm run build`. Exits non-zero listing every failure by file, mode, rule, impact and selector.
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
@@ -50,6 +70,15 @@ const SCREENS_PATH = join('assets', 'examples', 'inspiration', 'screens');
 
 /** WCAG 2.2 A and AA, which is the target `resources/accessibility.md` states for the library. */
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
+
+/** The document rules axe tags `best-practice` and the WCAG tags skip. See the header for why by id. */
+const DOCUMENT_RULES = ['landmark-one-main', 'page-has-heading-one', 'region'];
+
+/** Each state file runs once per mode. `dark` is the class Cornerstone's themes switch on. */
+const MODES = [
+  { name: 'light', colorScheme: /** @type {const} */ ('light'), className: null },
+  { name: 'dark', colorScheme: /** @type {const} */ ('dark'), className: 'cs-dark' },
+];
 
 /** How long a Screen gets to define its components and finish rendering. */
 const READY_TIMEOUT = 10_000;
@@ -146,123 +175,203 @@ function fileFor(url) {
 
 const urlFor = (screen) => `${DOCS_URL}/${SCREENS_PATH.split(sep).join('/')}/${relative(screensDir, screen)}`;
 
-const axeSource = readFileSync(createRequire(import.meta.url).resolve('axe-core'), 'utf-8');
-const browser = await chromium.launch();
-const failures = new Map();
-let violationCount = 0;
+const axePath = createRequire(import.meta.url).resolve('axe-core');
+const axeSource = readFileSync(axePath, 'utf-8');
+const axeVersion = JSON.parse(readFileSync(join(dirname(axePath), 'package.json'), 'utf-8')).version;
 
-try {
-  const context = await browser.newContext({ reducedMotion: 'reduce' });
+/** Turns axe's nodes into selectors. A target into a shadow root is one selector per root crossed. */
+const selectorsOf = (nodes) =>
+  nodes.map((node) => node.target.map((part) => (Array.isArray(part) ? part.join(' >>> ') : part)).join(' >>> '));
 
-  await context.route(
-    (url) => url.href.startsWith(`${DOCS_URL}/`),
-    (route) => {
-      const file = fileFor(route.request().url());
+/**
+ * Loads one state file in one mode and runs axe on it.
+ *
+ * Returns what fails it (`problems`: violations, failed requests, page errors) and what axe could not decide
+ * (`reviews`). Every item carries its mode.
+ */
+async function checkState(context, screen, mode) {
+  const page = await context.newPage();
+  const problems = [];
+  const reviews = [];
+  const loadErrors = [];
+  let recording = true;
 
-      return file
-        ? route.fulfill({
-            body: readFileSync(file),
-            contentType: CONTENT_TYPES[extname(file)] ?? 'application/octet-stream',
-          })
-        : route.fulfill({ status: 404, body: 'Not found' });
-    },
-  );
+  // The Screen's own navigation is reported by `goto` below, so only its subresources are recorded here.
+  // Recording stops before axe is injected: axe preloads the page's stylesheets itself and resolves their
+  // relative `@import`s against the document rather than the sheet, so its requests 404 on every Screen
+  // that loads `cornerstone.css`. Those are axe's misses, not the Screen's.
+  page.on('response', (response) => {
+    if (
+      recording &&
+      response.status() >= 400 &&
+      response.url().startsWith(`${DOCS_URL}/`) &&
+      !response.request().isNavigationRequest()
+    ) {
+      loadErrors.push(`${response.url()} returned ${response.status()}`);
+    }
+  });
+  page.on('pageerror', (error) => loadErrors.push(`the page threw: ${error.message}`));
 
-  for (const screen of screens) {
-    const page = await context.newPage();
-    const problems = [];
+  try {
+    const response = await page.goto(urlFor(screen), { waitUntil: 'load' });
 
-    try {
-      const response = await page.goto(urlFor(screen), { waitUntil: 'load' });
+    if (!response?.ok()) {
+      throw new Error(`loading it returned ${response?.status() ?? 'no response'}`);
+    }
 
-      if (!response?.ok()) {
-        throw new Error(`loading it returned ${response?.status() ?? 'no response'}`);
+    await page
+      .waitForFunction(
+        () =>
+          document.querySelectorAll('.cs-cloak').length === 0 &&
+          [...document.querySelectorAll('*')].every(
+            (el) => !el.localName.startsWith('cs-') || customElements.get(el.localName),
+          ),
+        undefined,
+        { timeout: READY_TIMEOUT },
+      )
+      .catch(() => {
+        throw new Error(
+          `its components did not all define within ${READY_TIMEOUT / 1000}s, so axe would judge a half-rendered page`,
+        );
+      });
+
+    await page.evaluate(async (className) => {
+      if (className) {
+        document.documentElement.classList.remove('cs-light');
+        document.documentElement.classList.add(className);
       }
 
-      await page
-        .waitForFunction(
-          () =>
-            document.querySelectorAll('.cs-cloak').length === 0 &&
-            [...document.querySelectorAll('*')].every(
-              (el) => !el.localName.startsWith('cs-') || customElements.get(el.localName),
-            ),
-          undefined,
-          { timeout: READY_TIMEOUT },
-        )
-        .catch(() => {
-          throw new Error(
-            `its components did not all define within ${READY_TIMEOUT / 1000}s, so axe would judge a half-rendered page`,
-          );
-        });
-
-      await page.evaluate(() =>
-        Promise.all(
-          [...document.querySelectorAll('*')]
-            .filter((el) => el.localName.startsWith('cs-'))
-            .map((el) => /** @type {any} */ (el).updateComplete),
-        ),
+      await Promise.all(
+        [...document.querySelectorAll('*')]
+          .filter((el) => el.localName.startsWith('cs-'))
+          .map((el) => /** @type {any} */ (el).updateComplete),
       );
 
-      await page.addScriptTag({ content: axeSource });
+      // Two frames, so the styles a class change triggers are applied before axe reads them.
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }, mode.className);
 
-      const violations = await page.evaluate(async (tags) => {
-        const results = await /** @type {any} */ (window).axe.run(document, {
+    recording = false;
+    await page.addScriptTag({ content: axeSource });
+
+    const results = await page.evaluate(
+      async ({ tags, rules }) => {
+        const { violations, incomplete } = await /** @type {any} */ (window).axe.run(document, {
           runOnly: { type: 'tag', values: tags },
+          rules: Object.fromEntries(rules.map((id) => [id, { enabled: true }])),
+        });
+        const plain = (result) => ({
+          id: result.id,
+          impact: result.impact,
+          help: result.help,
+          nodes: result.nodes.map((node) => ({ target: node.target })),
         });
 
-        return results.violations.map((violation) => ({
-          id: violation.id,
-          impact: violation.impact,
-          help: violation.help,
-          // A target into a shadow root is an array of selectors, one per root crossed.
-          targets: violation.nodes.map((node) =>
-            node.target.map((part) => (Array.isArray(part) ? part.join(' >>> ') : part)).join(' >>> '),
-          ),
-        }));
-      }, WCAG_TAGS);
+        return { violations: violations.map(plain), incomplete: incomplete.map(plain) };
+      },
+      { tags: WCAG_TAGS, rules: DOCUMENT_RULES },
+    );
 
-      problems.push(...violations);
-    } catch (error) {
-      problems.push({ id: 'check-a11y', impact: 'error', help: error.message, targets: [] });
-    } finally {
-      await page.close();
+    for (const { id, impact, help, nodes } of results.violations) {
+      problems.push({ mode: mode.name, id, impact, help, targets: selectorsOf(nodes) });
     }
 
-    if (problems.length > 0) {
-      failures.set(label(screen), problems);
-      violationCount += problems.length;
+    for (const { id, help, nodes } of results.incomplete) {
+      reviews.push({ mode: mode.name, id, help, targets: selectorsOf(nodes) });
     }
+  } catch (error) {
+    problems.push({ mode: mode.name, id: 'check-a11y', impact: 'error', help: error.message, targets: [] });
+  } finally {
+    await page.close();
+  }
+
+  // A missing stylesheet or script still renders a page, just not the one the author wrote.
+  for (const message of loadErrors) {
+    problems.push({ mode: mode.name, id: 'check-a11y', impact: 'error', help: message, targets: [] });
+  }
+
+  return { problems, reviews };
+}
+
+const browser = await chromium.launch();
+const results = new Map(screens.map((screen) => [screen, { problems: [], reviews: [] }]));
+
+try {
+  for (const mode of MODES) {
+    const context = await browser.newContext({ colorScheme: mode.colorScheme, reducedMotion: 'reduce' });
+
+    await context.route(
+      (url) => url.href.startsWith(`${DOCS_URL}/`),
+      (route) => {
+        const file = fileFor(route.request().url());
+
+        return file
+          ? route.fulfill({
+              body: readFileSync(file),
+              contentType: CONTENT_TYPES[extname(file)] ?? 'application/octet-stream',
+            })
+          : route.fulfill({ status: 404, body: 'Not found' });
+      },
+    );
+
+    for (const screen of screens) {
+      const { problems, reviews } = await checkState(context, screen, mode);
+
+      results.get(screen).problems.push(...problems);
+      results.get(screen).reviews.push(...reviews);
+    }
+
+    await context.close();
   }
 } finally {
   await browser.close();
 }
 
-if (failures.size === 0) {
-  console.log(
-    `\n${screens.length} Screen state file${screens.length === 1 ? '' : 's'} checked with axe ` +
-      `(${WCAG_TAGS.join(', ')}), no violations.\n`,
-  );
+const all = [...results.values()];
+const total = (key, mode = null) =>
+  all.reduce((sum, result) => sum + result[key].filter((item) => !mode || item.mode === mode).length, 0);
+const byMode = (key) => MODES.map(({ name }) => `${total(key, name)} ${name}`).join(', ');
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+const problemCount = total('problems');
+const reviewCount = total('reviews');
+const failing = all.filter(({ problems }) => problems.length > 0).length;
+const out = problemCount === 0 ? console.log : console.error;
+
+out('');
+
+for (const [screen, { problems, reviews }] of results) {
+  if (problems.length === 0 && reviews.length === 0) {
+    continue;
+  }
+
+  out(`  ${label(screen)}`);
+
+  for (const { mode, id, impact, help, targets } of problems) {
+    out(`      [${mode}] ${id} (${impact}): ${help}`);
+    targets.forEach((target) => out(`          ${target}`));
+  }
+
+  for (const { mode, id, help, targets } of reviews) {
+    out(`      [${mode}] needs review: ${id}: ${help}`);
+    targets.forEach((target) => out(`          ${target}`));
+  }
+
+  out('');
+}
+
+const scope =
+  `${plural(screens.length, 'Screen state file')} checked with axe ${axeVersion} in ` +
+  `${MODES.map(({ name }) => name).join(' and ')} (${WCAG_TAGS.join(', ')}, plus ${DOCUMENT_RULES.join(', ')})`;
+const reviews = `${reviewCount} needs review (${byMode('reviews')}), which never fails the check`;
+
+if (problemCount === 0) {
+  out(`${scope}: no violations; ${reviews}.\n`);
   process.exit(0);
 }
 
-console.error(
-  `\n${violationCount} accessibility violation${violationCount === 1 ? '' : 's'} in ${failures.size} of ` +
-    `${screens.length} Screen state file${screens.length === 1 ? '' : 's'}:\n`,
+out(
+  `${scope}: ${plural(problemCount, 'failure')} (${byMode('problems')}) in ${failing} of ` +
+    `${plural(screens.length, 'file')}; ${reviews}.\n`,
 );
-
-for (const [path, problems] of failures) {
-  console.error(`  ${path}`);
-
-  for (const { id, impact, help, targets } of problems) {
-    console.error(`      ${id} (${impact}): ${help}`);
-
-    for (const target of targets) {
-      console.error(`          ${target}`);
-    }
-  }
-
-  console.error('');
-}
-
-console.error('Every Inspiration Screen must pass axe against WCAG 2.2 A and AA before it ships.\n');
+out('Every Inspiration Screen must pass axe against WCAG 2.2 A and AA, in light and dark, before it ships.\n');
 process.exit(1);
