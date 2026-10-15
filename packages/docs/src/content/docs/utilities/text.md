@@ -6,6 +6,7 @@ synonyms:
   - typography
   - font
   - text style
+  - line clamp
 use-cases:
   - text size
   - text align
@@ -233,6 +234,32 @@ Justified text can create uneven word spacing that's [harder for everyone to rea
 
 Use the `cs-text-truncate` class to truncate text with an ellipsis instead of letting it overflow or wrap.
 
-| Class Name         | Preview                                                                                                                                 |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `cs-text-truncate` | <div class="cs-text-truncate" style="max-width: 40ch;">The five boxing wizards jump quickly. How quickly daft jumping zebras vex!</div> |
+To show more than one line, use `cs-text-truncate-2` through `cs-text-truncate-5`. The text wraps up to that many lines, and the last one ends with an ellipsis. `cs-text-truncate-1` does the same as `cs-text-truncate`, so any count from 1 to 5 follows one pattern.
+
+| Class Name           | Preview                                                                                                                                                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cs-text-truncate`   | <div class="cs-text-truncate" style="max-width: 25ch;">The five boxing wizards jump quickly. How quickly daft jumping zebras vex! Pack my box with five dozen liquor jugs. Sphinx of black quartz, judge my vow. Jackdaws love my big sphinx of quartz.</div>   |
+| `cs-text-truncate-1` | <div class="cs-text-truncate-1" style="max-width: 25ch;">The five boxing wizards jump quickly. How quickly daft jumping zebras vex! Pack my box with five dozen liquor jugs. Sphinx of black quartz, judge my vow. Jackdaws love my big sphinx of quartz.</div> |
+| `cs-text-truncate-2` | <div class="cs-text-truncate-2" style="max-width: 25ch;">The five boxing wizards jump quickly. How quickly daft jumping zebras vex! Pack my box with five dozen liquor jugs. Sphinx of black quartz, judge my vow. Jackdaws love my big sphinx of quartz.</div> |
+| `cs-text-truncate-3` | <div class="cs-text-truncate-3" style="max-width: 25ch;">The five boxing wizards jump quickly. How quickly daft jumping zebras vex! Pack my box with five dozen liquor jugs. Sphinx of black quartz, judge my vow. Jackdaws love my big sphinx of quartz.</div> |
+| `cs-text-truncate-4` | <div class="cs-text-truncate-4" style="max-width: 25ch;">The five boxing wizards jump quickly. How quickly daft jumping zebras vex! Pack my box with five dozen liquor jugs. Sphinx of black quartz, judge my vow. Jackdaws love my big sphinx of quartz.</div> |
+| `cs-text-truncate-5` | <div class="cs-text-truncate-5" style="max-width: 25ch;">The five boxing wizards jump quickly. How quickly daft jumping zebras vex! Pack my box with five dozen liquor jugs. Sphinx of black quartz, judge my vow. Jackdaws love my big sphinx of quartz.</div> |
+
+A clamp keeps a long description from stretching a card, and every card in its row.
+
+```html {.example}
+<cs-card style="max-inline-size: 40ch;">
+  <div class="cs-stack cs-gap-xs">
+    <div class="cs-heading-m">Summer mission</div>
+    <p class="cs-text-truncate-3">
+      Spend six weeks serving alongside local churches. You will help run day camps for children, visit families in the
+      neighborhood, and join a team that meets each morning to pray and plan. Housing and meals are covered, and you
+      will raise support for travel before you go.
+    </p>
+  </div>
+</cs-card>
+```
+
+:::info
+Put `cs-text-truncate-2` through `cs-text-truncate-5` on the element that holds the text, not on one that also has a layout utility such as `cs-stack`, `cs-split`, `cs-cluster` or `cs-grid`. On the same element, the layout utility wins and the text is not clamped. Use a child element instead, as the `<p>` inside `cs-stack` does above.
+:::
