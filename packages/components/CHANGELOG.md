@@ -1,5 +1,13 @@
 # @cruglobal/cornerstone-components
 
+## 0.8.1
+
+### Added
+
+- [#253](https://github.com/CruGlobal/cornerstone-design-system/pull/253) [`dd35656`](https://github.com/CruGlobal/cornerstone-design-system/commit/dd35656dac50570827e8c2813f45ffad5158fc81) Thanks [@rguinee](https://github.com/rguinee)! - Cru and FamilyLife choices in the docs site's header menu, which the palette and color token pages follow. The shipped skill's Theming and Color tokens pages change to match.
+
+- [#250](https://github.com/CruGlobal/cornerstone-design-system/pull/250) [`f1192c9`](https://github.com/CruGlobal/cornerstone-design-system/commit/f1192c994fe6bea3c9de8f3d452d63c024def8fc) Thanks [@rguinee](https://github.com/rguinee)! - a FamilyLife theme preview on the Built-in Themes page, under Cru's. Docs site only; the package's output is unchanged.
+
 ## 0.8.0
 
 ### Added
