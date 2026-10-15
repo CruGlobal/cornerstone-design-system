@@ -1059,6 +1059,23 @@ cs-page[view='mobile'] .site-logo {
   display: revert;
 }
 
+/**
+ * Every label in the header menu starts on one edge.
+ *
+ * The brand items are checkboxes, so `cs-dropdown` gives every item a gutter for the check. A brand item pulls
+ * its check back into that gutter, but an item with an icon starts the icon after it, which left Light, Dark,
+ * System and Docs one icon to the right of Cru and FamilyLife. This puts each icon where the check sits.
+ *
+ * The numbers are the check's own in `dropdown-item.styles.ts`, at the same smaller font size: it starts 1.5em
+ * back and takes up 1.75em, a 1.25em icon plus a 0.5em gap. It sets a width rather than only margins so the label
+ * lands in the same place however wide the icon is. System's dark icon is narrower, because `revert` above
+ * makes it `display: inline`. It applies only while the menu has a checkbox item, since only then is the gutter there.
+ */
+.scheme-menu:has(cs-dropdown-item[type='checkbox']) cs-dropdown-item:has([slot='icon'])::part(icon) {
+  inline-size: calc(var(--cs-font-size-smaller) * 1.75);
+  margin-inline-start: calc(var(--cs-font-size-smaller) * -1.5);
+}
+
 /* The footer's only job is the space above the previous/next links, which Starlight set as a bare 3rem. */
 .content-footer {
   margin-block-start: var(--cs-space-3xl);

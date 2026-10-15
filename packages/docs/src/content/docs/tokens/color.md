@@ -84,7 +84,7 @@ For an overview of how theming works across the library, see [Theming <cs-icon n
 
 ## Color Palette
 
-[Color palettes](/color-palettes) give you a full spectrum of colors to use in your project and are the lowest-level color tokens. Cru's palette includes 19 hues, each with 11 numeric tints that make up a color scale from light to dark — `95` is near white, `05` is near black.
+[Color palettes](/color-palettes) give you a full spectrum of colors to use in your project and are the lowest-level color tokens. Each brand's palette names its own hues, and each hue has 11 numeric tints that make up a color scale from light to dark: `95` is near white, and `05` is near black.
 
 These numeric tints help ensure accessible color contrast per [WCAG 2.1 success criteria](https://www.w3.org/TR/WCAG21/#contrast-minimum):
 
@@ -106,18 +106,18 @@ Using this key, the color system derives a paired _on color_ guaranteed to meet 
 
 ## Variant Colors
 
-Variant colors are aliases for specific hues in your color palette to give them an extra layer of semantic meaning. These variants are familiar, meaningful hues that reinforce a specific message or intended use. Each theme picks its own default hue for each variant. The table shows the defaults in Cru's theme and in FamilyLife's. The swatches show Cru's colors only, because Cru's theme is the one this site loads.
+Variant colors are aliases for specific hues in your color palette to give them an extra layer of semantic meaning. These variants are familiar, meaningful hues that reinforce a specific message or intended use. Each theme picks its own default hue for each variant. The table shows the defaults in Cru's theme and in FamilyLife's. Only the loaded theme's column has swatches, because a page holds one theme's colors at a time. On this site, the header menu picks the theme.
 
 | Variant | Use | Cru default | FamilyLife default |
 | --- | --- | --- | --- |
-| Brand | Product recognition | <cs-icon name="square" style="color: var(--cs-color-yellow);" variant="fill"></cs-icon> yellow | dark-green |
-| Neutral | Generic and ordinary content | <cs-icon name="square" style="color: var(--cs-color-gray);" variant="fill"></cs-icon> gray | off-white |
-| Highlight | Emphasis without a status meaning | <cs-icon name="square" style="color: var(--cs-color-purple);" variant="fill"></cs-icon> purple | yellow |
-| Information | Neutral, informative messages | <cs-icon name="square" style="color: var(--cs-color-turquoise);" variant="fill"></cs-icon> turquoise | blue |
-| Success | Validity or confirmation | <cs-icon name="square" style="color: var(--cs-color-green);" variant="fill"></cs-icon> green | mint |
-| Warning | Caution or uncertainty | <cs-icon name="square" style="color: var(--cs-color-orange);" variant="fill"></cs-icon> orange | orange |
-| Danger | Errors or risk | <cs-icon name="square" style="color: var(--cs-color-cerise);" variant="fill"></cs-icon> cerise | ruby |
-| Link | Hyperlinks | <cs-icon name="square" style="color: var(--cs-color-cyan);" variant="fill"></cs-icon> cyan | blue |
+| Brand | Product recognition | <cs-icon name="square" data-brand-only="cru" style="color: var(--cs-color-yellow);" variant="fill"></cs-icon> yellow | <cs-icon name="square" data-brand-only="fl" style="color: var(--cs-color-dark-green);" variant="fill"></cs-icon> dark-green |
+| Neutral | Generic and ordinary content | <cs-icon name="square" data-brand-only="cru" style="color: var(--cs-color-gray);" variant="fill"></cs-icon> gray | <cs-icon name="square" data-brand-only="fl" style="color: var(--cs-color-off-white);" variant="fill"></cs-icon> off-white |
+| Highlight | Emphasis without a status meaning | <cs-icon name="square" data-brand-only="cru" style="color: var(--cs-color-purple);" variant="fill"></cs-icon> purple | <cs-icon name="square" data-brand-only="fl" style="color: var(--cs-color-yellow);" variant="fill"></cs-icon> yellow |
+| Information | Neutral, informative messages | <cs-icon name="square" data-brand-only="cru" style="color: var(--cs-color-turquoise);" variant="fill"></cs-icon> turquoise | <cs-icon name="square" data-brand-only="fl" style="color: var(--cs-color-blue);" variant="fill"></cs-icon> blue |
+| Success | Validity or confirmation | <cs-icon name="square" data-brand-only="cru" style="color: var(--cs-color-green);" variant="fill"></cs-icon> green | <cs-icon name="square" data-brand-only="fl" style="color: var(--cs-color-mint);" variant="fill"></cs-icon> mint |
+| Warning | Caution or uncertainty | <cs-icon name="square" data-brand-only="cru" style="color: var(--cs-color-orange);" variant="fill"></cs-icon> orange | <cs-icon name="square" data-brand-only="fl" style="color: var(--cs-color-orange);" variant="fill"></cs-icon> orange |
+| Danger | Errors or risk | <cs-icon name="square" data-brand-only="cru" style="color: var(--cs-color-cerise);" variant="fill"></cs-icon> cerise | <cs-icon name="square" data-brand-only="fl" style="color: var(--cs-color-ruby);" variant="fill"></cs-icon> ruby |
+| Link | Hyperlinks | <cs-icon name="square" data-brand-only="cru" style="color: var(--cs-color-cyan);" variant="fill"></cs-icon> cyan | <cs-icon name="square" data-brand-only="fl" style="color: var(--cs-color-blue);" variant="fill"></cs-icon> blue |
 
 Brand and neutral are used by nearly every element, component, and pattern across the library. Success, warning and danger are used selectively by components that could benefit from semantic reinforcement, such as buttons and callouts. Highlight, information and link are this library's own additions to the set, and both brand themes set all eight.
 

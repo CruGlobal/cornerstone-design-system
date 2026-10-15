@@ -11,12 +11,10 @@
  * This mirrors one onto the other. It runs inline in `<head>` so the class is present before first
  * paint, and observes the attribute afterwards so the toggle keeps working.
  *
- * `cs-theme-cru` is set here too. The theme's values also apply through `:where(:root)`, so the class
- * is not strictly required — but the design skill's rule 6 is to state the theme on `<html>`, and
- * stating it means a second theme can be added later without this page silently keeping the first.
- *
- * No palette class is set. `.cs-palette-cru` does not exist in any stylesheet, and emitting a class
- * that matches nothing would only look like the sub-brand axis is wired up when it is not.
+ * No theme, palette or brand-colour class is set. The loaded stylesheet picks the theme, and the header
+ * menu can load FamilyLife's over Cru's (src/brands.js), so a `cs-theme-cru` here would name a theme the
+ * page may not be showing. It switched nothing even when it was right: a `cs-theme-*` class only
+ * re-applies part of a theme that is already loaded.
  */
 export const themeSync = `
 (() => {
@@ -37,7 +35,6 @@ export const themeSync = `
     const dark = resolve() === 'dark';
     root.classList.toggle('cs-dark', dark);
     root.classList.toggle('cs-light', !dark);
-    root.classList.add('cs-theme-cru');
   };
 
   apply();
