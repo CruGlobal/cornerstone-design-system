@@ -78,7 +78,11 @@ export default class CsZoomableFrame extends CornerstoneElement {
   /** Disables interaction when present. */
   @property({ type: Boolean, attribute: 'without-interaction', reflect: true }) withoutInteraction = false;
 
-  /** Enables automatic theme syncing (light/dark mode and theme selector classes) from the host document to the iframe. */
+  /**
+   * When set, copies the host document's light/dark mode and its `cs-theme-*`, `cs-brand-*` and `cs-palette-*`
+   * classes to the iframe. It copies classes, not stylesheets, so the iframe must load the same theme stylesheet as
+   * the host.
+   */
   @property({ type: Boolean, attribute: 'with-theme-sync', reflect: true }) withThemeSync = false;
 
   /** Returns the internal iframe's `window` object. (Readonly property) */
