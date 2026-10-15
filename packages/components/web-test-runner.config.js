@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as process from 'process';
 import { litSsrPlugin } from '@lit-labs/testing/web-test-runner-ssr-plugin.js';
 import { esbuildPlugin } from '@web/dev-server-esbuild';
+import { a11ySnapshotPlugin } from '@web/test-runner-commands/plugins';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { globbySync } from 'globby';
 import { getAllComponents } from './scripts/shared.js';
@@ -145,6 +146,8 @@ export default {
       target: 'es2020',
     }),
     litSsrPlugin(),
+    // Calls Playwright's deprecated `page.accessibility`. Check it still exists before raising the Playwright pin.
+    a11ySnapshotPlugin(),
   ],
   browsers,
   testRunnerHtml: (testFramework) => `
