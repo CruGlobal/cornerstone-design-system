@@ -1,0 +1,26 @@
+<!doctype html>
+<!--
+  The error state of the clean sign-in test Screen, so the test covers a Screen with more than one state
+  file. Never built into the site. No known axe violations.
+-->
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in: error</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+  </head>
+  <body>
+    <main class="cs-stack">
+      <h1>Sign in</h1>
+      <cs-callout variant="danger">That email and password do not match.</cs-callout>
+      <form class="cs-stack">
+        <cs-input label="Email" type="email" name="email" value="pat@example.com"></cs-input>
+        <cs-input label="Password" type="password" name="password"></cs-input>
+        <cs-button type="submit" variant="brand">Sign in</cs-button>
+      </form>
+    </main>
+  </body>
+</html>

@@ -35,6 +35,11 @@ interactive surface — `cs-format-bytes`, `cs-format-date`, `cs-format-number`,
 `cs-markdown`, `cs-animation`, `cs-zoomable-frame`, `cs-intersection-observer`, `cs-mutation-observer` and
 `cs-resize-observer` — where an axe run tests nothing. That exemption is a decision, not an omission.
 
+**Inspiration Screens.** After the site builds, every Screen state file in the Inspiration library is opened as
+a whole page and run through axe, once in light mode and once in dark, and any violation fails the build. Checked
+automatically means axe found no violations against WCAG 2.2 A and AA. axe catches only part of WCAG, and nobody
+has reviewed a Screen by hand or with assistive technology.
+
 **A green suite is a floor, not a conformance statement.** axe catches a minority of WCAG failures. It cannot
 tell you a keyboard path is sensible, that a focus indicator is visible against your page, or that an
 announcement arrives at a useful moment.
@@ -76,6 +81,7 @@ visual order, and no focusable element is repositioned with `order`, `row-revers
 | Screen reader verification | No component has been verified against a screen reader by a person who relies on one. | Assistive-technology testing is arranged |
 | One WebKit keyboard divergence | `cs-otp-input` does not advance focus out of the field on Tab in WebKit. Its field is a visually hidden real `<input>` reached through `delegatesFocus`, and WebKit's sequential focus does not leave that combination. Chromium and Firefox behave correctly. | WebKit's behaviour changes |
 | One WebKit scroll divergence | `cs-carousel` with `loop` ends on the wrong slide in WebKit when paging backwards from the first slide. | The carousel's clone-and-jump approach is revisited |
+| No machine check of `cs-button` contrast | On Inspiration Screens, axe cannot settle the contrast of `cs-button`'s text inside its shadow DOM: it reports the background as overlapped by another element and marks the pair for review, in light and dark. So no automated check covers button contrast today. What would close it is a computed check in the component suite of `cs-button`'s resolved text and background pairs, for every state, in every shipped theme, in light and dark. | UIUX-252 lands |
 | One WebKit name divergence | WebKit leaves out the space between a `cs-button`'s text and a `cs-badge` inside it, so a button reading "Requests" with a "30" badge is named "Requests30". Chromium and Firefox name it "Requests 30". A native `<button>` with a badge, or a `cs-button` with a plain `<span>`, keeps the space in WebKit, so the cause is in how the two components combine. | The cause is found and fixed |
 
 ## Reporting something
