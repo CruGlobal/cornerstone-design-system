@@ -75,7 +75,7 @@ Apply the `without-interaction` attribute to make the frame non-interactive. Thi
 
 ### Theme Sync
 
-By default, the frame does not sync theme classes into the iframe. Add the `with-theme-sync` attribute to mirror the host page's light/dark mode and [theme selector classes](/theming-overview) (such as `cs-theme-*`, `cs-brand-*`, and `cs-palette-*`) into the iframe document. This is useful when the iframe renders Cornerstone styles that should match the host page's theme.
+By default, the frame does not sync theme classes into the iframe. Add the `with-theme-sync` attribute to mirror the host page's light/dark mode and any `cs-theme-*`, `cs-brand-*` and `cs-palette-*` classes into the iframe document. It copies classes, not stylesheets, so the iframe document must load the same [theme stylesheet](/theming-overview) as the host page. This is useful when the iframe renders Cornerstone styles that should match the host page's theme.
 
 ```html {.example}
 <cs-zoomable-frame src="/examples/themes/showcase" zoom="0.5" with-theme-sync> </cs-zoomable-frame>
