@@ -149,9 +149,7 @@
     white-space: nowrap;
   }
 
-  /* A line count can only reach -webkit-line-clamp through display: -webkit-box, which is why these are
-     step classes rather than a custom property on .cs-text-truncate: unset, that class must leave display
-     alone. A layout utility on the same element wins on source order, so the clamp goes on its child. */
+  /* -webkit-line-clamp needs display: -webkit-box, so a layout utility on the same element cancels it. */
   .cs-text-truncate-2,
   .cs-text-truncate-3,
   .cs-text-truncate-4,
