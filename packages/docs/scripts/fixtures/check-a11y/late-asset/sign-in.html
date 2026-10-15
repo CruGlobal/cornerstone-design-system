@@ -1,0 +1,41 @@
+<!doctype html>
+<!--
+  The clean sign-in test Screen that asks for a missing stylesheet a moment after it turns dark, for
+  check-a11y.test.js. Never built into the site. The request starts after the dark switch and lands after the
+  point where an earlier version of the check stopped listening, so it proves a late request is still checked.
+  The light run never asks for it, so only the dark run fails.
+-->
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+    <script>
+      new MutationObserver(() => {
+        if (document.documentElement.classList.contains('cs-dark') && !document.querySelector('link.late')) {
+          setTimeout(() => {
+            const link = Object.assign(document.createElement('link'), {
+              rel: 'stylesheet',
+              className: 'late',
+              href: '../../../../dist/styles/dark-extras-missing.css',
+            });
+            document.head.append(link);
+          }, 150);
+        }
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    </script>
+  </head>
+  <body>
+    <main class="cs-stack">
+      <h1>Sign in</h1>
+      <form class="cs-stack">
+        <cs-input label="Email" type="email" name="email"></cs-input>
+        <cs-input label="Password" type="password" name="password"></cs-input>
+        <cs-button type="submit" variant="brand">Sign in</cs-button>
+      </form>
+    </main>
+  </body>
+</html>

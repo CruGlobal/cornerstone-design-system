@@ -53,7 +53,10 @@ describe('check-a11y', () => {
     const { status, output } = check(join(fixtures, 'clean'));
 
     assert.equal(status, 0, output);
-    assert.match(output, /2 Screen state files checked with axe \d+\.\d+\.\d+ in light and dark .*: no violations/);
+    assert.match(
+      output,
+      /2 Screen state files checked with axe \d+\.\d+\.\d+ in light and dark, 4 runs .*: no violations/,
+    );
   });
 
   it('fails WCAG violations in each mode, naming file, mode, rule, impact and selector', () => {
@@ -100,6 +103,41 @@ describe('check-a11y', () => {
     assert.equal(status, 1, output);
     assert.match(output, /\[light\] check-a11y \(error\): the page threw: fixture: the Screen script failed/);
     assert.match(output, /2 failures \(1 light, 1 dark\)/);
+  });
+
+  it('fails a missing file the dark switch asks for after the check stops listening for new requests', () => {
+    const { status, output } = check(join(fixtures, 'late-asset'));
+
+    assert.equal(status, 1, output);
+    assert.match(output, /\[dark\] check-a11y \(error\): \S+\/dark-extras-missing\.css returned 404/);
+    assert.match(output, /1 failure \(0 light, 1 dark\)/);
+  });
+
+  it('runs a Screen pinned to light on <body> in light only, and says so', () => {
+    const { status, output } = check(join(fixtures, 'pinned-light'));
+
+    assert.equal(status, 0, output);
+    assert.match(output, /pinned to light by <body class="cs-light">, so only the light run was made/);
+    assert.match(output, /1 run \(1 pinned to one scheme\)/);
+    assert.doesNotMatch(output, /\[dark\]/);
+  });
+
+  it('runs a Screen pinned to dark by its one wrapper in dark only', () => {
+    const { status, output } = check(join(fixtures, 'pinned-dark'));
+
+    assert.equal(status, 1, output);
+    assert.match(output, /pinned to dark by <div class="cs-dark">, so only the dark run was made/);
+    assert.match(output, /\[dark\] color-contrast \(serious\): .*\n\s+p\n/);
+    assert.doesNotMatch(output, /\[light\]/);
+  });
+
+  it('keeps a cs-theme class on <html> and judges the dark run in that theme', () => {
+    const { status, output } = check(join(fixtures, 'theme-dark'));
+
+    assert.equal(status, 1, output);
+    // #7ca7ad is FamilyLife's dark link colour; Cru's is #00a3b8 and FamilyLife's light one passes.
+    assert.match(output, /\[dark\] color-contrast \(serious\): .*\n\s+p\n.*background color: #7ca7ad/);
+    assert.match(output, /1 failure \(0 light, 1 dark\)/);
   });
 
   it('lists what axe could not decide as needing review, without failing', () => {

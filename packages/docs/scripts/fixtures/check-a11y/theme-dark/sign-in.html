@@ -1,0 +1,29 @@
+<!doctype html>
+<!--
+  The clean sign-in test Screen in the FamilyLife theme, set by `cs-theme-fl` on <html>, for check-a11y.test.js.
+  Never built into the site. One line sets white text on the theme's link colour. FamilyLife's light link colour
+  passes 4.5:1 against white and its dark one does not, so the dark run fails only if it picked up
+  FamilyLife's dark values, and the report names the colour it used. fl.css loads after cornerstone.css, which
+  imports Cru's theme; loaded the other way round, Cru's `.cs-dark` wins on <html> and the theme is lost.
+-->
+<html lang="en" class="cs-cloak cs-theme-fl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in</title>
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/themes/fl.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+  </head>
+  <body>
+    <main class="cs-stack">
+      <h1>Sign in</h1>
+      <p class="on-link" style="background: var(--cs-color-text-link); color: white">New here? Make an account.</p>
+      <form class="cs-stack">
+        <cs-input label="Email" type="email" name="email"></cs-input>
+        <cs-input label="Password" type="password" name="password"></cs-input>
+        <cs-button type="submit" variant="brand">Sign in</cs-button>
+      </form>
+    </main>
+  </body>
+</html>

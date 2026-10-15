@@ -36,9 +36,16 @@
  * it dark. The class is how a Screen is shown dark on the site too, since `cs-zoomable-frame` copies the
  * page's `cs-dark` onto the framed document.
  *
+ * **A pinned scheme is honoured.** Theme CSS applies `.cs-light` and `.cs-dark` on any element, so a class
+ * lower in the tree beats the one on `<html>`: a Screen with `cs-light` on `<body>` would render light in the
+ * dark run and pass it falsely. A Screen that pins a scheme on `<html>`, `<body>` or the one wrapper `<body>`
+ * holds is run in that scheme only, and the report says so. Smaller pinned regions and any
+ * `cs-theme-<name>` class are left as the author wrote them.
+ *
  * **A state file fails** on any axe violation, on any response of 400 or above under the site's address (a
  * missing stylesheet or script still renders, just wrongly, and axe would judge the wrong page), and on any
- * uncaught page error. axe's `incomplete` results are printed as "needs review" and never fail: they are
+ * uncaught page error. Requests count by when they start, and the network has to go quiet before axe runs,
+ * so a file the dark switch asks for is checked even if it arrives after axe starts. axe's `incomplete` results are printed as "needs review" and never fail: they are
  * the checks axe could not decide, and only a person can.
  *
  * **Readiness.** axe is run only once every `cs-*` element is defined, the loader has removed `cs-cloak`
@@ -179,38 +186,102 @@ const axePath = createRequire(import.meta.url).resolve('axe-core');
 const axeSource = readFileSync(axePath, 'utf-8');
 const axeVersion = JSON.parse(readFileSync(join(dirname(axePath), 'package.json'), 'utf-8')).version;
 
-/** Turns axe's nodes into selectors. A target into a shadow root is one selector per root crossed. */
-const selectorsOf = (nodes) =>
-  nodes.map((node) => node.target.map((part) => (Array.isArray(part) ? part.join(' >>> ') : part)).join(' >>> '));
+/**
+ * Turns axe's nodes into report lines: the selector, and axe's own first message for that node when it has
+ * one. A target into a shadow root is one selector per root crossed. The message is what makes a contrast
+ * finding actionable, since it names the two colours axe resolved.
+ */
+const targetsOf = (nodes) =>
+  nodes.map(({ target, message }) => {
+    const selector = target.map((part) => (Array.isArray(part) ? part.join(' >>> ') : part)).join(' >>> ');
+
+    return message ? `${selector}\n              ${message}` : selector;
+  });
+
+/** How long the network must stay quiet before a page counts as settled. Playwright's `networkidle` uses the same. */
+const QUIET_MS = 500;
+
+/**
+ * Finds a colour scheme the Screen pins for its whole page: `cs-light` or `cs-dark` on `<html>`, on `<body>`,
+ * or on the one element `<body>` wraps everything in. The innermost wins, as it does in the cascade. A
+ * smaller region (a dark band, `cs-invert`) is part of the design and is left alone.
+ */
+function findPinnedScheme() {
+  const ignored = new Set(['script', 'style', 'template', 'noscript', 'link', 'meta']);
+  const wrappers = [...document.body.children].filter((el) => !ignored.has(el.localName));
+  const candidates = [document.documentElement, document.body, ...(wrappers.length === 1 ? wrappers : [])];
+  let pinned = null;
+
+  for (const el of candidates) {
+    const scheme = el.classList.contains('cs-dark') ? 'dark' : el.classList.contains('cs-light') ? 'light' : null;
+
+    if (scheme) {
+      pinned = { scheme, by: `<${el.localName} class="${el.className}">` };
+    }
+  }
+
+  return pinned;
+}
 
 /**
  * Loads one state file in one mode and runs axe on it.
  *
- * Returns what fails it (`problems`: violations, failed requests, page errors) and what axe could not decide
- * (`reviews`). Every item carries its mode.
+ * Returns what fails it (`problems`: violations, failed requests, page errors), what axe could not decide
+ * (`reviews`), and the scheme the Screen pins, if any. A pinned Screen is judged only in that scheme, so a
+ * run in the other one comes back `skipped`. Every item carries its mode.
  */
 async function checkState(context, screen, mode) {
   const page = await context.newPage();
   const problems = [];
   const reviews = [];
   const loadErrors = [];
+  const tracked = new Set();
+  const pending = new Set();
   let recording = true;
+  let lastRequestAt = Date.now();
+  let pinned = null;
 
-  // The Screen's own navigation is reported by `goto` below, so only its subresources are recorded here.
-  // Recording stops before axe is injected: axe preloads the page's stylesheets itself and resolves their
-  // relative `@import`s against the document rather than the sheet, so its requests 404 on every Screen
-  // that loads `cornerstone.css`. Those are axe's misses, not the Screen's.
+  // Requests are tracked by when they **start**, and their responses checked whenever they arrive, so a
+  // font, a lazy image or a stylesheet the `cs-dark` switch asks for is checked even if it lands after
+  // axe starts. Tracking stops before axe is injected: axe preloads the page's stylesheets itself and
+  // resolves their relative `@import`s against the document rather than the sheet, so its requests 404 on
+  // every Screen that loads `cornerstone.css`. Those are axe's misses, not the Screen's. The Screen's own
+  // navigation is reported by `goto` below.
+  page.on('request', (request) => {
+    if (recording && request.url().startsWith(`${DOCS_URL}/`) && !request.isNavigationRequest()) {
+      tracked.add(request);
+      pending.add(request);
+      lastRequestAt = Date.now();
+    }
+  });
+  const answered = new Set();
+
   page.on('response', (response) => {
-    if (
-      recording &&
-      response.status() >= 400 &&
-      response.url().startsWith(`${DOCS_URL}/`) &&
-      !response.request().isNavigationRequest()
-    ) {
+    answered.add(response.request());
+
+    if (tracked.has(response.request()) && response.status() >= 400) {
       loadErrors.push(`${response.url()} returned ${response.status()}`);
     }
   });
+  page.on('requestfinished', (request) => pending.delete(request));
+  // Chromium also aborts a stylesheet that came back 404, so a failure after a response is already reported.
+  page.on('requestfailed', (request) => {
+    pending.delete(request);
+
+    if (tracked.has(request) && !answered.has(request)) {
+      loadErrors.push(`${request.url()} failed: ${request.failure()?.errorText ?? 'no reason given'}`);
+    }
+  });
   page.on('pageerror', (error) => loadErrors.push(`the page threw: ${error.message}`));
+
+  /** Waits until nothing tracked is in flight and nothing new has started for `QUIET_MS`. */
+  async function settle() {
+    const deadline = Date.now() + READY_TIMEOUT;
+
+    while (Date.now() < deadline && (pending.size > 0 || Date.now() - lastRequestAt < QUIET_MS)) {
+      await page.waitForTimeout(100);
+    }
+  }
 
   try {
     const response = await page.goto(urlFor(screen), { waitUntil: 'load' });
@@ -235,22 +306,31 @@ async function checkState(context, screen, mode) {
         );
       });
 
-    await page.evaluate(async (className) => {
-      if (className) {
-        document.documentElement.classList.remove('cs-light');
-        document.documentElement.classList.add(className);
-      }
+    pinned = await page.evaluate(findPinnedScheme);
 
-      await Promise.all(
-        [...document.querySelectorAll('*')]
-          .filter((el) => el.localName.startsWith('cs-'))
-          .map((el) => /** @type {any} */ (el).updateComplete),
-      );
+    if (pinned && pinned.scheme !== mode.name) {
+      return { problems: [], reviews: [], pinned, skipped: true };
+    }
 
-      // Two frames, so the styles a class change triggers are applied before axe reads them.
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    }, mode.className);
+    await page.evaluate(
+      async (className) => {
+        if (className) {
+          document.documentElement.classList.add(className);
+        }
 
+        await Promise.all(
+          [...document.querySelectorAll('*')]
+            .filter((el) => el.localName.startsWith('cs-'))
+            .map((el) => /** @type {any} */ (el).updateComplete),
+        );
+
+        // Two frames, so the styles a class change triggers are applied before axe reads them.
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      },
+      pinned ? null : mode.className,
+    );
+
+    await settle();
     recording = false;
     await page.addScriptTag({ content: axeSource });
 
@@ -264,7 +344,10 @@ async function checkState(context, screen, mode) {
           id: result.id,
           impact: result.impact,
           help: result.help,
-          nodes: result.nodes.map((node) => ({ target: node.target })),
+          nodes: result.nodes.map((node) => ({
+            target: node.target,
+            message: [...node.any, ...node.all, ...node.none].find((check) => check.message)?.message ?? null,
+          })),
         });
 
         return { violations: violations.map(plain), incomplete: incomplete.map(plain) };
@@ -273,11 +356,18 @@ async function checkState(context, screen, mode) {
     );
 
     for (const { id, impact, help, nodes } of results.violations) {
-      problems.push({ mode: mode.name, id, impact, help, targets: selectorsOf(nodes) });
+      problems.push({ mode: mode.name, id, impact, help, targets: targetsOf(nodes) });
     }
 
     for (const { id, help, nodes } of results.incomplete) {
-      reviews.push({ mode: mode.name, id, help, targets: selectorsOf(nodes) });
+      reviews.push({ mode: mode.name, id, help, targets: targetsOf(nodes) });
+    }
+
+    // Anything the Screen started before the cutoff and is still loading gets the rest of the time budget.
+    await settle();
+
+    for (const request of pending) {
+      loadErrors.push(`${request.url()} never finished loading`);
     }
   } catch (error) {
     problems.push({ mode: mode.name, id: 'check-a11y', impact: 'error', help: error.message, targets: [] });
@@ -290,11 +380,11 @@ async function checkState(context, screen, mode) {
     problems.push({ mode: mode.name, id: 'check-a11y', impact: 'error', help: message, targets: [] });
   }
 
-  return { problems, reviews };
+  return { problems, reviews, pinned, skipped: false };
 }
 
 const browser = await chromium.launch();
-const results = new Map(screens.map((screen) => [screen, { problems: [], reviews: [] }]));
+const results = new Map(screens.map((screen) => [screen, { problems: [], reviews: [], pinned: null, runs: 0 }]));
 
 try {
   for (const mode of MODES) {
@@ -315,10 +405,13 @@ try {
     );
 
     for (const screen of screens) {
-      const { problems, reviews } = await checkState(context, screen, mode);
+      const { problems, reviews, pinned, skipped } = await checkState(context, screen, mode);
+      const result = results.get(screen);
 
-      results.get(screen).problems.push(...problems);
-      results.get(screen).reviews.push(...reviews);
+      result.problems.push(...problems);
+      result.reviews.push(...reviews);
+      result.pinned ??= pinned;
+      result.runs += skipped ? 0 : 1;
     }
 
     await context.close();
@@ -334,17 +427,23 @@ const byMode = (key) => MODES.map(({ name }) => `${total(key, name)} ${name}`).j
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const problemCount = total('problems');
 const reviewCount = total('reviews');
+const runCount = all.reduce((sum, { runs }) => sum + runs, 0);
+const pinnedCount = all.filter(({ pinned }) => pinned).length;
 const failing = all.filter(({ problems }) => problems.length > 0).length;
 const out = problemCount === 0 ? console.log : console.error;
 
 out('');
 
-for (const [screen, { problems, reviews }] of results) {
-  if (problems.length === 0 && reviews.length === 0) {
+for (const [screen, { problems, reviews, pinned }] of results) {
+  if (problems.length === 0 && reviews.length === 0 && !pinned) {
     continue;
   }
 
   out(`  ${label(screen)}`);
+
+  if (pinned) {
+    out(`      pinned to ${pinned.scheme} by ${pinned.by}, so only the ${pinned.scheme} run was made`);
+  }
 
   for (const { mode, id, impact, help, targets } of problems) {
     out(`      [${mode}] ${id} (${impact}): ${help}`);
@@ -361,7 +460,9 @@ for (const [screen, { problems, reviews }] of results) {
 
 const scope =
   `${plural(screens.length, 'Screen state file')} checked with axe ${axeVersion} in ` +
-  `${MODES.map(({ name }) => name).join(' and ')} (${WCAG_TAGS.join(', ')}, plus ${DOCUMENT_RULES.join(', ')})`;
+  `${MODES.map(({ name }) => name).join(' and ')}, ${plural(runCount, 'run')}` +
+  `${pinnedCount ? ` (${pinnedCount} pinned to one scheme)` : ''} ` +
+  `(${WCAG_TAGS.join(', ')}, plus ${DOCUMENT_RULES.join(', ')})`;
 const reviews = `${reviewCount} needs review (${byMode('reviews')}), which never fails the check`;
 
 if (problemCount === 0) {
