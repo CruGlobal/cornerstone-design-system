@@ -37,6 +37,9 @@ import { brandThemes } from '../themer.js';
  * trigger draws the scheme, and a brand has no icon to draw. `type="checkbox"` gives the active one a visible
  * check and `aria-checked`, announced as a checked menu item. A radio item would say "one of these" more
  * exactly, but `cs-dropdown-item` has no radio type, so the handler keeps exactly one checked instead.
+ *
+ * A checkbox item makes the dropdown leave a gutter for the check on every item. `docs.css` moves the other
+ * items' icons into that gutter, so every label in the menu starts on the same edge.
  */
 const t = Astro.locals.t;
 const brands = brandThemes.map((theme) => ({ slug: theme.filename.replace(/\.css$/, ''), name: theme.name }));
