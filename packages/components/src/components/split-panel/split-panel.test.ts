@@ -1,4 +1,4 @@
-import { aTimeout, expect } from '@open-wc/testing';
+import { expect, nextFrame } from '@open-wc/testing';
 import { resetMouse, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import { expectEvent } from '../../internal/test/expect-event.js';
@@ -295,8 +295,8 @@ describe('<cs-split-panel>', () => {
           // Collapse
           await sendKeys({ press: 'Enter' });
           await el.updateComplete;
-          // Wait for requestAnimationFrame that sets isCollapsed
-          await aTimeout(50);
+          // Collapsing sets isCollapsed in a frame it requests; wait for that frame, not a guess at when it comes
+          await nextFrame();
           expect(el.position).to.equal(0);
 
           // Expand back

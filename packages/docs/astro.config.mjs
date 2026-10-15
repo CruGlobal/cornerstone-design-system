@@ -3,6 +3,7 @@ import starlight from '@astrojs/starlight';
 import { asset, DOCS_BASE_PATH, DOCS_ORIGIN } from '@cruglobal/cornerstone-build-tools/site-url.js';
 import { defineConfig } from 'astro/config';
 import remarkDirective from 'remark-directive';
+import { brandHead } from './src/brands.js';
 import { pluginWatcher } from './src/plugin-watcher.js';
 import { rehypeCodeBlocks } from './src/plugins/rehype-code-blocks.js';
 import { remarkBaseAssets } from './src/plugins/remark-base-assets.js';
@@ -235,6 +236,9 @@ export default defineConfig({
             href: asset('/dist/styles/cornerstone.css'),
           },
         },
+        // The brand picked in the header menu, applied before first paint: its stylesheets go straight after
+        // `cornerstone.css`, which is the order a consumer loads a theme in. See src/brands.js.
+        ...brandHead,
         {
           tag: 'script',
           attrs: { type: 'module', src: asset('/dist/cornerstone.loader.js') },

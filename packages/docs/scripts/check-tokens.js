@@ -33,6 +33,11 @@
  * defining stylesheets this site deliberately stubs out. Judging those would be nineteen findings of which
  * seventeen are somebody else's, and a check that cries wolf gets switched off.
  *
+ * **A block one brand shows is judged against that brand.** The header menu can load FamilyLife's theme over Cru's,
+ * and the pages that show a palette carry a version per brand, each marked `data-brand-only`. A reference in one of
+ * those resolves against the page without Cru's theme plus that brand's own stylesheets, so a Cru-only hue in a
+ * FamilyLife block fails here rather than showing Cru's colour on a FamilyLife page.
+ *
  * Four things are deliberately not failures:
  *
  *   - `var(--x, fallback)`. A reference with a fallback is safe by construction, so only bare `var(--x)`
@@ -50,6 +55,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, extname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOCS_BASE_PATH as BASE_PATH } from '@cruglobal/cornerstone-build-tools/site-url.js';
+import { brandBlocks, brands, defaultBrand } from '../src/brands.js';
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const distDir = join(siteDir, 'dist');
@@ -92,19 +98,10 @@ const stripCssComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '');
 const withoutDisplayedSource = (html) => html.replace(/<pre\b[\s\S]*?<\/pre>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
 
 /**
- * The CSS a browser would actually apply from one file.
- *
- * For a stylesheet that is the whole file. For a page it is the `<style>` blocks and the inline `style`
- * attributes, with `<pre>` removed first so highlighted source does not read as applied CSS.
+ * The CSS a browser would actually apply from some page markup: its `<style>` blocks and its inline `style`
+ * attributes. Takes markup with `<pre>` already removed, so highlighted source does not read as applied CSS.
  */
-function applicableCss(path) {
-  const source = readFileSync(path, 'utf-8');
-
-  if (extname(path) === '.css') {
-    return stripCssComments(source);
-  }
-
-  const html = withoutDisplayedSource(source);
+function cssOfHtml(html) {
   const blocks = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((match) => match[1]);
   const inline = [...html.matchAll(/\sstyle="([^"]*)"/gi)].map((match) => match[1].replace(/&quot;/g, '"'));
 
@@ -182,24 +179,31 @@ if (!existsSync(distDir)) {
  * Emphatically **not** every `.css` under `dist/`, and emphatically **per page**. `link-library.js` copies
  * the library's whole build into `public/dist`, so `color/palettes/default.css` ships on the site and
  * defines all of `indigo` — while `cornerstone.css` imports only `themes/cru.css`, which defines none of
- * it. And `/examples/themes/showcase` legitimately links that default palette, so treating definitions as
- * one global pool lets its hues leak to the other 118 pages. Either mistake waves through the exact bug
+ * it. And `/examples/themes/showcase` once linked that default palette, so treating definitions as one
+ * global pool let its hues leak to the other 118 pages. Either mistake waves through the exact bug
  * this exists to catch, so each page is resolved against its own cascade.
  */
 function reachableFrom(html, cache) {
-  const queue = [];
+  const hrefs = [...withoutDisplayedSource(html).matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/gi)];
 
-  for (const [, href] of withoutDisplayedSource(html).matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/gi)) {
-    if (href.startsWith('/')) {
-      // The site is served under a base path, so an href carries it and `dist/` does not. Joining the two
-      // as-is resolves to `dist/<base>/dist/...`, which exists nowhere: every page then has no reachable
-      // stylesheet, every page is skipped, and this check reports success having read nothing. It did
-      // exactly that when the base was introduced.
-      const withoutBase = BASE_PATH && href.startsWith(`${BASE_PATH}/`) ? href.slice(BASE_PATH.length) : href;
-      queue.push(join(distDir, withoutBase));
-    }
-  }
+  return follow(
+    hrefs.map(([, href]) => href).filter((href) => href.startsWith('/')),
+    cache,
+  );
+}
 
+/**
+ * The stylesheets some root-absolute hrefs load, followed transitively through `@import`.
+ *
+ * The site is served under a base path, so an href carries it and `dist/` does not. Joining the two as-is
+ * resolves to `dist/<base>/dist/...`, which exists nowhere: every page then has no reachable stylesheet, every
+ * page is skipped, and this check reports success having read nothing. It did exactly that when the base was
+ * introduced.
+ */
+function follow(hrefs, cache) {
+  const queue = hrefs.map((href) =>
+    join(distDir, BASE_PATH && href.startsWith(`${BASE_PATH}/`) ? href.slice(BASE_PATH.length) : href),
+  );
   const seen = new Set();
 
   while (queue.length > 0) {
@@ -303,6 +307,20 @@ const everyDefinition = new Set(baseline);
 let pageCount = 0;
 let draftCount = 0;
 
+/**
+ * What each brand's blocks resolve against, beyond the page's own cascade.
+ *
+ * The header menu can load another brand's theme after `cornerstone.css` (src/brands.js), and a block built for
+ * that brand carries `data-brand-only`. Its stylesheets are written in by script, so no page links them and the
+ * page's cascade alone would call every one of that brand's hues undefined. A block for the default brand
+ * resolves against the page as it stands. A block for another brand resolves against the page without the
+ * default theme's stylesheets, plus that brand's own: the default theme is still loaded underneath, but a
+ * reference that only it can answer shows the default brand's colour inside the other brand's block, which is
+ * the blend those blocks exist to prevent.
+ */
+const defaultThemeSheets = follow([`/dist/styles/themes/${defaultBrand.theme.filename}`], cssCache);
+const brandSheets = new Map(brands.map((brand) => [brand.slug, follow(brand.stylesheets, cssCache)]));
+
 for (const path of pages) {
   const html = readFileSync(path, 'utf-8');
   const reachable = reachableFrom(html, cssCache);
@@ -319,22 +337,27 @@ for (const path of pages) {
     continue;
   }
 
-  const own = applicableCss(path);
-  const defined = new Set(baseline);
+  const page = withoutDisplayedSource(html);
+  const { shared, blocks } = brandBlocks(page);
+  // Definitions come from the whole page, references are split: what every brand shows, and each brand's blocks.
+  const ownDefinitions = definitionsIn(cssOfHtml(page));
+  const defined = new Set([...baseline, ...ownDefinitions]);
+  const definedOutsideDefaultTheme = new Set([...baseline, ...ownDefinitions]);
 
   for (const sheet of reachable) {
     for (const name of definitionsIn(cssCache.get(sheet))) {
       defined.add(name);
       everyDefinition.add(name);
+
+      if (!defaultThemeSheets.has(sheet)) {
+        definedOutsideDefaultTheme.add(name);
+      }
     }
   }
 
-  for (const name of definitionsIn(own)) {
-    defined.add(name);
-  }
-
   // The site's own stylesheets reach every page, so they both define and reference on every page.
-  const sources = [[path, own]];
+  const label = relative(siteDir, path);
+  const sources = [[label, cssOfHtml(shared), defined]];
 
   for (const sheet of ownStylesheets) {
     if (!cssCache.has(sheet)) {
@@ -343,19 +366,39 @@ for (const path of pages) {
 
     for (const name of definitionsIn(cssCache.get(sheet))) {
       defined.add(name);
+      definedOutsideDefaultTheme.add(name);
     }
 
-    sources.push([sheet, cssCache.get(sheet)]);
+    sources.push([relative(siteDir, sheet), cssCache.get(sheet), defined]);
+  }
+
+  for (const block of blocks) {
+    const brand = brands.find((candidate) => candidate.slug === block.slug);
+    let resolves = defined;
+
+    if (!brand) {
+      resolves = baseline;
+    } else if (!brand.isDefault) {
+      resolves = new Set(definedOutsideDefaultTheme);
+
+      for (const sheet of brandSheets.get(brand.slug)) {
+        for (const name of definitionsIn(cssCache.get(sheet))) {
+          resolves.add(name);
+        }
+      }
+    }
+
+    sources.push([`${label} (${block.slug} only)`, cssOfHtml(block.html), resolves]);
   }
 
   pageCount += 1;
 
-  for (const [origin, css] of sources) {
+  for (const [origin, css, resolves] of sources) {
     for (const name of bareReferencesIn(css)) {
       // Keyed by origin so a stylesheet shared by every page counts once, not 115 times.
       checked.add(`${origin}\u0000${name}`);
 
-      if (defined.has(name)) {
+      if (resolves.has(name)) {
         continue;
       }
 
@@ -363,7 +406,7 @@ for (const path of pages) {
         referenced.set(name, new Set());
       }
 
-      referenced.get(name).add(relative(siteDir, origin));
+      referenced.get(name).add(origin);
     }
   }
 }
@@ -420,5 +463,9 @@ for (const [name, paths] of [...referenced].sort()) {
   console.error('');
 }
 
-console.error('Each of these drops its whole declaration silently. Define it, or give the var() a fallback.\n');
+console.error(
+  'Each of these drops its whole declaration silently. One marked "(<brand> only)" sits in a block that brand ' +
+    "shows, and resolves only through another brand's theme, so it would show that brand's colour there. Define " +
+    'it, use one the brand has, or give the var() a fallback.\n',
+);
 process.exit(1);

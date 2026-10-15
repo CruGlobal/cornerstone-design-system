@@ -5,7 +5,7 @@ import { loadComponents, renderApiMarkdown } from '@cruglobal/cornerstone-build-
 import { DOCS_URL } from '@cruglobal/cornerstone-build-tools/site-url.js';
 import matter from 'gray-matter';
 import { getAllComponents } from './shared.js';
-import { getBundledDir, getContentDir, getUnbundledDir } from './utils.js';
+import { getBundledDir, getContentDir, getRootDir, getUnbundledDir } from './utils.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -69,7 +69,7 @@ function getComponentInfo(components, frontMatterCache) {
 /**
  * Generates the main SKILL.md content.
  */
-function generateSkillMd({ componentList, packageData, baseUrl, pageSlots }) {
+function generateSkillMd({ componentList, packageData, baseUrl, pageSlots, themes, steps }) {
   // Group components by category
   const categorize = (list) => {
     const categories = {};
@@ -324,19 +324,22 @@ ${baseUrl}/components/page.
 
 ## Themes
 
-Cornerstone includes pre-built themes. Apply a theme by adding its class to the \`<html>\` element.
+The stylesheet you load picks the theme, not a class. Load one theme per page.
 
-- **Default** - The foundational theme
-- **Awesome** - Bright, vibrant color palette
-- **Shoelace** - Classic Shoelace styling
+${themes.map(({ slug, name, theme }) => `- **${name}** (\`styles/themes/${slug}.css\`) - ${theme}`).join('\n')}
 
-See [Themes Reference](references/themes.md) for usage details.
+Each theme also matches a \`cs-theme-{name}\` class, but the class doesn't switch to a theme or scope
+one to a subtree. It re-applies part of a theme that is already loaded. With one theme loaded you
+don't need it.
+
+See [Themes Reference](references/themes.md) for load order and details.
 
 ## Color Palettes
 
-Each palette provides 10 color hues with 11 tints each.
+Each theme loads its own palette, so there is nothing to apply. Every hue in a palette has
+${renderScale(steps)}.
 
-- Default, Base, Bright, Shoelace
+${renderPaletteItems(themes)}
 
 See [Themes Reference](references/themes.md) for palette usage.
 
@@ -440,54 +443,139 @@ See [Support Reference](references/support.md) for more details.
 }
 
 /**
+ * The themes the library ships, in the order `SKILL.md` and the themes reference list them.
+ *
+ * Kept by hand because a theme's display name and description exist nowhere in source:
+ * `tools/brands/*.json` names a brand only by its slug. Each palette's hue count and step scale are
+ * read from its stylesheet instead, because typed lists went stale here twice already: Cru's read
+ * 18 hues, not 19, and `SKILL.md` kept listing themes and palettes the library no longer ships.
+ */
+const SKILL_THEMES = [
+  {
+    slug: 'cru',
+    name: 'Cru',
+    theme:
+      "The default, imported by `cornerstone.css`. Cru's brand, generated from its key colours on a luminance ladder",
+    palette: "Cru's brand hues, generated",
+  },
+  {
+    slug: 'fl',
+    name: 'FamilyLife',
+    theme: "Opt in by loading it after `cornerstone.css`. FamilyLife's brand, generated the same way",
+    palette: "FamilyLife's brand hues, generated",
+  },
+  {
+    slug: 'default',
+    name: 'Default',
+    theme: "An unbranded reference theme, for a product that is not using Cru's brand",
+    palette: 'The reference hues',
+  },
+];
+
+/**
+ * What a palette stylesheet defines: how many hues, and the steps each hue's ramp has. Every hue has a
+ * `95` step, so counting those counts the hues, which is how the docs site's palette grid enumerates
+ * them too.
+ */
+function readPalette(slug) {
+  const file = path.join(getRootDir(), 'src', 'styles', 'color', 'palettes', `${slug}.css`);
+  const ramps = [...fs.readFileSync(file, 'utf-8').matchAll(/--cs-color-([a-z-]+)-(\d+):/g)];
+  const hues = new Set(ramps.filter(([, , step]) => step === '95').map(([, hue]) => hue));
+
+  if (hues.size === 0) {
+    // A count of zero would ship as "0 hues". Fail rather than publish that.
+    throw new Error(`No hues found in ${file}; the skill needs each palette's hue count.`);
+  }
+
+  return { hueCount: hues.size, steps: [...new Set(ramps.map(([, , step]) => step))].sort() };
+}
+
+/**
+ * `SKILL_THEMES` with each palette read from its stylesheet, and the step scale they share. Read once
+ * and passed to both `SKILL.md` and the themes reference, so the summary and the reference it links to
+ * print the same lists and counts.
+ */
+function loadSkillThemes() {
+  const themes = SKILL_THEMES.map((entry) => ({ ...entry, ...readPalette(entry.slug) }));
+  const [{ slug, steps }] = themes;
+  const other = themes.find((entry) => entry.steps.join() !== steps.join());
+
+  if (other) {
+    // Both files give one scale for every palette. Fail rather than publish that once it stops being true.
+    throw new Error(
+      `The ${other.slug} palette's steps (${other.steps.join(', ')}) differ from ${slug}'s (${steps.join(', ')}); ` +
+        'the skill gives one scale for every palette.',
+    );
+  }
+
+  return { themes, steps };
+}
+
+/** How many steps a hue's ramp has, and its first and last, such as "11 steps (`05` to `95`)". */
+function renderScale(steps) {
+  return `${steps.length} steps (\`${steps[0]}\` to \`${steps.at(-1)}\`)`;
+}
+
+/** One line per palette, printed the same way in `SKILL.md` and the themes reference. */
+function renderPaletteItems(themes) {
+  return themes.map(({ name, palette, hueCount }) => `- **${name}** (${hueCount} hues) - ${palette}`).join('\n');
+}
+
+/**
  * Generates the themes reference documentation.
  */
-function generateThemesReference(baseUrl) {
+function generateThemesReference(baseUrl, { themes, steps }) {
+  const themeRows = themes
+    .map(({ slug, name, theme }) => `| **${name}** | \`styles/themes/${slug}.css\` | ${theme} |`)
+    .join('\n');
+
   return `# Themes & Color Palettes
 
 **Full documentation:** ${baseUrl}/themes
 
 ## Applying Themes
 
-Cru's theme is the default and needs no class — importing the library applies it. The class form
-exists so a theme can be scoped to a subtree, or so a second theme can be switched to:
-
-\`\`\`html
-<html class="cs-theme-cru cs-light">
-\`\`\`
-
-For npm/CDN users, \`cornerstone.css\` already imports Cru's theme. Import a stylesheet only to
-choose a different one:
+The stylesheet you load picks the theme, not a class. Cru's theme is the default: \`cornerstone.css\`
+imports it, so it needs no class and no extra stylesheet. To use FamilyLife's theme, load its
+stylesheet after \`cornerstone.css\`:
 
 \`\`\`js
-import '@cruglobal/cornerstone-components/styles/themes/default.css';
+import '@cruglobal/cornerstone-components/styles/cornerstone.css';
+import '@cruglobal/cornerstone-components/styles/themes/fl.css';
 \`\`\`
+
+The order matters. Each theme sets its palette, its role colors and the rest of its values on
+\`:root\` with the same specificity, so the theme loaded last wins. Loaded before \`cornerstone.css\`,
+FamilyLife's values are replaced by Cru's. Keep \`cornerstone.css\` either way: it also carries the
+native element styles and the utility classes, which a theme stylesheet doesn't. Load one theme per page.
+
+Each theme also matches a \`cs-theme-{name}\` class, but the class doesn't switch to a theme or scope
+one to a subtree. It re-applies part of a theme that is already loaded: its fonts, sizes, and which
+shades it uses for surfaces, text and fills. The hues still come from \`:root\`, so on a page with
+two themes loaded, a \`cs-theme-*\` section gets a mix of both. With one theme loaded you don't need it.
+
+A theme names its fonts but doesn't load them, so the site has to supply them.
 
 ## Themes
 
-| Theme | Description |
-|-------|-------------|
-| **Cru** | The default. Cru's brand, generated from its key colours on a luminance ladder |
-| **Default** | An unbranded reference theme, for a product that is not using Cru's brand |
+| Theme | Stylesheet | Description |
+|-------|------------|-------------|
+${themeRows}
 
 New brands are generated rather than picked from a list — see \`tools/palette.mjs\`.
 
 ## Color Palettes
 
-A palette provides the hue ramps a theme's roles read, each on a scale of 11 steps
-(\`05\`–\`95\`). Cru's carries 18 hues; the reference palette carries 10.
+A palette provides the hue ramps a theme's roles read, each on a scale of ${renderScale(steps)}.
+Each brand names its own hues.
 
-- **Cru** - Cru's brand hues, generated
-- **Default** - The reference hues
+${renderPaletteItems(themes)}
 
 ## Applying Palettes
 
-Each theme imports its own palette, so there is normally nothing to apply. The class form scopes
-one to a subtree:
-
-\`\`\`html
-<html class="cs-palette-default">
-\`\`\`
+Each theme imports its own palette, so there is nothing to apply. Cru's and FamilyLife's palettes
+have no class: each applies at \`:root\` when its theme loads. Only the reference palette has one,
+\`cs-palette-default\`.
 
 CSS variables follow the pattern \`--cs-color-{hue}-{tint}\`:
 
@@ -779,13 +867,14 @@ export async function generateAgentSkill(options = {}) {
     // An empty list would ship "Valid slots: ." and call every slot invalid. Fail rather than publish that.
     throw new Error(`No <cs-page> slots found in ${cemPath}; SKILL.md needs them for its list of valid slots.`);
   }
-  const skillMd = generateSkillMd({ componentList, packageData, baseUrl, pageSlots });
+  const skillThemes = loadSkillThemes();
+  const skillMd = generateSkillMd({ componentList, packageData, baseUrl, pageSlots, ...skillThemes });
   fs.writeFileSync(path.join(outdir, 'SKILL.md'), skillMd, 'utf-8');
 
   copyAllComponentDocsFromMarkdown(contentDir, refsDir, baseUrl, apiComponents);
 
-  // Generate themes reference (static content)
-  const themesRef = generateThemesReference(baseUrl);
+  // Generate themes reference, from the same theme and palette data as SKILL.md's summary
+  const themesRef = generateThemesReference(baseUrl, skillThemes);
   fs.writeFileSync(path.join(refsDir, 'themes.md'), themesRef, 'utf-8');
 
   // Generate support reference (static content)

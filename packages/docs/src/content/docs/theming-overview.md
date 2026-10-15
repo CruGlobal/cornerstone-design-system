@@ -3,21 +3,23 @@ title: Theming
 description: Style your project with Cornerstone's theming system — color palettes, variants, themes, and dark mode.
 ---
 
-Cornerstone themes apply a cohesive look and feel across the entire library, built from stackable layers — a [theme](/themes), a [color palette](/color-palettes), [variants](/tokens/color#variant-colors), and a light or dark color scheme — that you mix and match with classes on the `<html>` element.
+Cornerstone's theming gives the whole library one look and feel. It has four layers: a [theme](/themes), a [color palette](/color-palettes), [variants](/tokens/color#variant-colors), and a light or dark color scheme. The stylesheet you load picks the theme, and the theme brings its own palette. Classes set the variants and the color scheme, on the `<html>` element or on any section.
 
 :::info
-**Try it live!** Use the <cs-tag class="tag-ui" appearance="outlined"><cs-icon name="palette"></cs-icon></cs-tag> Theme and <cs-tag class="tag-ui" appearance="outlined"><cs-icon name="sunny"></cs-icon></cs-tag> Color Scheme selectors in this site's header to preview themes or switch light/dark modes.
+**Try it live!** Use the <cs-tag class="tag-ui" appearance="outlined"><cs-icon name="light_mode"></cs-icon></cs-tag> color scheme menu in this site's header to switch between light and dark mode, or between Cru's and FamilyLife's themes. FamilyLife's theme shows the system font here rather than Akkurat, and [Built-in Themes](/themes) says why.
 :::
 
 ## Key Concepts
 
 ### Themes
 
-`.cs-theme-{name}`
+`styles/themes/{name}.css`
 
 A theme is the overall look — fonts, borders, space, shadows, and how each [variant](/tokens/color#variant-colors) gets used across components. Two themes can share a [palette](/color-palettes) and [variants](/tokens/color#variant-colors) and still feel completely different. Themes ship with a default palette and may include custom CSS overrides for individual components.
 
-Your theme is determined by `class="cs-theme-{name}"` on the `<html>` element. If no class is specified, the default theme is used.
+The stylesheet you load picks your theme, not a class. `cornerstone.css` loads Cru's theme, so with no extra stylesheet and no class, you get Cru's. To use FamilyLife's theme instead, load its stylesheet after `cornerstone.css`, as [Using Themes](#using-themes) shows. Load one theme per page.
+
+Each theme also matches a `cs-theme-{name}` class, but the class doesn't switch themes, and it doesn't limit a theme to one section. It only re-applies part of a theme that is already loaded: its fonts, sizes, and which shades it uses for surfaces, text and fills. The hues still come from the page root, so on a page with two themes loaded, a `cs-theme-{name}` section gets a blend of both.
 
 <cs-button appearance="outlined" size="s" href="/themes">
   Browse Built-in Themes
@@ -26,11 +28,11 @@ Your theme is determined by `class="cs-theme-{name}"` on the `<html>` element. I
 
 ### Color Palettes
 
-`.cs-palette-{name}`
+`--cs-color-{hue}-{tint}`
 
-A color palette is the full set of 10 hues — red, orange, yellow, green, cyan, blue, indigo, purple, pink, and gray — each with 11 tints from `05` (darkest) to `95` (lightest), all available as [color design tokens](/tokens/color).
+A color palette is a theme's set of hues, each with 11 tints from `05` (darkest) to `95` (lightest), all available as [color design tokens](/tokens/color). Each brand names its own hues, so the list changes from theme to theme.
 
-Each palette has its own hue shifts and chroma, so swapping palettes changes the entire feel of your project — especially alongside a [theme](/themes) and [variant colors](/tokens/color#variant-colors). Your palette is determined by `class="cs-palette-{name}"` on the `<html>` element; if no class is specified, the default palette is used.
+Each palette has its own hue shifts and chroma, so the palette sets much of a project's feel, along with the [theme](/themes) and [variant colors](/tokens/color#variant-colors). You don't pick a palette on its own: each theme's stylesheet loads the palette it needs. Cru's and FamilyLife's palettes have no class. Only the reference palette that comes with `themes/default.css` has one, `cs-palette-default`.
 
 ::color-palette
 
@@ -102,9 +104,29 @@ Every theme is designed to adapt to light and dark mode. Light mode applies by d
 
 ## Using Themes
 
-Load the theme's stylesheet, then put its class on the `<html>` element. The snippets below cover each way of loading it.
+Load the theme's stylesheet. No class is needed: once it loads, the theme covers the whole page. Cru's theme is the default, and `cornerstone.css` already loads it. The snippets below cover each way of loading it.
 
 ::theme-install
+
+### Loading FamilyLife's theme
+
+To use FamilyLife's theme, load `styles/themes/fl.css` after `cornerstone.css`:
+
+```js
+import '@cruglobal/cornerstone-components/styles/cornerstone.css';
+import '@cruglobal/cornerstone-components/styles/themes/fl.css';
+```
+
+```html
+<link rel="stylesheet" href="/cornerstone/styles/cornerstone.css" />
+<link rel="stylesheet" href="/cornerstone/styles/themes/fl.css" />
+```
+
+The order matters because `cornerstone.css` carries Cru's theme. Both themes set their values on the page root with the same strength, and when two rules tie like that, the one loaded last wins. Load `fl.css` first and Cru's values replace FamilyLife's, so the page looks like Cru. Load it last and FamilyLife's values win everywhere.
+
+You still need `cornerstone.css`, because it also brings the native element styles and the utility classes, and `fl.css` has neither.
+
+Keep to one theme per page. The two palettes share some hue names (`yellow`, `orange`, `pink`, `mint` and `ruby`), so two themes on one page blend together, and a `cs-theme-*` class can't pull them apart.
 
 ## Creating Your Own
 
@@ -115,7 +137,7 @@ You can build a custom theme with [custom CSS](/customizing#customizing-with-css
 | Task                    | How To                                                                        | Learn More                                                 |
 | ----------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | Change my brand color   | Add `class="cs-brand-{hue}"` to `<html>`                                       | [Changing Variants](/tokens/color#changing-variant-colors)  |
-| Switch color palettes   | Load the palette stylesheet, then add `class="cs-palette-{name}"` to `<html>` | [Browse Palettes](/color-palettes)                         |
-| Use a different theme   | Load the theme stylesheet, then add `class="cs-theme-{name}"` to `<html>`     | [Built-in Themes](/themes)                                 |
+| Use a different palette | Load the theme that carries it; each theme loads its own palette              | [Browse Palettes](/color-palettes)                         |
+| Use FamilyLife's theme  | Load `styles/themes/fl.css` after `cornerstone.css`; no class needed          | [Using Themes](#using-themes)                              |
 | Toggle dark mode        | Add `class="cs-dark"` to `<html>` (or any section)                            | [Light and Dark Mode](#light-and-dark-mode)                |
 | Override a single token | Define a `--cs-*` custom property associated with a [design token](/tokens)   | [Customizing With CSS](/customizing#customizing-with-css)   |

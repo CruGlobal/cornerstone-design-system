@@ -1,5 +1,6 @@
 ---
 import { path } from '../site-sections.js';
+import { brandThemes } from '../themer.js';
 /**
  * The colour-scheme picker: an icon button that opens a `cs-dropdown`.
  *
@@ -10,8 +11,8 @@ import { path } from '../site-sections.js';
  *
  * The trigger shows the scheme in force rather than marking the active item, again as upstream does: their items
  * are all `type="normal"` with nothing checked. Each item carries an icon in the `icon` slot, and "System" carries
- * both — the same scheme-swapped pair as the trigger, which is how upstream signals "whatever the OS says". Both icons are rendered and one is hidden per scheme, so the
- * swap costs no script and cannot flash the wrong glyph.
+ * both — the same scheme-swapped pair as the trigger, which is how upstream signals "whatever the OS says". Both
+ * icons are rendered and one is hidden per scheme, so the swap costs no script and cannot flash the wrong glyph.
  *
  * What is kept from the `cs-select` version this replaces: the `starlight-theme` storage key and the `data-theme`
  * attribute. Everything downstream keys off those — `theme-sync.js` mirrors the attribute onto the library's own
@@ -22,15 +23,26 @@ import { path } from '../site-sections.js';
  * says System, the change request says System, and this site has a single locale — the same reason
  * `FallbackContentNotice` is switched off — so the literal costs nothing and the label is the one asked for.
  *
- * `light_mode` and `dark_mode` rather than upstream's `sun-bright` and `moon-stars`: Font Awesome is no longer the
- * fork resolves icons from the free CDN, where a Pro name renders as nothing.
+ * `light_mode` and `dark_mode` rather than upstream's `sun-bright` and `moon-stars`: Cornerstone Components'
+ * default icon library is Material Symbols, not Font Awesome, so a Font Awesome name renders as nothing.
  *
  * The "Docs" target is `/themes`, not the light-and-dark section of the customizing page that upstream links to,
  * because `customizing.md` and `theming-overview.md` are both still `draft: true` and excluded from production
  * builds. The themes page shows the two schemes side by side, so it is the closest live page. Worth revisiting
  * when those drafts are finished.
+ *
+ * The brand items are this site's own addition: one per brand theme in `themer.js`, which load that theme's
+ * stylesheets after `cornerstone.css` (src/brands.js has the mechanism and the pre-paint read). They are
+ * checkable items, unlike the scheme items, because nothing else tells a reader which brand is showing: the
+ * trigger draws the scheme, and a brand has no icon to draw. `type="checkbox"` gives the active one a visible
+ * check and `aria-checked`, announced as a checked menu item. A radio item would say "one of these" more
+ * exactly, but `cs-dropdown-item` has no radio type, so the handler keeps exactly one checked instead.
+ *
+ * A checkbox item makes the dropdown leave a gutter for the check on every item. `docs.css` moves the other
+ * items' icons into that gutter, so every label in the menu starts on the same edge.
  */
 const t = Astro.locals.t;
+const brands = brandThemes.map((theme) => ({ slug: theme.filename.replace(/\.css$/, ''), name: theme.name }));
 ---
 
 <cs-dropdown class="scheme-menu" placement="bottom-end" distance={4}>
@@ -55,6 +67,14 @@ const t = Astro.locals.t;
     System
   </cs-dropdown-item>
   <cs-divider />
+  {
+    brands.map((brand) => (
+      <cs-dropdown-item type="checkbox" value={brand.slug} data-brand-choice>
+        {brand.name}
+      </cs-dropdown-item>
+    ))
+  }
+  <cs-divider />
   <cs-dropdown-item value={path('/themes')}>
     <cs-icon slot="icon" name="menu_book" />
     Docs
@@ -63,6 +83,8 @@ const t = Astro.locals.t;
 
 <script>
   const KEY = 'starlight-theme';
+  const root = document.documentElement;
+  const menu = document.querySelector('cs-dropdown.scheme-menu');
 
   /** `auto` follows the operating system, which is what having no stored preference means. */
   const resolve = (theme) =>
@@ -82,21 +104,108 @@ const t = Astro.locals.t;
     }
   };
 
-  document.querySelector('cs-dropdown.scheme-menu')?.addEventListener('cs-select', (event) => {
+  /** The brand table the pre-paint read in src/brands.js uses: storage key, default, and each brand's stylesheets. */
+  const brands = JSON.parse(document.getElementById('docs-brands')?.textContent ?? 'null');
+  const brandItems = [...(menu?.querySelectorAll('[data-brand-choice]') ?? [])];
+
+  /** Exactly one brand checked. The dropdown flips a checkable item on select, which would uncheck the active one. */
+  const markBrand = (brand) => {
+    for (const item of brandItems) {
+      // @ts-expect-error -- `checked` is `cs-dropdown-item`'s property, and its types never reach here; see below.
+      item.checked = item.getAttribute('value') === brand;
+    }
+  };
+
+  /** Bumped on every pick, so a slow stylesheet from an earlier pick cannot land after a later one. */
+  let latest = 0;
+
+  /**
+   * Loads one brand's stylesheets after `cornerstone.css`, drops the last brand's, and shows that brand's version
+   * of every page block. The default brand loads nothing, since `cornerstone.css` carries it.
+   *
+   * It runs inside a view transition because nothing else keeps the switch whole. Each stylesheet applies the
+   * moment it arrives, before its `load` event and before the others, and the browser can paint in between, so
+   * waiting for `load` alone left frames of FamilyLife's colours around Cru's palette. A view transition holds the
+   * old frame on screen until the swap resolves, then shows the new one. Firefox before 144 has no view
+   * transitions, and there the colours can land a frame or two before the blocks do. Fetching under
+   * `media="not all"` and flipping it was tried too: Chromium fetches the sheets again on the flip and still
+   * applies them a frame late.
+   */
+  const applyBrand = (brand) => {
+    const pick = ++latest;
+
+    const swap = async () => {
+      const previous = [...document.querySelectorAll('link[data-brand-stylesheet]')];
+      const next = brands.stylesheets[brand].map((href) => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.dataset.brandStylesheet = '';
+        document.head.append(link);
+        return link;
+      });
+
+      const loaded = await Promise.all(
+        next.map(
+          (link) =>
+            new Promise((resolve) => {
+              link.addEventListener('load', () => resolve(true), { once: true });
+              link.addEventListener('error', () => resolve(false), { once: true });
+            }),
+        ),
+      );
+
+      // A later pick won, or a stylesheet failed: keep the page as it was rather than show half a brand.
+      if (pick !== latest || loaded.includes(false)) {
+        next.forEach((link) => link.remove());
+        if (pick === latest) {
+          markBrand(root.dataset.brand);
+        }
+        return;
+      }
+
+      previous.forEach((link) => link.remove());
+      root.dataset.brand = brand;
+
+      if (brand === brands.default) {
+        localStorage.removeItem(brands.storageKey);
+      } else {
+        localStorage.setItem(brands.storageKey, brand);
+      }
+    };
+
+    if (document.startViewTransition) {
+      document.startViewTransition(swap);
+    } else {
+      swap();
+    }
+  };
+
+  // After the items upgrade, so `checked` reaches the element's own property rather than shadowing it.
+  customElements.whenDefined('cs-dropdown-item').then(() => markBrand(root.dataset.brand));
+
+  menu?.addEventListener('cs-select', (event) => {
     // @ts-expect-error -- `cs-select` carries a payload, and nothing here can say so. The library augments
     // `GlobalEventHandlersEventMap` in `src/events/select.ts`, but this site consumes the built library out
     // of `public/dist` rather than as a dependency, so its types never reach here. A client `<script>` is
     // checked as JavaScript whatever `lang` says, so neither a JSDoc cast nor an ambient declaration in
     // `src/env.d.ts` applies to it either — both were tried. Reading the attribute instead would type
     // cleanly and change behaviour, since `value` is declared without `reflect`.
-    const value = event.detail.item?.value;
+    const item = event.detail.item;
+    const value = item?.value;
 
     if (!value) {
       return;
     }
 
-    // A path is the "Docs" item; anything else is a scheme.
-    if (value.startsWith('/')) {
+    // A brand item says so; otherwise a path is the "Docs" item, and anything else is a scheme.
+    if (item.hasAttribute('data-brand-choice')) {
+      markBrand(value);
+
+      if (value !== root.dataset.brand) {
+        applyBrand(value);
+      }
+    } else if (value.startsWith('/')) {
       window.location.href = value;
     } else {
       apply(value);

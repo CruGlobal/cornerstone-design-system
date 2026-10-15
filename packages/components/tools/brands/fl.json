@@ -1,0 +1,47 @@
+{
+  "$comment": "FamilyLife brand key colours, from the fl ref layer of @cruglobal/cornerstone-design-system, plus two hues borrowed from Cru (see $rolesComment). Update them here and re-run tools/palette.mjs. This file is the seam: everything downstream is derived.",
+  "brand": "fl",
+  "source": {
+    "repo": "CruGlobal/cornerstone-design-system",
+    "layer": "ref/color/fl"
+  },
+  "roles": {
+    "brand": "dark-green",
+    "neutral": "off-white",
+    "highlight": "yellow",
+    "information": "blue",
+    "success": "mint",
+    "warning": "orange",
+    "danger": "ruby"
+  },
+  "$rolesComment": "Neutral points at the gray scale, the way Cru's neutral points at its light gray, because it sets body text, borders, lowered surfaces and the dark-mode page colour. Highlight is yellow, FamilyLife's secondary colour. Success (mint) and danger (ruby) are Cru's hexes, a stopgap until FamilyLife picks colours for those roles: the brand's own dark-green would make success look like brand, and its pink is too pale for errors. Ruby rather than Cru's cerise keeps the two danger colours apart.",
+  "link": "blue",
+  "neutralPoints": {
+    "cool-gray": "#b1b1b1",
+    "off-white": "#f1f1f1",
+    "soft-black": "#24272a"
+  },
+  "hues": {
+    "yellow": "#f3bd48",
+    "orange": "#e47e3d",
+    "pink": "#ebb1b9",
+    "blue": "#7ca7ad",
+    "dark-green": "#006c5b",
+    "mint": "#88e4b6",
+    "ruby": "#991313",
+    "soft-black": "#24272a",
+    "off-white": "#f1f1f1",
+    "cool-gray": "#b1b1b1"
+  },
+  "fonts": {
+    "body": "Akkurat, \"Akkurat LL\", ui-sans-serif, system-ui, sans-serif",
+    "heading": "Akkurat, \"Akkurat LL\", ui-sans-serif, system-ui, sans-serif"
+  },
+  "$fontsComment": "A site using this theme supplies the font as family Akkurat, with Regular covering weights up to 500 and Bold covering 600 and up, as FamilyLife's own sites do (\"Akkurat LL\" catches a desktop install). The library doesn't load it because the license covers FamilyLife's domains only.",
+  "fontWeights": {
+    "semibold": 700,
+    "bold": 700
+  },
+  "$fontWeightsComment": "FamilyLife licenses only Regular (400) and Bold (700), so semibold is 700 to render Bold instead of Regular, and bold says 700 to match what renders.",
+  "$focusComment": "Known exception: in dark mode the focus ring (brand key step, #006c5b) measures 2.94:1 on #121212, just under 3:1. Accepted for now; the fix is a generator change that picks a lighter brand step when the key misses 3:1 against that mode's surface."
+}

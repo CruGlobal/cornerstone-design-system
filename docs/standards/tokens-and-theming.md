@@ -50,8 +50,11 @@ against "adding a brand means adding a knob file and nothing else".
 - The ramp is solved to WCAG luminance targets per step, not chosen: a knob is the input and a ramp never is,
   which is also why Figma cannot originate a palette.
 - A knob change is finished when every brand regenerates and the diff has been read.
-- A theme applies by class (`.cs-theme-cru`, `.cs-light`, `.cs-dark`) and classes cascade. A selector in a
-  generated theme that adds a new mechanism is a generator change, not a CSS edit.
+- The loaded stylesheet picks the theme, one per page. `.cs-theme-<name>` only re-applies the `cs-theme`
+  layer of a theme already loaded and does not scope one (#248 asks how it could), so a doc or agent that
+  says a brand class switches the theme is a finding. The scheme applies by class (`.cs-light`, `.cs-dark`)
+  and cascades. A selector in a generated theme that adds a new mechanism is a generator change, not a CSS
+  edit.
 
 **The MUI adapter (`packages/tokens/libraries/mui`)**
 

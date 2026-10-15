@@ -1,6 +1,8 @@
-import { expect } from '@open-wc/testing';
+import { expect, oneEvent } from '@open-wc/testing';
 import { html } from 'lit';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
+import { finishAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsAccordionItem from './accordion-item.js';
 
@@ -264,6 +266,25 @@ describe('<cs-accordion-item>', () => {
         });
       });
 
+      describe('animation', () => {
+        it('should run the expand and collapse animations for --cs-transition-normal', async () => {
+          const el = await fixture<CsAccordionItem>(html`<cs-accordion-item label="Test">Content</cs-accordion-item>`);
+          const body = el.shadowRoot!.querySelector('.body')!;
+
+          const expanded = oneEvent(el, 'cs-accordion-item-expanded');
+          el.expanded = true;
+          await expectAnimationDuration(body, '--cs-transition-normal');
+          finishAnimations(el);
+          await expanded;
+
+          const collapsed = oneEvent(el, 'cs-accordion-item-collapsed');
+          el.expanded = false;
+          await expectAnimationDuration(body, '--cs-transition-normal');
+          finishAnimations(el);
+          await collapsed;
+        });
+      });
+
       describe('rapid toggling', () => {
         it('should keep the panel in sync when collapsing is interrupted by expanding', async () => {
           const el = await fixture<CsAccordionItem>(
@@ -274,7 +295,11 @@ describe('<cs-accordion-item>', () => {
           el.expanded = false;
           await new Promise((resolve) => setTimeout(resolve, 20));
           el.expanded = true;
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          // Settle both animations instead of sleeping past them; a busy runner can outlast any sleep.
+          const settled = oneEvent(el, 'cs-accordion-item-expanded');
+          await el.updateComplete;
+          finishAnimations(el);
+          await settled;
 
           expect(el.expanded).to.be.true;
           expect(panel.style.height).to.equal('auto');
@@ -287,7 +312,10 @@ describe('<cs-accordion-item>', () => {
           el.expanded = true;
           await new Promise((resolve) => setTimeout(resolve, 20));
           el.expanded = false;
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          const settled = oneEvent(el, 'cs-accordion-item-collapsed');
+          await el.updateComplete;
+          finishAnimations(el);
+          await settled;
 
           expect(el.expanded).to.be.false;
           expect(parseInt(getComputedStyle(panel).height)).to.equal(0);
@@ -306,7 +334,10 @@ describe('<cs-accordion-item>', () => {
           el.expanded = false;
           await new Promise((resolve) => setTimeout(resolve, 20));
           el.expanded = true;
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          const settled = oneEvent(el, 'cs-accordion-item-expanded');
+          await el.updateComplete;
+          finishAnimations(el);
+          await settled;
 
           expect(expandedCount).to.equal(1);
           expect(collapsedCount).to.equal(0);

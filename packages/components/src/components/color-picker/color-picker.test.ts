@@ -2,6 +2,8 @@ import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
+import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
 import { clickOnElement, dragElement } from '../../internal/test/pointer-utilities.js';
@@ -80,6 +82,21 @@ describe('<cs-color-picker>', () => {
         });
       });
 
+      describe('animation', () => {
+        it('should run the show and hide animations for --cs-transition-fast', async () => {
+          const el = await fixture<CsColorPicker>(html` <cs-color-picker></cs-color-picker> `);
+          const panel = el.popup.popup;
+
+          el.open = true;
+          await expectAnimationDuration(panel, '--cs-transition-fast');
+          await settleAnimations(el);
+
+          el.open = false;
+          await expectAnimationDuration(panel, '--cs-transition-fast');
+          await settleAnimations(el);
+        });
+      });
+
       describe('events', () => {
         it('should not emit change or input when the value is changed programmatically', async () => {
           const el = await fixture<CsColorPicker>(html` <cs-color-picker></cs-color-picker> `);
@@ -102,8 +119,9 @@ describe('<cs-color-picker>', () => {
           el.addEventListener('input', inputHandler);
 
           await clickOnElement(trigger); // open the dropdown
-          await aTimeout(200); // wait for the dropdown to open
+          // Finish the open animation instead of waiting, so the pointer lands where the panel ends up.
           await el.updateComplete;
+          await settleAnimations(el);
 
           // Simulate a drag event. "change" should not fire until we stop dragging.
           await dragElement(grid, 2, 0, {
@@ -131,7 +149,8 @@ describe('<cs-color-picker>', () => {
           el.addEventListener('input', inputHandler);
 
           await clickOnElement(trigger); // open the dropdown
-          await aTimeout(200); // wait for the dropdown to open
+          await el.updateComplete;
+          await settleAnimations(el);
 
           // Simulate a drag event. "change" should not fire until we stop dragging.
           await dragElement(slider, 2, 0, {
@@ -161,7 +180,8 @@ describe('<cs-color-picker>', () => {
           el.addEventListener('input', inputHandler);
 
           await clickOnElement(trigger); // open the dropdown
-          await aTimeout(200); // wait for the dropdown to open
+          await el.updateComplete;
+          await settleAnimations(el);
           await clickOnElement(formatButton); // click on the format button
           await el.updateComplete;
 
@@ -183,7 +203,8 @@ describe('<cs-color-picker>', () => {
           el.addEventListener('input', inputHandler);
 
           await clickOnElement(trigger); // open the dropdown
-          await aTimeout(200); // wait for the dropdown to open
+          await el.updateComplete;
+          await settleAnimations(el);
           await clickOnElement(swatch); // click on the swatch
           await el.updateComplete;
 
@@ -221,7 +242,8 @@ describe('<cs-color-picker>', () => {
           const trigger = el.shadowRoot!.querySelector<HTMLButtonElement>('[part~="trigger"]')!;
 
           await clickOnElement(trigger); // open the dropdown
-          await aTimeout(200); // wait for the dropdown to open
+          await el.updateComplete;
+          await settleAnimations(el);
           const swatch = el.shadowRoot!.querySelector<HTMLElement>('[part~="swatch"]')!;
           await clickOnElement(swatch); // click on the swatch
           await el.updateComplete;
@@ -243,7 +265,8 @@ describe('<cs-color-picker>', () => {
           const swatch = el.shadowRoot!.querySelector<HTMLElement>('[part~="swatch"]')!;
 
           await clickOnElement(trigger); // open the dropdown
-          await aTimeout(200); // wait for the dropdown to open
+          await el.updateComplete;
+          await settleAnimations(el);
           await clickOnElement(swatch); // click on the swatch
           await el.updateComplete;
 
@@ -698,7 +721,8 @@ describe('<cs-color-picker>', () => {
           expect(el.customStates.has('user-valid')).to.be.false;
 
           await clickOnElement(trigger);
-          await aTimeout(500);
+          await el.updateComplete;
+          await settleAnimations(el);
           await clickOnElement(grid);
           await el.updateComplete;
 
@@ -720,7 +744,8 @@ describe('<cs-color-picker>', () => {
           expect(el.customStates.has('user-valid')).to.be.false;
 
           await clickOnElement(trigger);
-          await aTimeout(500);
+          await el.updateComplete;
+          await settleAnimations(el);
           await clickOnElement(grid);
           await el.updateComplete;
 

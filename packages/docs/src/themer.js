@@ -42,6 +42,9 @@ export const themes = [
       name: 'Cru',
       filename: 'cru.css',
     },
+    variants: {
+      filename: 'cru.css',
+    },
     colorBrand: {
       color: 'yellow',
     },
@@ -53,6 +56,71 @@ export const themes = [
       '--cs-font-family-longform': 'ui-serif, serif',
       '--cs-font-weight-body': 400,
       '--cs-font-weight-heading': 600,
+      '--cs-font-weight-code': 400,
+      '--cs-font-weight-longform': 400,
+
+      // Elements
+      '--cs-border-radius-scale': 1,
+      '--cs-space-scale': 1,
+      '--cs-border-width-scale': 1,
+    },
+  },
+  // #endregion
+
+  {
+    //
+    // #region FamilyLife
+    //
+    name: 'FamilyLife',
+    description: "FamilyLife's own: dark green, generated from the brand's key colours on a luminance ladder.",
+    filename: 'fl.css',
+    isPro: false,
+    fonts: {
+      // The theme names Akkurat and loads no font, because Akkurat's license covers only FamilyLife's own
+      // sites. A preview falls back to the system stack, and a site using the theme supplies the font itself.
+      body: {
+        name: 'Akkurat',
+        css: "Akkurat, 'Akkurat LL', ui-sans-serif, system-ui, sans-serif",
+        href: null,
+      },
+      heading: {
+        name: 'Akkurat',
+        css: "Akkurat, 'Akkurat LL', ui-sans-serif, system-ui, sans-serif",
+        href: null,
+      },
+      code: {
+        name: 'OS Default (monospace)',
+        css: 'ui-monospace, monospace',
+        href: null,
+      },
+      longform: {
+        name: 'OS Default (serif)',
+        css: 'ui-serif, serif',
+        href: null,
+      },
+    },
+    icons: {
+      family: 'classic',
+      weight: 1,
+    },
+    palette: {
+      name: 'FamilyLife',
+      filename: 'fl.css',
+    },
+    variants: {
+      filename: 'fl.css',
+    },
+    colorBrand: {
+      color: 'dark-green',
+    },
+    tokens: {
+      // Fonts
+      '--cs-font-family-body': "Akkurat, 'Akkurat LL', ui-sans-serif, system-ui, sans-serif",
+      '--cs-font-family-heading': "Akkurat, 'Akkurat LL', ui-sans-serif, system-ui, sans-serif",
+      '--cs-font-family-code': 'ui-monospace, monospace',
+      '--cs-font-family-longform': 'ui-serif, serif',
+      '--cs-font-weight-body': 400,
+      '--cs-font-weight-heading': 700,
       '--cs-font-weight-code': 400,
       '--cs-font-weight-longform': 400,
 
@@ -124,6 +192,25 @@ export const themes = [
   },
   // #endregion
 ];
+
+/**
+ * The stylesheets one theme is made of, as paths under `styles/`, keyed by the showcase query parameter that
+ * names each.
+ *
+ * Only a generated brand has a variant stylesheet of its own, which is why only Cru and FamilyLife name one.
+ * The reference theme takes its roles from the shared files its palette imports.
+ */
+export const themeStylesheets = (theme) => ({
+  theme: `themes/${theme.filename}`,
+  palette: `color/palettes/${theme.palette.filename}`,
+  ...(theme.variants ? { variants: `color/variants/${theme.variants.filename}` } : {}),
+});
+
+/**
+ * The brand themes, in the order above: the ones generated from a brand's knobs, which is what gives a theme a
+ * variant stylesheet of its own. The site's header menu offers these, and `src/brands.js` builds on them.
+ */
+export const brandThemes = themes.filter((theme) => theme.variants);
 
 /**
  * All fonts used by themes, collected from the four font categories.

@@ -45,7 +45,7 @@ brand colour (that is one value a brand's palette supplies, not the brand)
 
 **Palette**:
 A brand's colour values: ten or so hue ramps of eleven steps each, plus the mapping of which hue plays each
-semantic role. Selected by `.cs-palette-*`, and the axis a sub-brand varies. Distinct from a theme, which is
+semantic role. The axis a sub-brand varies. Distinct from a theme, which is
 hue-agnostic — the theme layer references a semantic role a hundred times and a raw hue once.
 _Avoid_: theme (the two are separate axes precisely so a sub-brand can change colour without changing type)
 
