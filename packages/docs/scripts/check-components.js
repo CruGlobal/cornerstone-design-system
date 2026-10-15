@@ -31,7 +31,16 @@
  * install is still wrong, but it is a broken cross-reference rather than an inert element, and it is the
  * link checker's to catch.
  *
- * Exits non-zero listing every unknown tag and the pages that use it.
+ * **Standalone HTML examples are scanned too**: every `.html` file under `public/assets/examples/`. Those
+ * files never pass through the markdown pipeline. They are served as they are and loaded into a frame,
+ * which is how the inspiration library's Screens are built (#144 names them
+ * `inspiration/screens/<name>.html` and `<name>.<state>.html`, and #149 puts their checks here). A
+ * `<cs-buton>` in one renders nothing, and no other check reads them. They get the same markup and script
+ * patterns, with one difference: backticks are **not** stripped, because in an HTML file a backtick opens
+ * a JavaScript template literal, and markup inside one is a real use rather than prose. HTML files are
+ * reported by their path from the site root, so they read `public/assets/examples/...` beside the pages.
+ *
+ * Exits non-zero listing every unknown tag and the files that use it.
  */
 
 import { readFileSync, readdirSync } from 'node:fs';
@@ -42,6 +51,7 @@ import { fileURLToPath } from 'node:url';
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const componentsRoot = componentsDir();
 const contentDir = join(siteDir, 'src', 'content', 'docs');
+const examplesDir = join(siteDir, 'public', 'assets', 'examples');
 
 /**
  * Tags that are not components and never will be.
@@ -69,15 +79,15 @@ const shipped = new Set(
     .map((entry) => `cs-${entry.name}`),
 );
 
-function markdownFiles(dir) {
+function filesWithExtension(dir, extension) {
   const out = [];
 
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      out.push(...markdownFiles(path));
-    } else if (extname(entry.name) === '.md') {
+      out.push(...filesWithExtension(path, extension));
+    } else if (extname(entry.name) === extension) {
       out.push(path);
     }
   }
@@ -85,23 +95,18 @@ function markdownFiles(dir) {
   return out;
 }
 
-const files = markdownFiles(contentDir);
+const files = filesWithExtension(contentDir, '.md');
+const htmlFiles = filesWithExtension(examplesDir, '.html');
 const unknown = new Map();
 let drafts = 0;
 let tagCount = 0;
 
-for (const path of files) {
-  const text = readFileSync(path, 'utf-8');
-  const frontMatter = /^---\n([\s\S]*?)\n---/.exec(text);
-
-  if (frontMatter && /^draft: *true/m.test(frontMatter[1])) {
-    drafts += 1;
-  }
-
+/**
+ * Records every `cs-*` tag `text` uses. `markup` is the text to search for elements, which for a page has
+ * its inline code spans removed; script patterns are always searched in the full text.
+ */
+function scan(text, markup, label) {
   const used = new Set();
-
-  // A backticked tag is prose about a component, not a use of one.
-  const markup = text.replace(/`[^`\n]*`/g, '');
 
   // markup
   for (const [, tag] of markup.matchAll(/<(cs-[a-z0-9-]+)[\s/>]/g)) {
@@ -126,13 +131,35 @@ for (const path of files) {
       unknown.set(tag, new Set());
     }
 
-    unknown.get(tag).add(relative(contentDir, path));
+    unknown.get(tag).add(label);
   }
+}
+
+for (const path of files) {
+  const text = readFileSync(path, 'utf-8');
+  const frontMatter = /^---\n([\s\S]*?)\n---/.exec(text);
+
+  if (frontMatter && /^draft: *true/m.test(frontMatter[1])) {
+    drafts += 1;
+  }
+
+  // A backticked tag is prose about a component, not a use of one.
+  const markup = text.replace(/`[^`\n]*`/g, '');
+
+  scan(text, markup, relative(contentDir, path));
+}
+
+// In HTML a backtick opens a template literal, so nothing is stripped.
+for (const path of htmlFiles) {
+  const text = readFileSync(path, 'utf-8');
+
+  scan(text, text, relative(siteDir, path));
 }
 
 if (unknown.size === 0) {
   console.log(
     `\n${files.length} pages checked (${drafts} draft${drafts === 1 ? '' : 's'}), ` +
+      `${htmlFiles.length} HTML example${htmlFiles.length === 1 ? '' : 's'}, ` +
       `${tagCount} component references, all ship.\n`,
   );
   process.exit(0);
