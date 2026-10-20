@@ -130,6 +130,7 @@ For text alignment, wrapping, and transformation, prefer `cs-text-*` over inline
 | Text alignment            | `cs-text-start` / `cs-text-center` / `cs-text-end` / `cs-text-justify` |
 | Avoid awkward line breaks | `cs-text-balance` (headings) / `cs-text-pretty` (paragraphs)           |
 | Prevent wrapping          | `cs-text-nowrap`                                                       |
+| Cut text with an ellipsis | `cs-text-truncate` (one line) / `cs-text-truncate-2` to `-5` (lines)   |
 | Letter casing             | `cs-text-uppercase` / `cs-text-lowercase` / `cs-text-capitalize`       |
 
 (Large blocks of uppercase text are harder to read for everyone, especially folks with dyslexia.
