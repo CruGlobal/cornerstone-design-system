@@ -177,6 +177,80 @@ Use the `start` and `end` slots to add presentational elements like `<cs-icon>` 
 </div>
 ```
 
+### Stacked
+
+Set `orientation="vertical"` to stack a button's content in a column: the `start` slot above the label, and the `end` slot and the caret below it. Use it for an icon with a caption, as in a bottom navigation bar or a toolbar with captions.
+
+Only the slots stack, so put the icon in `start`. An icon beside text in the label stays in the row. An icon-only button keeps its square shape and ignores `orientation`.
+
+```html {.example}
+<div class="cs-cluster cs-gap-2xs">
+  <cs-button orientation="vertical">
+    <cs-icon slot="start" name="home"></cs-icon>
+    Home
+  </cs-button>
+  <cs-button orientation="vertical" appearance="outlined">
+    <cs-icon slot="start" name="search"></cs-icon>
+    Search
+  </cs-button>
+  <cs-button orientation="vertical" appearance="plain" with-caret>
+    <cs-icon slot="start" name="person"></cs-icon>
+    Account
+  </cs-button>
+</div>
+```
+
+A stacked button is never shorter or narrower than a one-row button, and it grows to fit its content. Its label wraps instead of spilling out, so the button still fits a narrow bar when text is zoomed or spaced out.
+
+Leave the `start` icon's `label` off. The icon is decorative, so the button is named by its text alone. Give the icon a `label` only when it says something the text does not, and know that the button's name will then read the icon's label first.
+
+Don't mix orientations in one [button group](/components/button-group). A one-row button keeps its fixed height so it lines up with form fields, and it won't match the stacked buttons beside it. Stacked buttons in one group share one height. A `pill` stacked button is drawn as a capsule, since `pill` rounds every corner fully.
+
+#### Navigation Bar
+
+A bar of stacked items that changes the page is navigation, not tabs. Use `cs-button` links (`href`) inside a `<nav>` with an `aria-label`, and don't give them tab roles. Keep at least 4px between items, which is how far the focus ring reaches, or join them in a button group.
+
+```html {.example}
+<nav aria-label="Main" class="bottom-bar">
+  <cs-button orientation="vertical" appearance="plain" size="s" href="#home">
+    <cs-icon slot="start" name="home"></cs-icon>
+    Home
+  </cs-button>
+  <cs-button orientation="vertical" appearance="plain" size="s" href="#search">
+    <cs-icon slot="start" name="search"></cs-icon>
+    Search
+  </cs-button>
+  <cs-button orientation="vertical" appearance="plain" size="s" href="#notifications">
+    <cs-icon slot="start" name="notifications"></cs-icon>
+    Notifications
+  </cs-button>
+  <cs-button orientation="vertical" appearance="plain" size="s" href="#messages">
+    <cs-icon slot="start" name="mail"></cs-icon>
+    Messages
+  </cs-button>
+  <cs-button orientation="vertical" appearance="plain" size="s" href="#profile">
+    <cs-icon slot="start" name="person"></cs-icon>
+    Profile
+  </cs-button>
+</nav>
+
+<style>
+  .bottom-bar {
+    display: flex;
+    gap: var(--cs-space-2xs);
+  }
+
+  .bottom-bar cs-button {
+    flex: 1 1 0;
+  }
+</style>
+```
+
+- **Leave room for the focus ring.** A container that clips its content, such as one with `overflow: hidden`, needs at least 4px of padding inside it, or it cuts the ring off.
+- **Keep focus out from under a fixed bar.** A bar fixed to the bottom of the screen covers whatever scrolls beneath it. Set `scroll-padding-block-end` on the scrolling element to the bar's height, so a focused control is never hidden behind it.
+- **Render one navigation the same way twice.** If the same navigation shows as a side rail on wide screens and a bottom bar on narrow ones, give both the same links in the same order, and add `hidden` to the copy that isn't showing so it leaves the tab order and the accessibility tree.
+- **Mark the current page with more than colour.** Changing the current item from `plain` to `filled` is not enough on its own: the two differ by only 1.25:1 to 1.47:1, and forced colours mode drops the fill altogether. Add a cue that isn't colour, such as a bar under the item. Setting `aria-current` on a `cs-button` does not reach the link inside it.
+
 ### Caret
 
 Use the `with-caret` attribute to add a dropdown indicator when a button triggers a dropdown, menu, or popover.
@@ -227,6 +301,41 @@ Give a button a custom `width` to size it independently of its content — usefu
 
 ```html {.example}
 <cs-button style="width: 100%;">Save</cs-button>
+```
+
+### Content Alignment
+
+A button centers its content. Set `--cs-button-justify-content` to place it elsewhere along the row, such as at the start of a full-width button in a menu or sidebar. It takes any `justify-content` value. Set it on a section and every button inside follows it, including buttons inside other components. Icon-only and stacked buttons ignore it and stay centered.
+
+`start` keeps the `end` slot beside the label. To push it to the far end, as a menu row does with a trailing arrow, give the `end` part an automatic start margin.
+
+```html {.example}
+<div class="cs-stack cs-gap-2xs side-menu">
+  <cs-button appearance="plain">
+    <cs-icon slot="start" name="inbox"></cs-icon>
+    Inbox
+  </cs-button>
+  <cs-button appearance="plain">
+    <cs-icon slot="start" name="draft"></cs-icon>
+    Drafts
+  </cs-button>
+  <cs-button appearance="plain" class="trailing">
+    <cs-icon slot="start" name="settings"></cs-icon>
+    Settings
+    <cs-icon slot="end" name="keyboard_arrow_right"></cs-icon>
+  </cs-button>
+</div>
+
+<style>
+  .side-menu {
+    --cs-button-justify-content: start;
+    max-width: 16rem;
+  }
+
+  .side-menu .trailing::part(end) {
+    margin-inline-start: auto;
+  }
+</style>
 ```
 
 ### Customizing

@@ -44,6 +44,9 @@ import styles from './button.styles.js';
  * @cssstate icon-button - Applied when the button contains only a `<cs-icon>` with no other content.
  * @cssstate link - Applied when the button is rendered as a link (i.e. `href` is set).
  * @cssstate loading - Applied when the button is in the loading state.
+ *
+ * @cssproperty [--cs-button-justify-content=center] - Where a one-row button places its content along the row, as a
+ *  `justify-content` value. Icon-only and vertical buttons ignore it.
  */
 @customElement('cs-button')
 export default class CsButton extends CornerstoneFormAssociatedElement {
@@ -74,6 +77,12 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
 
   /** The button's size. */
   @property({ reflect: true }) size: 'xs' | 's' | 'm' | 'l' | 'xl' = 'm';
+
+  /**
+   * Lays the button's content out in a row, or stacks it in a column: `start` above the label, `end` and the caret
+   * below it. An icon-only button ignores it.
+   */
+  @property({ reflect: true }) orientation: 'horizontal' | 'vertical' = 'horizontal';
 
   /** Draws the button with a caret. Used to indicate that the button triggers a dropdown menu or similar behavior. */
   @property({ attribute: 'with-caret', type: Boolean, reflect: true }) withCaret = false;

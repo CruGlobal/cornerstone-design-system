@@ -53,6 +53,11 @@ export default css`
     border-width: var(--cs-form-control-border-width);
   }
 
+  /* Not on icon buttons: the icon is wider than the square's content box, so anything but center shifts it. */
+  .button:not(.is-icon-button) {
+    justify-content: var(--cs-button-justify-content, center);
+  }
+
   /* Hover and active transforms */
   .button:not(.disabled):not(.loading) {
     @media (hover: hover) {
@@ -262,6 +267,24 @@ export default css`
   }
 
   /*
+   * Vertical orientation. An icon-only button has nothing to stack, so it keeps its square.
+   */
+
+  :host([orientation='vertical']) .button:not(.is-icon-button) {
+    flex-direction: column;
+    justify-content: center;
+    /* A host stretched by a row is definite, so a group of stacked buttons shares one height. Elsewhere it is auto. */
+    height: 100%;
+    min-height: var(--cs-form-control-height);
+    min-inline-size: var(--cs-form-control-height);
+    padding-block: var(--cs-form-control-padding-block);
+    line-height: var(--cs-form-control-value-line-height);
+    white-space: normal;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  /*
    * Label
    */
 
@@ -363,5 +386,18 @@ export default css`
   slot[name='end']::slotted(*),
   .button:not(.visually-hidden-label) [part='caret'] {
     margin-inline-start: 0.75em !important;
+  }
+
+  /* Stacked, the spacing turns to the block axis; an inline margin left behind pushes the icon off center. */
+  :host([orientation='vertical']) .button:not(.is-icon-button) slot[name='start']::slotted(*) {
+    margin-inline-end: 0 !important;
+    margin-block-end: 0.25em !important;
+  }
+
+  /* Not a badge: a block margin would move it down from the corner it pins to. */
+  :host([orientation='vertical']) .button:not(.is-icon-button) slot[name='end']::slotted(:not(cs-badge)),
+  :host([orientation='vertical']) .button:not(.is-icon-button) [part='caret'] {
+    margin-inline-start: 0 !important;
+    margin-block-start: 0.25em !important;
   }
 `;

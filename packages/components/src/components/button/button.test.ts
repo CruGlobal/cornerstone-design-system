@@ -1,4 +1,5 @@
 import { aTimeout, expect, waitUntil } from '@open-wc/testing';
+import { a11ySnapshot } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -6,6 +7,37 @@ import { runFormControlBaseTests } from '../../internal/test/form-control-base-t
 import type CsButton from './button.js';
 
 const variants = ['brand', 'success', 'neutral', 'warning', 'danger'];
+
+interface AccessibilityNode {
+  role: string;
+  name: string;
+}
+
+function partOf(el: CsButton, name: string) {
+  return el.shadowRoot!.querySelector<HTMLElement>(`[part~="${name}"]`)!;
+}
+
+/** The box a button's label text paints in. A `<slot>` reports no box of its own, so measure the text node. */
+function labelTextRect(el: CsButton) {
+  const text = [...el.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent!.trim())!;
+  const range = document.createRange();
+  range.selectNodeContents(text);
+  return range.getBoundingClientRect();
+}
+
+function centerX(rect: DOMRect) {
+  return rect.left + rect.width / 2;
+}
+
+/** Whether `inner` lies inside `outer`, allowing half a pixel for subpixel rounding. */
+function isInside(inner: DOMRect, outer: DOMRect) {
+  return (
+    inner.left >= outer.left - 0.5 &&
+    inner.right <= outer.right + 0.5 &&
+    inner.top >= outer.top - 0.5 &&
+    inner.bottom <= outer.bottom + 0.5
+  );
+}
 
 describe('<cs-button>', () => {
   runFormControlBaseTests({
@@ -275,6 +307,228 @@ describe('<cs-button>', () => {
 
           expect(submitter.name).to.equal('btn-2');
           expect(submitter.value).to.equal('value-2');
+        });
+      });
+
+      describe('orientation', () => {
+        it('should default to horizontal and reflect a change', async () => {
+          const el = await fixture<CsButton>(html`<cs-button>Settings</cs-button>`);
+          expect(el.orientation).to.equal('horizontal');
+          expect(el.getAttribute('orientation')).to.equal('horizontal');
+
+          el.orientation = 'vertical';
+          await el.updateComplete;
+          expect(el.getAttribute('orientation')).to.equal('vertical');
+        });
+
+        it('should be accessible and named by its label when vertical with a decorative start icon', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical">
+              <cs-icon slot="start" library="system" name="settings"></cs-icon>
+              Settings
+            </cs-button>
+          `);
+          await expect(el).to.be.accessible();
+
+          const button = (await a11ySnapshot({ selector: 'cs-button button' })) as unknown as AccessibilityNode;
+          expect(button).to.include({ role: 'button', name: 'Settings' });
+        });
+
+        it('should be accessible and named by its label when a vertical link has a decorative start icon', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical" href="#settings">
+              <cs-icon slot="start" library="system" name="settings"></cs-icon>
+              Settings
+            </cs-button>
+          `);
+          await expect(el).to.be.accessible();
+
+          const link = (await a11ySnapshot({ selector: 'cs-button a' })) as unknown as AccessibilityNode;
+          expect(link).to.include({ role: 'link', name: 'Settings' });
+        });
+
+        it('should stack start above the label and end below it, centered, in DOM order and with no added ARIA', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical">
+              <cs-icon slot="start" library="system" name="settings"></cs-icon>
+              Settings
+              <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+            </cs-button>
+          `);
+          const button = partOf(el, 'button');
+          const buttonRect = button.getBoundingClientRect();
+          const start = el.querySelector('[slot="start"]')!.getBoundingClientRect();
+          const end = el.querySelector('[slot="end"]')!.getBoundingClientRect();
+          const label = labelTextRect(el);
+
+          expect(getComputedStyle(button).flexDirection).to.equal('column');
+          expect(start.bottom).to.be.at.most(label.top + 0.5);
+          expect(label.bottom).to.be.at.most(end.top + 0.5);
+          for (const rect of [start, label, end]) {
+            expect(Math.abs(centerX(rect) - centerX(buttonRect))).to.be.below(1);
+          }
+
+          for (const name of ['start', 'label', 'end']) {
+            expect(getComputedStyle(partOf(el, name)).order).to.equal('0');
+          }
+          expect(el.hasAttribute('aria-orientation')).to.be.false;
+          expect(button.hasAttribute('aria-orientation')).to.be.false;
+        });
+
+        it('should keep the one-row height fixed and use it as the stacked minimum', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button>Settings</cs-button>
+              <cs-button orientation="vertical">
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+              </cs-button>
+            </div>
+          `);
+          const [row, stacked] = [...el.querySelectorAll<CsButton>('cs-button')].map((button) =>
+            partOf(button, 'button'),
+          );
+          const rowStyle = getComputedStyle(row);
+          const stackedStyle = getComputedStyle(stacked);
+
+          expect(rowStyle.whiteSpace).to.equal('nowrap');
+          expect(stackedStyle.minHeight).to.equal(rowStyle.height);
+          expect(stackedStyle.minWidth).to.equal(rowStyle.height);
+          expect(stacked.getBoundingClientRect().height).to.be.above(row.getBoundingClientRect().height);
+        });
+
+        it('should keep the focus ring outside the box when vertical', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical" appearance="filled" variant="brand">
+              <cs-icon slot="start" library="system" name="settings"></cs-icon>
+              Settings
+            </cs-button>
+          `);
+          const button = partOf(el, 'button');
+
+          el.focus();
+          await waitUntil(() => button.matches(':focus-visible'), 'the button never showed its focus ring');
+          const style = getComputedStyle(button);
+
+          expect(style.outlineStyle).to.equal('solid');
+          expect(style.outlineOffset).to.equal('1px');
+        });
+
+        it('should be ignored by an icon-only button', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical">
+              <cs-icon library="system" name="settings" label="Settings"></cs-icon>
+            </cs-button>
+          `);
+          await waitUntil(() => partOf(el, 'button').classList.contains('is-icon-button'));
+          const button = partOf(el, 'button');
+          const rect = button.getBoundingClientRect();
+
+          expect(getComputedStyle(button).flexDirection).to.equal('row');
+          expect(Math.abs(rect.width - rect.height)).to.be.below(1);
+        });
+
+        it('should give every stacked button in a horizontal group the same height', async () => {
+          const el = await fixture<HTMLElement>(html`
+            <cs-button-group label="Sections">
+              <cs-button orientation="vertical">
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+              </cs-button>
+              <cs-button orientation="vertical">Search</cs-button>
+              <cs-button orientation="vertical" with-caret>
+                <cs-icon slot="start" library="system" name="person"></cs-icon>
+                Profile
+              </cs-button>
+            </cs-button-group>
+          `);
+          const buttons = [...el.querySelectorAll<CsButton>('cs-button')].map((button) => partOf(button, 'button'));
+          const heights = buttons.map((button) => button.getBoundingClientRect().height);
+          const textOnlyMinimum = parseFloat(getComputedStyle(buttons[1]).minHeight);
+
+          // The text-only button needs only the minimum; matching the others means it was stretched.
+          expect(heights[1]).to.be.above(textOnlyMinimum + 1);
+          for (const height of heights) {
+            expect(Math.abs(height - heights[0])).to.be.below(1);
+          }
+        });
+
+        for (const [name, textSpacing] of [
+          ['default text spacing', ''],
+          ['WCAG 1.4.12 text spacing', 'letter-spacing: 0.12em; word-spacing: 0.16em; line-height: 1.5;'],
+        ]) {
+          it(`should keep five small stacked items inside a 320px bar with ${name}`, async () => {
+            // Written out rather than mapped: the SSR fixture cannot serialize nested templates.
+            const el = await fixture<HTMLElement>(html`
+              <nav aria-label="Main" style="display: flex; gap: 4px; width: 320px; ${textSpacing}">
+                <cs-button orientation="vertical" size="s" href="#" style="flex: 1 1 0">
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Home
+                </cs-button>
+                <cs-button orientation="vertical" size="s" href="#" style="flex: 1 1 0">
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Search
+                </cs-button>
+                <cs-button orientation="vertical" size="s" href="#" style="flex: 1 1 0">
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Notifications
+                </cs-button>
+                <cs-button orientation="vertical" size="s" href="#" style="flex: 1 1 0">
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Messages
+                </cs-button>
+                <cs-button orientation="vertical" size="s" href="#" style="flex: 1 1 0">
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Settings
+                </cs-button>
+              </nav>
+            `);
+            const bar = el.getBoundingClientRect();
+
+            for (const item of el.querySelectorAll<CsButton>('cs-button')) {
+              const button = partOf(item, 'button').getBoundingClientRect();
+              const icon = item.querySelector('cs-icon')!.getBoundingClientRect();
+              const label = item.textContent.trim();
+
+              expect(isInside(button, bar), `"${label}" button spills out of the bar`).to.be.true;
+              expect(isInside(labelTextRect(item), button), `"${label}" text spills out of its button`).to.be.true;
+              expect(isInside(icon, button), `"${label}" icon spills out of its button`).to.be.true;
+            }
+          });
+        }
+      });
+
+      describe('content alignment', () => {
+        it('should center by default and follow --cs-button-justify-content set on an ancestor', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button>Settings</cs-button>
+              <div style="--cs-button-justify-content: start">
+                <cs-button>Settings</cs-button>
+              </div>
+            </div>
+          `);
+          const [plain, aligned] = [...el.querySelectorAll<CsButton>('cs-button')];
+
+          expect(getComputedStyle(partOf(plain, 'button')).justifyContent).to.equal('center');
+          expect(getComputedStyle(partOf(aligned, 'button')).justifyContent).to.equal('start');
+        });
+
+        it('should be ignored by icon-only and vertical buttons', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div style="--cs-button-justify-content: start">
+              <cs-button><cs-icon library="system" name="settings" label="Settings"></cs-icon></cs-button>
+              <cs-button orientation="vertical">
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+              </cs-button>
+            </div>
+          `);
+          const [iconOnly, stacked] = [...el.querySelectorAll<CsButton>('cs-button')];
+          await waitUntil(() => partOf(iconOnly, 'button').classList.contains('is-icon-button'));
+
+          expect(getComputedStyle(partOf(iconOnly, 'button')).justifyContent).to.equal('center');
+          expect(getComputedStyle(partOf(stacked, 'button')).justifyContent).to.equal('center');
         });
       });
     });
