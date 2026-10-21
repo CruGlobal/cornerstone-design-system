@@ -1,5 +1,25 @@
 # @cruglobal/cornerstone-components
 
+## 0.9.0
+
+### Added
+
+- [#256](https://github.com/CruGlobal/cornerstone-design-system/pull/256) [`4096e05`](https://github.com/CruGlobal/cornerstone-design-system/commit/4096e05878b61459b29f4b2ef517d53d4cd9e6df) Thanks [@rguinee](https://github.com/rguinee)! - `cs-text-truncate-2` through `cs-text-truncate-5` cut text to that many lines with an ellipsis, and `cs-text-truncate-1` does the same as `cs-text-truncate`.
+
+- [#237](https://github.com/CruGlobal/cornerstone-design-system/pull/237) [`854fd4b`](https://github.com/CruGlobal/cornerstone-design-system/commit/854fd4bf486c87ad594dc8601163aef2b3663352) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - The docs site's component check now also reads the HTML examples under `public/assets/examples/`, so an unknown `cs-*` tag in a screen fails the build. Docs tooling only; nothing that ships changes.
+
+### Changed
+
+- [#223](https://github.com/CruGlobal/cornerstone-design-system/pull/223) [`63deae0`](https://github.com/CruGlobal/cornerstone-design-system/commit/63deae04e378006a1c8c1af8463e2214f0b3b342) Thanks [@rguinee](https://github.com/rguinee)! - `<cs-badge>` no longer announces its text as a live region, so its text now joins the accessible name of the button, link or other control it is in. Apps that need a change announced keep their own live region outside the control. The Badge and Button pages, and so the shipped `cornerstone` skill, say so.
+
+### Fixed
+
+- [#234](https://github.com/CruGlobal/cornerstone-design-system/pull/234) [`3a6baf5`](https://github.com/CruGlobal/cornerstone-design-system/commit/3a6baf5953de1f895e6a983fb28dd29c049d4382) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - The accessibility page's Known gaps table now records that `cs-callout`'s variant axe test is skipped under SSR. Docs only; nothing that ships changes.
+
+- [#251](https://github.com/CruGlobal/cornerstone-design-system/pull/251) [`ed0ebc6`](https://github.com/CruGlobal/cornerstone-design-system/commit/ed0ebc62a59823fc71c2e79957e566137532a385) Thanks [@rguinee](https://github.com/rguinee)! - The agent skill's `SKILL.md` now lists the themes and palettes that ship (Cru, FamilyLife and Default) and says the loaded stylesheet picks the theme, not a class.
+
+- [#254](https://github.com/CruGlobal/cornerstone-design-system/pull/254) [`fd46d34`](https://github.com/CruGlobal/cornerstone-design-system/commit/fd46d34831f070871c5b5a1673c82ae69d720bc6) Thanks [@rguinee](https://github.com/rguinee)! - `cs-zoomable-frame`'s `with-theme-sync` docs no longer call the classes it copies theme selectors, and say the iframe must load the host page's theme stylesheet.
+
 ## 0.8.1
 
 ### Added
