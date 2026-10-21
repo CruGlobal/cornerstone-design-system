@@ -1,7 +1,7 @@
 # Accessibility — Focus Areas
 
 Cornerstone Components targets WCAG 2.2 AA. `packages/docs/src/content/docs/resources/accessibility.md`
-states the target, the floor every component meets, how each claim is verified, and the known gaps; keep
+states the target, the floor every component is held to, how each claim is verified, and the known gaps; keep
 that page true rather than restating it. This is the area most likely to block a component pull request.
 Be a gate on the defect, not on the person: every blocking finding arrives with what would make it pass.
 
@@ -13,7 +13,7 @@ Be a gate on the defect, not on the person: every blocking finding arrives with 
 
 ---
 
-**The floor every component meets** (from the accessibility page; verify it, do not restate it)
+**The floor every component is held to** (from the accessibility page; verify it, do not restate it)
 
 Keyboard reachable and operable with no trap (2.1.1, 2.1.2); correct name, role and value (4.1.2); a
 visible focus indicator on every focusable element the component owns (2.4.7); no state by colour alone
