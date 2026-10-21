@@ -2,17 +2,14 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --size: 8rem;
-    --track-width: 0.25em; /* avoid using rems here */
-    --track-color: var(--cs-color-neutral-fill-normal);
-    --indicator-width: var(--track-width);
-    --indicator-color: var(--cs-color-brand-fill-loud);
-    --indicator-transition-duration: 0.35s;
-
     display: inline-flex;
   }
 
   .progress-ring {
+    /* The indicator's width defaults to the track's, so the track's default is written once here. */
+    --_track-width: var(--cs-track-width, 0.25em); /* avoid using rems here */
+    --_indicator-width: var(--cs-progress-ring-indicator-width, var(--_track-width));
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -20,36 +17,36 @@ export default css`
   }
 
   .image {
-    width: var(--size);
-    height: var(--size);
+    width: var(--cs-progress-ring-size, 8rem);
+    height: var(--cs-progress-ring-size, 8rem);
     rotate: -90deg;
     transform-origin: 50% 50%;
   }
 
   .track,
   .indicator {
-    --radius: calc(var(--size) / 2 - max(var(--track-width), var(--indicator-width)) * 0.5);
-    --circumference: calc(var(--radius) * 2 * 3.141592654);
+    --_radius: calc(var(--cs-progress-ring-size, 8rem) / 2 - max(var(--_track-width), var(--_indicator-width)) * 0.5);
+    --_circumference: calc(var(--_radius) * 2 * 3.141592654);
 
     fill: none;
-    r: var(--radius);
-    cx: calc(var(--size) / 2);
-    cy: calc(var(--size) / 2);
+    r: var(--_radius);
+    cx: calc(var(--cs-progress-ring-size, 8rem) / 2);
+    cy: calc(var(--cs-progress-ring-size, 8rem) / 2);
   }
 
   .track {
-    stroke: var(--track-color);
-    stroke-width: var(--track-width);
+    stroke: var(--cs-track-color, var(--cs-color-neutral-fill-normal));
+    stroke-width: var(--_track-width);
   }
 
   .indicator {
-    stroke: var(--indicator-color);
-    stroke-width: var(--indicator-width);
+    stroke: var(--cs-indicator-color, var(--cs-color-brand-fill-loud));
+    stroke-width: var(--_indicator-width);
     stroke-linecap: round;
     transition-property: stroke-dashoffset;
-    transition-duration: var(--indicator-transition-duration);
-    stroke-dasharray: var(--circumference) var(--circumference);
-    stroke-dashoffset: calc(var(--circumference) - var(--percentage) * var(--circumference));
+    transition-duration: var(--cs-progress-ring-indicator-transition-duration, 0.35s);
+    stroke-dasharray: var(--_circumference) var(--_circumference);
+    stroke-dashoffset: calc(var(--_circumference) - var(--_percentage) * var(--_circumference));
   }
 
   .label {

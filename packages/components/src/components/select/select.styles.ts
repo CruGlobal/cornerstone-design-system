@@ -1,19 +1,13 @@
 import { css } from 'lit';
 
 export default css`
-  :host {
-    --tag-max-size: 10ch;
-    --show-duration: var(--cs-transition-fast);
-    --hide-duration: var(--cs-transition-fast);
-  }
-
   /* Add ellipses to multi select options */
   :host cs-tag::part(content) {
     display: initial;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    max-width: var(--tag-max-size);
+    max-width: var(--cs-select-tag-max-size, 10ch);
   }
 
   :host .disabled [part~='combobox'] {
@@ -33,10 +27,6 @@ export default css`
     width: 100%;
     position: relative;
     vertical-align: middle;
-
-    /* Pass through from select to the popup */
-    --show-duration: inherit;
-    --hide-duration: inherit;
 
     &::part(popup) {
       z-index: 900;
@@ -263,11 +253,12 @@ export default css`
     overscroll-behavior: none;
 
     /* Make sure it adheres to the popup's auto size */
-    max-width: var(--auto-size-available-width);
-    max-height: var(--auto-size-available-height);
+    max-width: var(--cs-popup-auto-size-available-width);
+    max-height: var(--cs-popup-auto-size-available-height);
 
+    /* Hand-off: the listbox sets its dividers' spacing, so a page-level value doesn't loosen it. */
     &::slotted(cs-divider) {
-      --spacing: 0.5em;
+      --cs-divider-spacing: 0.5em;
     }
   }
 

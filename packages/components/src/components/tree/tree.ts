@@ -66,12 +66,12 @@ function syncCheckboxes(changedTreeItem: CsTreeItem, initialSync = false) {
  *
  * @csspart tree - The component's outer wrapper.
  *
- * @cssproperty [--indent-size=var(--cs-space-m)] - The size of the indentation for nested items.
- * @cssproperty [--indent-guide-color=var(--cs-color-surface-border)] - The color of the indentation line.
- * @cssproperty [--indent-guide-offset=0] - The amount of vertical spacing to leave between the top and bottom of the
+ * @cssproperty [--cs-tree-indent-size=2em] - The size of the indentation for nested items.
+ * @cssproperty [--cs-tree-indent-guide-color=var(--cs-color-surface-border)] - The color of the indentation line.
+ * @cssproperty [--cs-tree-indent-guide-offset=0] - The amount of vertical spacing to leave between the top and bottom of the
  *  indentation line's starting position.
- * @cssproperty [--indent-guide-style=solid] - The style of the indentation line, e.g. solid, dotted, dashed.
- * @cssproperty [--indent-guide-width=0] - The width of the indentation line.
+ * @cssproperty [--cs-tree-indent-guide-style=solid] - The style of the indentation line, e.g. solid, dotted, dashed.
+ * @cssproperty [--cs-tree-indent-guide-width=0] - The width of the indentation line.
  */
 @customElement('cs-tree')
 export default class CsTree extends CornerstoneElement {

@@ -1,13 +1,6 @@
 import { css } from 'lit';
 
 export default css`
-  :host {
-    --show-duration: var(--cs-transition-fast);
-    --hide-duration: var(--cs-transition-fast);
-    --column-item-height: 2.25em;
-    --column-width: 3em;
-  }
-
   :host(:state(disabled)) {
     cursor: not-allowed;
   }
@@ -19,8 +12,6 @@ export default css`
     width: 100%;
     position: relative;
     vertical-align: middle;
-    --show-duration: inherit;
-    --hide-duration: inherit;
 
     &::part(popup) {
       z-index: 900;
@@ -57,8 +48,8 @@ export default css`
   .column {
     display: flex;
     flex-direction: column;
-    width: var(--column-width);
-    max-height: calc(var(--column-item-height) * 7);
+    width: var(--cs-time-input-column-width, 3em);
+    max-height: calc(var(--cs-time-input-column-item-height, 2.25em) * 7);
     overflow-y: auto;
     scroll-snap-type: y mandatory;
     scrollbar-width: none;
@@ -78,7 +69,7 @@ export default css`
   }
 
   .column-item {
-    flex: 0 0 var(--column-item-height);
+    flex: 0 0 var(--cs-time-input-column-item-height, 2.25em);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -273,42 +264,8 @@ export default css`
      decoration slots are shared with <cs-date-input> via segmentedFieldStyles so both pickers
      stay on <cs-select>'s trailing optical axis. See segmented-field.styles.ts. */
 
-  /* Animations */
-  .time-input-popup::part(popup).show {
-    animation: cs-time-input-show var(--show-duration) var(--cs-transition-easing);
-  }
-
-  .time-input-popup::part(popup).hide {
-    animation: cs-time-input-hide var(--hide-duration) var(--cs-transition-easing);
-  }
-
-  @keyframes cs-time-input-show {
-    from {
-      opacity: 0;
-      transform: scale(0.97);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  @keyframes cs-time-input-hide {
-    from {
-      opacity: 1;
-      transform: scale(1);
-    }
-    to {
-      opacity: 0;
-      transform: scale(0.97);
-    }
-  }
-
+  /* The popup's show and hide are cs-popup's own, which honors reduced motion itself. */
   @media (prefers-reduced-motion: reduce) {
-    :host {
-      --show-duration: 0ms;
-      --hide-duration: 0ms;
-    }
     .column {
       scroll-behavior: auto;
     }

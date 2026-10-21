@@ -2,12 +2,9 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --shadow-color: var(--cs-color-surface-default);
-    --shadow-size: 2rem;
-
     /* private (defined dynamically) */
-    --start-shadow-opacity: 0;
-    --end-shadow-opacity: 0;
+    --_start-shadow-opacity: 0;
+    --_end-shadow-opacity: 0;
 
     display: block;
     position: relative;
@@ -63,11 +60,11 @@ export default css`
   }
 
   #start-shadow {
-    opacity: var(--start-shadow-opacity);
+    opacity: var(--_start-shadow-opacity);
   }
 
   #end-shadow {
-    opacity: var(--end-shadow-opacity);
+    opacity: var(--_end-shadow-opacity);
   }
 
   /* Horizontal shadows */
@@ -77,31 +74,47 @@ export default css`
       position: absolute;
       top: 0;
       bottom: 0;
-      width: var(--shadow-size);
+      width: var(--cs-scroller-shadow-size, 2rem);
       pointer-events: none;
     }
 
     #start-shadow {
       &:dir(ltr) {
         left: 0;
-        background: linear-gradient(to right, var(--shadow-color), transparent 100%);
+        background: linear-gradient(
+          to right,
+          var(--cs-scroller-shadow-color, var(--cs-color-surface-default)),
+          transparent 100%
+        );
       }
 
       &:dir(rtl) {
         right: 0;
-        background: linear-gradient(to left, var(--shadow-color), transparent 100%);
+        background: linear-gradient(
+          to left,
+          var(--cs-scroller-shadow-color, var(--cs-color-surface-default)),
+          transparent 100%
+        );
       }
     }
 
     #end-shadow {
       &:dir(ltr) {
         right: 0;
-        background: linear-gradient(to left, var(--shadow-color), transparent 100%);
+        background: linear-gradient(
+          to left,
+          var(--cs-scroller-shadow-color, var(--cs-color-surface-default)),
+          transparent 100%
+        );
       }
 
       &:dir(rtl) {
         left: 0;
-        background: linear-gradient(to right, var(--shadow-color), transparent 100%);
+        background: linear-gradient(
+          to right,
+          var(--cs-scroller-shadow-color, var(--cs-color-surface-default)),
+          transparent 100%
+        );
       }
     }
   }
@@ -113,18 +126,26 @@ export default css`
       position: absolute;
       right: 0;
       left: 0;
-      height: var(--shadow-size);
+      height: var(--cs-scroller-shadow-size, 2rem);
       pointer-events: none;
     }
 
     #start-shadow {
       top: 0;
-      background: linear-gradient(to bottom, var(--shadow-color), transparent 100%);
+      background: linear-gradient(
+        to bottom,
+        var(--cs-scroller-shadow-color, var(--cs-color-surface-default)),
+        transparent 100%
+      );
     }
 
     #end-shadow {
       bottom: 0;
-      background: linear-gradient(to top, var(--shadow-color), transparent 100%);
+      background: linear-gradient(
+        to top,
+        var(--cs-scroller-shadow-color, var(--cs-color-surface-default)),
+        transparent 100%
+      );
     }
   }
 `;

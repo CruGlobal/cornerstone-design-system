@@ -2,9 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --checked-icon-color: var(--cs-form-control-activated-color);
-    --checked-icon-scale: 0.7;
-
     color: var(--cs-form-control-value-color);
     display: inline-flex;
     flex-direction: row;
@@ -100,7 +97,7 @@ export default css`
       fill: currentColor;
       width: var(--cs-form-control-toggle-size);
       height: var(--cs-form-control-toggle-size);
-      scale: var(--checked-icon-scale);
+      scale: var(--cs-checked-icon-scale, 0.7);
     }
   }
 
@@ -113,7 +110,7 @@ export default css`
 
   /* Checked */
   :host(:state(checked)) .control {
-    color: var(--checked-icon-color);
+    color: var(--cs-radio-checked-icon-color, var(--cs-form-control-activated-color));
     border-color: var(--cs-form-control-activated-color);
     background-color: var(--cs-form-control-background-color);
   }

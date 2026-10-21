@@ -36,15 +36,15 @@ Add the `indeterminate` attribute when an operation is pending but its progress 
 
 ### Customizing
 
-Set the `--track-height` custom property to change the bar's thickness, and `--track-color` / `--indicator-color` to recolor it.
+Set the `--cs-progress-bar-track-height` custom property to change the bar's thickness, and `--cs-track-color` / `--cs-indicator-color` to recolor it.
 
 ```html {.example}
 <cs-progress-bar
   value="60"
   style="
-    --track-height: 1.5rem;
-    --track-color: var(--cs-color-neutral-fill-quiet);
-    --indicator-color: var(--cs-color-success-fill-loud);
+    --cs-progress-bar-track-height: 1.5rem;
+    --cs-track-color: var(--cs-color-neutral-fill-quiet);
+    --cs-indicator-color: var(--cs-color-success-fill-loud);
   "
 ></cs-progress-bar>
 ```

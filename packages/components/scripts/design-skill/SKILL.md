@@ -50,7 +50,7 @@ copying them around) so they render **twice**. There is no "this copy is mobile,
 `slot="navigation"` is already both. Write it once.
 
 - **App shell / docs / dashboard (you want a desktop left sidebar):** Put nav in `slot="navigation"`, set
-  `--menu-width`, reset it to `auto` on mobile. The default hamburger or a `data-toggle-nav` element opens
+  `--cs-page-menu-width`, reset it to `auto` on mobile. The default hamburger or a `data-toggle-nav` element opens
   its drawer. Copy the **canonical example in layouts-page.md.**
 - **Landing page / marketing site:** Simplest is to put nav in `slot="navigation"` anyway (sidebar on
   desktop, drawer on mobile — both free). If you specifically want nav in the **header bar** on desktop
@@ -63,7 +63,7 @@ copying them around) so they render **twice**. There is no "this copy is mobile,
 **Do NOT use `<cs-page>`.** Reaching for it here causes broken layouts (it expects to own the viewport).
 Instead, compose with layout utilities: `cs-stack`, `cs-cluster`, `cs-grid`, `cs-flank`, `cs-split`,
 `cs-frame`. And because there's no `<cs-page>`, its features are **unavailable** here: no `slot="…"`,
-no `view='mobile'`, no `--menu-width`, no `data-toggle-nav`, and no `.cs-desktop-only` /
+no `view='mobile'`, no `--cs-page-menu-width`, no `data-toggle-nav`, and no `.cs-desktop-only` /
 `.cs-mobile-only` (those only work inside `<cs-page>`; use a CSS media query instead).
 
 **Read [references/layouts-inpage.md](references/layouts-inpage.md).**
@@ -243,13 +243,13 @@ Walk this checklist (yourself, and via the subagents) and fix each before declar
       in the opposite view via `cs-page[view='…']`. If you find an accidental copy, delete it and keep the
       single `slot="navigation"`. Also confirm you did **not** hand-roll a `<cs-drawer>` or toggle — the
       component provides both. See the landing-page skeleton above.
-- [ ] **Empty `<cs-page>` nav column band.** Only set a fixed `--menu-width` when you actually render a
+- [ ] **Empty `<cs-page>` nav column band.** Only set a fixed `--cs-page-menu-width` when you actually render a
       desktop sidebar. If you hid the desktop sidebar via the header/drawer recipe
-      (`cs-page[view='desktop']::part(navigation) { display: none }`), confirm `--menu-width` is left at
+      (`cs-page[view='desktop']::part(navigation) { display: none }`), confirm `--cs-page-menu-width` is left at
       its `auto` default — a fixed value (e.g. `14rem`) reserves an empty band down the left side,
-      because hiding the sidebar part does **not** collapse the `menu` grid track (only `--menu-width`
+      because hiding the sidebar part does **not** collapse the `menu` grid track (only `--cs-page-menu-width`
       does). The tell is "I added `display: none` but the gap is still there." Search for a fixed
-      `--menu-width` paired with a hidden desktop sidebar and remove it.
+      `--cs-page-menu-width` paired with a hidden desktop sidebar and remove it.
 - [ ] **Raw values** — search for `#` (hex), `px`, and stray `rem`. The only allowed hex is the `:root`
       brand-token override; everything else is a `--cs-*` token. (Sizing recipes: composition.md.)
 - [ ] **Repeated inline styles** — if the same `style="…"` appears more than once, promote it to a class.
@@ -329,10 +329,10 @@ in layouts-page.md.)
         padding-inline: var(--cs-space-xl);
       }
       cs-page {
-        --menu-width: 14rem;
+        --cs-page-menu-width: 14rem;
       }
       cs-page[view='mobile'] {
-        --menu-width: auto; /* collapse the reserved sidebar space on mobile */
+        --cs-page-menu-width: auto; /* collapse the reserved sidebar space on mobile */
       }
     </style>
   </head>
@@ -370,7 +370,7 @@ in layouts-page.md.)
 ### Full page — app shell / docs (`<cs-page>` WITH a desktop sidebar)
 
 When you want a richer left sidebar on desktop with a header, footer, and a subheader (e.g. breadcrumbs).
-This uses `navigation` + `navigation-header`/`navigation-footer`, `--menu-width`, and an optional
+This uses `navigation` + `navigation-header`/`navigation-footer`, `--cs-page-menu-width`, and an optional
 `data-toggle-nav` in the subheader. **See the canonical example in
 [references/layouts-page.md](references/layouts-page.md).**
 

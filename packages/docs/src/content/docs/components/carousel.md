@@ -267,11 +267,11 @@ Setting the `orientation` attribute to `vertical` will render the carousel in a 
 
 ### Aspect Ratio
 
-Use the `--aspect-ratio` custom property to customize the size of the carousel's viewport from the default value of 16/9.
+Use the `--cs-carousel-aspect-ratio` custom property to customize the size of the carousel's viewport from the default value of 16/9.
 
 ```html {.example}
 <div>
-  <cs-carousel class="aspect-ratio" navigation pagination style="--aspect-ratio: 3/2;">
+  <cs-carousel class="aspect-ratio" navigation pagination style="--cs-carousel-aspect-ratio: 3/2;">
     <cs-carousel-item>
       <img
         alt="The sun shines on the mountains and trees (by Adam Kool on Unsplash)"
@@ -321,7 +321,7 @@ Use the `--aspect-ratio` custom property to customize the size of the carousel's
     const aspectRatio = document.querySelector('cs-select[name="aspect"]');
 
     aspectRatio.addEventListener('change', () => {
-      carousel.style.setProperty('--aspect-ratio', aspectRatio.value);
+      carousel.style.setProperty('--cs-carousel-aspect-ratio', aspectRatio.value);
     });
   })();
 </script>
@@ -344,10 +344,10 @@ The `slides-per-page` attribute makes it possible to display multiple slides at 
 
 ### Scroll Hint
 
-Use the `--scroll-hint` custom property to add inline padding in horizontal carousels and block padding in vertical carousels. This will make the closest slides slightly visible, hinting that there are more items in the carousel.
+Use the `--cs-carousel-scroll-hint` custom property to add inline padding in horizontal carousels and block padding in vertical carousels. This will make the closest slides slightly visible, hinting that there are more items in the carousel.
 
 ```html {.example}
-<cs-carousel class="scroll-hint" pagination style="--scroll-hint: 10%;">
+<cs-carousel class="scroll-hint" pagination style="--cs-carousel-scroll-hint: 10%;">
   <cs-carousel-item>
     <img
       alt="The sun shines on the mountains and trees (by Adam Kool on Unsplash)"
@@ -460,7 +460,7 @@ The content of the carousel can be changed by adding or removing carousel items.
 
 <style>
   .dynamic-carousel {
-    --aspect-ratio: 3 / 2;
+    --cs-carousel-aspect-ratio: 3 / 2;
   }
 
   .dynamic-carousel cs-carousel-item {

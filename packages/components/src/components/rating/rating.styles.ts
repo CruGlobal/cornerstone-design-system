@@ -2,10 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --symbol-color: var(--cs-color-neutral-on-quiet);
-    --symbol-color-active: var(--cs-color-yellow-70);
-    --symbol-spacing: 0.125em;
-
     display: inline-flex;
     border-radius: var(--cs-border-radius-m);
     vertical-align: middle;
@@ -31,18 +27,18 @@ export default css`
     gap: 0.125em;
     position: relative;
     line-height: 0;
-    color: var(--symbol-color);
+    color: var(--cs-rating-symbol-color, var(--cs-color-neutral-on-quiet));
     white-space: nowrap;
     cursor: pointer;
   }
 
   .symbols > * {
-    padding: var(--symbol-spacing);
+    padding: var(--cs-rating-symbol-spacing, 0.125em);
   }
 
   .symbol-active,
   .partial-filled {
-    color: var(--symbol-color-active);
+    color: var(--cs-rating-symbol-color-active, var(--cs-color-yellow-70));
   }
 
   .partial-symbol-container {
@@ -51,8 +47,8 @@ export default css`
 
   .partial-filled {
     position: absolute;
-    top: var(--symbol-spacing);
-    left: var(--symbol-spacing);
+    top: var(--cs-rating-symbol-spacing, 0.125em);
+    left: var(--cs-rating-symbol-spacing, 0.125em);
   }
 
   .symbol {

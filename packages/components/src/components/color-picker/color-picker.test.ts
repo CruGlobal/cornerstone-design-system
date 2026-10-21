@@ -97,6 +97,23 @@ describe('<cs-color-picker>', () => {
         });
       });
 
+      // The panel once read an unprefixed --color that nothing set, so a page's --color recolored its text.
+      describe('panel text color', () => {
+        it("should use the theme's text color whatever --color a page sets", async () => {
+          const wrapper = await fixture<HTMLDivElement>(
+            html`<div style="--color: rgb(255, 0, 0)">
+              <cs-color-picker></cs-color-picker>
+              <span style="color: var(--cs-color-text-normal)">probe</span>
+            </div>`,
+          );
+          const el = wrapper.querySelector<CsColorPicker>('cs-color-picker')!;
+          await el.updateComplete;
+          const panel = el.shadowRoot!.querySelector('[part~="color-picker"]')!;
+
+          expect(getComputedStyle(panel).color).to.equal(getComputedStyle(wrapper.querySelector('span')!).color);
+        });
+      });
+
       describe('events', () => {
         it('should not emit change or input when the value is changed programmatically', async () => {
           const el = await fixture<CsColorPicker>(html` <cs-color-picker></cs-color-picker> `);

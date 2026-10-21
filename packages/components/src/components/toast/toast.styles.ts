@@ -2,15 +2,11 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --gap: var(--cs-space-s);
-    --width: 28rem;
-    --reorder-duration: var(--cs-transition-normal);
-
     display: flex;
     flex-direction: column;
     position: fixed;
-    width: var(--width);
-    /* --width is 28rem (448px), wider than a 390px phone viewport. Centered placements offset the host
+    width: var(--cs-toast-width, 28rem);
+    /* The default width is 28rem (448px), wider than a 390px phone viewport. Centered placements offset the host
        by half its own width, so an unclamped host hangs off-screen. The 480px media query below also
        covers this, but only once a viewport change has been laid out — this states the invariant
        directly so it holds at every width. */
@@ -20,7 +16,7 @@ export default css`
     margin: 0;
     padding: var(--cs-space-m);
     overflow-y: auto;
-    gap: var(--gap);
+    gap: var(--cs-toast-gap, var(--cs-space-s));
     border: none;
     background: transparent;
     pointer-events: none;
@@ -86,7 +82,7 @@ export default css`
   .stack {
     display: flex;
     flex-direction: column;
-    gap: var(--gap);
+    gap: var(--cs-toast-gap, var(--cs-space-s));
     width: 100%;
     pointer-events: auto;
   }

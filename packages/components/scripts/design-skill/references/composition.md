@@ -46,7 +46,7 @@ Don't. Use the scales instead:
 | You're sizing…            | Use                                                                                                                                         |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | A round icon "chip"/badge | `width`/`height` from `--cs-space-*` (e.g. `--cs-space-2xl`), `--cs-border-radius-circle`, center the glyph with `cs-cluster`               |
-| An avatar                 | The `<cs-avatar>` component (sizes itself); set `--size` only if needed                                                                     |
+| An avatar                 | The `<cs-avatar>` component (sizes itself); set `--cs-avatar-size` only if needed                                                                     |
 | A readable content column | A reused class with `max-width` in `ch` for prose (`60ch`–`75ch`) or a `--cs-space-*` multiple — define it **once**, not inline per section |
 | A hairline border / rule  | `var(--cs-border-width-s)` + `var(--cs-color-surface-border)`, or just `<cs-divider>`                                                       |
 | A glyph's size            | `font-size: var(--cs-font-size-*)` — icons inherit it (see Icons below)                                                                     |
@@ -75,8 +75,8 @@ Reach for a utility class before writing flexbox/grid by hand.
 | ---------------------------------- | ------------ | ------------------------------------------------------------------------------------------ |
 | Things stacked vertically          | `cs-stack`   | Children stretch to full width by default                                                  |
 | Inline items that wrap             | `cs-cluster` | Vertically centered; wraps when tight. Great for buttons, tags, nav                        |
-| Responsive columns                 | `cs-grid`    | Auto-fits columns; tune with `--min-column-size` (default `20ch`). No media queries        |
-| A fixed item beside a flexible one | `cs-flank`   | Media object. `cs-flank:end` flanks the last child. `--flank-size` sets the fixed width    |
+| Responsive columns                 | `cs-grid`    | Auto-fits columns; tune with `--cs-grid-min-column-size` (default `20ch`). No media queries        |
+| A fixed item beside a flexible one | `cs-flank`   | Media object. `cs-flank:end` flanks the last child. `--cs-flank-size` sets the fixed width    |
 | Push items to opposite ends        | `cs-split`   | Toolbars, headers-with-action. `cs-split:column` stacks vertically                         |
 | A fixed aspect ratio               | `cs-frame`   | `cs-frame:square` (default), `:landscape` (16:9), `:portrait` (9:16). Images cover the box |
 
@@ -94,7 +94,7 @@ Modifiers combine: `class="cs-cluster cs-gap-xs cs-align-items-start"`. Make one
 </div>
 
 <!-- Responsive tiles -->
-<div class="cs-grid cs-gap-l" style="--min-column-size: 14rem;">…</div>
+<div class="cs-grid cs-gap-l" style="--cs-grid-min-column-size: 14rem;">…</div>
 ```
 
 ---

@@ -40,10 +40,10 @@ describe('<cs-progress-ring>', () => {
           expect(base.getAttribute('aria-valuenow')).to.equal('25');
         });
 
-        it('should set the --percentage CSS variable based on value', async () => {
+        it('should set the --_percentage CSS variable based on value', async () => {
           const el = await fixture<CsProgressRing>(html`<cs-progress-ring value="25"></cs-progress-ring>`);
           const base = el.shadowRoot!.querySelector('[part~="progress-ring"]')!;
-          expect(base.getAttribute('style')).to.equal('--percentage:0.25;');
+          expect(base.getAttribute('style')).to.equal('--_percentage:0.25;');
         });
 
         it('should use custom label for aria-label when provided', async () => {

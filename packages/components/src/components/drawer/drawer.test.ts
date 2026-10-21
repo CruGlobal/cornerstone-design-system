@@ -1,7 +1,7 @@
 import { expect, nextFrame, waitUntil } from '@open-wc/testing';
-import { sendKeys } from '@web/test-runner-commands';
+import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
-import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
+import { expectAnimationDuration, expectNoMotion } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -116,6 +116,26 @@ describe('<cs-drawer>', () => {
           el.open = false;
           await expectAnimationDuration(panel, '--cs-transition-normal');
           await settleAnimations(el);
+        });
+
+        // The panel and its backdrop both animate; neither may move under reduced motion.
+        it('should show and hide without motion when the user prefers reduced motion', async () => {
+          const el = await fixture<CsDrawer>(
+            html`<cs-drawer style="--cs-show-duration: 400ms; --cs-hide-duration: 400ms">Content</cs-drawer>`,
+          );
+          const panel = el.shadowRoot!.querySelector('.drawer')!;
+          await emulateMedia({ reducedMotion: 'reduce' });
+          try {
+            el.open = true;
+            await expectNoMotion(panel, 'show');
+            await settleAnimations(el);
+
+            el.open = false;
+            await expectNoMotion(panel, 'hide');
+            await settleAnimations(el);
+          } finally {
+            await emulateMedia({ reducedMotion: 'no-preference' });
+          }
         });
       });
 

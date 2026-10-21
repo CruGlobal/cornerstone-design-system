@@ -2,10 +2,9 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --divider-width: 0.25rem;
-    --divider-hit-area: 0.75rem;
-    --min: 0%;
-    --max: 100%;
+    /* Private: the divider's width is read here and in the grid template the script writes on the host, so its
+       default is written once. A value set on an ancestor still reaches it. */
+    --_divider-width: var(--cs-split-panel-divider-width, 0.25rem);
 
     display: grid;
   }
@@ -16,7 +15,7 @@ export default css`
   }
 
   .divider {
-    flex: 0 0 var(--divider-width);
+    flex: 0 0 var(--_divider-width);
     display: flex;
     position: relative;
     align-items: center;
@@ -48,8 +47,8 @@ export default css`
     content: '';
     position: absolute;
     height: 100%;
-    left: calc(var(--divider-hit-area) / -2 + var(--divider-width) / 2);
-    width: var(--divider-hit-area);
+    left: calc(var(--cs-split-panel-divider-hit-area, 0.75rem) / -2 + var(--_divider-width) / 2);
+    width: var(--cs-split-panel-divider-hit-area, 0.75rem);
   }
 
   /* Vertical */
@@ -65,8 +64,8 @@ export default css`
     content: '';
     position: absolute;
     width: 100%;
-    top: calc(var(--divider-hit-area) / -2 + var(--divider-width) / 2);
-    height: var(--divider-hit-area);
+    top: calc(var(--cs-split-panel-divider-hit-area, 0.75rem) / -2 + var(--_divider-width) / 2);
+    height: var(--cs-split-panel-divider-hit-area, 0.75rem);
   }
 
   @media (forced-colors: active) {

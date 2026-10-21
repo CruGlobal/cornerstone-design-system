@@ -15,7 +15,7 @@ description: "Trees allow you to display a hierarchical list of selectable tree 
 ---
 
 ```html {.example}
-<cs-tree style="--indent-guide-width: 1px;">
+<cs-tree style="--cs-tree-indent-guide-width: 1px;">
   <cs-tree-item expanded>
     Deciduous
     <cs-tree-item>Birch</cs-tree-item>
@@ -160,7 +160,7 @@ Trees inherit their font size by default. You can change the size of a tree and 
 
 ### Indent Guides
 
-Set the `--indent-guide-width` custom property to draw indent guides. The `--indent-guide-color`, `--indent-guide-style`, and `--indent-guide-offset` custom properties tune their color, style, and offset.
+Set the `--cs-tree-indent-guide-width` custom property to draw indent guides. The `--cs-tree-indent-guide-color`, `--cs-tree-indent-guide-style`, and `--cs-tree-indent-guide-offset` custom properties tune their color, style, and offset.
 
 ```html {.example}
 <cs-tree class="tree-with-lines">
@@ -197,7 +197,7 @@ Set the `--indent-guide-width` custom property to draw indent guides. The `--ind
 
 <style>
   .tree-with-lines {
-    --indent-guide-width: 1px;
+    --cs-tree-indent-guide-width: 1px;
   }
 </style>
 ```

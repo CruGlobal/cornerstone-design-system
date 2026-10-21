@@ -2,10 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --track-height: 1rem;
-    --track-color: var(--cs-color-neutral-fill-normal);
-    --indicator-color: var(--cs-color-brand-fill-loud);
-
     display: flex;
   }
 
@@ -14,19 +10,19 @@ export default css`
     display: flex;
     position: relative;
     overflow: hidden;
-    height: var(--track-height);
+    height: var(--cs-progress-bar-track-height, 1rem);
     border-radius: var(--cs-border-radius-pill);
-    background-color: var(--track-color);
+    background-color: var(--cs-track-color, var(--cs-color-neutral-fill-normal));
     color: var(--cs-color-brand-on-loud);
     font-size: var(--cs-font-size-s);
   }
 
   .indicator {
-    width: var(--percentage);
+    width: var(--_percentage);
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--indicator-color);
+    background-color: var(--cs-indicator-color, var(--cs-color-brand-fill-loud));
     text-align: center;
     white-space: nowrap;
     overflow: hidden;

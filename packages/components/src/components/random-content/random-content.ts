@@ -19,19 +19,19 @@ if (typeof document !== 'undefined') {
       to { opacity: 1; }
     }
     @keyframes cs-rc-fade-up {
-      from { opacity: 0; transform: translateY(var(--animation-translate, 0.5em)); }
+      from { opacity: 0; transform: translateY(var(--cs-random-content-animation-translate, 0.5em)); }
       to { opacity: 1; transform: translateY(0); }
     }
     @keyframes cs-rc-fade-down {
-      from { opacity: 0; transform: translateY(calc(-1 * var(--animation-translate, 0.5em))); }
+      from { opacity: 0; transform: translateY(calc(-1 * var(--cs-random-content-animation-translate, 0.5em))); }
       to { opacity: 1; transform: translateY(0); }
     }
     @keyframes cs-rc-fade-left {
-      from { opacity: 0; transform: translateX(var(--animation-translate, 0.5em)); }
+      from { opacity: 0; transform: translateX(var(--cs-random-content-animation-translate, 0.5em)); }
       to { opacity: 1; transform: translateX(0); }
     }
     @keyframes cs-rc-fade-right {
-      from { opacity: 0; transform: translateX(calc(-1 * var(--animation-translate, 0.5em))); }
+      from { opacity: 0; transform: translateX(calc(-1 * var(--cs-random-content-animation-translate, 0.5em))); }
       to { opacity: 1; transform: translateX(0); }
     }
   `);
@@ -50,9 +50,10 @@ if (typeof document !== 'undefined') {
  * @event {{ items: Element[] }} cs-content-change - Emitted whenever the displayed selection changes,
  *  including on first render, on `randomize()`, and on each autoplay tick.
  *
- * @cssproperty --animation-duration - Duration of the entrance animation. Default is `300ms`.
- * @cssproperty --animation-easing - Easing function for the entrance animation. Default is `ease`.
- * @cssproperty --animation-translate - Translation distance for directional animations (`fade-up`, `fade-down`, `fade-left`, `fade-right`). Default is `0.5em`.
+ * @cssproperty [--cs-random-content-animation-duration=300ms] - Duration of the entrance animation.
+ * @cssproperty [--cs-random-content-animation-easing=ease] - Easing function for the entrance animation.
+ * @cssproperty [--cs-random-content-animation-translate=0.5em] - Translation distance for directional animations (`fade-up`,
+ *  `fade-down`, `fade-left`, `fade-right`).
  */
 @customElement('cs-random-content')
 export default class CsRandomContent extends CornerstoneElement {

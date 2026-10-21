@@ -1,5 +1,6 @@
 /**
- * Fails if the built documentation site references an asset at the domain root.
+ * Fails if the built documentation site references an asset at the domain root, or names a local asset the build
+ * does not contain.
  *
  * The site is served under a base path — GitHub Pages gives a project site `/<repo>/` — and Astro serves
  * `public/` under that base, not at the root. So `href="/dist/cornerstone.loader.js"` is a 404 in production
@@ -14,12 +15,17 @@
  * source file may legitimately write a bare path and pass it through `asset()`, and only the emitted HTML
  * shows what the browser will actually request.
  *
+ * A path inside the base can still name nothing. The QR code page asked for three logos from the Web Awesome fork,
+ * one of them a file the `wa-` to `cs-` rename invented and two whose files were removed with upstream's branding.
+ * Each was a 404 and an example that drew no image, while this check passed because every path carried the base.
+ * So every in-base reference that ends in a file extension must also exist in the build.
+ *
  * Usage:
  *   node scripts/check-asset-paths.js
  *
- * Exits non-zero if any built page requests an asset outside the base.
+ * Exits non-zero if any built page requests an asset outside the base, or one that was not built.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -60,8 +66,13 @@ if (pages.length === 0) {
  * `public/` directories were "ours". That missed navigation entirely: the subheader, the search dialog and
  * every authored `[link](/usage/#events)` emitted a root-absolute href, and the first deploy 404'd on all
  * of them while this check passed. A link off the base is the same bug as an asset off the base.
+ *
+ * `image` is `cs-qr-code`'s center image, which the browser fetches like any `src`.
  */
-const ROOT_ABSOLUTE = /(?:href|src|poster)\s*=\s*["'](\/(?!\/)[^"']*)["']/g;
+const ROOT_ABSOLUTE = /(?:href|src|poster|image)\s*=\s*["'](\/(?!\/)[^"']*)["']/g;
+
+/** A path that names a file rather than a route: its last segment has an extension. */
+const NAMES_A_FILE = /\/[^/]+\.[a-z0-9]+$/i;
 
 /**
  * Navigation that does not go through `href`. The theme dropdown carries its destination in `value=`
@@ -80,6 +91,7 @@ const ROOT_ABSOLUTE_VALUE =
 const stripCodeBlocks = (html) => html.replace(/<pre\b[\s\S]*?<\/pre>/g, '');
 
 const findings = [];
+const missing = [];
 
 /** A quoted path that looks like one of this site's own routes or asset directories. */
 const ROOT_ABSOLUTE_IN_JS =
@@ -104,12 +116,26 @@ for (const script of scripts) {
 for (const page of pages) {
   const html = stripCodeBlocks(readFileSync(page, 'utf-8'));
   for (const match of [...html.matchAll(ROOT_ABSOLUTE), ...html.matchAll(ROOT_ABSOLUTE_VALUE)]) {
-    // Anything already under the base is correct; this only wants the ones that skipped it.
+    // Anything already under the base is in the right place, but a file it names still has to exist.
     if (match[1].startsWith(`${DOCS_BASE_PATH}/`)) {
+      const path = decodeURIComponent(match[1].slice(DOCS_BASE_PATH.length).split(/[?#]/)[0]);
+      if (NAMES_A_FILE.test(path) && !existsSync(join(builtDir, path))) {
+        missing.push(`${relative(builtDir, page)}  ${match[1]}`);
+      }
       continue;
     }
     findings.push(`${relative(builtDir, page)}  ${match[1]}`);
   }
+}
+
+if (missing.length > 0) {
+  console.error(`Found ${missing.length} reference(s) to a local asset the build does not contain:\n`);
+  for (const finding of [...new Set(missing)].slice(0, 25)) {
+    console.error(`  ✗ ${finding}`);
+  }
+  console.error(
+    `\nEach is a 404 that still renders a page. Add the file under \`public/\`, or point at one that exists.\n`,
+  );
 }
 
 if (findings.length > 0) {
@@ -128,6 +154,10 @@ if (findings.length > 0) {
   process.exit(1);
 }
 
+if (missing.length > 0) {
+  process.exit(1);
+}
+
 console.log(
-  `PASSED: ${pages.length} built page(s) and ${scripts.length} script(s), every asset and link inside \`${DOCS_BASE_PATH}\`.`,
+  `PASSED: ${pages.length} built page(s) and ${scripts.length} script(s), every asset and link inside \`${DOCS_BASE_PATH}\`, and every file they name was built.`,
 );

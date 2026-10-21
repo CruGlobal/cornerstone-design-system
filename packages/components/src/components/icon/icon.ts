@@ -57,45 +57,45 @@ export type IconCanvas = 'fixed' | 'auto' | 'square' | 'roomy';
  * @csspart svg - The internal SVG element.
  * @csspart use - The `<use>` element generated when using `spriteSheet: true`
  *
- * @cssproperty [--icon-scale=1.2] Scales the icon artwork within its canvas without changing the canvas itself.
+ * @cssproperty [--cs-icon-scale=1.2] Scales the icon artwork within its canvas without changing the canvas itself.
  *  Material Symbols pads each icon into a 24dp box with a 20dp live area; the default of 1.2 (24 / 20) cancels that
  *  padding. Set it to 1 to render the artwork at its native size. It inherits, so it can be set on any ancestor.
- * @cssproperty [--animation-delay=0] Sets when the animation will start.
- * @cssproperty [--animation-direction=normal] Defines whether or not the animation should play in reverse on alternate cycles.
- * @cssproperty [--animation-duration=1s] Defines the length of time that an animation takes to complete one cycle.
- * @cssproperty [--animation-iteration-count=infinite] Defines the number of times an animation cycle is played.
- * @cssproperty [--animation-timing] Describes how the animation will progress over one cycle of its duration.
- * @cssproperty [--beat-fade-opacity] Set lowest opacity value an icon with `beat-fade` animation will fade to and from.
- * @cssproperty [--beat-fade-scale] Set max value that an icon with `beat-fade` animation will scale.
- * @cssproperty [--beat-scale] Set the scale multiplier for an icon with `beat` animation. This multiplies the animation's 1.25× base pulse, so the default `1.25` peaks at ~1.56× and `2` roughly doubles the pulse.
- * @cssproperty [--bounce-height] Set the max height an icon with `bounce` animation will jump to when bouncing.
- * @cssproperty [--bounce-jump-scale-x] Set the icon’s horizontal distortion (“squish”) at the top of the jump.
- * @cssproperty [--bounce-jump-scale-y] Set the icon’s vertical distortion (“squish”) at the top of the jump.
- * @cssproperty [--bounce-land-scale-x] Set the icon’s horizontal distortion (“squish”) when landing after the jump.
- * @cssproperty [--bounce-land-scale-y] Set the icon’s vertical distortion (“squish”) when landing after the jump.
- * @cssproperty [--bounce-rebound] Set the amount of rebound an icon with `bounce` animation has when landing after the jump.
- * @cssproperty [--bounce-start-scale-x] Set the icon’s horizontal distortion (“squish”) when starting to bounce.
- * @cssproperty [--bounce-start-scale-y] Set the icon’s vertical distortion (“squish”) when starting to bounce.
- * @cssproperty [--fade-opacity] Set lowest opacity value an icon with `fade` animation will fade to and from.
- * @cssproperty [--flip-angle] Set rotation angle of flip for an icon with `flip` or `flip-360` animation. A positive angle denotes a clockwise rotation, a negative angle a counter-clockwise one.
- * @cssproperty [--flip-x] Set x-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.
- * @cssproperty [--flip-y] Set y-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.
- * @cssproperty [--flip-z] Set z-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.
- * @cssproperty [--flip-anticipation-scale] Set the scale of the wind-up before an icon with `flip` or `flip-360` animation rotates.
- * @cssproperty [--flip-overshoot] Set how far past the final angle an icon with `flip` or `flip-360` animation rotates before settling.
- * @cssproperty [--bounce-anticipation] Set the downward squash distance before an icon with `bounce` animation jumps.
- * @cssproperty [--buzz-distance] Set the horizontal travel of an icon with `buzz` animation.
- * @cssproperty [--wag-angle] Set the peak rotation of an icon with `wag` animation.
- * @cssproperty [--swing-angle] Set the peak rotation of an icon with `swing` animation.
- * @cssproperty [--jello-scale-x] Set the horizontal stretch of an icon with `jello` animation.
- * @cssproperty [--jello-scale-y] Set the vertical stretch of an icon with `jello` animation.
- * @cssproperty [--float-height] Set the rise height of an icon with `float` animation.
- * @cssproperty [--float-drift] Set the horizontal drift of an icon with `float` animation.
- * @cssproperty [--float-tilt] Set the rotation of an icon with `float` animation.
- * @cssproperty [--float-squash-x] Set the horizontal squash of an icon with `float` animation at rest.
- * @cssproperty [--float-squash-y] Set the vertical squash of an icon with `float` animation at rest.
- * @cssproperty [--float-stretch-x] Set the horizontal stretch of an icon with `float` animation at its peak.
- * @cssproperty [--float-stretch-y] Set the vertical stretch of an icon with `float` animation at its peak.
+ * @cssproperty [--cs-icon-animation-delay=0] Sets when the animation will start.
+ * @cssproperty [--cs-icon-animation-direction=normal] Defines whether or not the animation should play in reverse on alternate cycles.
+ * @cssproperty [--cs-icon-animation-duration=1s] Defines the length of time that an animation takes to complete one cycle.
+ * @cssproperty [--cs-icon-animation-iteration-count=infinite] Defines the number of times an animation cycle is played.
+ * @cssproperty [--cs-icon-animation-timing] Describes how the animation will progress over one cycle of its duration.
+ * @cssproperty [--cs-icon-beat-fade-opacity] Set lowest opacity value an icon with `beat-fade` animation will fade to and from.
+ * @cssproperty [--cs-icon-beat-fade-scale] Set max value that an icon with `beat-fade` animation will scale.
+ * @cssproperty [--cs-icon-beat-scale] Set the scale multiplier for an icon with `beat` animation. This multiplies the animation's 1.25× base pulse, so the default `1.25` peaks at ~1.56× and `2` roughly doubles the pulse.
+ * @cssproperty [--cs-icon-bounce-height] Set the max height an icon with `bounce` animation will jump to when bouncing.
+ * @cssproperty [--cs-icon-bounce-jump-scale-x] Set the icon’s horizontal distortion (“squish”) at the top of the jump.
+ * @cssproperty [--cs-icon-bounce-jump-scale-y] Set the icon’s vertical distortion (“squish”) at the top of the jump.
+ * @cssproperty [--cs-icon-bounce-land-scale-x] Set the icon’s horizontal distortion (“squish”) when landing after the jump.
+ * @cssproperty [--cs-icon-bounce-land-scale-y] Set the icon’s vertical distortion (“squish”) when landing after the jump.
+ * @cssproperty [--cs-icon-bounce-rebound] Set the amount of rebound an icon with `bounce` animation has when landing after the jump.
+ * @cssproperty [--cs-icon-bounce-start-scale-x] Set the icon’s horizontal distortion (“squish”) when starting to bounce.
+ * @cssproperty [--cs-icon-bounce-start-scale-y] Set the icon’s vertical distortion (“squish”) when starting to bounce.
+ * @cssproperty [--cs-icon-fade-opacity] Set lowest opacity value an icon with `fade` animation will fade to and from.
+ * @cssproperty [--cs-icon-flip-angle] Set rotation angle of flip for an icon with `flip` or `flip-360` animation. A positive angle denotes a clockwise rotation, a negative angle a counter-clockwise one.
+ * @cssproperty [--cs-icon-flip-x] Set x-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.
+ * @cssproperty [--cs-icon-flip-y] Set y-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.
+ * @cssproperty [--cs-icon-flip-z] Set z-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.
+ * @cssproperty [--cs-icon-flip-anticipation-scale] Set the scale of the wind-up before an icon with `flip` or `flip-360` animation rotates.
+ * @cssproperty [--cs-icon-flip-overshoot] Set how far past the final angle an icon with `flip` or `flip-360` animation rotates before settling.
+ * @cssproperty [--cs-icon-bounce-anticipation] Set the downward squash distance before an icon with `bounce` animation jumps.
+ * @cssproperty [--cs-icon-buzz-distance] Set the horizontal travel of an icon with `buzz` animation.
+ * @cssproperty [--cs-icon-wag-angle] Set the peak rotation of an icon with `wag` animation.
+ * @cssproperty [--cs-icon-swing-angle] Set the peak rotation of an icon with `swing` animation.
+ * @cssproperty [--cs-icon-jello-scale-x] Set the horizontal stretch of an icon with `jello` animation.
+ * @cssproperty [--cs-icon-jello-scale-y] Set the vertical stretch of an icon with `jello` animation.
+ * @cssproperty [--cs-icon-float-height] Set the rise height of an icon with `float` animation.
+ * @cssproperty [--cs-icon-float-drift] Set the horizontal drift of an icon with `float` animation.
+ * @cssproperty [--cs-icon-float-tilt] Set the rotation of an icon with `float` animation.
+ * @cssproperty [--cs-icon-float-squash-x] Set the horizontal squash of an icon with `float` animation at rest.
+ * @cssproperty [--cs-icon-float-squash-y] Set the vertical squash of an icon with `float` animation at rest.
+ * @cssproperty [--cs-icon-float-stretch-x] Set the horizontal stretch of an icon with `float` animation at its peak.
+ * @cssproperty [--cs-icon-float-stretch-y] Set the vertical stretch of an icon with `float` animation at its peak.
  */
 @customElement('cs-icon')
 export default class CsIcon extends CornerstoneElement {
@@ -172,7 +172,7 @@ export default class CsIcon extends CornerstoneElement {
     super.firstUpdated(changedProperties);
     // Set initial rotate angle if rotate attribute is present
     if (this.hasAttribute('rotate')) {
-      this.style.setProperty('--rotate-angle', `${this.rotate}deg`);
+      this.style.setProperty('--_rotate-angle', `${this.rotate}deg`);
     }
     this.setIcon();
   }
@@ -333,7 +333,7 @@ export default class CsIcon extends CornerstoneElement {
   willUpdate(changedProperties: PropertyValues<this>) {
     // This runs on the server
     if (!this.style) {
-      this.setStyleProperty('--rotate-angle', `${this.rotate}deg`);
+      this.setStyleProperty('--_rotate-angle', `${this.rotate}deg`);
     }
 
     return super.willUpdate(changedProperties);
@@ -345,7 +345,7 @@ export default class CsIcon extends CornerstoneElement {
     const library = getIconLibrary(this.library);
     // Set rotate angle whenever rotate attribute is present (not just on change)
     if (this.hasAttribute('rotate')) {
-      this.style.setProperty('--rotate-angle', `${this.rotate}deg`);
+      this.style.setProperty('--_rotate-angle', `${this.rotate}deg`);
     }
     const svg = this.shadowRoot?.querySelector('svg');
     if (svg) {

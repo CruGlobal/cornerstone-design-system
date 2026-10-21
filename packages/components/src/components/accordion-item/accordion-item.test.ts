@@ -1,5 +1,7 @@
 import { expect, oneEvent } from '@open-wc/testing';
+import { emulateMedia } from '@web/test-runner-commands';
 import { html } from 'lit';
+import sinon from 'sinon';
 import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { finishAnimations } from '../../internal/test/finish-animations.js';
@@ -282,6 +284,36 @@ describe('<cs-accordion-item>', () => {
           await expectAnimationDuration(body, '--cs-transition-normal');
           finishAnimations(el);
           await collapsed;
+        });
+
+        it('should expand and collapse in no time when the user prefers reduced motion', async () => {
+          const el = await fixture<CsAccordionItem>(
+            html`<cs-accordion-item label="Test" style="--cs-show-duration: 400ms; --cs-hide-duration: 400ms"
+              >Content</cs-accordion-item
+            >`,
+          );
+          const body = el.shadowRoot!.querySelector<HTMLElement>('.body')!;
+          const icon = el.shadowRoot!.querySelector('[part~="icon"]')!;
+          const animate = sinon.spy(body, 'animate');
+          await emulateMedia({ reducedMotion: 'reduce' });
+          try {
+            expect(getComputedStyle(icon).transitionDuration).to.equal('0s');
+
+            const expanded = oneEvent(el, 'cs-accordion-item-expanded');
+            el.expanded = true;
+            await expanded;
+            expect(getComputedStyle(icon).transitionDuration).to.equal('0s');
+
+            const collapsed = oneEvent(el, 'cs-accordion-item-collapsed');
+            el.expanded = false;
+            await collapsed;
+
+            expect(animate.getCalls().map((call) => (call.args[1] as KeyframeAnimationOptions).duration)).to.deep.equal(
+              [0, 0],
+            );
+          } finally {
+            await emulateMedia({ reducedMotion: 'no-preference' });
+          }
         });
       });
 

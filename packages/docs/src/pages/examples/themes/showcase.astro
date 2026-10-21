@@ -134,7 +134,7 @@ for (const theme of themes) {
           </div>
         </cs-card>
         <cs-card>
-          <cs-avatar shape="rounded" style="--size: 1.8lh; float: left; margin-right: var(--cs-space-m)">
+          <cs-avatar shape="rounded" style="--cs-avatar-size: 1.8lh; float: left; margin-right: var(--cs-space-m)">
             <cs-icon slot="icon" name="wand_stars" style="font-size: 1.75em"></cs-icon>
           </cs-avatar>
           <p class="cs-body-l" style="margin: 0; font-family: var(--cs-font-family-longform); font-weight: var(--cs-font-weight-longform)">
@@ -197,7 +197,7 @@ for (const theme of themes) {
                 <span class="cs-caption-2xs">-1:58</span>
               </div>
             </div>
-            <div class="cs-grid cs-align-items-center" style="--min-column-size: 1em; justify-items: center">
+            <div class="cs-grid cs-align-items-center" style="--cs-grid-min-column-size: 1em; justify-items: center">
               <cs-button appearance="plain" tabindex="-1">
                 <cs-icon name="fast_rewind" label="Skip backward" variant="fill"></cs-icon>
               </cs-button>
@@ -235,7 +235,7 @@ for (const theme of themes) {
             </div>
           </div>
         </cs-card>
-        <cs-card appearance="plain" style="--spacing: 0;">
+        <cs-card appearance="plain" style="--cs-card-spacing: 0;">
           <div class="cs-stack cs-gap-s">
             <cs-callout variant="success">
               <cs-icon slot="icon" name="shield_person" variant="fill"></cs-icon>
@@ -373,7 +373,7 @@ for (const theme of themes) {
               label="Avatar of a man wearing a sci-fi helmet (Photograph by Nandu Vasudevan)"
             ></cs-avatar>
           </div>
-          <div slot="footer" class="cs-grid cs-gap-xs" style="--min-column-size: 10ch">
+          <div slot="footer" class="cs-grid cs-gap-xs" style="--cs-grid-min-column-size: 10ch">
             <cs-button appearance="outlined" tabindex="-1">
               <cs-icon slot="start" name="alternate_email"></cs-icon>
               Email
@@ -417,7 +417,7 @@ for (const theme of themes) {
             <p class="cs-caption-s">
               You haven't created any decks yet. Get started by selecting an aspect that matches your play style.
             </p>
-            <div class="cs-grid cs-gap-xl" style="--min-column-size: 30ch">
+            <div class="cs-grid cs-gap-xl" style="--cs-grid-min-column-size: 30ch">
               <a href="" class="cs-flank cs-align-items-start cs-link-plain" tabindex="-1">
                 <cs-avatar
                   shape="rounded"
@@ -537,7 +537,7 @@ for (const theme of themes) {
       }
 
       .showcase-code-sample {
-        --spacing: 0;
+        --cs-card-spacing: 0;
         overflow: hidden;
 
         pre {
@@ -558,7 +558,7 @@ for (const theme of themes) {
       }
 
       cs-progress-bar {
-        --track-height: 0.5em;
+        --cs-progress-bar-track-height: 0.5em;
       }
     </style>
   </body>

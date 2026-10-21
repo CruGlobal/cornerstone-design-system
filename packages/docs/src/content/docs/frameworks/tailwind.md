@@ -17,19 +17,17 @@ sidebar:
 </div>
 
 Partway through a move from Tailwind v4 to Cornerstone Components, an app runs both on the same page. That works,
-but not with the obvious setup. Four things go wrong:
+but not with the obvious setup. Three things go wrong:
 
 1. **The Cornerstone Components stylesheet never loads.** Tailwind leaves its `@import url()` lines in place, and
    the browser either skips them or looks for the files in the wrong folder.
 2. **Preflight flattens components.** Tailwind's reset strips the padding, margins and borders that components give
    themselves, so dropdown items lose their padding and dividers disappear.
-3. **Spacing utilities grow inside some components.** Tailwind's `--spacing` unit has the same name as a component
-   property, so `p-4` inside a card comes out six times too big.
-4. **The wrong library wins.** Whichever one you import second outranks the other, so either Preflight undoes
+3. **The wrong library wins.** Whichever one you import second outranks the other, so either Preflight undoes
    the styles Cornerstone Components gives native elements, or Cornerstone Components overrides your Tailwind
    classes.
 
-The setup below fixes all four with one script that runs before Tailwind and one entry stylesheet.
+The setup below fixes all three with one script that runs before Tailwind and one entry stylesheet.
 [Why each piece is there](#why-each-piece-is-there) says what breaks without it.
 
 ## Setup
@@ -59,14 +57,10 @@ await build({
   outfile: `${out}/cornerstone.css`,
 });
 
-// Tag names from the manifest the package ships, so both lists follow the package.
+// Tag names from the manifest the package ships, so the list follows the package.
 const manifest = require('@cruglobal/cornerstone-components/custom-elements.json');
 const components = manifest.modules.flatMap((module) => module.declarations ?? []).filter((d) => d.tagName);
 const tags = components.map((d) => d.tagName).join(', ');
-const spacingTags = components
-  .filter((d) => d.cssProperties?.some((property) => property.name === '--spacing'))
-  .map((d) => d.tagName)
-  .join(', ');
 
 // 2. Preflight, with its universal reset kept off every cs-* element.
 const preflight = readFileSync(require.resolve('tailwindcss/preflight.css'), 'utf8');
@@ -75,18 +69,14 @@ if (!preflight.includes(resetSelector)) {
   throw new Error('tailwindcss/preflight.css no longer opens with `*,`. Update this script.');
 }
 writeFileSync(`${out}/preflight.css`, preflight.replace(resetSelector, `:where(:not(${tags})),\n::after,`));
-
-// 3. Tailwind's spacing unit, back on the content of components with a --spacing of their own.
-const rule = `:is(${spacingTags}) > :not(${spacingTags}) {\n  --spacing: --theme(--spacing inline);\n}\n`;
-writeFileSync(`${out}/spacing.css`, spacingTags ? rule : '');
 ```
 
-It writes three files to `tmp/cornerstone/`. Keep that folder out of git, because the files are rebuilt from
+It writes two files to `tmp/cornerstone/`. Keep that folder out of git, because the files are rebuilt from
 whatever versions are installed. Keep it out of anything your asset pipeline serves on its own, too: the files are
 input for Tailwind, not stylesheets to link. Rails' `stylesheet_link_tag :app`, for one, links every CSS file under
 `app/assets`.
 
-Import the three files from your Tailwind entry stylesheet, in this order. The paths are relative to the entry file,
+Import both files from your Tailwind entry stylesheet, in this order. The paths are relative to the entry file,
 so adjust them if yours lives in another folder.
 
 ```css
@@ -95,7 +85,6 @@ so adjust them if yours lives in another folder.
 
 @import 'tailwindcss/theme.css' layer(theme);
 @import './tmp/cornerstone/preflight.css' layer(base);
-@import './tmp/cornerstone/spacing.css' layer(base);
 @import './tmp/cornerstone/cornerstone.css' layer(cornerstone);
 @import 'tailwindcss/utilities.css' layer(utilities);
 ```
@@ -111,6 +100,12 @@ Then run the script ahead of every Tailwind build:
 ```
 
 Load the components the way you would without Tailwind. See [Installation](/#loading-the-library).
+
+:::note
+An earlier version of this guide had a third step in the script and a `spacing.css` import, to stop components
+from changing Tailwind's `--spacing` unit. Components no longer use that name, so you can delete both, along with
+the `spacingTags` list the step read. The rename is in the [changelog](/resources/changelog).
+:::
 
 ## Why each piece is there
 
@@ -166,39 +161,6 @@ Tailwind [documents importing Preflight on its own](https://tailwindcss.com/docs
 which is what lets the copy stand in for it. Leaving Preflight out is the other way to stop the reset. Keep it if the
 markup you have not ported yet depends on it.
 
-### The spacing reset
-
-Tailwind v4 builds its spacing utilities from one theme variable: [`p-4` is `calc(var(--spacing) * 4)`](https://tailwindcss.com/docs/padding),
-and [`--spacing` is `0.25rem`](https://tailwindcss.com/docs/theme) unless you change it. Some `cs-*` components
-have a `--spacing` property of their own, set on their host. Custom properties inherit, so content inside those
-components reads the component's value instead of Tailwind's. In the checks below, `p-4` came out 96px instead of
-16px inside a `<cs-card>`.
-
-The script finds those components in `custom-elements.json` (they are the ones whose API reference lists
-`--spacing`) and writes one rule for them:
-
-```css
-:is(cs-card, cs-details, …) > :not(cs-card, cs-details, …) {
-  --spacing: --theme(--spacing inline);
-}
-```
-
-- **The `>` reaches the component's own children**, the content you put in it, and everything deeper inherits from
-  them. The component's shadow root still reads the host's value, so a card keeps its own padding.
-- **The `:not(…)` skips those same components** when one sits right inside another. Without it, a `<cs-divider>`
-  placed straight in a card takes Tailwind's unit as its own spacing, and its margins shrink from 16px to 4px.
-- **`--theme(--spacing inline)` writes Tailwind's value**, `0.25rem` or whatever your `@theme` sets. The `inline`
-  matters. Without it Tailwind writes `var(--spacing)`, a property that
-  [refers to itself](https://www.w3.org/TR/css-variables-1/#cycles), which CSS treats as invalid, and every spacing
-  utility inside the component computes to nothing. Tailwind's documentation does not describe `--theme()`, but its
-  `inline` option is [in Tailwind's source](https://github.com/tailwindlabs/tailwindcss/blob/v4.3.3/packages/tailwindcss/src/css-functions.ts#L99-L103),
-  and Tailwind's own Preflight uses the function.
-
-This is a workaround. Whether the components' `--spacing` should be renamed so the two stop clashing is
-[an open decision](https://github.com/CruGlobal/cornerstone-design-system/issues/182), so keep the rule until it is
-settled. If a later release drops `--spacing` from every component, the script writes an empty file and the rule is
-gone.
-
 ### The layer order
 
 Both libraries put their page styles in [cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer).
@@ -233,10 +195,6 @@ the same numbers in all three browsers.
   custom property values.
 - **Preflight:** `<cs-dropdown-item>` had no padding, and `<cs-divider>` had no line or margins. With the copy, the
   item had 8px by 16px of padding and the divider a 1px line with 16px margins.
-- **`--spacing`:** `p-4` came out 96px inside `<cs-card>`, `<cs-dialog>` and `<cs-drawer>`, and 64px inside
-  `<cs-details>` and `<cs-accordion-item>`. With the reset it was 16px in all five, and the card kept its 24px padding.
-  Without `inline`, `p-4` came out 0. Without `:not(…)`, a divider straight in a card dropped to 4px margins. A custom
-  `--spacing` in `@theme` carried through to the reset.
 - **Layer order:** both failures above were reproduced. With the statement, Cornerstone Components' heading styles
   and list bullets held, and `text-sm`, `mb-8` and `bg-red-600` all applied. Naming Cornerstone Components' layers
   one by one instead of using `layer(cornerstone)` gave the same value for every property.

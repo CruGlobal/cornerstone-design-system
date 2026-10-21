@@ -4,7 +4,7 @@ import { classMap } from 'lit/directives/class-map.js';
 import { CsAccordionItemCollapsedEvent } from '../../events/accordion-item-collapsed.js';
 import { CsAccordionItemExpandedEvent } from '../../events/accordion-item-expanded.js';
 import { CsAccordionItemTriggerEvent } from '../../events/accordion-item-trigger.js';
-import { animate, parseDuration } from '../../internal/animate.js';
+import { animate, getCustomProperty, parseDuration, prefersReducedMotion } from '../../internal/animate.js';
 import CornerstoneElement from '../../internal/cornerstone-element.js';
 import { customElement } from '../../internal/custom-element.js';
 import { waitForEvent } from '../../internal/event.js';
@@ -33,10 +33,10 @@ import styles from './accordion-item.styles.js';
  * @csspart panel - The panel that contains the item's content.
  * @csspart content - The content slot inside the panel.
  *
- * @cssproperty [--spacing=var(--cs-space-m)] - The amount of space around and between the item's header and content.
- * @cssproperty [--show-duration=var(--cs-transition-normal)] - The duration of the expand animation.
- * @cssproperty [--hide-duration=var(--cs-transition-normal)] - The duration of the collapse animation.
- * @cssproperty [--easing=var(--cs-transition-easing)] - The easing of the expand/collapse animation.
+ * @cssproperty [--cs-accordion-item-spacing=var(--cs-space-m)] - The amount of space around and between the item's header and content.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-normal)] - The duration of the expand animation.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-normal)] - The duration of the collapse animation.
+ * @cssproperty [--cs-accordion-item-easing=var(--cs-transition-easing)] - The easing of the expand/collapse animation.
  *
  * @cssstate animating - Applied while the panel is animating.
  */
@@ -115,8 +115,10 @@ export default class CsAccordionItem extends CornerstoneElement {
 
     if (this.expanded) {
       this.isAnimating = true;
-      const duration = parseDuration(getComputedStyle(this.body).getPropertyValue('--show-duration') || '200ms');
-      const easing = getComputedStyle(this.body).getPropertyValue('--easing') || 'ease';
+      const duration = prefersReducedMotion()
+        ? 0
+        : parseDuration(getCustomProperty(this.body, '--cs-show-duration', '--cs-transition-normal') || '200ms');
+      const easing = getCustomProperty(this.body, '--cs-accordion-item-easing', '--cs-transition-easing') || 'ease';
       await animate(
         this.body,
         [
@@ -133,8 +135,10 @@ export default class CsAccordionItem extends CornerstoneElement {
       this.dispatchEvent(new CsAccordionItemExpandedEvent());
     } else {
       this.isAnimating = true;
-      const duration = parseDuration(getComputedStyle(this.body).getPropertyValue('--hide-duration') || '200ms');
-      const easing = getComputedStyle(this.body).getPropertyValue('--easing') || 'ease';
+      const duration = prefersReducedMotion()
+        ? 0
+        : parseDuration(getCustomProperty(this.body, '--cs-hide-duration', '--cs-transition-normal') || '200ms');
+      const easing = getCustomProperty(this.body, '--cs-accordion-item-easing', '--cs-transition-easing') || 'ease';
       await animate(
         this.body,
         [

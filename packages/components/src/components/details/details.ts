@@ -6,7 +6,7 @@ import { CsAfterHideEvent } from '../../events/after-hide.js';
 import { CsAfterShowEvent } from '../../events/after-show.js';
 import { CsHideEvent } from '../../events/hide.js';
 import { CsShowEvent } from '../../events/show.js';
-import { animate, parseDuration } from '../../internal/animate.js';
+import { animate, getCustomProperty, parseDuration, prefersReducedMotion } from '../../internal/animate.js';
 import CornerstoneElement from '../../internal/cornerstone-element.js';
 import { CornerstoneFormAssociatedElement } from '../../internal/cornerstone-form-associated-element.js';
 import { customElement } from '../../internal/custom-element.js';
@@ -42,9 +42,9 @@ import styles from './details.styles.js';
  * @csspart icon - The container that wraps the expand/collapse icons.
  * @csspart content - The details content.
  *
- * @cssproperty --spacing - The amount of space around and between the details' content. Expects a single value.
- * @cssproperty [--show-duration=var(--cs-transition-normal)] - The show duration to use when applying built-in animation classes.
- * @cssproperty [--hide-duration=var(--cs-transition-normal)] - The hide duration to use when applying built-in animation classes.
+ * @cssproperty [--cs-details-spacing=var(--cs-space-m)] - The amount of space around and between the details' content. Expects a single value.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-normal)] - The show duration to use when applying built-in animation classes.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-normal)] - The hide duration to use when applying built-in animation classes.
  *
  * @cssstate animating - Applied when the details is animating expand/collapse.
  */
@@ -215,7 +215,9 @@ export default class CsDetails extends CornerstoneElement {
       this.closeOthersWithSameName();
 
       this.isAnimating = true;
-      const duration = parseDuration(getComputedStyle(this.body).getPropertyValue('--show-duration'));
+      const duration = prefersReducedMotion()
+        ? 0
+        : parseDuration(getCustomProperty(this.body, '--cs-show-duration', '--cs-transition-normal'));
       // We can't animate to 'auto', so use the scroll height for now
       await animate(
         this.body,
@@ -249,7 +251,9 @@ export default class CsDetails extends CornerstoneElement {
       }
 
       this.isAnimating = true;
-      const duration = parseDuration(getComputedStyle(this.body).getPropertyValue('--hide-duration'));
+      const duration = prefersReducedMotion()
+        ? 0
+        : parseDuration(getCustomProperty(this.body, '--cs-hide-duration', '--cs-transition-normal'));
       // We can't animate from 'auto', so use the scroll height for now
       await animate(
         this.body,

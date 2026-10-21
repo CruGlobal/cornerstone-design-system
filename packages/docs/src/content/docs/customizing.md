@@ -128,13 +128,13 @@ Not every component has one. When a component's outer element is the host, style
 
 ### Custom Properties
 
-Components expose custom properties that are scoped to the component, not global, so they do not have the same `--cs-` prefix as a theme's custom properties. These custom properties reflect common qualities of a component, such as `--background-color`, `--border-style`, `--size`, etc.
+Components expose custom properties for the qualities you're most likely to change, such as a card's spacing or an avatar's size. Each one is named after its component, `--cs-<component>-<property>`, so `<cs-avatar>` reads `--cs-avatar-size`. A child element named after its parent reads the parent's name: `<cs-carousel-item>` reads `--cs-carousel-aspect-ratio`.
 
 You can set custom properties on a component in your stylesheet.
 
 ```css
 cs-avatar {
-  --size: 6rem;
+  --cs-avatar-size: 6rem;
 }
 ```
 
@@ -142,17 +142,31 @@ This will also work if you need to target a subset of components with a specific
 
 ```css
 cs-avatar.your-class {
-  --size: 6rem;
+  --cs-avatar-size: 6rem;
 }
 ```
 
 Alternatively, you can set them inline directly on the element.
 
 ```html
-<cs-avatar style="--size: 6rem;"></cs-avatar>
+<cs-avatar style="--cs-avatar-size: 6rem;"></cs-avatar>
 ```
 
-The custom properties exposed by each component can be found in the component's API documentation.
+Components read these values rather than setting them on themselves, so a value also reaches every matching component inside the element you set it on. Set one on `:root`, a theme class or a section, and every avatar in it changes:
+
+```css
+.team-list {
+  --cs-avatar-size: 2rem;
+}
+```
+
+A few properties do the same job on several components, so they share one name with no component in it. `--cs-show-duration` is one: set it on a section and every dialog, drawer and dropdown in it takes that long to open.
+
+The custom properties exposed by each component, shared ones included, can be found in the component's API documentation.
+
+:::note
+Upgrading from 0.8.1 or earlier? Component custom properties used to be unprefixed, such as `--size`. The rename's entry in the [changelog](/resources/changelog) links to its pull request, which lists every old name and its new one.
+:::
 
 ### Custom States
 
@@ -170,6 +184,8 @@ Custom states can be combined with CSS parts and custom properties to create sop
 ### Native Elements
 
 If you're using [native styles](/utilities/native), any custom styles added for a component should also target the corresponding native element. In general, the same styles you declare for components will work just the same to style their native counterparts.
+
+Native checkboxes, radios, range inputs and `<progress>` also read their components' custom properties, so `--cs-checkbox-checked-icon-color` set on a section colors the check in `<cs-checkbox>` and `<input type="checkbox">` alike.
 
 For example, we can give `<input type="checkbox">` the same custom styles as `<cs-checkbox>` by using standard CSS properties and CSS parts:
 

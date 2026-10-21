@@ -189,7 +189,7 @@ Use the `animation` attribute to play an entrance transition when new content is
 
 Directional animations (`fade-up`, `fade-down`, `fade-left`, `fade-right`) rely on CSS `transform`, which has no effect on `display: inline` elements. The component promotes inline children to `inline-block` while a directional animation plays, so they work inline without extra markup.
 
-Tune the duration, easing, and travel distance with the `--animation-duration`, `--animation-easing`, and `--animation-translate` custom properties. Animations are skipped automatically when the user [prefers reduced motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion).
+Tune the duration, easing, and travel distance with the `--cs-random-content-animation-duration`, `--cs-random-content-animation-easing`, and `--cs-random-content-animation-translate` custom properties. Animations are skipped automatically when the user [prefers reduced motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion).
 
 ### Autoplay
 

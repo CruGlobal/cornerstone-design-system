@@ -13,10 +13,10 @@ import styles from './spinner.styles.js';
  *
  * @csspart spinner - The component's outer wrapper.
  *
- * @cssproperty --track-width - The width of the track.
- * @cssproperty --track-color - The color of the track.
- * @cssproperty --indicator-color - The color of the spinner's indicator.
- * @cssproperty --speed - The time it takes for the spinner to complete one animation cycle.
+ * @cssproperty [--cs-track-width=2px] - The width of the track.
+ * @cssproperty [--cs-track-color=var(--cs-color-neutral-fill-normal)] - The color of the track.
+ * @cssproperty [--cs-indicator-color=var(--cs-color-brand-fill-loud)] - The color of the spinner's indicator.
+ * @cssproperty [--cs-spinner-speed=2s] - The time it takes for the spinner to complete one animation cycle.
  */
 @customElement('cs-spinner')
 export default class CsSpinner extends CornerstoneElement {

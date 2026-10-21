@@ -143,12 +143,12 @@ This is often desirable, but you can change this behavior using the `disable-sti
 
 ### Header Heights
 
-The page measures its `banner`, `header` and `subheader` and keeps each height in a custom property on itself: `--banner-height`, `--header-height` and `--subheader-height`. It uses them to place its sticky sections below one another. Your own styles can use them too, because everything inside the page inherits them. This makes the page's `<main>` a panel that fills the screen below the header and scrolls on its own:
+The page measures its `banner`, `header` and `subheader` and keeps each height in a custom property on itself: `--cs-page-banner-height`, `--cs-page-header-height` and `--cs-page-subheader-height`. It uses them to place its sticky sections below one another. Your own styles can use them too, because everything inside the page inherits them. This makes the page's `<main>` a panel that fills the screen below the header and scrolls on its own:
 
 ```css
 cs-page > main {
   box-sizing: border-box;
-  block-size: calc(100dvh - var(--header-height));
+  block-size: calc(100dvh - var(--cs-page-header-height));
   overflow: auto;
 }
 ```
@@ -159,7 +159,7 @@ If you know a height ahead of time, set it on `<cs-page>` in your stylesheet, an
 
 ```css
 cs-page {
-  --header-height: 64px;
+  --cs-page-header-height: 64px;
 }
 ```
 
@@ -233,11 +233,11 @@ Each class does one job:
 
 - [`cs-split`](/utilities/split/) makes the wrapper a row. It sets `flex-direction: row`, and `cs-cluster` sets no direction, so a cluster leaves the column in place.
 - `cs-align-items-stretch` runs both parts the full height of the navigation. A split centers its children by default, which floats a short rail to the middle.
-- `cs-justify-content-start` keeps the parts together. A split pushes its children to opposite ends, which opens a gap between them in the mobile drawer, or whenever `--menu-width` is wider than the parts.
+- `cs-justify-content-start` keeps the parts together. A split pushes its children to opposite ends, which opens a gap between them in the mobile drawer, or whenever `--cs-page-menu-width` is wider than the parts.
 
 The split also puts a `--cs-space-m` gap between the parts. Add a [gap utility](/utilities/gap/) to change it, such as `cs-gap-0` when the parts should meet edge to edge.
 
-On mobile the page moves this same wrapper into its drawer, classes included, so the parts stay side by side there as long as they fit. A split wraps, so when the drawer or a fixed `--menu-width` is narrower than both parts, the second part drops below the first.
+On mobile the page moves this same wrapper into its drawer, classes included, so the parts stay side by side there as long as they fit. A split wraps, so when the drawer or a fixed `--cs-page-menu-width` is narrower than both parts, the second part drops below the first.
 
 #### Responsive Navigation
 
@@ -309,21 +309,21 @@ Two gaps to know about for now:
 
 #### Custom Widths
 
-You specify widths for some slots on your page with [CSS custom properties](#css-custom-properties) for `--menu-width`, `--main-width`, and `--aside-width`.
+You specify widths for some slots on your page with [CSS custom properties](#css-custom-properties) for `--cs-page-menu-width`, `--cs-page-main-width`, and `--cs-page-aside-width`.
 
-If you specify `--menu-width` to apply a specific width to your `navigation` slot, space will still be reserved on the page even below the `mobile-breakpoint`. To collapse this space on smaller screens, add the following code to your styles.
+If you specify `--cs-page-menu-width` to apply a specific width to your `navigation` slot, space will still be reserved on the page even below the `mobile-breakpoint`. To collapse this space on smaller screens, add the following code to your styles.
 
 ```css
 cs-page[view='mobile'] {
-  --menu-width: auto;
+  --cs-page-menu-width: auto;
 }
 ```
 
-You can use a similar approach for `--aside-width` to hide the `aside` slot on smaller screens. Be sure to also specify `display: none` for the slot:
+You can use a similar approach for `--cs-page-aside-width` to hide the `aside` slot on smaller screens. Be sure to also specify `display: none` for the slot:
 
 ```css
 cs-page[view='mobile'] {
-  --aside-width: auto;
+  --cs-page-aside-width: auto;
 
   [slot='aside'] {
     display: none;

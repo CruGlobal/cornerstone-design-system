@@ -1,6 +1,8 @@
 import { expect } from '@open-wc/testing';
+import { emulateMedia } from '@web/test-runner-commands';
 import { html } from 'lit';
 import { fixtures } from '../../internal/test/fixture.js';
+import { isWebkit } from '../../internal/test/pointer-utilities.js';
 import type CsSkeleton from './skeleton.js';
 
 describe('<cs-skeleton>', () => {
@@ -39,6 +41,31 @@ describe('<cs-skeleton>', () => {
         it('should accept "none" effect', async () => {
           const el = await fixture<CsSkeleton>(html`<cs-skeleton effect="none"></cs-skeleton>`);
           expect(el.effect).to.equal('none');
+        });
+      });
+
+      describe('forced colors', () => {
+        // Skipped on WebKit: Playwright can't emulate forced colors there, so the check would run in normal colors.
+        // A non-system color is forced to Canvas there and the skeleton vanishes, so GrayText wins over any override.
+        (isWebkit ? it.skip : it)('should stay visible in GrayText whatever color a page sets', async () => {
+          const el = await fixture<HTMLElement>(html`
+            <div>
+              <cs-skeleton style="--cs-skeleton-color: rgb(255, 0, 0)"></cs-skeleton>
+              <span id="gray" style="background-color: GrayText">probe</span>
+              <span id="canvas" style="background-color: Canvas">probe</span>
+            </div>
+          `);
+          const skeleton = el.querySelector<CsSkeleton>('cs-skeleton')!;
+          await skeleton.updateComplete;
+          const indicator = skeleton.shadowRoot!.querySelector('[part~="indicator"]')!;
+          await emulateMedia({ forcedColors: 'active' });
+          try {
+            const background = getComputedStyle(indicator).backgroundColor;
+            expect(background).to.equal(getComputedStyle(el.querySelector('#gray')!).backgroundColor);
+            expect(background).not.to.equal(getComputedStyle(el.querySelector('#canvas')!).backgroundColor);
+          } finally {
+            await emulateMedia({ forcedColors: 'none' });
+          }
         });
       });
 

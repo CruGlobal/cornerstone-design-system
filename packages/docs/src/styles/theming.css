@@ -15,7 +15,7 @@
    `--cs-space-scale` like everything around it. `cs-gap-3xs` sets both axes; the rows need more than the
    columns because every cell carries a label underneath. */
 .palette-swatches {
-  --min-column-size: var(--cs-space-3xl);
+  --cs-grid-min-column-size: var(--cs-space-3xl);
   row-gap: var(--cs-space-s);
 }
 

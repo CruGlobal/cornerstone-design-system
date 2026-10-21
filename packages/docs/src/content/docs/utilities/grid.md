@@ -30,7 +30,7 @@ use-cases:
 
 A grid places its children in evenly-sized columns that shrink, grow, and reflow as the container resizes, without any breakpoints to manage. Drop any number of items into `cs-grid` and the utility figures out how many fit on each row based on the container's width and the minimum column size you've asked for. It's the quickest way to build card galleries, product listings, dashboards, and any content that should adapt from one column on a phone to several on a desktop.
 
-Set `--min-column-size` to change the threshold at which items start to wrap, pair `cs-grid` with a [`cs-gap-*`](/utilities/gap) class to adjust the spacing between cells, or add `cs-span-grid` to an individual item to make it span every column.
+Set `--cs-grid-min-column-size` to change the threshold at which items start to wrap, pair `cs-grid` with a [`cs-gap-*`](/utilities/gap) class to adjust the spacing between cells, or add `cs-span-grid` to an individual item to make it span every column.
 
 ```html {.example}
 <div class="cs-grid">
@@ -88,7 +88,7 @@ Grids work especially well for card lists and content designed for browsing.
 ```
 
 ```html {.example}
-<div class="cs-grid" style="--min-column-size: 30ch;">
+<div class="cs-grid" style="--cs-grid-min-column-size: 30ch;">
   <cs-card>
     <div class="cs-flank">
       <cs-avatar shape="rounded">
@@ -156,11 +156,11 @@ Grids work especially well for card lists and content designed for browsing.
 
 ## Size
 
-By default, grid items will wrap when the grid's column size is less than `20ch`, but you can set a custom minimum column size using the `--min-column-size` custom property.
+By default, grid items will wrap when the grid's column size is less than `20ch`, but you can set a custom minimum column size using the `--cs-grid-min-column-size` custom property. The value applies to that grid alone: a grid nested inside it goes back to `20ch` unless you set its own.
 
 ```html {.example}
 <div class="cs-stack">
-  <div class="cs-grid" style="--min-column-size: 200px;">
+  <div class="cs-grid" style="--cs-grid-min-column-size: 200px;">
     <div></div>
     <div></div>
     <div></div>
@@ -168,7 +168,7 @@ By default, grid items will wrap when the grid's column size is less than `20ch`
     <div></div>
     <div></div>
   </div>
-  <div class="cs-grid" style="--min-column-size: 6rem;">
+  <div class="cs-grid" style="--cs-grid-min-column-size: 6rem;">
     <div></div>
     <div></div>
     <div></div>

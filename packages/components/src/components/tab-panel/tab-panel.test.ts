@@ -83,6 +83,45 @@ describe('<cs-tab-panel>', () => {
           expect(textContent).to.include('Panel Content');
         });
       });
+
+      // A tab group hands each panel its placement's padding privately, so a value set above the group still wins.
+      describe('custom properties', () => {
+        const padding = (panel: CsTabPanel) => {
+          const style = getComputedStyle(panel.shadowRoot!.querySelector('.tab-panel')!);
+          return `${style.paddingTop} ${style.paddingLeft}`;
+        };
+
+        it('should have no padding on its own', async () => {
+          const el = await fixture<CsTabPanel>(html`<cs-tab-panel active>Test</cs-tab-panel>`);
+          expect(padding(el)).to.equal('0px 0px');
+        });
+
+        it("should default to the tab group's padding for its placement", async () => {
+          const group = await fixture<HTMLElement>(html`
+            <cs-tab-group>
+              <cs-tab slot="nav" panel="general">General</cs-tab>
+              <cs-tab-panel name="general">General content</cs-tab-panel>
+            </cs-tab-group>
+          `);
+          const panel = group.querySelector<CsTabPanel>('cs-tab-panel')!;
+          await panel.updateComplete;
+          expect(padding(panel)).to.equal('32px 0px');
+        });
+
+        it('should take --cs-tab-panel-padding from above the tab group', async () => {
+          const wrapper = await fixture<HTMLElement>(html`
+            <section style="--cs-tab-panel-padding: 12px">
+              <cs-tab-group>
+                <cs-tab slot="nav" panel="general">General</cs-tab>
+                <cs-tab-panel name="general">General content</cs-tab-panel>
+              </cs-tab-group>
+            </section>
+          `);
+          const panel = wrapper.querySelector<CsTabPanel>('cs-tab-panel')!;
+          await panel.updateComplete;
+          expect(padding(panel)).to.equal('12px 12px');
+        });
+      });
     });
   }
 });

@@ -101,10 +101,10 @@ Similarly, you can add `data-dialog="close"` to a button _inside_ of a dialog to
 
 ### Width
 
-Use the `--width` custom property to set the dialog's width.
+Use the `--cs-dialog-width` custom property to set the dialog's width.
 
 ```html {.example}
-<cs-dialog label="Dialog" class="dialog-width" style="--width: 50vw;">
+<cs-dialog label="Dialog" class="dialog-width" style="--cs-dialog-width: 50vw;">
   This dialog is wider than the default — handy when you need more room for content.
   <cs-button slot="footer" variant="brand" data-dialog="close">Close</cs-button>
 </cs-dialog>

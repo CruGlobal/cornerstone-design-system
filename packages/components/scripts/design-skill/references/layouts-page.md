@@ -84,7 +84,7 @@ for `navigation-header` and `navigation-footer` (they become the drawer's header
 **First decision, before any markup: does this page have a left sidebar on desktop?**
 
 - **Yes** (app shell, docs, dashboard) → put your nav in `slot="navigation"` and follow Hard rule 5 (set
-  `--menu-width`, reset to `auto` on mobile). This is the intended path. Copy the app/docs example below.
+  `--cs-page-menu-width`, reset to `auto` on mobile). This is the intended path. Copy the app/docs example below.
 - **No** (landing page, marketing site, most content pages) → you have two clean options, both of which
   still let `<cs-page>` do the work:
   - **Simplest:** put your primary nav in `slot="navigation"` anyway. You'll get a small desktop sidebar
@@ -149,7 +149,7 @@ All four steps are required — steps 3 and 4 are what stop the nav from showing
 </cs-page>
 
 <style>
-  /* No --menu-width here: in this recipe the desktop sidebar is hidden, so leave --menu-width at its
+  /* No --cs-page-menu-width here: in this recipe the desktop sidebar is hidden, so leave --cs-page-menu-width at its
      `auto` default. Setting a fixed value (e.g. 14rem) reserves an empty left column — see note below. */
   cs-page[view='mobile'] .header-nav {
     display: none; /* hide desktop header links on mobile */
@@ -169,15 +169,15 @@ and **wraps onto its own unstyled row** (left-aligned, no background) — the #2
 `.cs-mobile-only` class shows your toggle only below `mobile-breakpoint`, so the desktop header stays
 clean. The only custom CSS is the two `view`-scoped hide rules above.
 
-⚠️ **In this recipe, do NOT set a fixed `--menu-width` — leave it at its `auto` default.** The left
-`menu` column's width is `minmax(0, var(--menu-width))`, and `--menu-width` defaults to `auto`. Hiding
+⚠️ **In this recipe, do NOT set a fixed `--cs-page-menu-width` — leave it at its `auto` default.** The left
+`menu` column's width is `minmax(0, var(--cs-page-menu-width))`, and `--cs-page-menu-width` defaults to `auto`. Hiding
 the desktop sidebar with `::part(navigation){display:none}` removes the sidebar _content_, but the grid
-track width is governed **only** by `--menu-width` — not by whether the content is visible. With `auto`,
+track width is governed **only** by `--cs-page-menu-width` — not by whether the content is visible. With `auto`,
 the now-empty column collapses to nothing; with a fixed value like `14rem` (often copied in from the
 sidebar/app-shell skeleton below), the track stays `14rem` and you get a **reserved empty band down the
 left side on desktop**. This is the classic "I added `display: none` and the gap is still there" bug:
 `display: none` never touched the width. If you see that empty band, search your CSS for a fixed
-`--menu-width` and remove it.
+`--cs-page-menu-width` and remove it.
 
 ---
 
@@ -191,7 +191,7 @@ inert; they do nothing, silently. Do not lift them into a section, widget, or an
 - The **`view='mobile'` / `view='desktop'` state** and the CSS that keys off it.
 - **`.cs-desktop-only` / `.cs-mobile-only`**. These are not general responsive utilities; they work _only_ via `<cs-page>`'s `view` selector. Outside `<cs-page>` they do nothing; use a CSS media query instead.
 - **`data-toggle-nav`**. Only `<cs-page>` listens for it.
-- The custom properties **`--menu-width`**, **`--main-width`**, **`--aside-width`**.
+- The custom properties **`--cs-page-menu-width`**, **`--cs-page-main-width`**, **`--cs-page-aside-width`**.
 - **Sticky** banner/header/subheader/menu/aside, the mobile **navigation drawer**, and the automatic **`html`/`body` reset**.
 
 If you're not building a full page, you don't get these, and you don't need them. Use the layout
@@ -249,31 +249,31 @@ utilities instead (see [layouts-inpage.md](layouts-inpage.md)).
    means "I'll take over the left column entirely and handle mobile myself"; only use it if you truly
    need that.
 
-5. **Only set a fixed `--menu-width` when you actually render a desktop sidebar; reset it on mobile.**
-   The `menu` column is `minmax(0, var(--menu-width))` and `--menu-width` defaults to `auto`, so its
-   width is controlled **only** by `--menu-width` — never by whether the sidebar content is visible.
+5. **Only set a fixed `--cs-page-menu-width` when you actually render a desktop sidebar; reset it on mobile.**
+   The `menu` column is `minmax(0, var(--cs-page-menu-width))` and `--cs-page-menu-width` defaults to `auto`, so its
+   width is controlled **only** by `--cs-page-menu-width` — never by whether the sidebar content is visible.
    Two cases:
 
    - **Desktop sidebar layout** (the `navigation` slot is visible as a left column on desktop — app
-     shell, docs, dashboard): set a fixed `--menu-width` (e.g. `16rem`); it's holding real content. A
+     shell, docs, dashboard): set a fixed `--cs-page-menu-width` (e.g. `16rem`); it's holding real content. A
      fixed width still reserves space below the breakpoint, so collapse it back to `auto` for
      `view='mobile'`. The `navigation` sidebar moves into the drawer automatically; the `aside` does
      not, so to hide it on mobile also set `display: none` on that slot.
    - **No desktop sidebar** (the header/drawer recipe above — desktop sidebar hidden via
-     `::part(navigation){display:none}`): **leave `--menu-width` at `auto`. Do not set a fixed value.**
-     Hiding the sidebar collapses its content but not the grid track, so a fixed `--menu-width` reserves
+     `::part(navigation){display:none}`): **leave `--cs-page-menu-width` at `auto`. Do not set a fixed value.**
+     Hiding the sidebar collapses its content but not the grid track, so a fixed `--cs-page-menu-width` reserves
      an empty left column on desktop. (This is the recipe's #1 bug.)
 
    For the desktop-sidebar case:
 
    ```css
    cs-page {
-     --menu-width: 16rem;
-     --aside-width: 18rem;
+     --cs-page-menu-width: 16rem;
+     --cs-page-aside-width: 18rem;
    }
    cs-page[view='mobile'] {
-     --menu-width: auto;
-     --aside-width: auto;
+     --cs-page-menu-width: auto;
+     --cs-page-aside-width: auto;
    }
    cs-page[view='mobile'] [slot='aside'] {
      display: none; /* aside has no drawer; hide it explicitly on mobile */
@@ -367,10 +367,10 @@ toggle wiring, no media queries** — the component handles all of it. This is t
     padding-inline: var(--cs-space-xl);
   }
   cs-page {
-    --menu-width: 14rem;
+    --cs-page-menu-width: 14rem;
   }
   cs-page[view='mobile'] {
-    --menu-width: auto; /* collapse the reserved sidebar space on mobile (Hard rule 5) */
+    --cs-page-menu-width: auto; /* collapse the reserved sidebar space on mobile (Hard rule 5) */
   }
 </style>
 ```
@@ -452,12 +452,12 @@ navigation sidebar, main content, a sticky table-of-contents aside, and a footer
     margin: 0;
   }
   cs-page {
-    --menu-width: 15rem;
-    --aside-width: 16rem;
+    --cs-page-menu-width: 15rem;
+    --cs-page-aside-width: 16rem;
   }
   cs-page[view='mobile'] {
-    --menu-width: auto;
-    --aside-width: auto;
+    --cs-page-menu-width: auto;
+    --cs-page-aside-width: auto;
   }
 </style>
 ```
@@ -489,7 +489,7 @@ utilities on it; don't write CSS.** For a rail beside a sidebar in `slot="naviga
 `cs-split` makes the row (`cs-cluster` sets no direction, so the column stays). `cs-align-items-stretch`
 runs both parts full height instead of centering them. `cs-justify-content-start` stops the split pushing
 them apart in the mobile drawer. Add `cs-gap-0` if the parts should meet edge to edge. A split wraps, so a
-fixed `--menu-width` must fit both parts.
+fixed `--cs-page-menu-width` must fit both parts.
 
 ---
 
@@ -504,7 +504,7 @@ fixed `--menu-width` must fit both parts.
 | Hand-roll your own `<cs-drawer>` + toggle button for the mobile menu                                             | Put nav in `slot="navigation"`; `<cs-page>` provides the drawer and hamburger automatically                                                                                         |
 | Write media queries to show/hide the nav, sidebar, or hamburger                                                  | Don't — the component switches via its own `view` state. Media queries are for page content, not the nav machinery                                                                  |
 | Pair `data-toggle-nav` with your own `<cs-drawer>` (it toggles the `navigation` drawer, not yours → dead button) | Use the `navigation` slot's built-in drawer; `data-toggle-nav` only ever controls that one                                                                                          |
-| Set `--menu-width: 16rem` and leave it on mobile                                                                 | Reset widths to `auto` under `cs-page[view='mobile']`                                                                                                                               |
+| Set `--cs-page-menu-width: 16rem` and leave it on mobile                                                                 | Reset widths to `auto` under `cs-page[view='mobile']`                                                                                                                               |
 | Nav links that leave the drawer open after a tap                                                                 | Add `data-drawer="close"` to navigation links                                                                                                                                       |
 | Expect `aside` to disappear on mobile on its own                                                                 | `aside` has no drawer; hide it (`.cs-desktop-only` or `display: none`)                                                                                                              |
 | Try to set `view="mobile"` yourself                                                                              | `view` is read-only; the component sets it. Only read it in CSS                                                                                                                     |
@@ -519,11 +519,11 @@ Before calling a `<cs-page>` layout done, walk this **`<cs-page>`-specific** str
 alongside the general structural Final Pass in SKILL.md and the visual Polish Checklist in composition.md;
 each catches different things.
 
-- [ ] **Right sidebar decision.** Landing page: nav in `slot="navigation"` **once** (auto sidebar on desktop, drawer on mobile) — or, if you want header-bar nav with no desktop sidebar, the header-on-desktop / drawer-on-mobile recipe above with `--menu-width` left at `auto`. App shell / docs: `navigation` slot with `--menu-width` set, reset to `auto` under `cs-page[view='mobile']`. Either way, don't hand-roll a `<cs-drawer>`.
+- [ ] **Right sidebar decision.** Landing page: nav in `slot="navigation"` **once** (auto sidebar on desktop, drawer on mobile) — or, if you want header-bar nav with no desktop sidebar, the header-on-desktop / drawer-on-mobile recipe above with `--cs-page-menu-width` left at `auto`. App shell / docs: `navigation` slot with `--cs-page-menu-width` set, reset to `auto` under `cs-page[view='mobile']`. Either way, don't hand-roll a `<cs-drawer>`.
 - [ ] **`html, body` reset** is in place (or you're using native styles) — otherwise gaps appear around the page.
 - [ ] **Your own semantic elements are slotted** — `<header>`, `<main>`, `<footer>`, `<nav>`, `<aside>`. `<cs-page>` emits none.
 - [ ] **`main` padding is `0`** for full-bleed pages where sections own their gutter; keep the default only for a single contained column (docs article, login form).
-- [ ] **Sidebar widths reset on mobile.** `--menu-width` and `--aside-width` go to `auto` under `cs-page[view='mobile']` so they don't leak; the `aside` is hidden (`display: none`) on mobile since it has no auto-drawer.
+- [ ] **Sidebar widths reset on mobile.** `--cs-page-menu-width` and `--cs-page-aside-width` go to `auto` under `cs-page[view='mobile']` so they don't leak; the `aside` is hidden (`display: none`) on mobile since it has no auto-drawer.
 - [ ] **`data-drawer="close"`** is on every link in the mobile-collapsing nav, so tapping one closes the drawer instead of leaving it open over the next page.
 - [ ] **`data-toggle-nav` only toggles the `navigation` drawer.** Use it to open the `navigation` slot's drawer (or supply it in the header for the header/drawer recipe); never wire it to a hand-rolled drawer.
 - [ ] **`view` is read-only.** Read it in CSS (`cs-page[view='mobile']`); never set it as an attribute.
@@ -555,8 +555,8 @@ during SSR. When rendering on the server, know:
   component auto-detects whether to show the hamburger (based on `navigation` content and any custom
   `data-toggle-nav`), but that detection doesn't run during SSR. Set the attribute explicitly to control
   the server-rendered markup.
-- **Prevent hydration layout shift by pre-setting the height custom properties.** `--banner-height`,
-  `--header-height`, and `--subheader-height` are measured at runtime (default `0px`). If you know them,
+- **Prevent hydration layout shift by pre-setting the height custom properties.** `--cs-page-banner-height`,
+  `--cs-page-header-height`, and `--cs-page-subheader-height` are measured at runtime (default `0px`). If you know them,
   set them on `<cs-page>` so sticky offsets are correct before JS runs. See
   [CSS custom properties](#css-custom-properties).
 
@@ -602,12 +602,12 @@ or the `cornerstone` skill. This is a working summary.
 
 | Property             | Default | Purpose                                                                                                                                                  |
 | -------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--menu-width`       | `auto`  | Width of the left (menu) column.                                                                                                                          |
-| `--main-width`       | `1fr`   | Width of the main content column.                                                                                                                         |
-| `--aside-width`      | `auto`  | Width of the right (aside) column.                                                                                                                        |
-| `--banner-height`    | `0px`   | Measured automatically once rendered. Set it to the known height to prevent layout shift before JS runs — useful for SSR. Used to offset sticky regions. |
-| `--header-height`    | `0px`   | Measured automatically once rendered. Set it to the known height to prevent layout shift before JS runs — useful for SSR. Used to offset sticky regions. |
-| `--subheader-height` | `0px`   | Measured automatically once rendered. Set it to the known height to prevent layout shift before JS runs — useful for SSR. Used to offset sticky regions. |
+| `--cs-page-menu-width`       | `auto`  | Width of the left (menu) column.                                                                                                                          |
+| `--cs-page-main-width`       | `1fr`   | Width of the main content column.                                                                                                                         |
+| `--cs-page-aside-width`      | `auto`  | Width of the right (aside) column.                                                                                                                        |
+| `--cs-page-banner-height`    | `0px`   | Measured automatically once rendered. Set it to the known height to prevent layout shift before JS runs — useful for SSR. Used to offset sticky regions. |
+| `--cs-page-header-height`    | `0px`   | Measured automatically once rendered. Set it to the known height to prevent layout shift before JS runs — useful for SSR. Used to offset sticky regions. |
+| `--cs-page-subheader-height` | `0px`   | Measured automatically once rendered. Set it to the known height to prevent layout shift before JS runs — useful for SSR. Used to offset sticky regions. |
 
 ### CSS parts
 

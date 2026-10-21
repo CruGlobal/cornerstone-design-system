@@ -58,6 +58,22 @@ export function parseDuration(duration: number | string) {
   return parseFloat(duration) || 0;
 }
 
+/**
+ * Reads the first of `properties` that is set on `el`, the way nested `var()` fallbacks resolve in a stylesheet.
+ * `getPropertyValue()` has no fallback of its own: an unset property reads as an empty string, which
+ * `parseDuration()` turns into 0ms.
+ */
+export function getCustomProperty(el: Element, ...properties: string[]) {
+  const styles = getComputedStyle(el);
+  for (const property of properties) {
+    const value = styles.getPropertyValue(property).trim();
+    if (value) {
+      return value;
+    }
+  }
+  return '';
+}
+
 /** Tells if the user has enabled the "reduced motion" setting in their browser or OS. */
 export function prefersReducedMotion() {
   const query = window.matchMedia('(prefers-reduced-motion: reduce)');

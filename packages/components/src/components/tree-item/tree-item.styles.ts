@@ -3,9 +3,7 @@ import { css } from 'lit';
 export default css`
   :host {
     /* Private - set by the component to control indentation depth */
-    --indent: 0px;
-    --show-duration: var(--cs-transition-normal);
-    --hide-duration: var(--cs-transition-normal);
+    --_indent: 0px;
 
     display: block;
     color: var(--cs-color-text-normal);
@@ -53,7 +51,7 @@ export default css`
 
   .indentation {
     display: block;
-    width: var(--indent);
+    width: var(--_indent);
     flex-shrink: 0;
   }
 
@@ -146,10 +144,12 @@ export default css`
   .children::before {
     content: '';
     position: absolute;
-    top: var(--indent-guide-offset);
-    bottom: var(--indent-guide-offset);
-    inset-inline-start: calc(0.1875em + var(--indent) + 1em - (var(--indent-guide-width) / 2));
-    border-inline-end: var(--indent-guide-width) var(--indent-guide-style) var(--indent-guide-color);
+    /* The tree's properties, so a value set on the tree reaches every item. */
+    top: var(--cs-tree-indent-guide-offset, 0);
+    bottom: var(--cs-tree-indent-guide-offset, 0);
+    inset-inline-start: calc(0.1875em + var(--_indent) + 1em - (var(--cs-tree-indent-guide-width, 0) / 2));
+    border-inline-end: var(--cs-tree-indent-guide-width, 0) var(--cs-tree-indent-guide-style, solid)
+      var(--cs-tree-indent-guide-color, var(--cs-color-surface-border));
     z-index: 1;
   }
 
