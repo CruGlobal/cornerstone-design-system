@@ -4,6 +4,7 @@ import { html } from 'lit';
 import sinon from 'sinon';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
+import { formControlHeight } from '../../internal/test/form-control-height.js';
 import type CsButton from './button.js';
 
 const variants = ['brand', 'success', 'neutral', 'warning', 'danger'];
@@ -27,6 +28,19 @@ function labelTextRect(el: CsButton) {
 
 function centerX(rect: DOMRect) {
   return rect.left + rect.width / 2;
+}
+
+/** Runs `action` with `console.warn` stubbed and returns the vertical end slot warnings it logged. */
+async function endSlotWarnings(action: () => Promise<unknown>) {
+  const warn = sinon.stub(console, 'warn');
+
+  try {
+    await action();
+    await aTimeout(0);
+    return warn.getCalls().filter((call) => String(call.args[0]).includes('end slot of a vertical button'));
+  } finally {
+    warn.restore();
+  }
 }
 
 /** Whether `inner` lies inside `outer`, allowing half a pixel for subpixel rounding. */
@@ -348,13 +362,18 @@ describe('<cs-button>', () => {
         });
 
         it('should stack start above the label and end below it, centered, in DOM order and with no added ARIA', async () => {
-          const el = await fixture<CsButton>(html`
-            <cs-button orientation="vertical">
-              <cs-icon slot="start" library="system" name="settings"></cs-icon>
-              Settings
-              <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
-            </cs-button>
-          `);
+          let el!: CsButton;
+          // Still laid out, though it warns; the stub keeps the warning out of the test output.
+          const warnings = await endSlotWarnings(async () => {
+            el = await fixture<CsButton>(html`
+              <cs-button orientation="vertical">
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+                <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+              </cs-button>
+            `);
+          });
+          expect(warnings).to.have.lengthOf(1);
           const button = partOf(el, 'button');
           const buttonRect = button.getBoundingClientRect();
           const start = el.querySelector('[slot="start"]')!.getBoundingClientRect();
@@ -395,6 +414,22 @@ describe('<cs-button>', () => {
           expect(stackedStyle.minHeight).to.equal(rowStyle.height);
           expect(stackedStyle.minWidth).to.equal(rowStyle.height);
           expect(stacked.getBoundingClientRect().height).to.be.above(row.getBoundingClientRect().height);
+        });
+
+        it('should keep a one-row button one control tall beside a labelled input in a stretching row', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div style="display: flex">
+              <cs-input label="Name"></cs-input>
+              <cs-button>Save</cs-button>
+            </div>
+          `);
+          const host = el.querySelector<CsButton>('cs-button')!;
+          const button = partOf(host, 'button');
+          const control = formControlHeight(button);
+
+          // The row stretches the host to the labelled input's height; the button inside must not follow it.
+          expect(host.getBoundingClientRect().height).to.be.above(control + 1);
+          expect(button.getBoundingClientRect().height).to.equal(control);
         });
 
         it('should keep the focus ring outside the box when vertical', async () => {
@@ -584,5 +619,78 @@ describe('<cs-button>', () => {
       await expect(el).to.be.accessible();
       expect(el.querySelector('cs-icon')!.getAttribute('aria-label')).to.equal('Confirm');
     });
+  });
+
+  describe('vertical end slot warning', () => {
+    for (const fixture of fixtures) {
+      describe(`with "${fixture.type}" rendering`, () => {
+        it('should warn when a vertical button has an element other than a badge in end', async () => {
+          let el!: CsButton;
+          const calls = await endSlotWarnings(async () => {
+            el = await fixture<CsButton>(html`
+              <cs-button orientation="vertical">
+                Settings
+                <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+              </cs-button>
+            `);
+          });
+
+          expect(calls).to.have.lengthOf(1);
+          expect(calls[0].args[1]).to.equal(el);
+        });
+
+        it('should not warn when the only element in end of a vertical button is a badge', async () => {
+          const calls = await endSlotWarnings(() =>
+            fixture<CsButton>(html`
+              <cs-button orientation="vertical">
+                Messages
+                <cs-badge slot="end" variant="danger" pill>3</cs-badge>
+              </cs-button>
+            `),
+          );
+          expect(calls).to.have.lengthOf(0);
+        });
+
+        it('should not warn when a horizontal button has an element in end', async () => {
+          const calls = await endSlotWarnings(() =>
+            fixture<CsButton>(html`
+              <cs-button>
+                Settings
+                <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+              </cs-button>
+            `),
+          );
+          expect(calls).to.have.lengthOf(0);
+        });
+
+        it('should not warn when a vertical icon-only button has an element in end', async () => {
+          const calls = await endSlotWarnings(() =>
+            fixture<CsButton>(html`
+              <cs-button orientation="vertical">
+                <cs-icon library="system" name="settings" label="Settings"></cs-icon>
+                <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+              </cs-button>
+            `),
+          );
+          expect(calls).to.have.lengthOf(0);
+        });
+
+        it('should warn when orientation changes to vertical after render', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button>
+              Settings
+              <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+            </cs-button>
+          `);
+          const calls = await endSlotWarnings(async () => {
+            el.orientation = 'vertical';
+            await el.updateComplete;
+          });
+
+          expect(calls).to.have.lengthOf(1);
+          expect(calls[0].args[1]).to.equal(el);
+        });
+      });
+    }
   });
 });

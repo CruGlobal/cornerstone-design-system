@@ -62,6 +62,7 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
 
   @query('.button') button: HTMLButtonElement | HTMLLinkElement;
   @query('slot:not([name])') labelSlot: HTMLSlotElement;
+  @query('slot[name="end"]') private endSlot: HTMLSlotElement;
 
   @state() invalid = false;
   @state() isIconButton = false;
@@ -80,7 +81,7 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
 
   /**
    * Lays the button's content out in a row, or stacks it in a column: `start` above the label, `end` and the caret
-   * below it. An icon-only button ignores it.
+   * below it. An icon-only button ignores it. When vertical, only a `<cs-badge>` belongs in `end`.
    */
   @property({ reflect: true }) orientation: 'horizontal' | 'vertical' = 'horizontal';
 
@@ -247,6 +248,25 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
     }
   }
 
+  private handleEndSlotChange() {
+    this.warnOfStackedEnd();
+  }
+
+  // A badge escapes the stack by pinning to the corner; anything else in `end` lands under the label.
+  private warnOfStackedEnd() {
+    if (this.orientation !== 'vertical' || this.isIconButton) {
+      return;
+    }
+
+    const elements = this.endSlot.assignedElements({ flatten: true });
+    if (elements.some((element) => element.localName !== 'cs-badge')) {
+      console.warn(
+        'Only a <cs-badge> belongs in the end slot of a vertical button, so move other elements out of it or set orientation="horizontal".',
+        this,
+      );
+    }
+  }
+
   private isButton() {
     return this.href ? false : true;
   }
@@ -269,6 +289,12 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
   @watch('loading', { waitUntilFirstUpdate: true })
   handleLoadingChange() {
     this.customStates.set('loading', this.loading);
+  }
+
+  // The first render is covered by the end slot's slotchange, so this only catches a later change.
+  @watch('orientation', { waitUntilFirstUpdate: true })
+  handleOrientationChange() {
+    this.warnOfStackedEnd();
   }
 
   setValue(..._args: Parameters<CornerstoneFormAssociatedElement['setValue']>) {
@@ -322,7 +348,7 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
       >
         <slot name="start" part="start" class="start"></slot>
         <slot part="label" class="label" @slotchange=${this.handleLabelSlotChange}></slot>
-        <slot name="end" part="end" class="end"></slot>
+        <slot name="end" part="end" class="end" @slotchange=${this.handleEndSlotChange}></slot>
         ${
           this.withCaret
             ? html` <cs-icon part="caret" class="caret" library="system" name="keyboard_arrow_down"></cs-icon> `

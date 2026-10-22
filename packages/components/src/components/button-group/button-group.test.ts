@@ -1,7 +1,12 @@
-import { elementUpdated, expect } from '@open-wc/testing';
+import { elementUpdated, expect, waitUntil } from '@open-wc/testing';
 import { html } from 'lit';
 import { fixtures } from '../../internal/test/fixture.js';
+import { formControlHeight } from '../../internal/test/form-control-height.js';
 import type CsButtonGroup from './button-group.js';
+
+function buttonPart(host: Element) {
+  return host.shadowRoot!.querySelector<HTMLElement>('[part~="button"]')!;
+}
 
 describe('<cs-button-group>', () => {
   for (const fixture of fixtures) {
@@ -122,6 +127,56 @@ describe('<cs-button-group>', () => {
             const firstButton = el.querySelector('cs-button')!;
 
             expect(getComputedStyle(firstButton).marginBlockStart).to.equal('0px');
+          });
+        }
+      });
+
+      describe('height', () => {
+        it('should give one-row, stacked and icon-only buttons in a horizontal group the same height', async () => {
+          const el = await fixture<CsButtonGroup>(html`
+            <cs-button-group label="Tools">
+              <cs-button orientation="vertical">
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+              </cs-button>
+              <cs-button>Search</cs-button>
+              <cs-button><cs-icon library="system" name="settings" label="More"></cs-icon></cs-button>
+            </cs-button-group>
+          `);
+          const [stacked, oneRow, iconOnly] = [...el.querySelectorAll('cs-button')].map(buttonPart);
+          await waitUntil(() => iconOnly.classList.contains('is-icon-button'));
+          const control = formControlHeight(oneRow);
+          const [stackedRect, oneRowRect, iconOnlyRect] = [stacked, oneRow, iconOnly].map((button) =>
+            button.getBoundingClientRect(),
+          );
+
+          // The stacked button is taller than one row, so matching it means the other two grew to fill the row.
+          expect(stackedRect.height).to.be.above(control + 1);
+          for (const rect of [oneRowRect, iconOnlyRect]) {
+            expect(Math.abs(rect.height - stackedRect.height)).to.be.below(0.5);
+            expect(Math.abs(rect.top - stackedRect.top)).to.be.below(0.5);
+          }
+          // The icon-only button keeps its square's width and grows only in height.
+          expect(Math.abs(iconOnlyRect.width - control)).to.be.below(0.5);
+        });
+
+        for (const size of ['xs', 's', 'm', 'l', 'xl']) {
+          it(`should keep a group of one-row ${size} buttons exactly one control tall`, async () => {
+            const el = await fixture<CsButtonGroup>(html`
+              <cs-button-group label="Actions">
+                <cs-button size=${size}>One</cs-button>
+                <cs-button size=${size}>Two</cs-button>
+                <cs-button size=${size}>Three</cs-button>
+              </cs-button-group>
+            `);
+
+            // The host is an inline-block line box around the button, so check both: the line box must add nothing.
+            for (const host of el.querySelectorAll('cs-button')) {
+              const button = buttonPart(host);
+              const control = formControlHeight(button);
+              expect(host.getBoundingClientRect().height).to.equal(control);
+              expect(button.getBoundingClientRect().height).to.equal(control);
+            }
           });
         }
       });

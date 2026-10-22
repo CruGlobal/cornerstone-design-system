@@ -41,6 +41,9 @@ export default css`
   :host([orientation='horizontal']) {
     --_button-horizontal-indent: var(--cs-form-control-border-width);
     --_button-horizontal-indent-outlined: calc(var(--cs-form-control-border-width) * -1);
+    /* Every button fills the row, so a taller stacked one keeps the joined borders continuous. A percentage minimum
+       counts as zero while the row is sized, so a row of one-row buttons stays one control tall. */
+    --_button-min-height: 100%;
 
     ::slotted(:first-child) {
       --_button-horizontal-indent: 0;

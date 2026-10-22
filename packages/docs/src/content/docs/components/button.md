@@ -181,7 +181,7 @@ Use the `start` and `end` slots to add presentational elements like `<cs-icon>` 
 
 Set `orientation="vertical"` to stack a button's content in a column: the `start` slot above the label, and the `end` slot and the caret below it. Use it for an icon with a caption, as in a bottom navigation bar or a toolbar with captions.
 
-Only the slots stack, so put the icon in `start`. An icon beside text in the label stays in the row. An icon-only button keeps its square shape and ignores `orientation`.
+Only the slots stack, so put the icon in `start`. An icon beside text in the label stays in the row. Don't put anything in `end` but a badge, which pins to the button's top corner. Anything else lands under the label, and the button logs a console warning. An icon-only button keeps its square shape and ignores `orientation`.
 
 ```html {.example}
 <div class="cs-cluster cs-gap-2xs">

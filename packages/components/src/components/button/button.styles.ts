@@ -39,6 +39,8 @@ export default css`
     font-size: inherit;
     font-weight: var(--cs-font-weight-action);
     height: var(--cs-form-control-height);
+    /* A horizontal button group sets 100% so every button fills its row; see button-group.styles.ts. */
+    min-height: var(--_button-min-height, auto);
     width: 100%;
 
     background-color: var(--cs-color-fill-loud, var(--cs-color-neutral-fill-loud));
