@@ -85,7 +85,10 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
    */
   @property({ reflect: true }) orientation: 'horizontal' | 'vertical' = 'horizontal';
 
-  /** Draws the button with a caret. Used to indicate that the button triggers a dropdown menu or similar behavior. */
+  /**
+   * Draws the button with a caret. Used to indicate that the button triggers a dropdown menu or similar behavior. The
+   * caret hides anything in `end` except a `<cs-badge>`.
+   */
   @property({ attribute: 'with-caret', type: Boolean, reflect: true }) withCaret = false;
 
   /** Disables the button. */
@@ -254,7 +257,8 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
 
   // A badge escapes the stack by pinning to the corner; anything else in `end` lands under the label.
   private warnOfStackedEnd() {
-    if (this.orientation !== 'vertical' || this.isIconButton) {
+    // A caret hides everything in `end` but a badge, so nothing lands under the label.
+    if (this.orientation !== 'vertical' || this.isIconButton || this.withCaret) {
       return;
     }
 
@@ -292,8 +296,8 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
   }
 
   // The first render is covered by the end slot's slotchange, so this only catches a later change.
-  @watch('orientation', { waitUntilFirstUpdate: true })
-  handleOrientationChange() {
+  @watch(['orientation', 'withCaret'], { waitUntilFirstUpdate: true })
+  handleEndLayoutChange() {
     this.warnOfStackedEnd();
   }
 

@@ -566,6 +566,122 @@ describe('<cs-button>', () => {
           expect(getComputedStyle(partOf(stacked, 'button')).justifyContent).to.equal('center');
         });
       });
+
+      describe('caret and the end slot', () => {
+        for (const orientation of ['horizontal', 'vertical']) {
+          it(`should hide an end icon behind the caret when ${orientation}`, async () => {
+            const el = await fixture<CsButton>(html`
+              <cs-button orientation=${orientation} with-caret>
+                Options
+                <cs-icon slot="end" library="system" name="settings"></cs-icon>
+              </cs-button>
+            `);
+            const icon = el.querySelector('[slot="end"]')!.getBoundingClientRect();
+
+            expect(icon.width).to.equal(0);
+            expect(icon.height).to.equal(0);
+          });
+
+          it(`should keep an end badge pinned to the same corner with a caret when ${orientation}`, async () => {
+            const el = await fixture<HTMLDivElement>(html`
+              <div>
+                <cs-button orientation=${orientation}>
+                  Inbox
+                  <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+                </cs-button>
+                <cs-button orientation=${orientation} with-caret>
+                  Inbox
+                  <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+                </cs-button>
+              </div>
+            `);
+            // Where the badge's center sits relative to the button's top end corner.
+            const [plain, caret] = [...el.querySelectorAll<CsButton>('cs-button')].map((item) => {
+              const button = partOf(item, 'button').getBoundingClientRect();
+              const badge = item.querySelector('cs-badge')!.getBoundingClientRect();
+              return { badge, x: centerX(badge) - button.right, y: badge.top + badge.height / 2 - button.top };
+            });
+
+            expect(caret.badge.width).to.be.above(0);
+            expect(caret.badge.height).to.be.above(0);
+            expect(Math.abs(caret.x - plain.x)).to.be.below(0.5);
+            expect(Math.abs(caret.y - plain.y)).to.be.below(0.5);
+          });
+
+          it(`should add no size for an end holding only a badge, with or without a caret, when ${orientation}`, async () => {
+            const el = await fixture<HTMLDivElement>(html`
+              <div>
+                <cs-button orientation=${orientation}>Inbox</cs-button>
+                <cs-button orientation=${orientation}>
+                  Inbox
+                  <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+                </cs-button>
+                <cs-button orientation=${orientation} with-caret>Inbox</cs-button>
+                <cs-button orientation=${orientation} with-caret>
+                  Inbox
+                  <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+                </cs-button>
+              </div>
+            `);
+            const [bare, badged, caret, caretBadged] = [...el.querySelectorAll<CsButton>('cs-button')].map((item) =>
+              partOf(item, 'button').getBoundingClientRect(),
+            );
+
+            for (const [without, withBadge] of [
+              [bare, badged],
+              [caret, caretBadged],
+            ]) {
+              expect(Math.abs(withBadge.width - without.width)).to.be.below(0.5);
+              expect(Math.abs(withBadge.height - without.height)).to.be.below(0.5);
+            }
+          });
+        }
+
+        it('should be accessible and add an end badge to its name when it has a caret', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button with-caret>Notifications <cs-badge slot="end" pill>3</cs-badge></cs-button>
+          `);
+          await expect(el).to.be.accessible();
+
+          const button = (await a11ySnapshot({ selector: 'cs-button button' })) as unknown as AccessibilityNode;
+          // In end, WebKit keeps the space it drops for a badge in the default slot (see resources/accessibility.md).
+          expect(button).to.include({ role: 'button', name: 'Notifications 3' });
+        });
+
+        it('should leave a hidden end badge out of its name when it has a caret', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button with-caret>Notifications <cs-badge slot="end" pill aria-hidden="true">3</cs-badge></cs-button>
+          `);
+          await expect(el).to.be.accessible();
+
+          const button = (await a11ySnapshot({ selector: 'cs-button button' })) as unknown as AccessibilityNode;
+          expect(button).to.include({ role: 'button', name: 'Notifications' });
+        });
+
+        it('should keep the size of an icon-only button with a caret when it gains a badge', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button with-caret><cs-icon library="system" name="settings" label="Settings"></cs-icon></cs-button>
+              <cs-button with-caret>
+                <cs-icon library="system" name="settings" label="Settings, 3 unread"></cs-icon>
+                <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+              </cs-button>
+            </div>
+          `);
+          const [plain, badged] = [...el.querySelectorAll<CsButton>('cs-button')].map((item) => partOf(item, 'button'));
+          await waitUntil(
+            () => plain.classList.contains('is-icon-button') && badged.classList.contains('is-icon-button'),
+          );
+          const control = formControlHeight(plain);
+          const [plainRect, badgedRect] = [plain, badged].map((button) => button.getBoundingClientRect());
+
+          // Wider than the square, since an icon-only button with a caret grows to fit both.
+          expect(plainRect.width).to.be.above(control + 1);
+          expect(plainRect.height).to.equal(control);
+          expect(Math.abs(badgedRect.width - plainRect.width)).to.be.below(0.5);
+          expect(badgedRect.height).to.equal(plainRect.height);
+        });
+      });
     });
   }
 
@@ -684,6 +800,34 @@ describe('<cs-button>', () => {
           `);
           const calls = await endSlotWarnings(async () => {
             el.orientation = 'vertical';
+            await el.updateComplete;
+          });
+
+          expect(calls).to.have.lengthOf(1);
+          expect(calls[0].args[1]).to.equal(el);
+        });
+
+        it('should not warn when a vertical button with a caret has an element in end', async () => {
+          const calls = await endSlotWarnings(() =>
+            fixture<CsButton>(html`
+              <cs-button orientation="vertical" with-caret>
+                Settings
+                <cs-icon slot="end" library="system" name="settings"></cs-icon>
+              </cs-button>
+            `),
+          );
+          expect(calls).to.have.lengthOf(0);
+        });
+
+        it('should warn when with-caret is removed from a vertical button with an element in end', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical" with-caret>
+              Settings
+              <cs-icon slot="end" library="system" name="settings"></cs-icon>
+            </cs-button>
+          `);
+          const calls = await endSlotWarnings(async () => {
+            el.withCaret = false;
             await el.updateComplete;
           });
 

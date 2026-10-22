@@ -324,10 +324,12 @@ export default css`
       width: 0.875em;
       height: 0.875em;
     }
+  }
 
-    .button:has(&) .end {
-      display: none;
-    }
+  /* The caret takes the place of an end icon, so it hides what end holds; a badge isn't an icon, so it stays in its
+     corner. !important so a page's display on the element can't bring it back; see callout.styles.ts. */
+  .button.caret slot[name='end']::slotted(:not(cs-badge)) {
+    display: none !important;
   }
 
   /*

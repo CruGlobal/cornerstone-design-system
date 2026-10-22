@@ -181,7 +181,7 @@ Use the `start` and `end` slots to add presentational elements like `<cs-icon>` 
 
 Set `orientation="vertical"` to stack a button's content in a column: the `start` slot above the label, and the `end` slot and the caret below it. Use it for an icon with a caption, as in a bottom navigation bar or a toolbar with captions.
 
-Only the slots stack, so put the icon in `start`. An icon beside text in the label stays in the row. Don't put anything in `end` but a badge, which pins to the button's top corner. Anything else lands under the label, and the button logs a console warning. An icon-only button ignores `orientation` and, outside a group, keeps its square shape.
+Only the slots stack, so put the icon in `start`. An icon beside text in the label stays in the row. Don't put anything in `end` but a badge, which pins to the button's top corner. Anything else lands under the label, and the button logs a console warning, unless a caret hides it. An icon-only button ignores `orientation` and, outside a group, keeps its square shape.
 
 ```html {.example}
 <div class="cs-cluster cs-gap-2xs">
@@ -253,7 +253,7 @@ A bar of stacked items that changes the page is navigation, not tabs. Use `cs-bu
 
 ### Caret
 
-Use the `with-caret` attribute to add a dropdown indicator when a button triggers a dropdown, menu, or popover.
+Use the `with-caret` attribute to add a dropdown indicator when a button triggers a dropdown, menu, or popover. The caret takes the place of anything in the `end` slot. A badge there still shows, pinned to the button's top corner. Its text joins the button's accessible name, as on any button. On an icon-only button, follow [Icon Button With a Badge](#icon-button-with-a-badge).
 
 ```html {.example}
 <cs-button with-caret>Options</cs-button>
