@@ -8,7 +8,7 @@ nav drawer, a full-height grid) and will fight whatever surrounds it. Instead, c
 utility classes**. They're plain CSS classes you put on any element, no components required.
 
 Because there's no `<cs-page>` here, **none of its features are available** in this context: no slots
-(`slot="header"`, etc.), no `view='mobile'`/`view='desktop'` state, no `--menu-width`/`--aside-width`,
+(`slot="header"`, etc.), no `view='mobile'`/`view='desktop'` state, no `--cs-page-menu-width`/`--cs-page-aside-width`,
 no `data-toggle-nav`, and **no `.cs-desktop-only` / `.cs-mobile-only`** (those only work inside
 `<cs-page>`; use a CSS media query for responsive visibility here). Don't reach for any of them; they
 do nothing outside a `<cs-page>`.
@@ -68,10 +68,10 @@ quiet secondary.
 ### Responsive card grid
 
 `cs-grid` wraps cards into as many columns as fit, no breakpoints needed. Tune the wrap threshold with
-`--min-column-size`.
+`--cs-grid-min-column-size`.
 
 ```html
-<div class="cs-grid cs-gap-l" style="--min-column-size: 16rem;">
+<div class="cs-grid cs-gap-l" style="--cs-grid-min-column-size: 16rem;">
   <cs-card>
     <h3>Starter</h3>
     <p>For individuals getting started.</p>
@@ -93,10 +93,10 @@ quiet secondary.
 ### Media object (icon/avatar beside text)
 
 `cs-flank` keeps the first child at its natural size and lets the rest fill the space. Tune the fixed
-size with `--flank-size`.
+size with `--cs-flank-size`.
 
 ```html
-<div class="cs-flank cs-gap-s" style="--flank-size: 3rem;">
+<div class="cs-flank cs-gap-s" style="--cs-flank-size: 3rem;">
   <cs-avatar label="Ada Lovelace"></cs-avatar>
   <div class="cs-stack cs-gap-3xs">
     <strong>Ada Lovelace</strong>

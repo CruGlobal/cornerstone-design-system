@@ -66,9 +66,9 @@ describe('<cs-zoomable-frame>', () => {
           expect(el.zoomLevels).to.equal('25% 50% 75% 100% 125% 150% 175% 200%');
         });
 
-        it('should set --zoom CSS property when zoom changes', async () => {
+        it('should set --_zoom CSS property when zoom changes', async () => {
           const el = await fixture<CsZoomableFrame>(html`<cs-zoomable-frame zoom="0.5"></cs-zoomable-frame>`);
-          expect(el.style.getPropertyValue('--zoom')).to.equal('0.5');
+          expect(el.style.getPropertyValue('--_zoom')).to.equal('0.5');
         });
 
         it('should provide contentWindow', async () => {

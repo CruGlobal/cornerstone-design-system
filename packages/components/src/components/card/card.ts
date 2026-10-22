@@ -28,7 +28,7 @@ import styles from './card.styles.js';
  * @csspart footer - The container that wraps the card's footer.
  * @csspart actions - The container that wraps the card's actions.
  *
- * @cssproperty [--spacing=var(--cs-space-l)] - The amount of space around and between sections of the card. Expects a single value.
+ * @cssproperty [--cs-card-spacing=var(--cs-space-l)] - The amount of space around and between sections of the card. Expects a single value.
  *
  * @ssr - If you use the header, media, or footer slots, set the matching `has-header`, `has-media`, or `has-footer` attribute — otherwise only the card's body will render during SSR. This works around the lack of a `:has-slotted` CSS pseudo-class, which would normally let us style borders based on slotted content.
  */

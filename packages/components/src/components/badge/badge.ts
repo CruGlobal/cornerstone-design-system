@@ -20,7 +20,9 @@ import styles from './badge.styles.js';
  * @csspart start - The container that wraps the `start` slot.
  * @csspart end - The container that wraps the `end` slot.
  *
- * @cssproperty --pulse-color - The color of the badge's pulse effect when using `attention="pulse"`.
+ * @cssproperty --cs-badge-pulse-color - The color of the badge's pulse effect when using `attention="pulse"`. Defaults to
+ *  the badge's outer color for its appearance: the fill for `accent` and `filled`, the border for `outlined` and
+ *  `filled-outlined`.
  *
  */
 @customElement('cs-badge')

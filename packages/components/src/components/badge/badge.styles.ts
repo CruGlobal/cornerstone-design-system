@@ -2,8 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --pulse-color: var(--cs-color-fill-loud, var(--cs-color-brand-fill-loud));
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -27,9 +25,9 @@ export default css`
     min-height: 1em;
   }
 
-  /* Appearance modifiers */
+  /* Appearance modifiers. Each sets the pulse color it defaults to; accent's is the keyframes' own fallback. */
   :host([appearance='outlined']) {
-    --pulse-color: var(--cs-color-border-loud, var(--cs-color-brand-border-loud));
+    --_pulse-color: var(--cs-color-border-loud, var(--cs-color-brand-border-loud));
 
     color: var(--cs-color-on-quiet, var(--cs-color-brand-on-quiet));
     background-color: transparent;
@@ -37,7 +35,7 @@ export default css`
   }
 
   :host([appearance='filled']) {
-    --pulse-color: var(--cs-color-fill-normal, var(--cs-color-brand-fill-normal));
+    --_pulse-color: var(--cs-color-fill-normal, var(--cs-color-brand-fill-normal));
 
     color: var(--cs-color-on-normal, var(--cs-color-brand-on-normal));
     background-color: var(--cs-color-fill-normal, var(--cs-color-brand-fill-normal));
@@ -45,7 +43,7 @@ export default css`
   }
 
   :host([appearance='filled-outlined']) {
-    --pulse-color: var(--cs-color-border-normal, var(--cs-color-brand-border-normal));
+    --_pulse-color: var(--cs-color-border-normal, var(--cs-color-brand-border-normal));
 
     color: var(--cs-color-on-normal, var(--cs-color-brand-on-normal));
     background-color: var(--cs-color-fill-normal, var(--cs-color-brand-fill-normal));
@@ -53,8 +51,6 @@ export default css`
   }
 
   :host([appearance='accent']) {
-    --pulse-color: var(--cs-color-fill-loud, var(--cs-color-brand-fill-loud));
-
     color: var(--cs-color-on-loud, var(--cs-color-brand-on-loud));
     background-color: var(--cs-color-fill-loud, var(--cs-color-brand-fill-loud));
     border-color: transparent;
@@ -72,7 +68,8 @@ export default css`
 
   @keyframes pulse {
     0% {
-      box-shadow: 0 0 0 0 var(--pulse-color);
+      box-shadow: 0 0 0 0
+        var(--cs-badge-pulse-color, var(--_pulse-color, var(--cs-color-fill-loud, var(--cs-color-brand-fill-loud))));
     }
     70% {
       box-shadow: 0 0 0 0.5rem transparent;

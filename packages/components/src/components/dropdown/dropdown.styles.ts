@@ -2,8 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --show-duration: var(--cs-transition-fast);
-    --hide-duration: var(--cs-transition-fast);
     display: contents;
   }
 
@@ -21,15 +19,15 @@ export default css`
     text-align: start;
     user-select: none;
     overflow: auto;
-    max-width: var(--auto-size-available-width) !important;
-    max-height: var(--auto-size-available-height) !important;
+    max-width: var(--cs-popup-auto-size-available-width) !important;
+    max-height: var(--cs-popup-auto-size-available-height) !important;
 
     &.show {
-      animation: show var(--show-duration) ease;
+      animation: show var(--cs-show-duration, var(--cs-transition-fast)) ease;
     }
 
     &.hide {
-      animation: show var(--hide-duration) ease reverse;
+      animation: show var(--cs-hide-duration, var(--cs-transition-fast)) ease reverse;
     }
 
     ::slotted(h1),
@@ -47,8 +45,9 @@ export default css`
       font-size: var(--cs-font-size-smaller) !important;
     }
 
+    /* Hand-off: the menu sets its dividers' spacing, so a page-level value doesn't loosen a menu. */
     ::slotted(cs-divider) {
-      --spacing: 0.25em; /* Component-specific, left as-is */
+      --cs-divider-spacing: 0.25em;
     }
   }
 
@@ -92,6 +91,14 @@ export default css`
     to {
       scale: 1;
       opacity: 1;
+    }
+  }
+
+  /* Reduced motion wins over any duration, including one a page sets for every component. */
+  @media (prefers-reduced-motion: reduce) {
+    #menu.show,
+    #menu.hide {
+      animation-duration: 0ms;
     }
   }
 `;

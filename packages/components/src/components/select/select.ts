@@ -77,9 +77,10 @@ import styles from './select.styles.js';
  * @csspart clear-button - The clear button.
  * @csspart expand-icon - The container that wraps the expand icon.
  *
- * @cssproperty [--show-duration=var(--cs-transition-fast)] - The duration of the show animation.
- * @cssproperty [--hide-duration=var(--cs-transition-fast)] - The duration of the hide animation.
- * @cssproperty [--tag-max-size=10ch] - When using `multiple`, the max size of tags before their content is truncated.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-fast)] - The duration of the show animation. Read by the select's
+ *  popup, which inherits it.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-fast)] - The duration of the hide animation.
+ * @cssproperty [--cs-select-tag-max-size=10ch] - When using `multiple`, the max size of tags before their content is truncated.
  *
  * @cssstate blank - The select is empty.
  */

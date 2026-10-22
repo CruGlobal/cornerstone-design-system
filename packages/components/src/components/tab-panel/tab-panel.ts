@@ -17,7 +17,8 @@ let id = 0;
  * @slot - The tab panel's content.
  *
  *
- * @cssproperty --padding - The tab panel's padding.
+ * @cssproperty [--cs-tab-panel-padding=0] - The tab panel's padding. Inside a tab group it defaults to `var(--cs-space-xl) 0`
+ *  for top and bottom placements and `0 var(--cs-space-xl)` for start and end.
  */
 @customElement('cs-tab-panel')
 export default class CsTabPanel extends CornerstoneElement {

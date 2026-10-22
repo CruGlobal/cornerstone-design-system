@@ -40,10 +40,10 @@ const openPopovers = new Set<CsPopover>();
  * @csspart popup__popup - The popup's exported `popup` part. Use this to target the popover's popup container.
  * @csspart popup__arrow - The popup's exported `arrow` part. Use this to target the popover's arrow.
  *
- * @cssproperty [--arrow-size=0.375rem] - The size of the tiny arrow that points to the popover (set to zero to remove).
- * @cssproperty [--max-width=25rem] - The maximum width of the popover's body content.
- * @cssproperty [--show-duration=var(--cs-transition-fast)] - The speed of the show animation.
- * @cssproperty [--hide-duration=var(--cs-transition-fast)] - The speed of the hide animation.
+ * @cssproperty [--cs-popover-arrow-size=0.375rem] - The size of the tiny arrow that points to the popover (set to zero to remove).
+ * @cssproperty [--cs-popover-max-width=25rem] - The maximum width of the popover's body content.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-fast)] - The speed of the show animation.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-fast)] - The speed of the hide animation.
  *
  * @cssstate open - Applied when the popover is open.
  */

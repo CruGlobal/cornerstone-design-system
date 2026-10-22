@@ -56,7 +56,7 @@ Set the color picker's format with the `format` attribute. Valid options are `he
 To stop people from cycling through formats themselves, add the `without-format-toggle` attribute.
 
 ```html {.example}
-<div class="cs-grid" style="--min-column-size: 12ch;">
+<div class="cs-grid" style="--cs-grid-min-column-size: 12ch;">
   <cs-color-picker format="hex" value="#4a90e2" label="Pick a hex color"></cs-color-picker>
   <cs-color-picker format="rgb" value="rgb(80, 227, 194)" label="Pick an RGB color"></cs-color-picker>
   <cs-color-picker format="hsl" value="hsl(290, 87%, 47%)" label="Pick an HSL color"></cs-color-picker>

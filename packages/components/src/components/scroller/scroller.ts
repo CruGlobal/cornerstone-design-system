@@ -14,8 +14,8 @@ import styles from './scroller.styles.js';
  *
  * @slot - The content to show inside the scroller.
  *
- * @cssproperty [--shadow-color=var(--cs-color-surface-default)] - The base color of the shadow.
- * @cssproperty [--shadow-size=2rem] - The size of the shadow.
+ * @cssproperty [--cs-scroller-shadow-color=var(--cs-color-surface-default)] - The base color of the shadow.
+ * @cssproperty [--cs-scroller-shadow-size=2rem] - The size of the shadow.
  *
  * @csspart content - The container that wraps the slotted content.
  * @csspart start-shadow - The scroll shadow shown at the start edge when more content is available, unless `without-shadow` is set.
@@ -94,8 +94,8 @@ export default class CsScroller extends CornerstoneElement {
       const endShadowOpacity = Math.min(1, (maxScroll - scrollLeft) / (maxScroll * 0.05));
 
       // Update CSS custom properties
-      this.style.setProperty('--start-shadow-opacity', String(startShadowOpacity || 0));
-      this.style.setProperty('--end-shadow-opacity', String(endShadowOpacity || 0));
+      this.style.setProperty('--_start-shadow-opacity', String(startShadowOpacity || 0));
+      this.style.setProperty('--_end-shadow-opacity', String(endShadowOpacity || 0));
     } else {
       const clientHeight = Math.ceil(this.content.clientHeight);
       const scrollTop = Math.abs(Math.ceil(this.content.scrollTop));
@@ -110,8 +110,8 @@ export default class CsScroller extends CornerstoneElement {
       const endShadowOpacity = Math.min(1, (maxScroll - scrollTop) / (maxScroll * 0.05));
 
       // Update CSS custom properties
-      this.style.setProperty('--start-shadow-opacity', String(startShadowOpacity || 0));
-      this.style.setProperty('--end-shadow-opacity', String(endShadowOpacity || 0));
+      this.style.setProperty('--_start-shadow-opacity', String(startShadowOpacity || 0));
+      this.style.setProperty('--_end-shadow-opacity', String(endShadowOpacity || 0));
     }
   }
 

@@ -15,6 +15,9 @@ import styles from './qr-code.styles.js';
  * @since 0.1
  *
  * @csspart qr-code - The component's outer wrapper.
+ *
+ * @cssproperty [--cs-qr-code-corner-color=currentColor] - The color of the three square corner markers. Defaults to the
+ *  code's own color.
  */
 @customElement('cs-qr-code')
 export default class CsQrCode extends CornerstoneElement {
@@ -120,7 +123,7 @@ export default class CsQrCode extends CornerstoneElement {
           }
         }}
       >
-        <span style="color: var(--corner-color);"></span>
+        <span style="color: var(--cs-qr-code-corner-color, currentColor);"></span>
       </canvas>
     `;
   }

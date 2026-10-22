@@ -310,9 +310,9 @@ above than below.
 
 ### Fixed widths beat fluid grids for intrinsic sizes
 
-`<cs-page>`'s grid uses fixed `--menu-width` / `--aside-width` for the sidebars and flexes `main` to
+`<cs-page>`'s grid uses fixed `--cs-page-menu-width` / `--cs-page-aside-width` for the sidebars and flexes `main` to
 whatever's left — because a sidebar has an optimal width that doesn't benefit from stretching.
-`cs-grid` follows the same idea for tile grids: `--min-column-size` defines a content-width minimum,
+`cs-grid` follows the same idea for tile grids: `--cs-grid-min-column-size` defines a content-width minimum,
 and the column count flexes around it. Both avoid the percentage-grid trap of stretching things past
 their readable size as the viewport grows.
 

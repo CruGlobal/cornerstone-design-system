@@ -49,10 +49,10 @@ A _quiet zone_ is the blank space around a QR code that helps scanners detect it
 
 ### Corner Color
 
-You can change the color of the corners to be different from the main element with the `--corner-color` custom property.
+You can change the color of the corners to be different from the main element with the `--cs-qr-code-corner-color` custom property.
 
 ```html {.example}
-<cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" style="--corner-color: var(--cs-color-brand)"></cs-qr-code>
+<cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" style="--cs-qr-code-corner-color: var(--cs-color-brand)"></cs-qr-code>
 ```
 
 ### Radius
@@ -89,7 +89,7 @@ QR codes can be rendered with various levels of [error correction](https://www.q
 Use the `image` attribute to add a logo or image to the center of the QR code. When using an image, the error correction level will automatically be set to `H` to ensure the code remains scannable.
 
 ```html {.example}
-<cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" image="/assets/images/logos/cs-avatar4x.png"></cs-qr-code>
+<cs-qr-code value="https://github.com/CruGlobal/cornerstone-design-system" image="/assets/images/cornerstone-mark.svg"></cs-qr-code>
 ```
 
 ### Image Coverage
@@ -101,18 +101,18 @@ The higher the `image-coverage` value, the harder it will be for QR readers to s
 ```html {.example}
 <div class="qr-ec-cover">
   <cs-qr-code
-    value="https://fontawesome.com/"
-    image="/assets/images/logos/fa-avatar4x.png"
+    value="https://github.com/CruGlobal/cornerstone-design-system"
+    image="/assets/images/cornerstone-mark.svg"
     image-coverage="0.3"
   ></cs-qr-code>
   <cs-qr-code
     value="https://github.com/CruGlobal/cornerstone-design-system"
-    image="/assets/images/logos/cs-avatar4x.png"
+    image="/assets/images/cornerstone-mark.svg"
     image-coverage="0.6"
   ></cs-qr-code>
   <cs-qr-code
-    value="https://build.awesome.me/"
-    image="/assets/images/logos/ba-avatar4x.png"
+    value="https://github.com/CruGlobal/cornerstone-design-system"
+    image="/assets/images/cornerstone-mark.svg"
     image-coverage="0.9"
   ></cs-qr-code>
 </div>

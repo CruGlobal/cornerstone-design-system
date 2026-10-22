@@ -2,8 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --padding: 0;
-
     display: none;
   }
 
@@ -13,6 +11,7 @@ export default css`
 
   .tab-panel {
     display: block;
-    padding: var(--padding);
+    /* A tab group supplies its placement's default through the private --_tab-panel-padding. */
+    padding: var(--cs-tab-panel-padding, var(--_tab-panel-padding, 0));
   }
 `;

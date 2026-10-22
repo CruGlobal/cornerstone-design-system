@@ -2,13 +2,7 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --gap: 0.5em;
-
     display: block;
-  }
-
-  :host([orientation='horizontal']) {
-    --gap: 1em;
   }
 
   .form-control {
@@ -33,12 +27,13 @@ export default css`
     flex-direction: column;
     /* Keep items sized to their content so the clickable label doesn't span the full width */
     align-items: start;
-    gap: var(--gap);
+    gap: var(--cs-checkbox-group-gap, 0.5em);
     margin-block-start: 0.5em;
   }
 
   /* Horizontal */
   :host([orientation='horizontal']) [part~='form-control-input'] {
+    gap: var(--cs-checkbox-group-gap, 1em);
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;

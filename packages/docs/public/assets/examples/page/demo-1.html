@@ -75,7 +75,7 @@
           class="cs-flank:end cs-border-radius-l cs-dark"
           style="
             background-color: var(--cs-color-surface-lowered);
-            --content-percentage: 35%;
+            --cs-flank-content-percentage: 35%;
             padding: var(--cs-space-m);
           "
         >
@@ -226,8 +226,8 @@
 
     <style>
       cs-page {
-        --menu-width: 15rem;
-        --aside-width: 15rem;
+        --cs-page-menu-width: 15rem;
+        --cs-page-aside-width: 15rem;
       }
       cs-page[view='desktop'] {
         [slot*='navigation'] {
@@ -235,8 +235,8 @@
         }
       }
       cs-page[view='mobile'] {
-        --menu-width: auto;
-        --aside-width: auto;
+        --cs-page-menu-width: auto;
+        --cs-page-aside-width: auto;
       }
 
       [slot='banner'] {
@@ -266,7 +266,7 @@
         border-block-start: var(--cs-border-width-s) var(--cs-border-style) var(--cs-color-surface-border);
 
         .cs-flank {
-          --flank-size: 1.25em;
+          --cs-flank-size: 1.25em;
         }
       }
       [slot='main-header'],

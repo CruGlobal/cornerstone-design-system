@@ -46,16 +46,16 @@ describe('<cs-progress-bar>', () => {
           expect(base.getAttribute('aria-valuenow')).to.equal('75');
         });
 
-        it('should set the --percentage custom property from value', async () => {
+        it('should set the --_percentage custom property from value', async () => {
           const el = await fixture<CsProgressBar>(html`<cs-progress-bar value="25"></cs-progress-bar>`);
           await new Promise(requestAnimationFrame);
-          expect(el.style.getPropertyValue('--percentage')).to.equal('25%');
+          expect(el.style.getPropertyValue('--_percentage')).to.equal('25%');
         });
 
         it('should clamp value between 0 and 100', async () => {
           const el = await fixture<CsProgressBar>(html`<cs-progress-bar value="150"></cs-progress-bar>`);
           await new Promise(requestAnimationFrame);
-          expect(el.style.getPropertyValue('--percentage')).to.equal('100%');
+          expect(el.style.getPropertyValue('--_percentage')).to.equal('100%');
         });
 
         it('should reflect the indeterminate attribute', async () => {

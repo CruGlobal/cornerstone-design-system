@@ -2,17 +2,15 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --size: 3rem;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    width: var(--size);
-    height: var(--size);
+    width: var(--cs-avatar-size, 3rem);
+    height: var(--cs-avatar-size, 3rem);
     color: var(--cs-color-neutral-on-normal);
     font: inherit;
-    font-size: calc(var(--size) * 0.4);
+    font-size: calc(var(--cs-avatar-size, 3rem) * 0.4);
     vertical-align: middle;
     background-color: var(--cs-color-neutral-fill-normal);
     border-radius: var(--cs-border-radius-circle);

@@ -2,12 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --size: 25rem;
-    --spacing: var(--cs-space-l);
-    --backdrop-filter: none;
-    --show-duration: var(--cs-transition-normal);
-    --hide-duration: var(--cs-transition-normal);
-
     display: none;
   }
 
@@ -45,27 +39,27 @@ export default css`
     overflow: auto;
     padding: 0;
     margin: 0;
-    animation-duration: var(--show-duration);
+    animation-duration: var(--cs-show-duration, var(--cs-transition-normal));
     animation-timing-function: ease;
 
     &.show::backdrop {
-      animation: show-backdrop var(--show-duration, 200ms) ease;
+      animation: show-backdrop var(--cs-show-duration, var(--cs-transition-normal, 200ms)) ease;
     }
 
     &.hide::backdrop {
-      animation: show-backdrop var(--hide-duration, 200ms) ease reverse;
+      animation: show-backdrop var(--cs-hide-duration, var(--cs-transition-normal, 200ms)) ease reverse;
     }
 
     &.show.top {
-      animation: show-drawer-from-top var(--show-duration) ease;
+      animation: show-drawer-from-top var(--cs-show-duration, var(--cs-transition-normal)) ease;
     }
 
     &.hide.top {
-      animation: show-drawer-from-top var(--hide-duration) ease reverse;
+      animation: show-drawer-from-top var(--cs-hide-duration, var(--cs-transition-normal)) ease reverse;
     }
 
     &.show.end {
-      animation: show-drawer-from-end var(--show-duration) ease;
+      animation: show-drawer-from-end var(--cs-show-duration, var(--cs-transition-normal)) ease;
 
       &:dir(rtl) {
         animation-name: show-drawer-from-start;
@@ -73,7 +67,7 @@ export default css`
     }
 
     &.hide.end {
-      animation: show-drawer-from-end var(--hide-duration) ease reverse;
+      animation: show-drawer-from-end var(--cs-hide-duration, var(--cs-transition-normal)) ease reverse;
 
       &:dir(rtl) {
         animation-name: show-drawer-from-start;
@@ -81,15 +75,15 @@ export default css`
     }
 
     &.show.bottom {
-      animation: show-drawer-from-bottom var(--show-duration) ease;
+      animation: show-drawer-from-bottom var(--cs-show-duration, var(--cs-transition-normal)) ease;
     }
 
     &.hide.bottom {
-      animation: show-drawer-from-bottom var(--hide-duration) ease reverse;
+      animation: show-drawer-from-bottom var(--cs-hide-duration, var(--cs-transition-normal)) ease reverse;
     }
 
     &.show.start {
-      animation: show-drawer-from-start var(--show-duration) ease;
+      animation: show-drawer-from-start var(--cs-show-duration, var(--cs-transition-normal)) ease;
 
       &:dir(rtl) {
         animation-name: show-drawer-from-end;
@@ -97,7 +91,7 @@ export default css`
     }
 
     &.hide.start {
-      animation: show-drawer-from-start var(--hide-duration) ease reverse;
+      animation: show-drawer-from-start var(--cs-hide-duration, var(--cs-transition-normal)) ease reverse;
 
       &:dir(rtl) {
         animation-name: show-drawer-from-end;
@@ -119,7 +113,7 @@ export default css`
     bottom: auto;
     inset-inline-start: 0;
     width: 100%;
-    height: var(--size);
+    height: var(--cs-drawer-size, 25rem);
   }
 
   .end {
@@ -127,7 +121,7 @@ export default css`
     inset-inline-end: 0;
     bottom: auto;
     inset-inline-start: auto;
-    width: var(--size);
+    width: var(--cs-drawer-size, 25rem);
     height: 100%;
   }
 
@@ -137,7 +131,7 @@ export default css`
     bottom: 0;
     inset-inline-start: 0;
     width: 100%;
-    height: var(--size);
+    height: var(--cs-drawer-size, 25rem);
   }
 
   .start {
@@ -145,19 +139,19 @@ export default css`
     inset-inline-end: auto;
     bottom: auto;
     inset-inline-start: 0;
-    width: var(--size);
+    width: var(--cs-drawer-size, 25rem);
     height: 100%;
   }
 
   .header {
     display: flex;
     flex-wrap: nowrap;
-    padding-inline-start: var(--spacing);
+    padding-inline-start: var(--cs-drawer-spacing, var(--cs-space-l));
     padding-block-end: 0;
 
     /* Subtract the close button's padding so that the X is visually aligned with the edges of the dialog content */
-    padding-inline-end: calc(var(--spacing) - var(--cs-form-control-padding-block));
-    padding-block-start: calc(var(--spacing) - var(--cs-form-control-padding-block));
+    padding-inline-end: calc(var(--cs-drawer-spacing, var(--cs-space-l)) - var(--cs-form-control-padding-block));
+    padding-block-start: calc(var(--cs-drawer-spacing, var(--cs-space-l)) - var(--cs-form-control-padding-block));
   }
 
   .title {
@@ -177,7 +171,7 @@ export default css`
     flex-wrap: wrap;
     justify-content: end;
     gap: var(--cs-space-2xs);
-    padding-inline-start: var(--spacing);
+    padding-inline-start: var(--cs-drawer-spacing, var(--cs-space-l));
   }
 
   .header-actions cs-button,
@@ -190,7 +184,7 @@ export default css`
   .body {
     flex: 1 1 auto;
     display: block;
-    padding: var(--spacing);
+    padding: var(--cs-drawer-spacing, var(--cs-space-l));
     overflow: auto;
     -webkit-overflow-scrolling: touch;
 
@@ -209,7 +203,7 @@ export default css`
     flex-wrap: wrap;
     gap: var(--cs-space-xs);
     justify-content: end;
-    padding: var(--spacing);
+    padding: var(--cs-drawer-spacing, var(--cs-space-l));
     padding-block-start: 0;
   }
 
@@ -223,7 +217,7 @@ export default css`
         remove the fallback values here.
       */
     background-color: var(--cs-color-overlay-modal, rgb(0 0 0 / 0.25));
-    backdrop-filter: var(--backdrop-filter);
+    backdrop-filter: var(--cs-backdrop-filter, none);
   }
 
   @keyframes pulse {
@@ -305,6 +299,14 @@ export default css`
   @media (forced-colors: active) {
     .drawer {
       border: solid 1px white;
+    }
+  }
+
+  /* Reduced motion wins over any duration, including one a page sets for every component. Matches the placement rules' specificity, which name a class for each side. */
+  @media (prefers-reduced-motion: reduce) {
+    .drawer:is(.show, .hide):is(.top, .end, .bottom, .start),
+    .drawer:is(.show, .hide)::backdrop {
+      animation-duration: 0ms;
     }
   }
 `;

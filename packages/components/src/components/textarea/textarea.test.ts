@@ -4,6 +4,7 @@ import { html } from 'lit';
 import sinon from 'sinon';
 import { clientFixture, fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
+import { formControlHeight } from '../../internal/test/form-control-height.js';
 import { serialize } from '../../utilities/form.js';
 import type CsTextarea from './textarea.js';
 
@@ -324,6 +325,13 @@ describe('<cs-textarea>', () => {
       });
 
       describe('CSS parts and states', () => {
+        // Its min-height once read an unset --border-width, which voided it, so one row came out a pixel short.
+        it('should be as tall as a form control with one row', async () => {
+          const el = await fixture<CsTextarea>(html`<cs-textarea rows="1"></cs-textarea>`);
+          const wrapper = el.shadowRoot!.querySelector('[part~="textarea-wrapper"]')!;
+          expect(wrapper.getBoundingClientRect().height).to.equal(formControlHeight(el));
+        });
+
         it('should receive the correct validation states when valid', async () => {
           const el = await fixture<CsTextarea>(html`<cs-textarea required value="a"></cs-textarea>`);
 

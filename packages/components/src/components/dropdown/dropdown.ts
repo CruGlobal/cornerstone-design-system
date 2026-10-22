@@ -46,8 +46,9 @@ const openDropdowns = new Set<CsDropdown>();
  *
  * @csspart menu - The dropdown menu container.
  *
- * @cssproperty --show-duration - The duration of the show animation.
- * @cssproperty --hide-duration - The duration of the hide animation.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-fast)] - The duration of the show animation, for the menu and its
+ *  submenus.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-fast)] - The duration of the hide animation.
  */
 @customElement('cs-dropdown')
 export default class CsDropdown extends CornerstoneElement {
@@ -654,25 +655,25 @@ export default class CsDropdown extends CornerstoneElement {
     const isKeyboardNavigation = document.activeElement?.matches(':focus-visible');
 
     if (isKeyboardNavigation) {
-      item.submenuElement.style.setProperty('--safe-triangle-visible', 'none');
+      item.submenuElement.style.setProperty('--_safe-triangle-visible', 'none');
       return;
     }
 
-    item.submenuElement.style.setProperty('--safe-triangle-visible', 'block');
+    item.submenuElement.style.setProperty('--_safe-triangle-visible', 'block');
 
     const submenuRect = item.submenuElement.getBoundingClientRect();
     const isRtl = this.localize.dir() === 'rtl';
 
     item.submenuElement.style.setProperty(
-      '--safe-triangle-submenu-start-x',
+      '--_safe-triangle-submenu-start-x',
       `${isRtl ? submenuRect.right : submenuRect.left}px`,
     );
-    item.submenuElement.style.setProperty('--safe-triangle-submenu-start-y', `${submenuRect.top}px`);
+    item.submenuElement.style.setProperty('--_safe-triangle-submenu-start-y', `${submenuRect.top}px`);
     item.submenuElement.style.setProperty(
-      '--safe-triangle-submenu-end-x',
+      '--_safe-triangle-submenu-end-x',
       `${isRtl ? submenuRect.right : submenuRect.left}px`,
     );
-    item.submenuElement.style.setProperty('--safe-triangle-submenu-end-y', `${submenuRect.bottom}px`);
+    item.submenuElement.style.setProperty('--_safe-triangle-submenu-end-y', `${submenuRect.bottom}px`);
   }
 
   /** Handle global mouse movement for safe triangle logic */
@@ -689,8 +690,8 @@ export default class CsDropdown extends CornerstoneElement {
     const constrainedX = isRtl ? Math.max(event.clientX, submenuEdgeX) : Math.min(event.clientX, submenuEdgeX);
     const constrainedY = Math.max(submenuRect.top, Math.min(event.clientY, submenuRect.bottom));
 
-    currentSubmenuItem.submenuElement.style.setProperty('--safe-triangle-cursor-x', `${constrainedX}px`);
-    currentSubmenuItem.submenuElement.style.setProperty('--safe-triangle-cursor-y', `${constrainedY}px`);
+    currentSubmenuItem.submenuElement.style.setProperty('--_safe-triangle-cursor-x', `${constrainedX}px`);
+    currentSubmenuItem.submenuElement.style.setProperty('--_safe-triangle-cursor-y', `${constrainedY}px`);
 
     // Calculate these up front since this event cant fire a lot.
     const composedPath = event.composedPath();

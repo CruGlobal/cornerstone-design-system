@@ -31,8 +31,8 @@ import styles from './comparison.styles.js';
  * @csspart divider - The divider that separates the before and after content.
  * @csspart handle - The handle that the user drags to expose the after content.
  *
- * @cssproperty --divider-width - The width of the dividing line.
- * @cssproperty --handle-size - The size of the compare handle.
+ * @cssproperty [--cs-comparison-divider-width=0.125rem] - The width of the dividing line.
+ * @cssproperty [--cs-comparison-handle-size=2.5rem] - The size of the compare handle.
  *
  * @cssstate dragging - Applied when the comparison is being dragged.
  */

@@ -187,12 +187,12 @@ Try resizing the example below with each option and notice how the panels respon
 
 ### Min & Max
 
-To set a minimum or maximum size of the primary panel, use the `--min` and `--max` custom properties. Since the secondary panel is flexible, size constraints can only be applied to the primary panel. If no primary panel is designated, these constraints will be applied to the `start` panel.
+To set a minimum or maximum size of the primary panel, use the `--cs-split-panel-min` and `--cs-split-panel-max` custom properties. Since the secondary panel is flexible, size constraints can only be applied to the primary panel. If no primary panel is designated, these constraints will be applied to the `start` panel.
 
-This examples demonstrates how you can ensure both panels are at least 150px using `--min`, `--max`, and the `calc()` function.
+This examples demonstrates how you can ensure both panels are at least 150px using `--cs-split-panel-min`, `--cs-split-panel-max`, and the `calc()` function.
 
 ```html {.example}
-<cs-split-panel style="--min: 150px; --max: calc(100% - 150px);">
+<cs-split-panel style="--cs-split-panel-min: 150px; --cs-split-panel-max: calc(100% - 150px);">
   <div slot="start" class="split-demo">
     Start
   </div>
@@ -229,7 +229,7 @@ Create complex layouts that can be repositioned independently by nesting split p
 You can target the `divider` part to apply CSS properties to the divider. To add a custom handle, slot an icon into the `divider` slot. When customizing the divider, make sure to think about focus styles for keyboard users.
 
 ```html {.example}
-<cs-split-panel style="--divider-width: 20px;">
+<cs-split-panel style="--cs-split-panel-divider-width: 20px;">
   <cs-icon slot="divider" name="drag_indicator"></cs-icon>
   <div slot="start" class="split-demo">
     Start
@@ -257,7 +257,7 @@ Here's a more elaborate example that changes the divider's color and width and a
 
 <style>
   .split-panel-divider cs-split-panel {
-    --divider-width: 4px;
+    --cs-split-panel-divider-width: 4px;
   }
 
   .split-panel-divider cs-split-panel::part(divider) {

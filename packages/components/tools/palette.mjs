@@ -488,9 +488,9 @@ const SELECTORS = (brand) => ({
 
 /**
  * The mode-independent block, carried from the reference theme verbatim. Font stacks, scales, spacing
- * ratios, shadow geometry, form-control metrics and tooltip sizing are structure rather than brand. A brand's
- * knobs can override two things in it: its font families (`fonts`), and any font weight its licensed cuts
- * cannot render (`fontWeights`).
+ * ratios, shadow geometry, form-control metrics and the defaults several components share are structure
+ * rather than brand. A brand's knobs can override two things in it: its font families (`fonts`), and any
+ * font weight its licensed cuts cannot render (`fontWeights`).
  */
 function carriedBlock(fonts, fontWeights) {
   const ref = readFileSync(join(ROOT, 'src/styles/color/../themes/default.css'), 'utf8');

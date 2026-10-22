@@ -42,9 +42,9 @@ import styles from './tab-group.styles.js';
  * @csspart scroll-button-end - The ending scroll button.
  * @csspart scroll-button__button - The scroll button's exported `button` part.
  *
- * @cssproperty --indicator-color - The color of the active tab indicator.
- * @cssproperty --track-color - The color of the indicator's track (the line that separates tabs from panels).
- * @cssproperty --track-width - The width of the indicator's track (the line that separates tabs from panels).
+ * @cssproperty [--cs-tab-group-indicator-color=var(--cs-color-brand-fill-loud)] - The color of the active tab indicator.
+ * @cssproperty [--cs-tab-group-track-color=var(--cs-color-neutral-fill-normal)] - The color of the indicator's track (the line that separates tabs from panels).
+ * @cssproperty [--cs-tab-group-track-width=0.125rem] - The width of the indicator's track (the line that separates tabs from panels).
  *
  * @ssr - During SSR, `<cs-tab-group>` can't access its children to determine which tab is active. To render the correct panel, manually set the `active` attribute on the matching `<cs-tab>` and `<cs-tab-panel>`.
  */
