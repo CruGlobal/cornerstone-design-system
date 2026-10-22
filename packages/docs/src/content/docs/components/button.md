@@ -181,7 +181,7 @@ Use the `start` and `end` slots to add presentational elements like `<cs-icon>` 
 
 Set `orientation="vertical"` to stack a button's content in a column: the `start` slot above the label, and the `end` slot and the caret below it. Use it for an icon with a caption, as in a bottom navigation bar or a toolbar with captions.
 
-Only the slots stack, so put the icon in `start`. An icon beside text in the label stays in the row. Don't put anything in `end` but a badge, which pins to the button's top corner. Anything else lands under the label, and the button logs a console warning. An icon-only button keeps its square shape and ignores `orientation`.
+Only the slots stack, so put the icon in `start`. An icon beside text in the label stays in the row. Don't put anything in `end` but a badge, which pins to the button's top corner. Anything else lands under the label, and the button logs a console warning. An icon-only button ignores `orientation` and, outside a group, keeps its square shape.
 
 ```html {.example}
 <div class="cs-cluster cs-gap-2xs">
@@ -204,7 +204,7 @@ A stacked button is never shorter or narrower than a one-row button, and it grow
 
 Leave the `start` icon's `label` off. The icon is decorative, so the button is named by its text alone. Give the icon a `label` only when it says something the text does not, and know that the button's name will then read the icon's label first.
 
-Don't mix orientations in one [button group](/components/button-group). A one-row button keeps its fixed height so it lines up with form fields, and it won't match the stacked buttons beside it. Stacked buttons in one group share one height. A `pill` stacked button is drawn as a capsule, since `pill` rounds every corner fully.
+Buttons in a horizontal [button group](/components/button-group) share one height, so a stacked toolbar can end with a one-row or icon-only button, which grows taller to match. An icon-only button keeps its width, so it becomes a tall rectangle. Outside a group, such as the navigation bar below, a one-row button keeps its fixed height so it lines up with form fields. It won't match the stacked buttons beside it, so keep every item in such a bar stacked. A `pill` stacked button is drawn as a capsule, since `pill` rounds every corner fully.
 
 #### Navigation Bar
 
