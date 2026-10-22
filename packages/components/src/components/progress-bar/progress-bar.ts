@@ -21,9 +21,9 @@ import styles from './progress-bar.styles.js';
  * @csspart indicator - The progress bar's indicator.
  * @csspart label - The progress bar's label.
  *
- * @cssproperty [--track-height=1rem] - The height of the track.
- * @cssproperty [--track-color=var(--cs-color-neutral-fill-normal)] - The color of the track.
- * @cssproperty [--indicator-color=var(--cs-color-brand-fill-loud)] - The color of the indicator.
+ * @cssproperty [--cs-progress-bar-track-height=1rem] - The height of the track.
+ * @cssproperty [--cs-track-color=var(--cs-color-neutral-fill-normal)] - The color of the track.
+ * @cssproperty [--cs-indicator-color=var(--cs-color-brand-fill-loud)] - The color of the indicator.
  */
 @customElement('cs-progress-bar')
 export default class CsProgressBar extends CornerstoneElement {
@@ -42,7 +42,7 @@ export default class CsProgressBar extends CornerstoneElement {
   willUpdate(changedProperties: PropertyValues<this>) {
     // This is intended for the server.
     if (this.style == null) {
-      this.setStyleProperty('--percentage', `${clamp(this.value, 0, 100)}%`);
+      this.setStyleProperty('--_percentage', `${clamp(this.value, 0, 100)}%`);
     }
 
     super.willUpdate(changedProperties);
@@ -53,7 +53,7 @@ export default class CsProgressBar extends CornerstoneElement {
       // Wait a cycle before setting it so Safari animates it.
       // https://github.com/shoelace-style/webawesome/issues/356
       requestAnimationFrame(() => {
-        this.style.setProperty('--percentage', `${clamp(this.value, 0, 100)}%`);
+        this.style.setProperty('--_percentage', `${clamp(this.value, 0, 100)}%`);
       });
     }
 

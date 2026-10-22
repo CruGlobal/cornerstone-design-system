@@ -180,16 +180,16 @@ Every toast item includes a close button that allows users to dismiss the notifi
 
 ### Customizing the Accent
 
-Use the `--accent-width` custom property to adjust the width of the accent line, or hide it entirely.
+Use the `--cs-toast-item-accent-width` custom property to adjust the width of the accent line, or hide it entirely.
 
 ```html {.example}
 <div class="cs-stack">
-  <cs-toast-item variant="brand" duration="0" style="--accent-width: 8px;">
+  <cs-toast-item variant="brand" duration="0" style="--cs-toast-item-accent-width: 8px;">
     <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
     Thicker accent line
   </cs-toast-item>
 
-  <cs-toast-item variant="success" duration="0" style="--accent-width: 0;">
+  <cs-toast-item variant="success" duration="0" style="--cs-toast-item-accent-width: 0;">
     <cs-icon slot="icon" name="check"></cs-icon>
     No accent line
   </cs-toast-item>
@@ -198,16 +198,16 @@ Use the `--accent-width` custom property to adjust the width of the accent line,
 
 ### Customizing the Padding
 
-Use the `--padding` custom property to adjust the internal spacing.
+Use the `--cs-toast-item-padding` custom property to adjust the internal spacing.
 
 ```html {.example}
 <div class="cs-stack">
-  <cs-toast-item variant="brand" duration="0" style="--padding: var(--cs-space-xs);">
+  <cs-toast-item variant="brand" duration="0" style="--cs-toast-item-padding: var(--cs-space-xs);">
     <cs-icon slot="icon" name="close_fullscreen"></cs-icon>
     Compact padding
   </cs-toast-item>
 
-  <cs-toast-item variant="brand" duration="0" style="--padding: var(--cs-space-xl);">
+  <cs-toast-item variant="brand" duration="0" style="--cs-toast-item-padding: var(--cs-space-xl);">
     <cs-icon slot="icon" name="open_in_full"></cs-icon>
     Spacious padding
   </cs-toast-item>

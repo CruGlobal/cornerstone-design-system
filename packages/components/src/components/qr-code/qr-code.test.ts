@@ -69,6 +69,25 @@ describe('<cs-qr-code>', () => {
         });
       });
 
+      describe('custom properties', () => {
+        const cornerColor = (el: CsQrCode) => getComputedStyle(el.shadowRoot!.querySelector('span')!).color;
+
+        it('should draw the corner markers in --cs-qr-code-corner-color', async () => {
+          const el = await fixture<CsQrCode>(
+            html`<cs-qr-code value="test" style="--cs-qr-code-corner-color: rgb(255, 0, 0)"></cs-qr-code>`,
+          );
+          expect(cornerColor(el)).to.equal('rgb(255, 0, 0)');
+        });
+
+        // It once read an unprefixed --corner-color, so a page's own value reached it.
+        it("should draw the corner markers in the code's color by default, whatever --corner-color a page sets", async () => {
+          const el = await fixture<CsQrCode>(
+            html`<cs-qr-code value="test" style="color: rgb(0, 0, 255); --corner-color: rgb(255, 0, 0)"></cs-qr-code>`,
+          );
+          expect(cornerColor(el)).to.equal('rgb(0, 0, 255)');
+        });
+      });
+
       describe('CSS parts and states', () => {
         it('should expose the qr-code CSS part on the canvas', async () => {
           const el = await fixture<CsQrCode>(html`<cs-qr-code value="test"></cs-qr-code>`);

@@ -2,12 +2,8 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --indicator-color: var(--cs-color-brand-fill-loud);
-    --track-color: var(--cs-color-neutral-fill-normal);
-    --track-width: 0.125rem;
-
     /* Private */
-    --safe-track-width: max(0.5px, round(var(--track-width), 0.5px));
+    --_safe-track-width: max(0.5px, round(var(--cs-tab-group-track-width, 0.125rem), 0.5px));
 
     display: block;
   }
@@ -83,12 +79,12 @@ export default css`
     flex: 1 1 auto;
     position: relative;
     flex-direction: row;
-    border-bottom: solid var(--safe-track-width) var(--track-color);
+    border-bottom: solid var(--_safe-track-width) var(--cs-tab-group-track-color, var(--cs-color-neutral-fill-normal));
   }
 
   .tab-group-top .indicator {
-    bottom: calc(-1 * var(--safe-track-width));
-    border-bottom: solid var(--safe-track-width) var(--indicator-color);
+    bottom: calc(-1 * var(--_safe-track-width));
+    border-bottom: solid var(--_safe-track-width) var(--cs-tab-group-indicator-color, var(--cs-color-brand-fill-loud));
   }
 
   .tab-group-top .body {
@@ -98,12 +94,15 @@ export default css`
   /* These are !important because a document-level universal margin reset would otherwise beat them:
      a slotted element belongs to the outer tree. See callout.styles.ts for the full note. */
   .tab-group-top ::slotted(cs-tab[active]) {
-    border-block-end: solid var(--safe-track-width) var(--indicator-color);
-    margin-block-end: calc(-1 * var(--safe-track-width)) !important;
+    border-block-end: solid var(--_safe-track-width)
+      var(--cs-tab-group-indicator-color, var(--cs-color-brand-fill-loud));
+    margin-block-end: calc(-1 * var(--_safe-track-width)) !important;
   }
 
+  /* Hand-off: each placement sets its panels' default padding privately, so --cs-tab-panel-padding set on the page
+     or a section still wins. */
   .tab-group-top .body slot::slotted(cs-tab-panel) {
-    --padding: var(--cs-space-xl) 0;
+    --_tab-panel-padding: var(--cs-space-xl) 0;
   }
 
   /*
@@ -136,12 +135,12 @@ export default css`
     flex: 1 1 auto;
     position: relative;
     flex-direction: row;
-    border-top: solid var(--safe-track-width) var(--track-color);
+    border-top: solid var(--_safe-track-width) var(--cs-tab-group-track-color, var(--cs-color-neutral-fill-normal));
   }
 
   .tab-group-bottom .indicator {
-    top: calc(-1 * var(--safe-track-width));
-    border-top: solid var(--safe-track-width) var(--indicator-color);
+    top: calc(-1 * var(--_safe-track-width));
+    border-top: solid var(--_safe-track-width) var(--cs-tab-group-indicator-color, var(--cs-color-brand-fill-loud));
   }
 
   .tab-group-bottom .body {
@@ -149,12 +148,13 @@ export default css`
   }
 
   .tab-group-bottom ::slotted(cs-tab[active]) {
-    border-block-start: solid var(--safe-track-width) var(--indicator-color);
-    margin-block-start: calc(-1 * var(--safe-track-width)) !important;
+    border-block-start: solid var(--_safe-track-width)
+      var(--cs-tab-group-indicator-color, var(--cs-color-brand-fill-loud));
+    margin-block-start: calc(-1 * var(--_safe-track-width)) !important;
   }
 
   .tab-group-bottom .body slot::slotted(cs-tab-panel) {
-    --padding: var(--cs-space-xl) 0;
+    --_tab-panel-padding: var(--cs-space-xl) 0;
   }
 
   /*
@@ -172,12 +172,13 @@ export default css`
   .tab-group-start .tabs {
     flex: 0 0 auto;
     flex-direction: column;
-    border-inline-end: solid var(--safe-track-width) var(--track-color);
+    border-inline-end: solid var(--_safe-track-width)
+      var(--cs-tab-group-track-color, var(--cs-color-neutral-fill-normal));
   }
 
   .tab-group-start .indicator {
-    inset-inline-end: calc(-1 * var(--safe-track-width));
-    border-right: solid var(--safe-track-width) var(--indicator-color);
+    inset-inline-end: calc(-1 * var(--_safe-track-width));
+    border-right: solid var(--_safe-track-width) var(--cs-tab-group-indicator-color, var(--cs-color-brand-fill-loud));
   }
 
   .tab-group-start .body {
@@ -186,12 +187,13 @@ export default css`
   }
 
   .tab-group-start ::slotted(cs-tab[active]) {
-    border-inline-end: solid var(--safe-track-width) var(--indicator-color);
-    margin-inline-end: calc(-1 * var(--safe-track-width)) !important;
+    border-inline-end: solid var(--_safe-track-width)
+      var(--cs-tab-group-indicator-color, var(--cs-color-brand-fill-loud));
+    margin-inline-end: calc(-1 * var(--_safe-track-width)) !important;
   }
 
   .tab-group-start .body slot::slotted(cs-tab-panel) {
-    --padding: 0 var(--cs-space-xl);
+    --_tab-panel-padding: 0 var(--cs-space-xl);
   }
 
   /*
@@ -209,12 +211,13 @@ export default css`
   .tab-group-end .tabs {
     flex: 0 0 auto;
     flex-direction: column;
-    border-left: solid var(--safe-track-width) var(--track-color);
+    border-left: solid var(--_safe-track-width) var(--cs-tab-group-track-color, var(--cs-color-neutral-fill-normal));
   }
 
   .tab-group-end .indicator {
-    inset-inline-start: calc(-1 * var(--safe-track-width));
-    border-inline-start: solid var(--safe-track-width) var(--indicator-color);
+    inset-inline-start: calc(-1 * var(--_safe-track-width));
+    border-inline-start: solid var(--_safe-track-width)
+      var(--cs-tab-group-indicator-color, var(--cs-color-brand-fill-loud));
   }
 
   .tab-group-end .body {
@@ -223,11 +226,12 @@ export default css`
   }
 
   .tab-group-end ::slotted(cs-tab[active]) {
-    border-inline-start: solid var(--safe-track-width) var(--indicator-color);
-    margin-inline-start: calc(-1 * var(--safe-track-width)) !important;
+    border-inline-start: solid var(--_safe-track-width)
+      var(--cs-tab-group-indicator-color, var(--cs-color-brand-fill-loud));
+    margin-inline-start: calc(-1 * var(--_safe-track-width)) !important;
   }
 
   .tab-group-end .body slot::slotted(cs-tab-panel) {
-    --padding: 0 var(--cs-space-xl);
+    --_tab-panel-padding: 0 var(--cs-space-xl);
   }
 `;

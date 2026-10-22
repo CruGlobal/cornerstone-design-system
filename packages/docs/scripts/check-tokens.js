@@ -28,8 +28,8 @@
  * That asymmetry is the whole design. A token this site uses has to resolve against the full cascade the
  * browser assembles, library included — but the library's and Starlight's own stylesheets are not ours to
  * answer for, and they legitimately reference properties this check cannot see: `--cs-scroll-lock-size` is
- * written by `internal/scroll.ts` at runtime, `--_button-vertical-indent` and `--scroll-margin-top` are
- * declared inside a shadow root, and Starlight's `print.css` still reaches for the `--sl-*` variables whose
+ * written by `internal/scroll.ts` at runtime, `--_button-vertical-indent` is declared inside a shadow root,
+ * and Starlight's `print.css` still reaches for the `--sl-*` variables whose
  * defining stylesheets this site deliberately stubs out. Judging those would be nineteen findings of which
  * seventeen are somebody else's, and a check that cries wolf gets switched off.
  *

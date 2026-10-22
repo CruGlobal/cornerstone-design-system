@@ -45,10 +45,10 @@ import styles from './otp-input.styles.js';
  * @cssstate readonly - Applied when the component is readonly.
  * @cssstate user-invalid - Applied when validation fails after interaction.
  *
- * @cssproperty [--segment-size=2.5em] - Width and height of each segment cell.
- * @cssproperty [--segment-gap=var(--cs-space-xs)] - Gap between segments (not used in `contained` appearance).
- * @cssproperty [--segment-border-radius=var(--cs-form-control-border-radius)] - Corner radius of each segment.
- * @cssproperty [--mask-char='•'] - Character shown in place of entered values when `mask` is set, and as a hint
+ * @cssproperty [--cs-otp-input-segment-size=2.5em] - Width and height of each segment cell.
+ * @cssproperty [--cs-otp-input-segment-gap=var(--cs-space-xs)] - Gap between segments (not used in `contained` appearance).
+ * @cssproperty [--cs-otp-input-segment-border-radius=var(--cs-form-control-border-radius)] - Corner radius of each segment.
+ * @cssproperty [--cs-otp-input-mask-char='•'] - Character shown in place of entered values when `mask` is set, and as a hint
  *   in empty segments when `with-mask` is set.
  */
 @customElement('cs-otp-input')
@@ -131,7 +131,7 @@ export default class CsOtpInput extends CornerstoneFormAssociatedElement {
   /** Allowed character class. */
   @property({ reflect: true }) type: 'numeric' | 'alpha' | 'alphanumeric' = 'numeric';
 
-  /** When true, entered characters are displayed as `--mask-char` instead of their real value. */
+  /** When true, entered characters are displayed as `--cs-otp-input-mask-char` instead of their real value. */
   @property({ type: Boolean, reflect: true }) mask = false;
 
   /** Case transformation applied to entered characters. */
@@ -176,7 +176,7 @@ export default class CsOtpInput extends CornerstoneFormAssociatedElement {
   @property({ type: Boolean }) autofocus = false;
 
   /**
-   * When true, empty segments show `--mask-char` as a hint instead of appearing blank, similar to
+   * When true, empty segments show `--cs-otp-input-mask-char` as a hint instead of appearing blank, similar to
    * how a password field communicates its expected length before anything is typed.
    */
   @property({ type: Boolean, attribute: 'with-mask', reflect: true }) withMask = false;
@@ -610,7 +610,7 @@ export default class CsOtpInput extends CornerstoneFormAssociatedElement {
           const isSelected = !this.readonly && selected !== null && i >= selected[0] && i < selected[1];
           const isActive = !this.readonly && selected === null && i === activeIndex;
           // Masked characters never touch the DOM as text, the glyph is drawn entirely by CSS
-          // (`--mask-char` via `content`), so there's no real value to find via view-source or copy.
+          // (`--cs-otp-input-mask-char` via `content`), so there's no real value to find via view-source or copy.
           const masked = filled && this.mask;
 
           return html`

@@ -2,9 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --control-box-size: 3rem;
-    --icon-size: calc(var(--control-box-size) * 0.625);
-
     display: inline-flex;
     position: relative;
     cursor: pointer;
@@ -21,15 +18,18 @@ export default css`
   }
 
   .control-box {
+    /* The icon's default size derives from the box's, so the box's is written once here. */
+    --_control-box-size: var(--cs-animated-image-control-box-size, 3rem);
+
     display: flex;
     position: absolute;
     align-items: center;
     justify-content: center;
-    top: calc(50% - var(--control-box-size) / 2);
-    right: calc(50% - var(--control-box-size) / 2);
-    width: var(--control-box-size);
-    height: var(--control-box-size);
-    font-size: calc(var(--icon-size) * 0.75);
+    top: calc(50% - var(--_control-box-size) / 2);
+    right: calc(50% - var(--_control-box-size) / 2);
+    width: var(--_control-box-size);
+    height: var(--_control-box-size);
+    font-size: calc(var(--cs-animated-image-icon-size, calc(var(--_control-box-size) * 0.625)) * 0.75);
     background: none;
     border: solid var(--cs-border-width-s) currentColor;
     background-color: rgb(0 0 0 / 50%);

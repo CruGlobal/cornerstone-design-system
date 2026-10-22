@@ -45,10 +45,10 @@ import styles from './carousel.styles.js';
  * @csspart navigation-button-previous - Applied to the previous button.
  * @csspart navigation-button-next - Applied to the next button.
  *
- * @cssproperty [--aspect-ratio=16/9] - The aspect ratio of each slide.
- * @cssproperty --scroll-hint - The amount of padding to apply to the scroll area, allowing adjacent slides to become
+ * @cssproperty [--cs-carousel-aspect-ratio=16 / 9] - The aspect ratio of each slide. Each `<cs-carousel-item>` reads it too.
+ * @cssproperty [--cs-carousel-scroll-hint=0px] - The amount of padding to apply to the scroll area, allowing adjacent slides to become
  *  partially visible as a scroll hint.
- * @cssproperty [--slide-gap=var(--cs-space-m)] - The space between each slide.
+ * @cssproperty [--cs-carousel-slide-gap=var(--cs-space-m)] - The space between each slide.
  *
  * @ssr - `<cs-carousel>` displays its first slide during SSR, but won't be interactive until it hydrates on the client.
  */
@@ -662,7 +662,7 @@ export default class CsCarousel extends CornerstoneElement {
             'slides-dragging': this.dragging,
             'slides-awaiting-position': this.awaitingInitialPosition,
           })}"
-          style=${styleMap({ '--slides-per-page': this.slidesPerPage })}
+          style=${styleMap({ '--_slides-per-page': this.slidesPerPage })}
           aria-busy="${scrolling ? 'true' : 'false'}"
           aria-atomic="true"
           tabindex="0"

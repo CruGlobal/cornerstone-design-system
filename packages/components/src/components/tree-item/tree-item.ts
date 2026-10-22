@@ -11,7 +11,7 @@ import { CsCollapseEvent } from '../../events/collapse.js';
 import { CsExpandEvent } from '../../events/expand.js';
 import { CsLazyChangeEvent } from '../../events/lazy-change.js';
 import { CsLazyLoadEvent } from '../../events/lazy-load.js';
-import { animate, parseDuration } from '../../internal/animate.js';
+import { animate, getCustomProperty, parseDuration, prefersReducedMotion } from '../../internal/animate.js';
 import CornerstoneElement from '../../internal/cornerstone-element.js';
 import { customElement } from '../../internal/custom-element.js';
 import { watch } from '../../internal/watch.js';
@@ -63,8 +63,8 @@ export const treeItemContext = createContext<TreeItemContext>('cs-tree-item');
  * @csspart checkbox__indeterminate-icon - The checkbox's exported `indeterminate-icon` part.
  * @csspart checkbox__label - The checkbox's exported `label` part.
  *
- * @cssproperty [--show-duration=var(--cs-transition-normal)] - The animation duration when expanding tree items.
- * @cssproperty [--hide-duration=var(--cs-transition-normal)] - The animation duration when collapsing tree items.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-normal)] - The animation duration when expanding tree items.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-normal)] - The animation duration when collapsing tree items.
  *
  * @cssstate disabled - Applied when the tree item is disabled.
  * @cssstate expanded - Applied when the tree item is expanded.
@@ -149,7 +149,9 @@ export default class CsTreeItem extends CornerstoneElement {
   private async animateCollapse(generation: number) {
     this.dispatchEvent(new CsCollapseEvent());
 
-    const duration = parseDuration(getComputedStyle(this.childrenContainer).getPropertyValue('--hide-duration'));
+    const duration = prefersReducedMotion()
+      ? 0
+      : parseDuration(getCustomProperty(this.childrenContainer, '--cs-hide-duration', '--cs-transition-normal'));
     await animate(
       this.childrenContainer,
       [
@@ -180,10 +182,10 @@ export default class CsTreeItem extends CornerstoneElement {
     return !!parent && CsTreeItem.isTreeItem(parent);
   }
 
-  /** Counts the nesting depth and sets the private --indent property on the host for indentation. */
+  /** Counts the nesting depth and sets the private --_indent property on the host for indentation. */
   private updateIndentation() {
     const depth = Math.max(this._treeItemContext?.depth || 0, this.getDepth());
-    this.setStyleProperty('--indent', `calc(${depth} * var(--indent-size, 2em))`);
+    this.setStyleProperty('--_indent', `calc(${depth} * var(--cs-tree-indent-size, 2em))`);
   }
 
   private getDepth() {
@@ -217,7 +219,9 @@ export default class CsTreeItem extends CornerstoneElement {
 
     this.childrenContainer.hidden = false;
     // We can't animate to 'auto', so use the scroll height for now
-    const duration = parseDuration(getComputedStyle(this.childrenContainer).getPropertyValue('--show-duration'));
+    const duration = prefersReducedMotion()
+      ? 0
+      : parseDuration(getCustomProperty(this.childrenContainer, '--cs-show-duration', '--cs-transition-normal'));
     await animate(
       this.childrenContainer,
       [

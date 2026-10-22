@@ -4,10 +4,15 @@
 @layer cs-base {
   /**
     Because headers are sticky, this is needed to make sure page fragment anchors scroll down past the headers / subheaders and are visible.
-    IE: \`<a href="#id-for-h2">\` anchors.
+    IE: \`<a href="#id-for-h2">\` anchors. The banner, header and subheader stack in that order, so an anchor clears
+    all three (WCAG 2.4.11). Built here from the heights cs-page publishes, so the page sets nothing on its host for
+    the app's elements to inherit.
     */
   cs-page :is(*, *:after, *:before) {
-    scroll-margin-top: var(--scroll-margin-top);
+    scroll-margin-top: calc(
+      var(--cs-page-banner-height, 0px) + var(--cs-page-header-height, 0px) + var(--cs-page-subheader-height, 0px) +
+        0.5em
+    );
   }
 
   cs-page[view='desktop'] [data-toggle-nav] {

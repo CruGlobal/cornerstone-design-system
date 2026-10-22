@@ -1,5 +1,7 @@
 import { aTimeout, expect } from '@open-wc/testing';
+import { emulateMedia } from '@web/test-runner-commands';
 import { html } from 'lit';
+import { expectNoMotion } from '../../internal/test/expect-animation-duration.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsPopup from './popup.js';
 
@@ -144,6 +146,28 @@ describe('<cs-popup>', () => {
         it('should set the hover-bridge property', async () => {
           const el = await fixture<CsPopup>(html`<cs-popup hover-bridge></cs-popup>`);
           expect(el.hoverBridge).to.be.true;
+        });
+      });
+
+      // The shared durations reach every popup, so a page can lengthen them; reduced motion must still win.
+      describe('reduced motion', () => {
+        it('should run its built-in animations for 0ms whatever duration a page sets', async () => {
+          const el = await fixture<CsPopup>(html`
+            <cs-popup active placement="top" style="--cs-show-duration: 400ms; --cs-hide-duration: 400ms">
+              <span slot="anchor">Anchor</span>
+              <div>Popup</div>
+            </cs-popup>
+          `);
+          await emulateMedia({ reducedMotion: 'reduce' });
+          try {
+            for (const name of ['show', 'hide', 'show-with-scale', 'hide-with-scale']) {
+              el.popup.classList.add(name);
+              await expectNoMotion(el.popup, name);
+              el.popup.classList.remove(name);
+            }
+          } finally {
+            await emulateMedia({ reducedMotion: 'no-preference' });
+          }
         });
       });
 

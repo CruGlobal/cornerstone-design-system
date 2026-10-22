@@ -2,10 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --aspect-ratio: 16 / 9;
-    --scroll-hint: 0px;
-    --slide-gap: var(--cs-space-m, 1rem); /* fallback value is necessary */
-
     display: flex;
   }
 
@@ -43,10 +39,13 @@ export default css`
     overflow: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    aspect-ratio: calc(var(--aspect-ratio) * var(--slides-per-page));
+    aspect-ratio: calc(var(--cs-carousel-aspect-ratio, 16 / 9) * var(--_slides-per-page));
     border-radius: var(--cs-border-radius-m);
 
-    --slide-size: calc((100% - (var(--slides-per-page) - 1) * var(--slide-gap)) / var(--slides-per-page));
+    --_slide-size: calc(
+      (100% - (var(--_slides-per-page) - 1) * var(--cs-carousel-slide-gap, var(--cs-space-m, 1rem))) /
+        var(--_slides-per-page)
+    );
   }
 
   /*
@@ -73,23 +72,23 @@ export default css`
 
   .slides-horizontal {
     grid-auto-flow: column;
-    grid-auto-columns: var(--slide-size);
+    grid-auto-columns: var(--_slide-size);
     grid-auto-rows: 100%;
-    column-gap: var(--slide-gap);
+    column-gap: var(--cs-carousel-slide-gap, var(--cs-space-m, 1rem));
     scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--scroll-hint);
-    padding-inline: var(--scroll-hint);
+    scroll-padding-inline: var(--cs-carousel-scroll-hint, 0px);
+    padding-inline: var(--cs-carousel-scroll-hint, 0px);
     overflow-y: hidden;
   }
 
   .slides-vertical {
     grid-auto-flow: row;
     grid-auto-columns: 100%;
-    grid-auto-rows: var(--slide-size);
-    row-gap: var(--slide-gap);
+    grid-auto-rows: var(--_slide-size);
+    row-gap: var(--cs-carousel-slide-gap, var(--cs-space-m, 1rem));
     scroll-snap-type: y mandatory;
-    scroll-padding-block: var(--scroll-hint);
-    padding-block: var(--scroll-hint);
+    scroll-padding-block: var(--cs-carousel-scroll-hint, 0px);
+    padding-block: var(--cs-carousel-scroll-hint, 0px);
     overflow-x: hidden;
   }
 

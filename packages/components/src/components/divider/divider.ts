@@ -11,9 +11,9 @@ import styles from './divider.styles.js';
  * @status stable
  * @since 0.1
  *
- * @cssproperty --color - The color of the divider.
- * @cssproperty --width - The width of the divider.
- * @cssproperty --spacing - The margin on either side of the divider: above and below it when horizontal, left and
+ * @cssproperty [--cs-divider-color=var(--cs-color-surface-border)] - The color of the divider.
+ * @cssproperty [--cs-divider-width=var(--cs-border-width-s)] - The width of the divider.
+ * @cssproperty [--cs-divider-spacing=var(--cs-space-m)] - The margin on either side of the divider: above and below it when horizontal, left and
  *  right when vertical. As a direct child of a layout utility such as `cs-stack` or `cs-cluster`, the container's gap
  *  sets this space instead, so use a `cs-gap-*` class on the container to change it.
  */

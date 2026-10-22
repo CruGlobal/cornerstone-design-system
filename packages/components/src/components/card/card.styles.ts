@@ -2,10 +2,8 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --spacing: var(--cs-space-l);
-
     /* Internal calculated properties */
-    --inner-border-radius: calc(var(--cs-panel-border-radius) - var(--cs-panel-border-width));
+    --_inner-border-radius: calc(var(--cs-panel-border-radius) - var(--cs-panel-border-width));
 
     display: flex;
     flex-direction: column;
@@ -50,14 +48,14 @@ export default css`
   .media,
   :host(:not([has-media])) .header,
   :host(:not([has-media], [has-header])) .body {
-    border-start-start-radius: var(--inner-border-radius);
-    border-start-end-radius: var(--inner-border-radius);
+    border-start-start-radius: var(--_inner-border-radius);
+    border-start-end-radius: var(--_inner-border-radius);
   }
 
   :host(:not([has-footer])) .body,
   .footer {
-    border-end-start-radius: var(--inner-border-radius);
-    border-end-end-radius: var(--inner-border-radius);
+    border-end-start-radius: var(--_inner-border-radius);
+    border-end-end-radius: var(--_inner-border-radius);
   }
 
   .media {
@@ -73,7 +71,7 @@ export default css`
 
   /* Round all corners for plain appearance */
   :host([appearance='plain']) .media {
-    border-radius: var(--inner-border-radius);
+    border-radius: var(--_inner-border-radius);
 
     &::slotted(*) {
       border-radius: inherit !important;
@@ -85,12 +83,12 @@ export default css`
     border-block-end-style: inherit;
     border-block-end-color: var(--cs-color-surface-border);
     border-block-end-width: var(--cs-panel-border-width);
-    padding: calc(var(--spacing) / 2) var(--spacing);
+    padding: calc(var(--cs-card-spacing, var(--cs-space-l)) / 2) var(--cs-card-spacing, var(--cs-space-l));
   }
 
   .body {
     display: block;
-    padding: var(--spacing);
+    padding: var(--cs-card-spacing, var(--cs-space-l));
   }
 
   .footer {
@@ -98,7 +96,7 @@ export default css`
     border-block-start-style: inherit;
     border-block-start-color: var(--cs-color-surface-border);
     border-block-start-width: var(--cs-panel-border-width);
-    padding: var(--spacing);
+    padding: var(--cs-card-spacing, var(--cs-space-l));
   }
 
   /* Push slots to sides when the action slots renders */
@@ -119,8 +117,8 @@ export default css`
     flex-direction: row;
 
     .media {
-      border-start-start-radius: var(--inner-border-radius);
-      border-end-start-radius: var(--inner-border-radius);
+      border-start-start-radius: var(--_inner-border-radius);
+      border-end-start-radius: var(--_inner-border-radius);
       border-start-end-radius: 0;
 
       &::slotted(*) {
@@ -140,6 +138,6 @@ export default css`
   :host([orientation='horizontal']) slot[name='actions']::slotted(*) {
     display: flex;
     align-items: center;
-    padding: var(--spacing);
+    padding: var(--cs-card-spacing, var(--cs-space-l));
   }
 `;

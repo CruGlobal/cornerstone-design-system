@@ -31,9 +31,9 @@ import styles from './rating.styles.js';
  *
  * @csspart rating - The component's outer wrapper.
  *
- * @cssproperty --symbol-color - The inactive color for symbols.
- * @cssproperty --symbol-color-active - The active color for symbols.
- * @cssproperty --symbol-spacing - The spacing to use around symbols.
+ * @cssproperty [--cs-rating-symbol-color=var(--cs-color-neutral-on-quiet)] - The inactive color for symbols.
+ * @cssproperty [--cs-rating-symbol-color-active=var(--cs-color-yellow-70)] - The active color for symbols.
+ * @cssproperty [--cs-rating-symbol-spacing=0.125em] - The spacing to use around symbols.
  */
 @customElement('cs-rating')
 export default class CsRating extends CornerstoneFormAssociatedElement {

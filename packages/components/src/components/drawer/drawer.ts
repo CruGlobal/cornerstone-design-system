@@ -52,12 +52,12 @@ import styles from './drawer.styles.js';
  * @csspart body - The drawer's body.
  * @csspart footer - The drawer's footer.
  *
- * @cssproperty --spacing - The amount of space around and between the drawer's content.
- * @cssproperty --size - The preferred size of the drawer. This will be applied to the drawer's width or height
+ * @cssproperty [--cs-drawer-spacing=var(--cs-space-l)] - The amount of space around and between the drawer's content.
+ * @cssproperty [--cs-drawer-size=25rem] - The preferred size of the drawer. This will be applied to the drawer's width or height
  *   depending on its `placement`. Note that the drawer will shrink to accommodate smaller screens.
- * @cssproperty [--backdrop-filter=none] - A filter to apply to the backdrop behind the drawer.
- * @cssproperty [--show-duration=var(--cs-transition-normal)] - The animation duration when showing the drawer.
- * @cssproperty [--hide-duration=var(--cs-transition-normal)] - The animation duration when hiding the drawer.
+ * @cssproperty [--cs-backdrop-filter=none] - A filter to apply to the backdrop behind the drawer.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-normal)] - The animation duration when showing the drawer.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-normal)] - The animation duration when hiding the drawer.
  *
  * @property modal - Exposes the internal modal utility that controls focus trapping. To temporarily disable focus
  *   trapping and allow third-party modals spawned from an active Shoelace modal, call `modal.activateExternal()` when

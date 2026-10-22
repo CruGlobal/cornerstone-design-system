@@ -27,8 +27,8 @@ import styles from './animated-image.styles.js';
  *
  * @csspart control-box - The container that surrounds the pause/play icons and provides their background.
  *
- * @cssproperty --control-box-size - The size of the icon box.
- * @cssproperty --icon-size - The size of the play/pause icons.
+ * @cssproperty [--cs-animated-image-control-box-size=3rem] - The size of the icon box.
+ * @cssproperty [--cs-animated-image-icon-size=calc(var(--cs-animated-image-control-box-size) * 0.625)] - The size of the play/pause icons.
  *
  * @ssr - Due to browser limitations, `<cs-animated-image>` can't render during SSR. As a fallback you can use a `<video>` tag, but its controls won't work, and the gif or webp will always auto-play.
  */

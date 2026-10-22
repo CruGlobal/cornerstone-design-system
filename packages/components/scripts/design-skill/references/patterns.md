@@ -7,7 +7,7 @@ established web-design convention it follows). Copy, then re-theme with tokens.
 All recipes assume a theme/palette is set on `<html>` (see [theming.md](theming.md)) and, for full-page
 recipes, the `html, body` reset from [layouts-page.md](layouts-page.md).
 
-These snippets keep a few one-off values inline (a `max-width`, a `--min-column-size`) so each is
+These snippets keep a few one-off values inline (a `max-width`, a `--cs-grid-min-column-size`) so each is
 self-contained. In a real page, lift anything reused into a `<style>` block as a class, and **never style
 a component host inline** — restyle components through their tokens, attributes, or `::part()` (see
 [composition.md](composition.md)).
@@ -53,10 +53,10 @@ to stay put while content scrolls. `<cs-page>` gives sticky regions and a mobile
     margin: 0;
   }
   cs-page {
-    --menu-width: 15rem;
+    --cs-page-menu-width: 15rem;
   }
   cs-page[view='mobile'] {
-    --menu-width: auto;
+    --cs-page-menu-width: auto;
   }
 </style>
 ```
@@ -105,7 +105,7 @@ the mobile drawer.)
       </div>
     </section>
 
-    <section id="features" class="cs-grid cs-gap-xl" style="--min-column-size: 16rem;">
+    <section id="features" class="cs-grid cs-gap-xl" style="--cs-grid-min-column-size: 16rem;">
       <div class="cs-stack cs-gap-xs">
         <cs-icon name="bolt"></cs-icon>
         <h3>Fast</h3>
@@ -220,7 +220,7 @@ description, for a scannable, conventional settings layout.
 reflows by available width with no breakpoints.
 
 ```html
-<div class="cs-grid cs-gap-l" style="--min-column-size: 14rem;">
+<div class="cs-grid cs-gap-l" style="--cs-grid-min-column-size: 14rem;">
   <cs-card>
     <div class="cs-stack cs-gap-2xs">
       <span class="cs-caption-m">Revenue</span>

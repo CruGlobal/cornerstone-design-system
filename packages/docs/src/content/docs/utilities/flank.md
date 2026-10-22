@@ -120,30 +120,30 @@ By default, the first item in the `cs-flank` container will flank the other cont
 
 ## Size
 
-The flank's inline size is determined by the size of its content, but you can set a target size using the `--flank-size` custom property. When the flank wraps, it stretches to fill the inline size of the container.
+The flank's inline size is determined by the size of its content, but you can set a target size using the `--cs-flank-size` custom property. When the flank wraps, it stretches to fill the inline size of the container. Both of a flank's custom properties apply to that flank alone, so a flank nested inside it keeps its own defaults.
 
 ```html {.example}
 <div class="cs-stack">
-  <div class="cs-flank" style="--flank-size: 200px;">
+  <div class="cs-flank" style="--cs-flank-size: 200px;">
     <div></div>
     <div></div>
   </div>
-  <div class="cs-flank" style="--flank-size: 6rem;">
+  <div class="cs-flank" style="--cs-flank-size: 6rem;">
     <div></div>
     <div></div>
   </div>
 </div>
 ```
 
-The main content fills the remaining inline space of the container. By default, the items wrap when the main content is less than 50% of the container. You can change the minimum size of the main content with the `--content-percentage` custom property.
+The main content fills the remaining inline space of the container. By default, the items wrap when the main content is less than 50% of the container. You can change the minimum size of the main content with the `--cs-flank-content-percentage` custom property.
 
 ```html {.example}
 <div class="cs-stack">
-  <div class="cs-flank" style="--content-percentage: 70%;">
+  <div class="cs-flank" style="--cs-flank-content-percentage: 70%;">
     <div></div>
     <div></div>
   </div>
-  <div class="cs-flank" style="--content-percentage: 85%;">
+  <div class="cs-flank" style="--cs-flank-content-percentage: 85%;">
     <div></div>
     <div></div>
   </div>

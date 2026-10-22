@@ -129,10 +129,10 @@ Use the default slot to add presentational HTML, such as emphasis or line breaks
 
 ### Customizing
 
-Use the `--max-width` custom property to set the width at which the tooltip's content wraps.
+Use the `--cs-tooltip-max-width` custom property to set the width at which the tooltip's content wraps.
 
 ```html {.example}
-<cs-tooltip for="wrapping-tooltip" style="--max-width: 80px;">
+<cs-tooltip for="wrapping-tooltip" style="--cs-tooltip-max-width: 80px;">
   This tooltip will wrap after only 80 pixels.
 </cs-tooltip>
 <cs-button appearance="filled" id="wrapping-tooltip">Hover me</cs-button>
@@ -145,7 +145,7 @@ Remove the arrow on a single tooltip with the `without-arrow` attribute.
 <cs-tooltip for="no-arrow" without-arrow>This is a tooltip with no arrow</cs-tooltip>
 ```
 
-Resize the arrow on every tooltip with the `--cs-tooltip-arrow-size` design token. Set it in a `:root` block after the Cornerstone stylesheet loads — `0` removes arrows globally.
+Resize the arrow with the `--cs-tooltip-arrow-size` custom property. Set it on one tooltip, on a section, or on `:root` to change every tooltip on the page. `0` removes the arrows.
 
 ```css
 :root {

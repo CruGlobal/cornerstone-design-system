@@ -125,8 +125,8 @@ export interface ToastCreateOptions {
  *
  * @csspart stack - The container that holds the toast items.
  *
- * @cssproperty [--gap=var(--cs-space-s)] - The gap between stacked toast items.
- * @cssproperty [--width=28rem] - The width of the toast stack.
+ * @cssproperty [--cs-toast-gap=var(--cs-space-s)] - The gap between stacked toast items.
+ * @cssproperty [--cs-toast-width=28rem] - The width of the toast stack.
  *
  * @cssstate visible - Applied when the toast stack has one or more visible toast items.
  */

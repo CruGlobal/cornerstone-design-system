@@ -36,9 +36,9 @@ import styles from './switch.styles.js';
  * @csspart label - The switch's label.
  * @csspart hint - The hint's wrapper.
  *
- * @cssproperty --width - The width of the switch.
- * @cssproperty --height - The height of the switch.
- * @cssproperty --thumb-size - The size of the thumb.
+ * @cssproperty [--cs-switch-width=calc(var(--cs-switch-height) * 1.75)] - The width of the switch.
+ * @cssproperty [--cs-switch-height=var(--cs-form-control-toggle-size)] - The height of the switch.
+ * @cssproperty [--cs-switch-thumb-size=0.75em] - The size of the thumb.
  */
 @customElement('cs-switch')
 export default class CsSwitch extends CornerstoneFormAssociatedElement {

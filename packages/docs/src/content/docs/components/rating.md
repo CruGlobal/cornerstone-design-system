@@ -88,7 +88,7 @@ Use the `precision` attribute to let users select fractional ratings, such as ha
 Pass a function to the `getSymbol` property to render a custom symbol in place of the default star.
 
 ```html {.example}
-<cs-rating label="Rating" class="rating-hearts" style="--symbol-color-active: #ff4136;"></cs-rating>
+<cs-rating label="Rating" class="rating-hearts" style="--cs-rating-symbol-color-active: #ff4136;"></cs-rating>
 
 <script type="module">
   const rating = document.querySelector('.rating-hearts');

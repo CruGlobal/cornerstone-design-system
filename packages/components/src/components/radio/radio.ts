@@ -26,8 +26,9 @@ import styles from './radio.styles.js';
  * @csspart checked-icon - The checked icon.
  * @csspart label - The container that wraps the radio's label.
  *
- * @cssproperty --checked-icon-color - The color of the checked icon.
- * @cssproperty --checked-icon-scale - The size of the checked icon relative to the radio.
+ * @cssproperty [--cs-radio-checked-icon-color=var(--cs-form-control-activated-color)] - The color of the checked dot,
+ *  drawn on the empty control. Native radios styled by `native.css` read it too.
+ * @cssproperty [--cs-checked-icon-scale=0.7] - The size of the checked icon relative to the radio.
  *
  * @cssstate checked - Applied when the control is checked.
  * @cssstate disabled - Applied when the control is disabled.

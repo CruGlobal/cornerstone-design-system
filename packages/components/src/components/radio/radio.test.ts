@@ -139,6 +139,27 @@ describe('<cs-radio>', () => {
       });
 
       describe('CSS parts and states', () => {
+        // Its own name, not one shared with the checkbox, whose glyph wants a light color on a filled box: one value
+        // for both drew this dot white on an empty control.
+        it("should color its dot from --cs-radio-checked-icon-color, not the checkbox's", async () => {
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--cs-checkbox-checked-icon-color: rgb(255, 0, 0)">
+              <cs-radio-group value="1"><cs-radio value="1">Default</cs-radio></cs-radio-group>
+              <cs-radio-group value="1" style="--cs-radio-checked-icon-color: rgb(0, 0, 255)">
+                <cs-radio value="1">Set</cs-radio>
+              </cs-radio-group>
+            </div>
+          `);
+          const [plain, set] = [...wrapper.querySelectorAll<CsRadio>('cs-radio')];
+          await Promise.all([plain.updateComplete, set.updateComplete]);
+          await aTimeout(0);
+          const dot = (radio: CsRadio) => getComputedStyle(radio.shadowRoot!.querySelector('[part~="control"]')!).color;
+
+          expect(plain.checked && set.checked).to.be.true;
+          expect(dot(plain)).not.to.equal('rgb(255, 0, 0)');
+          expect(dot(set)).to.equal('rgb(0, 0, 255)');
+        });
+
         it('should expose the control part', async () => {
           const el = await fixture<CsRadio>(html` <cs-radio value="1">Option</cs-radio> `);
           const control = el.shadowRoot!.querySelector('[part~="control"]');

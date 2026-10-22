@@ -13,8 +13,9 @@ import styles from './skeleton.styles.js';
  *
  * @csspart indicator - The skeleton's indicator which is responsible for its color and animation.
  *
- * @cssproperty --color - The color of the skeleton.
- * @cssproperty --sheen-color - The sheen color when the skeleton is in its loading state.
+ * @cssproperty [--cs-skeleton-color=var(--cs-color-neutral-fill-normal)] - The color of the skeleton. In forced
+ *  colors mode the skeleton is always `GrayText`, since any other color is forced to the page background.
+ * @cssproperty [--cs-skeleton-sheen-color=color-mix(in oklab, var(--cs-skeleton-color), var(--cs-color-surface-raised))] - The sheen color when the skeleton is in its loading state.
  */
 @customElement('cs-skeleton')
 export default class CsSkeleton extends CornerstoneElement {

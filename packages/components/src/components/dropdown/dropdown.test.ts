@@ -1,8 +1,8 @@
-import { aTimeout, expect, waitUntil } from '@open-wc/testing';
-import { sendKeys } from '@web/test-runner-commands';
+import { aTimeout, expect, nextFrame, waitUntil } from '@open-wc/testing';
+import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
-import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
+import { expectAnimationDuration, expectNoMotion } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
@@ -192,6 +192,28 @@ describe('<cs-dropdown>', () => {
           el.open = false;
           await expectAnimationDuration(menu, '--cs-transition-fast');
           await settleAnimations(el);
+        });
+
+        it('should open and close without motion when the user prefers reduced motion', async () => {
+          const el = await fixture<CsDropdown>(html`
+            <cs-dropdown style="--cs-show-duration: 400ms; --cs-hide-duration: 400ms">
+              <cs-button slot="trigger">Dropdown</cs-button>
+              <cs-dropdown-item>One</cs-dropdown-item>
+            </cs-dropdown>
+          `);
+          const menu = el.shadowRoot!.querySelector('#menu')!;
+          await emulateMedia({ reducedMotion: 'reduce' });
+          try {
+            el.open = true;
+            await expectNoMotion(menu, 'show');
+            await settleAnimations(el);
+
+            el.open = false;
+            await expectNoMotion(menu, 'hide');
+            await settleAnimations(el);
+          } finally {
+            await emulateMedia({ reducedMotion: 'no-preference' });
+          }
         });
       });
 
@@ -644,6 +666,113 @@ describe('<cs-dropdown>', () => {
       await aTimeout(300);
 
       expect(parent.submenuOpen).to.be.true;
+    });
+
+    // Client-only, like this block: submenus open on pointer and keyboard input after hydration.
+    // The submenu's hide animation once read the show duration.
+    it('should run the submenu show and hide animations for the durations set above it', async () => {
+      const el = await fixtures[0]<HTMLDivElement>(html`
+        <div style="padding: 50px; --cs-show-duration: 120ms; --cs-hide-duration: 60ms;">
+          <cs-dropdown id="dropdown">
+            <cs-button slot="trigger">Dropdown</cs-button>
+            <cs-dropdown-item id="parent">
+              Parent
+              <cs-dropdown-item slot="submenu">Child</cs-dropdown-item>
+            </cs-dropdown-item>
+          </cs-dropdown>
+        </div>
+      `);
+      const dropdown = el.querySelector<CsDropdown>('#dropdown')!;
+      const parent = el.querySelector<CsDropdownItem>('#parent')!;
+      dropdown.open = true;
+      await dropdown.updateComplete;
+      await settleAnimations(dropdown);
+
+      const submenu = parent.submenuElement;
+
+      // Through `submenuOpen`, the way the dropdown opens and closes submenus.
+      parent.submenuOpen = true;
+      await expectAnimationDuration(submenu, '--cs-show-duration');
+      await waitUntil(() => !submenu.classList.contains('show'));
+      // Show and hide share one keyframes rule, so a frame has to pass between them for hide to start afresh.
+      await nextFrame();
+
+      parent.submenuOpen = false;
+      await expectAnimationDuration(submenu, '--cs-hide-duration');
+      await waitUntil(() => submenu.hidden);
+    });
+
+    // Client-only, as above. Each method set `submenuOpen`, whose update ran the method a second time. A second
+    // close hid the popover at once, so the close never animated.
+    it('should open and close once, animating the close, when the methods are called directly', async () => {
+      const el = await fixtures[0]<HTMLDivElement>(html`
+        <div style="padding: 50px; --cs-hide-duration: 60ms;">
+          <cs-dropdown id="dropdown">
+            <cs-button slot="trigger">Dropdown</cs-button>
+            <cs-dropdown-item id="parent">
+              Parent
+              <cs-dropdown-item slot="submenu">Child</cs-dropdown-item>
+            </cs-dropdown-item>
+          </cs-dropdown>
+        </div>
+      `);
+      const dropdown = el.querySelector<CsDropdown>('#dropdown')!;
+      const parent = el.querySelector<CsDropdownItem>('#parent')!;
+      dropdown.open = true;
+      await dropdown.updateComplete;
+      await settleAnimations(dropdown);
+
+      const submenu = parent.submenuElement;
+      const showPopover = sinon.spy(submenu, 'showPopover');
+      const hidePopover = sinon.spy(submenu, 'hidePopover');
+
+      await parent.openSubmenu();
+      expect(showPopover.callCount).to.equal(1);
+      expect(parent.submenuOpen).to.be.true;
+      await nextFrame();
+
+      const closed = parent.closeSubmenu();
+      await expectAnimationDuration(submenu, '--cs-hide-duration');
+      await closed;
+
+      expect(hidePopover.callCount).to.equal(1);
+      expect(submenu.hidden).to.be.true;
+      expect(parent.submenuOpen).to.be.false;
+    });
+
+    // Client-only, as above.
+    it('should open and close the submenu without motion when the user prefers reduced motion', async () => {
+      const el = await fixtures[0]<HTMLDivElement>(html`
+        <div style="padding: 50px; --cs-show-duration: 400ms; --cs-hide-duration: 400ms;">
+          <cs-dropdown id="dropdown">
+            <cs-button slot="trigger">Dropdown</cs-button>
+            <cs-dropdown-item id="parent">
+              Parent
+              <cs-dropdown-item slot="submenu">Child</cs-dropdown-item>
+            </cs-dropdown-item>
+          </cs-dropdown>
+        </div>
+      `);
+      const dropdown = el.querySelector<CsDropdown>('#dropdown')!;
+      const parent = el.querySelector<CsDropdownItem>('#parent')!;
+      const submenu = parent.submenuElement;
+      await emulateMedia({ reducedMotion: 'reduce' });
+      try {
+        dropdown.open = true;
+        await dropdown.updateComplete;
+        await settleAnimations(dropdown);
+
+        parent.submenuOpen = true;
+        await expectNoMotion(submenu, 'show');
+        await waitUntil(() => !submenu.classList.contains('show'));
+        await nextFrame();
+
+        parent.submenuOpen = false;
+        await expectNoMotion(submenu, 'hide');
+        await waitUntil(() => submenu.hidden);
+      } finally {
+        await emulateMedia({ reducedMotion: 'no-preference' });
+      }
     });
 
     it('should close the submenu when the pointer moves away and stays away', async () => {

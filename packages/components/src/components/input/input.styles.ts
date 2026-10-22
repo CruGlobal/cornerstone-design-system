@@ -34,7 +34,6 @@ export default css`
       outline-color var(--cs-transition-fast);
     transition-timing-function: var(--cs-transition-easing);
     background-color: var(--cs-form-control-background-color);
-    box-shadow: var(--box-shadow);
     padding: 0 var(--cs-form-control-padding-inline);
     outline: var(--cs-focus-ring-style) var(--cs-focus-ring-width) transparent;
     outline-offset: var(--cs-focus-ring-offset);
@@ -114,7 +113,7 @@ export default css`
 
     /* prettier-ignore */
     background-color: rgb(118 118 118 / 0); /* ensures proper placeholder styles in webkit's date input */
-    height: calc(var(--cs-form-control-height) - var(--border-width) * 2);
+    height: calc(var(--cs-form-control-height) - var(--cs-form-control-border-width) * 2);
     padding-block: 0;
     color: inherit;
 

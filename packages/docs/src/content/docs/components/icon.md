@@ -178,17 +178,17 @@ The defaults — sharp, `regular` (fill off) and weight `400` — are the artwor
 
 ### Optical Size
 
-Material Symbols draws every icon inside a 24dp box with a 20dp live area, so 4dp of padding is baked into the artwork. `<cs-icon>` cancels that with `--icon-scale`, which defaults to `1.2` (24 ÷ 20). It scales the artwork inside the canvas without changing the canvas, so raising it never reflows the layout around an icon.
+Material Symbols draws every icon inside a 24dp box with a 20dp live area, so 4dp of padding is baked into the artwork. `<cs-icon>` cancels that with `--cs-icon-scale`, which defaults to `1.2` (24 ÷ 20). It scales the artwork inside the canvas without changing the canvas, so raising it never reflows the layout around an icon.
 
 ```html {.example}
 <div class="cs-cluster cs-gap-l cs-font-size-2xl">
-  <cs-icon name="settings" style="--icon-scale: 1"></cs-icon>
+  <cs-icon name="settings" style="--cs-icon-scale: 1"></cs-icon>
   <cs-icon name="settings"></cs-icon>
-  <cs-icon name="settings" style="--icon-scale: 1.5"></cs-icon>
+  <cs-icon name="settings" style="--cs-icon-scale: 1.5"></cs-icon>
 </div>
 ```
 
-Set it to `1` to render the artwork at its native size. The property inherits, so setting it on an ancestor retunes every icon beneath it. Note that Material Symbols varies the ink deliberately — a chevron is drawn smaller within its box than a gear is — so `--icon-scale` shifts every icon together rather than evening them out.
+Set it to `1` to render the artwork at its native size. The property inherits, so setting it on an ancestor retunes every icon beneath it. Note that Material Symbols varies the ink deliberately — a chevron is drawn smaller within its box than a gear is — so `--cs-icon-scale` shifts every icon together rather than evening them out.
 
 ### Brand Logos
 
@@ -470,7 +470,7 @@ Rotate by any angle — and combine `rotate` and `flip` on the same icon:
 
 Cornerstone ports [Font Awesome's animation utilities](https://docs.fontawesome.com/web/style/animate/) for adding visual interest to icons. To select different types of animations, use the `animation` attribute when you reference an icon.
 
-Every animation accepts the same timing controls — `--animation-delay`, `--animation-direction`, `--animation-duration`, `--animation-iteration-count`, and `--animation-timing` — plus the animation-specific custom properties shown in each example below. All animations respect `prefers-reduced-motion` (see [Accessibility Considerations](#accessibility-considerations)).
+Every animation accepts the same timing controls — `--cs-icon-animation-delay`, `--cs-icon-animation-direction`, `--cs-icon-animation-duration`, `--cs-icon-animation-iteration-count`, and `--cs-icon-animation-timing` — plus the animation-specific custom properties shown in each example below. All animations respect `prefers-reduced-motion` (see [Accessibility Considerations](#accessibility-considerations)).
 
 #### Beat
 
@@ -479,11 +479,11 @@ Use the `beat` animation to scale an icon up or down. This is useful for grabbin
 ```html {.example}
 <cs-icon name="favorite" animation="beat" label="Beating Heart" class="cs-font-size-2xl" variant="fill"></cs-icon>
 <cs-icon name="add_circle" animation="beat" label="Beating Circle Plus" class="cs-font-size-2xl"></cs-icon>
-<!-- Use --beat-scale to control how far it grows -->
+<!-- Use --cs-icon-beat-scale to control how far it grows -->
 <cs-icon
   name="mood_heart"
   animation="beat"
-  label="Beating Smiley" class="cs-font-size-2xl" style="--beat-scale: 1.5;"
+  label="Beating Smiley" class="cs-font-size-2xl" style="--cs-icon-beat-scale: 1.5;"
 ></cs-icon>
 ```
 
@@ -495,11 +495,11 @@ Use the `fade` animation to fade an icon in and out visually to grab attention i
 <cs-icon name="warning" animation="fade" label="Fading Warning" class="cs-font-size-2xl" variant="fill"></cs-icon>
 <cs-icon name="skull" animation="fade" label="Fading Danger" class="cs-font-size-2xl" variant="fill"></cs-icon>
 <cs-icon name="cloud_download" animation="fade" label="Fading Download" class="cs-font-size-2xl"></cs-icon>
-<!-- Use --fade-opacity to set how faint it fades (and --animation-duration the pace) -->
+<!-- Use --cs-icon-fade-opacity to set how faint it fades (and --cs-icon-animation-duration the pace) -->
 <cs-icon
   name="highlight_text_cursor"
   animation="fade"
-  label="Fading Cursor" class="cs-font-size-2xl" style="--animation-duration: 2s; --fade-opacity: 0.6;"
+  label="Fading Cursor" class="cs-font-size-2xl" style="--cs-icon-animation-duration: 2s; --cs-icon-fade-opacity: 0.6;"
 ></cs-icon>
 ```
 
@@ -510,17 +510,17 @@ Use the `beat-fade` animation to grab attention by visually scaling and pulsing 
 ```html {.example}
 <cs-icon name="construction" animation="beat-fade" label="Beat-Fading Construction" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="error" animation="beat-fade" label="Beat-Fading Alert" class="cs-font-size-2xl" variant="fill"></cs-icon>
-<!-- Stronger pulse: lower --beat-fade-opacity, higher --beat-fade-scale -->
+<!-- Stronger pulse: lower --cs-icon-beat-fade-opacity, higher --cs-icon-beat-fade-scale -->
 <cs-icon
   name="report"
   animation="beat-fade"
-  label="Beat-Fading Alert" class="cs-font-size-2xl" style="--beat-fade-opacity: 0.1;--beat-fade-scale: 1.25"
+  label="Beat-Fading Alert" class="cs-font-size-2xl" style="--cs-icon-beat-fade-opacity: 0.1;--cs-icon-beat-fade-scale: 1.25"
 ></cs-icon>
 <!-- Subtler pulse -->
 <cs-icon
   name="info"
   animation="beat-fade"
-  label="Beat-Fading Info" class="cs-font-size-2xl" style="--beat-fade-opacity: 0.67;--beat-fade-scale: 1.075" variant="fill"></cs-icon>
+  label="Beat-Fading Info" class="cs-font-size-2xl" style="--cs-icon-beat-fade-opacity: 0.67;--cs-icon-beat-fade-scale: 1.075" variant="fill"></cs-icon>
 ```
 
 #### Bounce
@@ -534,21 +534,21 @@ Use the `bounce` animation to grab attention by visually bouncing an icon up and
 <cs-icon
   name="sports_basketball"
   animation="bounce"
-  label="Bouncing Basketball" class="cs-font-size-2xl" style="--bounce-land-scale-x: 1.2;--bounce-land-scale-y: .8;--bounce-rebound: 5px;"
+  label="Bouncing Basketball" class="cs-font-size-2xl" style="--cs-icon-bounce-land-scale-x: 1.2;--cs-icon-bounce-land-scale-y: .8;--cs-icon-bounce-rebound: 5px;"
 ></cs-icon>
 
 <!-- bounce animation with no "squish" -->
 <cs-icon
   name="pets"
   animation="bounce"
-  label="Bouncing Frog" class="cs-font-size-2xl" style="--bounce-start-scale-x: 1; --bounce-start-scale-y: 1; --bounce-jump-scale-x: 1; --bounce-jump-scale-y: 1; --bounce-land-scale-x: 1; --bounce-land-scale-y: 1;"
+  label="Bouncing Frog" class="cs-font-size-2xl" style="--cs-icon-bounce-start-scale-x: 1; --cs-icon-bounce-start-scale-y: 1; --cs-icon-bounce-jump-scale-x: 1; --cs-icon-bounce-jump-scale-y: 1; --cs-icon-bounce-land-scale-x: 1; --cs-icon-bounce-land-scale-y: 1;"
 ></cs-icon>
 
 <!-- bounce animation with no "squish" or "rebound" -->
 <cs-icon
   name="mail"
   animation="bounce"
-  label="Bouncing Envelope" class="cs-font-size-2xl" style="--bounce-start-scale-x: 1;--bounce-start-scale-y: 1;--bounce-jump-scale-x: 1;--bounce-jump-scale-y: 1;--bounce-land-scale-x: 1;--bounce-land-scale-y: 1;--bounce-rebound: 0;"
+  label="Bouncing Envelope" class="cs-font-size-2xl" style="--cs-icon-bounce-start-scale-x: 1;--cs-icon-bounce-start-scale-y: 1;--cs-icon-bounce-jump-scale-x: 1;--cs-icon-bounce-jump-scale-y: 1;--cs-icon-bounce-land-scale-x: 1;--cs-icon-bounce-land-scale-y: 1;--cs-icon-bounce-rebound: 0;"
 ></cs-icon>
 ```
 
@@ -560,38 +560,38 @@ Use the `flip` animation to rotate an icon in 3D space. By default, flip rotates
 <cs-icon name="album" animation="flip" label="Flipping Compact Disc" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="cameraswitch" animation="flip" label="Flipping Camera Rotate" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="album" animation="flip" label="Flipping Disc" class="cs-font-size-2xl"></cs-icon>
-<!-- Set the flip axis with --flip-x / --flip-y -->
+<!-- Set the flip axis with --cs-icon-flip-x / --cs-icon-flip-y -->
 <cs-icon
   name="history_edu"
   animation="flip"
-  label="Flipping Scroll" class="cs-font-size-2xl" style="--flip-x: 1; --flip-y: 0"
+  label="Flipping Scroll" class="cs-font-size-2xl" style="--cs-icon-flip-x: 1; --cs-icon-flip-y: 0"
 ></cs-icon>
-<!-- Slow it down with --animation-duration -->
+<!-- Slow it down with --cs-icon-animation-duration -->
 <cs-icon
   name="payments"
   animation="flip"
-  label="Flipping Money Check Dollar" class="cs-font-size-2xl" style="--animation-duration: 3s;"
+  label="Flipping Money Check Dollar" class="cs-font-size-2xl" style="--cs-icon-animation-duration: 3s;"
 ></cs-icon>
 ```
 
 #### Flip 360
 
-Use the `flip-360` animation to flip an icon all the way around in one smooth rotation — an extension of `flip` that gives it some extra oomph. It shares the same `--flip-x`, `--flip-y`, and `--flip-z` axis properties, plus `--flip-angle`, `--flip-anticipation-scale`, and `--flip-overshoot`.
+Use the `flip-360` animation to flip an icon all the way around in one smooth rotation — an extension of `flip` that gives it some extra oomph. It shares the same `--cs-icon-flip-x`, `--cs-icon-flip-y`, and `--cs-icon-flip-z` axis properties, plus `--cs-icon-flip-angle`, `--cs-icon-flip-anticipation-scale`, and `--cs-icon-flip-overshoot`.
 
 ```html {.example}
 <cs-icon name="album" animation="flip-360" label="Flipping Compact Disc" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="cameraswitch" animation="flip-360" label="Flipping Camera Rotate" class="cs-font-size-2xl"></cs-icon>
-<!-- Set the flip axis with --flip-x / --flip-y -->
+<!-- Set the flip axis with --cs-icon-flip-x / --cs-icon-flip-y -->
 <cs-icon
   name="history_edu"
   animation="flip-360"
-  label="Flipping Scroll" class="cs-font-size-2xl" style="--flip-x: 1; --flip-y: 0;"
+  label="Flipping Scroll" class="cs-font-size-2xl" style="--cs-icon-flip-x: 1; --cs-icon-flip-y: 0;"
 ></cs-icon>
-<!-- Slow it down with --animation-duration -->
+<!-- Slow it down with --cs-icon-animation-duration -->
 <cs-icon
   name="album"
   animation="flip-360"
-  label="Flipping Compact Disc" class="cs-font-size-2xl" style="--animation-duration: 3s;"
+  label="Flipping Compact Disc" class="cs-font-size-2xl" style="--cs-icon-animation-duration: 3s;"
 ></cs-icon>
 ```
 
@@ -619,102 +619,102 @@ Use the `spin` animation to get any icon to rotate, and use `spin-pulse` to have
 <cs-icon
   name="progress_activity"
   animation="spin-pulse"
-  label="Pulse Spinning Spinner" class="cs-font-size-2xl" style="--animation-direction: reverse"
+  label="Pulse Spinning Spinner" class="cs-font-size-2xl" style="--cs-icon-animation-direction: reverse"
 ></cs-icon>
 
 <!-- spin a set number of times, then stop -->
 <cs-icon
   name="album"
   animation="spin"
-  label="Spinning Compact Disc" class="cs-font-size-2xl" style="--animation-duration: 3s; --animation-iteration-count: 5; --animation-timing: ease-in-out;"
+  label="Spinning Compact Disc" class="cs-font-size-2xl" style="--cs-icon-animation-duration: 3s; --cs-icon-animation-iteration-count: 5; --cs-icon-animation-timing: ease-in-out;"
 ></cs-icon>
 ```
 
 #### Spin Snap
 
-Use `spin-snap` to rotate in distinct steps with a pause on each, like a clock's second hand. `spin-snap-4` stops at four positions and `spin-snap-8` at eight. Unlike `spin-pulse` — a continuous eight-step rotation — the snap animations ease into each stop. Add `--animation-direction: reverse` to any of them to run counter-clockwise.
+Use `spin-snap` to rotate in distinct steps with a pause on each, like a clock's second hand. `spin-snap-4` stops at four positions and `spin-snap-8` at eight. Unlike `spin-pulse` — a continuous eight-step rotation — the snap animations ease into each stop. Add `--cs-icon-animation-direction: reverse` to any of them to run counter-clockwise.
 
 ```html {.example}
 <cs-icon name="settings" animation="spin-snap" label="Snapping Gear" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="settings" animation="spin-snap-4" label="Snapping Gear, four stops" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="settings" animation="spin-snap-8" label="Snapping Gear, eight stops" class="cs-font-size-2xl"></cs-icon>
-<!-- Add --animation-direction: reverse to run counter-clockwise -->
+<!-- Add --cs-icon-animation-direction: reverse to run counter-clockwise -->
 <cs-icon
   name="settings"
   animation="spin-snap"
-  label="Snapping Gear, reversed" class="cs-font-size-2xl" style="--animation-direction: reverse;"
+  label="Snapping Gear, reversed" class="cs-font-size-2xl" style="--cs-icon-animation-direction: reverse;"
 ></cs-icon>
 ```
 
 #### Buzz
 
-Use the `buzz` animation for a fast, tight vibration with rapid decay — quick attention without being loud, like a phone buzzing on a table or an expiring timer. Set `--buzz-distance` to control how far it travels.
+Use the `buzz` animation for a fast, tight vibration with rapid decay — quick attention without being loud, like a phone buzzing on a table or an expiring timer. Set `--cs-icon-buzz-distance` to control how far it travels.
 
 ```html {.example}
 <cs-icon name="notifications" animation="buzz" label="Buzzing Bell" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="mobile" animation="buzz" label="Buzzing Phone" class="cs-font-size-2xl"></cs-icon>
-<!-- Use --buzz-distance to control how far it travels -->
+<!-- Use --cs-icon-buzz-distance to control how far it travels -->
 <cs-icon
   name="warning"
   animation="buzz"
-  label="Buzzing Warning" class="cs-font-size-2xl" style="--buzz-distance: 9px;" variant="fill"></cs-icon>
+  label="Buzzing Warning" class="cs-font-size-2xl" style="--cs-icon-buzz-distance: 9px;" variant="fill"></cs-icon>
 ```
 
 #### Float
 
-Use the `float` animation for a slow, drifting motion — great for empty states, subtle attention, and adding a bit of playful lightness. Adjust `--float-height`, `--float-drift`, and `--float-tilt` to shape the motion.
+Use the `float` animation for a slow, drifting motion — great for empty states, subtle attention, and adding a bit of playful lightness. Adjust `--cs-icon-float-height`, `--cs-icon-float-drift`, and `--cs-icon-float-tilt` to shape the motion.
 
 ```html {.example}
 <cs-icon name="eco" animation="float" label="Floating Feather" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="skull" animation="float" label="Floating Ghost" class="cs-font-size-2xl"></cs-icon>
-<!-- Use --float-height to control the rise (and --animation-duration the pace) -->
+<!-- Use --cs-icon-float-height to control the rise (and --cs-icon-animation-duration the pace) -->
 <cs-icon
   name="eco"
   animation="float"
-  label="Floating Feather" class="cs-font-size-2xl" style="--animation-duration: 2s; --float-height: 0.5em;"
+  label="Floating Feather" class="cs-font-size-2xl" style="--cs-icon-animation-duration: 2s; --cs-icon-float-height: 0.5em;"
 ></cs-icon>
 ```
 
 #### Jello
 
-Use the `jello` animation for a playful jiggle — great for calling attention to something new, fun, or interactive. Set `--jello-scale-x` and `--jello-scale-y` to control how far it deforms.
+Use the `jello` animation for a playful jiggle — great for calling attention to something new, fun, or interactive. Set `--cs-icon-jello-scale-x` and `--cs-icon-jello-scale-y` to control how far it deforms.
 
 ```html {.example}
 <cs-icon name="deployed_code" animation="jello" label="Jiggling Cube" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="water_drop" animation="jello" label="Jiggling Droplet" class="cs-font-size-2xl"></cs-icon>
-<!-- Use --jello-scale-x to control how far it stretches -->
+<!-- Use --cs-icon-jello-scale-x to control how far it stretches -->
 <cs-icon
   name="star"
   animation="jello"
-  label="Jiggling Star" class="cs-font-size-2xl" style="--animation-duration: 2s; --jello-scale-x: 1.3;" variant="fill"></cs-icon>
+  label="Jiggling Star" class="cs-font-size-2xl" style="--cs-icon-animation-duration: 2s; --cs-icon-jello-scale-x: 1.3;" variant="fill"></cs-icon>
 ```
 
 #### Swing
 
-Use the `swing` animation for a subtle dangle with a slow decay — great for things that physically dangle, like keys or a price tag. Set `--swing-angle` to control the peak rotation.
+Use the `swing` animation for a subtle dangle with a slow decay — great for things that physically dangle, like keys or a price tag. Set `--cs-icon-swing-angle` to control the peak rotation.
 
 ```html {.example}
 <cs-icon name="notifications" animation="swing" label="Swinging Bell" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="key" animation="swing" label="Swinging Key" class="cs-font-size-2xl"></cs-icon>
-<!-- Use --swing-angle to control the peak rotation -->
+<!-- Use --cs-icon-swing-angle to control the peak rotation -->
 <cs-icon
   name="sell"
   animation="swing"
-  label="Swinging Tag" class="cs-font-size-2xl" style="--animation-duration: 2s; --swing-angle: 45deg;" variant="fill"></cs-icon>
+  label="Swinging Tag" class="cs-font-size-2xl" style="--cs-icon-animation-duration: 2s; --cs-icon-swing-angle: 45deg;" variant="fill"></cs-icon>
 ```
 
 #### Wag
 
-Use the `wag` animation, a cousin of `swing`, for a bottom-anchored wag — the top of the icon sways back and forth with a slow decay. Set `--wag-angle` to control the peak rotation.
+Use the `wag` animation, a cousin of `swing`, for a bottom-anchored wag — the top of the icon sways back and forth with a slow decay. Set `--cs-icon-wag-angle` to control the peak rotation.
 
 ```html {.example}
 <cs-icon name="ads_click" animation="wag" label="Wagging Pointer" class="cs-font-size-2xl"></cs-icon>
 <cs-icon name="touch_app" animation="wag" label="Wagging Finger" class="cs-font-size-2xl"></cs-icon>
-<!-- Use --wag-angle to control the peak rotation -->
+<!-- Use --cs-icon-wag-angle to control the peak rotation -->
 <cs-icon
   name="swipe_right"
   animation="wag"
-  label="Wagging Finger" class="cs-font-size-2xl" style="--animation-duration: 2s; --wag-angle: 45deg;"
+  label="Wagging Finger" class="cs-font-size-2xl" style="--cs-icon-animation-duration: 2s; --cs-icon-wag-angle: 45deg;"
 ></cs-icon>
 ```
 

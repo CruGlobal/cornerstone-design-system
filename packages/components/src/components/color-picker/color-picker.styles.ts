@@ -1,32 +1,28 @@
 import { css } from 'lit';
 
 export default css`
-  :host {
-    --grid-width: 17em;
-    --grid-height: 12em;
-    --grid-handle-size: 1.25em;
-    --slider-height: 1em;
-    --slider-handle-size: calc(var(--slider-height) + 0.25em);
-  }
-
   .color-picker {
+    /* The slider handle's default derives from the slider's height, so both are written once here. */
+    --_slider-height: var(--cs-color-picker-slider-height, 1em);
+    --_slider-handle-size: var(--cs-color-picker-slider-handle-size, calc(var(--_slider-height) + 0.25em));
+
     background-color: var(--cs-color-surface-raised);
     border-radius: var(--cs-border-radius-m);
     border-style: var(--cs-border-style);
     border-width: var(--cs-border-width-s);
     border-color: var(--cs-color-surface-border);
     box-shadow: var(--cs-shadow-m);
-    color: var(--color);
+    color: var(--cs-color-text-normal);
     font: inherit;
     font-size: inherit;
     user-select: none;
-    width: var(--grid-width);
+    width: var(--cs-color-picker-grid-width, 17em);
     -webkit-user-select: none;
   }
 
   .grid {
     position: relative;
-    height: var(--grid-height);
+    height: var(--cs-color-picker-grid-height, 12em);
     background-image:
       linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%),
       linear-gradient(to right, #fff 0%, rgba(255, 255, 255, 0) 100%);
@@ -38,13 +34,13 @@ export default css`
 
   .grid-handle {
     position: absolute;
-    width: var(--grid-handle-size);
-    height: var(--grid-handle-size);
+    width: var(--cs-color-picker-grid-handle-size, 1.25em);
+    height: var(--cs-color-picker-grid-handle-size, 1.25em);
     border-radius: var(--cs-border-radius-circle);
     box-shadow: 0 0 0 0.0625rem rgba(0, 0, 0, 0.2);
     border: solid 0.125rem white;
-    margin-top: calc(var(--grid-handle-size) / -2);
-    margin-left: calc(var(--grid-handle-size) / -2);
+    margin-top: calc(var(--cs-color-picker-grid-handle-size, 1.25em) / -2);
+    margin-left: calc(var(--cs-color-picker-grid-handle-size, 1.25em) / -2);
     transition: scale var(--cs-transition-normal) var(--cs-transition-easing);
   }
 
@@ -69,7 +65,7 @@ export default css`
 
   .slider {
     position: relative;
-    height: var(--slider-height);
+    height: var(--_slider-height);
     border-radius: var(--cs-border-radius-s);
     box-shadow: inset 0 0 0 0.0625rem rgba(0, 0, 0, 0.2);
     forced-color-adjust: none;
@@ -81,13 +77,13 @@ export default css`
 
   .slider-handle {
     position: absolute;
-    top: calc(50% - var(--slider-handle-size) / 2);
-    width: var(--slider-handle-size);
-    height: var(--slider-handle-size);
+    top: calc(50% - var(--_slider-handle-size) / 2);
+    width: var(--_slider-handle-size);
+    height: var(--_slider-handle-size);
     border-radius: var(--cs-border-radius-circle);
     border: solid 0.125rem white;
     box-shadow: 0 0 0 0.0625rem rgba(0, 0, 0, 0.2);
-    margin-left: calc(var(--slider-handle-size) / -2);
+    margin-left: calc(var(--_slider-handle-size) / -2);
   }
 
   .slider-handle:focus-visible {
@@ -144,7 +140,7 @@ export default css`
     box-shadow: inset 0 0 0 0.0625rem rgba(0, 0, 0, 0.2);
 
     /* We use a custom property in lieu of currentColor because of https://bugs.webkit.org/show_bug.cgi?id=216780 */
-    background-color: var(--preview-color);
+    background-color: var(--_preview-color);
   }
 
   .preview:focus-visible {

@@ -69,3 +69,23 @@ export async function expectAnimationDuration(el: Element, property: string, { n
     `${describeElement(el)} should animate for ${property} (${expected}ms) with no delay, but ${mismatches.join(', ')}`,
   ).to.be.empty;
 }
+
+/**
+ * Asserts that `el` takes on `className` and moves for no time with it: every animation and transition on it and on
+ * its pseudo-elements runs 0ms with no delay, or is gone. For the reduced-motion paths, which shorten the component's
+ * own animation to nothing rather than skipping the class, so its after event still follows.
+ *
+ * Waiting for the class first is what keeps this from passing before anything has happened. Call it straight after
+ * the change that adds the class, as with `expectAnimationDuration`.
+ */
+export async function expectNoMotion(el: Element, className: string) {
+  for (let turn = 0; turn < 50 && !el.classList.contains(className); turn++) {
+    await Promise.resolve();
+  }
+  expect(el.classList.contains(className), `${describeElement(el)} should take on .${className}`).to.be.true;
+
+  const moving = timingsOn(el)
+    .filter((timing) => timing.duration > 0 || timing.delay > 0)
+    .map((timing) => `${timing.name} runs ${timing.duration}ms`);
+  expect(moving, `${describeElement(el)} should not move, but ${moving.join(', ')}`).to.be.empty;
+}

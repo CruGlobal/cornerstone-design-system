@@ -109,7 +109,7 @@ The scroller component automatically provides a scrollable container for any con
 <cs-scroller>
   <div class="wide-content">
     <h3>Superhero Team Roles Guide</h3>
-    <div class="cs-grid cs-gap-l" style="--min-column-size: calc(var(--cs-space-4xl) * 4)">
+    <div class="cs-grid cs-gap-l" style="--cs-grid-min-column-size: calc(var(--cs-space-4xl) * 4)">
       <div>
         <h4>Team Leaders</h4>
         <p>

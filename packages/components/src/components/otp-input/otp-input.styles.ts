@@ -14,7 +14,7 @@ export default css`
     display: inline-flex;
     align-items: center;
     align-self: start;
-    gap: var(--segment-gap, var(--cs-space-xs));
+    gap: var(--cs-otp-input-segment-gap, var(--cs-space-xs));
     cursor: text;
     /* Never grow past the host's available width — long values or large segment sizes scroll
        horizontally instead of overflowing the page. */
@@ -76,9 +76,9 @@ export default css`
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: var(--segment-size, 2.5em);
-    height: var(--segment-size, 2.5em);
-    border-radius: var(--segment-border-radius, var(--cs-form-control-border-radius));
+    width: var(--cs-otp-input-segment-size, 2.5em);
+    height: var(--cs-otp-input-segment-size, 2.5em);
+    border-radius: var(--cs-otp-input-segment-border-radius, var(--cs-form-control-border-radius));
     font-size: 1em;
     font-family: inherit;
     font-variant-numeric: tabular-nums;
@@ -143,7 +143,7 @@ export default css`
   :host([appearance='contained']) .segments {
     gap: 0;
     border: var(--cs-form-control-border-width) var(--cs-form-control-border-style) var(--cs-form-control-border-color);
-    border-radius: var(--segment-border-radius, var(--cs-form-control-border-radius));
+    border-radius: var(--cs-otp-input-segment-border-radius, var(--cs-form-control-border-radius));
     background-color: var(--cs-form-control-background-color);
     overflow: hidden;
     /* The focus ring is drawn inward here (see outline-offset below), so there's no outward bleed
@@ -179,11 +179,11 @@ export default css`
   }
 
   /* Masked filled character, and the empty-segment hint shown when with-mask is set, both draw
-     --mask-char via a pseudo-element instead of real text, so a masked value never touches the
+     --cs-otp-input-mask-char via a pseudo-element instead of real text, so a masked value never touches the
      DOM as plain text (nothing to find via view-source or copy). */
   .segment--masked::before,
   .segment--mask-hint::before {
-    content: var(--mask-char, '•');
+    content: var(--cs-otp-input-mask-char, '•');
   }
 
   .segment--mask-hint::before {

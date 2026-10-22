@@ -149,11 +149,11 @@ export default css`
     }
 
     &.show {
-      animation: submenu-show var(--show-duration, var(--cs-transition-fast)) ease;
+      animation: submenu-show var(--cs-show-duration, var(--cs-transition-fast)) ease;
     }
 
     &.hide {
-      animation: submenu-show var(--show-duration, var(--cs-transition-fast)) ease reverse;
+      animation: submenu-show var(--cs-hide-duration, var(--cs-transition-fast)) ease reverse;
     }
 
     /* Submenu placement transform origins */
@@ -201,15 +201,16 @@ export default css`
       background-color: transparent;
       content: '';
       clip-path: polygon(
-        var(--safe-triangle-cursor-x, 0) var(--safe-triangle-cursor-y, 0),
-        var(--safe-triangle-submenu-start-x, 0) var(--safe-triangle-submenu-start-y, 0),
-        var(--safe-triangle-submenu-end-x, 0) var(--safe-triangle-submenu-end-y, 0)
+        var(--_safe-triangle-cursor-x, 0) var(--_safe-triangle-cursor-y, 0),
+        var(--_safe-triangle-submenu-start-x, 0) var(--_safe-triangle-submenu-start-y, 0),
+        var(--_safe-triangle-submenu-end-x, 0) var(--_safe-triangle-submenu-end-y, 0)
       );
       pointer-events: auto; /* Enable mouse events on the triangle */
     }
 
+    /* The dropdown hides the safe triangle during keyboard navigation, where there is no pointer to protect. */
     &[data-visible]::before {
-      display: block;
+      display: var(--_safe-triangle-visible, block);
     }
   }
 
@@ -217,8 +218,9 @@ export default css`
     font-size: inherit;
   }
 
+  /* Hand-off: a submenu's dividers keep the menu's tight spacing. */
   ::slotted(cs-divider) {
-    --spacing: 0.25em;
+    --cs-divider-spacing: 0.25em;
   }
 
   @keyframes submenu-show {
@@ -229,6 +231,14 @@ export default css`
     to {
       scale: 1;
       opacity: 1;
+    }
+  }
+
+  /* Reduced motion wins over any duration, including one a page sets for every component. */
+  @media (prefers-reduced-motion: reduce) {
+    #submenu.show,
+    #submenu.hide {
+      animation-duration: 0ms;
     }
   }
 `;

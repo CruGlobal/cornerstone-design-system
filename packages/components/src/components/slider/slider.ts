@@ -61,11 +61,11 @@ import styles from './slider.styles.js';
  * @cssstate user-valid - Applied when the slider is valid and the user has sufficiently interacted with it.
  * @cssstate user-invalid - Applied when the slider is invalid and the user has sufficiently interacted with it.
  *
- * @cssproperty [--track-size=0.75em] - The height or width of the slider's track.
- * @cssproperty [--marker-width=0.1875em] - The width of each individual marker.
- * @cssproperty [--marker-height=0.1875em] - The height of each individual marker.
- * @cssproperty [--thumb-width=1.25em] - The width of the thumb.
- * @cssproperty [--thumb-height=1.25em] - The height of the thumb.
+ * @cssproperty [--cs-slider-track-size=0.5em] - The height or width of the slider's track.
+ * @cssproperty [--cs-slider-marker-width=0.1875em] - The width of each individual marker.
+ * @cssproperty [--cs-slider-marker-height=0.1875em] - The height of each individual marker.
+ * @cssproperty [--cs-slider-thumb-width=1.4em] - The width of the thumb.
+ * @cssproperty [--cs-slider-thumb-height=1.4em] - The height of the thumb.
  */
 @customElement('cs-slider')
 export default class CsSlider extends CornerstoneFormAssociatedElement {
@@ -895,7 +895,7 @@ export default class CsSlider extends CornerstoneFormAssociatedElement {
           <div id="markers" part="markers">
             ${markers.map(
               (marker) =>
-                html`<span part="marker" class="marker" style=${styleMap({ '--position': `${marker}%` })}></span>`,
+                html`<span part="marker" class="marker" style=${styleMap({ '--_position': `${marker}%` })}></span>`,
             )}
           </div>
         `
@@ -950,8 +950,8 @@ export default class CsSlider extends CornerstoneFormAssociatedElement {
               id="indicator"
               part="indicator"
               style=${styleMap({
-                '--start': `${Math.min(minThumbPosition, maxThumbPosition)}%`,
-                '--end': `${Math.max(minThumbPosition, maxThumbPosition)}%`,
+                '--_start': `${Math.min(minThumbPosition, maxThumbPosition)}%`,
+                '--_end': `${Math.max(minThumbPosition, maxThumbPosition)}%`,
               })}
             ></div>
 
@@ -960,7 +960,7 @@ export default class CsSlider extends CornerstoneFormAssociatedElement {
             <span
               id="thumb-min"
               part="thumb thumb-min"
-              style=${styleMap({ '--position': `${minThumbPosition}%` })}
+              style=${styleMap({ '--_position': `${minThumbPosition}%` })}
               role="slider"
               aria-valuemin=${this.min}
               aria-valuenow=${this.minValue}
@@ -983,7 +983,7 @@ export default class CsSlider extends CornerstoneFormAssociatedElement {
             <span
               id="thumb-max"
               part="thumb thumb-max"
-              style=${styleMap({ '--position': `${maxThumbPosition}%` })}
+              style=${styleMap({ '--_position': `${maxThumbPosition}%` })}
               role="slider"
               aria-valuemin=${this.min}
               aria-valuenow=${this.maxValue}
@@ -1051,11 +1051,11 @@ export default class CsSlider extends CornerstoneFormAssociatedElement {
             <div
               id="indicator"
               part="indicator"
-              style=${styleMap({ '--start': `${indicatorOffsetPosition}%`, '--end': `${thumbPosition}%` })}
+              style=${styleMap({ '--_start': `${indicatorOffsetPosition}%`, '--_end': `${thumbPosition}%` })}
             ></div>
 
             ${markersTemplate}
-            <span id="thumb" part="thumb" style=${styleMap({ '--position': `${thumbPosition}%` })}></span>
+            <span id="thumb" part="thumb" style=${styleMap({ '--_position': `${thumbPosition}%` })}></span>
           </div>
 
           ${referencesTemplate} ${hint}

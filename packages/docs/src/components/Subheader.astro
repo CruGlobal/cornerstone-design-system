@@ -19,9 +19,9 @@
  * have needed a rule for. The gap is `2xs` for the same reason: the spacing lives inside the buttons as
  * `0 14px` of padding, so the gap between them is only 4px.
  *
- * `subheader` is a documented slot and part, and `cs-page` measures it into `--subheader-height`, which
- * `--scroll-margin-top` already sums with the header — so anchors keep landing correctly with no arithmetic
- * here.
+ * `subheader` is a documented slot and part, and `cs-page` measures it into `--cs-page-subheader-height`, which
+ * the library's `layers.css` already adds to the banner and header heights in every element's `scroll-margin-top`
+ * — so anchors keep landing correctly with no arithmetic here.
  *
  * `aria-current="page"` marks the section. Upstream uses `class="current"` and no ARIA, which is a gap on
  * their side; the attribute is both the hook the styling hangs off and the thing a screen reader reads.
@@ -29,7 +29,7 @@
  * `slot="subheader"` sits on the `<div>` here rather than on `<Subheader slot="subheader" />` at the use
  * site. An Astro component is not an element, so the attribute has nowhere to land there and the band
  * renders as default-slot content instead — inside `main`, with none of `cs-page`'s
- * `::slotted([slot='subheader'])` styling, and `--subheader-height` measuring 0 while the links still
+ * `::slotted([slot='subheader'])` styling, and `--cs-page-subheader-height` measuring 0 while the links still
  * paint. `PageFrame.astro`'s own `<header>` and `<aside>` carry their slot attributes for the same reason.
  */
 import { sectionFor, siteSections } from '../site-sections.js';
