@@ -3,9 +3,12 @@ title: Accessibility
 description: What Cornerstone Components targets, how each claim is checked, and which gaps are known.
 contrast: |
   # Every ratio and colour the Known gaps table prints, checked against the shipped themes by
-  # scripts/check-contrast.js, which says what each column means. Change a number here and in the prose together.
+  # scripts/check-contrast.js, which says what each column means. A [label] names the table row whose first cell
+  # it is. Each line that prints a value backs one printed copy of it in that row, so pairs that share one copy
+  # share one line. Change a number here and in the prose together.
   #
   # theme | scheme | foreground                      | background                  | printed  | precision
+  [Single-tone focus indicator]
   cru     | light  | --cs-color-focus                | --cs-color-surface-default  | 1.47:1   | 2dp
   cru     | light  | --cs-color-focus                | --cs-color-surface-lowered  | 1.28:1   | 2dp
   default | light  | --cs-color-focus                | --cs-color-surface-default  | 2.9951:1 | 4dp
@@ -15,33 +18,39 @@ contrast: |
   fl      | light  | --cs-color-focus                | --cs-color-surface-default  | 6.37:1   | 2dp
   cru     | dark   | --cs-color-focus                | --cs-color-surface-default  | 12.73:1  | 2dp
   default | dark   | --cs-color-focus                | --cs-color-surface-default  | 6.25:1   | 2dp
-  cru     | light  | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.00:1   | 2dp
-  cru     | dark   | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.00:1   | 2dp
-  fl      | light  | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.00:1   | 2dp
-  fl      | dark   | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.00:1   | 2dp
-  default | light  | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.53:1   | 2dp
-  default | dark   | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.53:1   | 2dp
+  cru, fl | both   | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.00:1   | 2dp
+  default | both   | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.53:1   | 2dp
   default | light  | --cs-color-focus in .cs-invalid | --cs-color-surface-default  | 3.0140:1 | 4dp
   default | light  | --cs-color-focus in .cs-valid   | --cs-color-surface-default  | 3.0012:1 | 4dp
   default | light  | --cs-color-focus in .cs-invalid | --cs-color-surface-lowered  | 2.69:1   | 2dp
   default | light  | --cs-color-focus in .cs-valid   | --cs-color-surface-lowered  | 2.68:1   | 2dp
-  default | dark   | --cs-color-focus in .cs-invalid | --cs-color-surface-default  | 2.66:1   | 2dp
-  default | dark   | --cs-color-focus in .cs-valid   | --cs-color-surface-default  | 2.66:1   | 2dp
-  default | dark   | --cs-color-focus in .cs-invalid | --cs-color-surface-raised   | 2.39:1   | 2dp
-  default | dark   | --cs-color-focus in .cs-valid   | --cs-color-surface-raised   | 2.39:1   | 2dp
-  default | dark   | --cs-color-focus in .cs-invalid | --cs-color-surface-lowered  | 2.81:1   | 2dp
-  default | dark   | --cs-color-focus in .cs-valid   | --cs-color-surface-lowered  | 2.81:1   | 2dp
-  all     | both   | --cs-color-{neutral,brand,success,warning,danger,information,highlight}-fill-normal | --cs-color-surface-default | 1.25:1 to 1.48:1 | 2dp
+  default | dark   | --cs-color-focus in .cs-{invalid,valid} | --cs-color-surface-default | 2.66:1 | 2dp
+  default | dark   | --cs-color-focus in .cs-{invalid,valid} | --cs-color-surface-raised  | 2.39:1 | 2dp
+  default | dark   | --cs-color-focus in .cs-{invalid,valid} | --cs-color-surface-lowered | 2.81:1 | 2dp
+  cru     | light  | --cs-color-focus                | -                           | #ffd000  |
+  default | light  | --cs-color-focus                | -                           | #3e96ff  |
+  fl      | both   | --cs-color-focus                | -                           | #006c5b  |
   #
   # Passes the prose states without printing a number.
   cru, default | dark | --cs-color-focus                | --cs-color-surface-{raised,lowered}         | at least 3:1 |
   cru, fl      | both | --cs-color-focus in .cs-invalid | --cs-color-surface-{default,raised,lowered} | at least 3:1 |
   cru, fl      | both | --cs-color-focus in .cs-valid   | --cs-color-surface-{default,raised,lowered} | at least 3:1 |
+  fl           | light | --cs-color-focus               | --cs-color-surface-{raised,lowered}         | at least 3:1 |
+  fl           | dark  | --cs-color-focus               | --cs-color-surface-lowered                  | at least 3:1 |
   #
-  # Colours the prose names.
-  cru     | light  | --cs-color-focus                | -                           | #ffd000  |
-  default | light  | --cs-color-focus                | -                           | #3e96ff  |
-  fl      | both   | --cs-color-focus                | -                           | #006c5b  |
+  # Controls that draw the shared --cs-focus-ring keep the theme's ring when marked. The ring is computed on the
+  # themed root, so a class lower down cannot re-point its colour. The 1.47:1 line backs the cs-checkbox sentence;
+  # the colour lines back "keeps the theme's ring" and print nothing.
+  cru     | light  | --cs-focus-ring in .cs-invalid  | --cs-color-surface-default  | 1.47:1   | 2dp
+  default | both   | --cs-focus-ring in .cs-invalid  | -                           | is #3e96ff |
+  default | both   | --cs-focus-ring in .cs-valid    | -                           | is #3e96ff |
+  cru     | both   | --cs-focus-ring in .cs-invalid  | -                           | is #ffd000 |
+  cru     | both   | --cs-focus-ring in .cs-valid    | -                           | is #ffd000 |
+  fl      | both   | --cs-focus-ring in .cs-invalid  | -                           | is #006c5b |
+  fl      | both   | --cs-focus-ring in .cs-valid    | -                           | is #006c5b |
+
+  [A state shown by fill alone vanishes in forced colors]
+  all     | both   | --cs-color-{neutral,brand,success,warning,danger,information,highlight}-fill-normal | --cs-color-surface-default | 1.25:1 to 1.48:1 | 2dp
 ---
 
 Cornerstone Components targets **WCAG 2.2 Level AA**. This page states what that means in practice, how each
@@ -112,7 +121,8 @@ visual order, and no focusable element is repositioned with `order`, `row-revers
 | Gap | Detail | Revisit when |
 | --- | --- | --- |
 | Target size below 24px at three sizes | 2.5.8 asks for 24×24 CSS px. The click target for `cs-checkbox`, `cs-radio` and `cs-switch` is the full label, which is wide enough, but only as tall as the control: 15px at `xs`, 18px at `s`, 20px at `m`, and 24px is met only at `l` and `xl`. Stacked usage passes through 2.5.8's spacing exception — measured centre-to-centre spacing is 32–44px — so a checkbox list conforms while a lone toggle at the default size does not. | The control size ramp is reconciled with the design system's, which pins its smallest control at exactly 24px |
-| Single-tone focus indicator | The indicator is one colour, `--cs-color-focus`, drawn 3px wide, and on some surfaces it falls short of the 3:1 that 1.4.11 asks for. In light mode, Cru's `#ffd000` is 1.47:1 on white and 1.28:1 on the lowered surface, and the default theme's `#3e96ff` is 2.9951:1 on white (thresholds do not round up) and 2.67:1 on the lowered surface. In dark mode, FamilyLife's `#006c5b` is 2.94:1 on the default surface and 2.36:1 on the raised one. It passes for FamilyLife in light mode (6.37:1 on white), and for Cru and the default theme in dark mode on the default, raised and lowered surfaces (12.73:1 and 6.25:1 on the default surface). On a `brand-fill-loud` surface the ring is 1.00:1 in Cru and FamilyLife, because it is the same colour as the fill, and 1.53:1 in the default theme, in both modes. On a form control marked `.cs-invalid` or `.cs-valid`, the ring changes to the danger or success border colour. In Cru and FamilyLife that passes on the default, raised and lowered surfaces. In the default theme it passes only on white (3.0140:1 and 3.0012:1): it is 2.69:1 and 2.68:1 on the light lowered surface, and in dark mode it is 2.66:1 on the default surface, 2.39:1 on the raised one and 2.81:1 on the lowered one. Two of these failures are recorded. Cru's light-mode ring is a brand trade, written down in `packages/components/tools/palette.mjs`. FamilyLife's dark-mode ring is a known exception in `packages/components/tools/brands/fl.json`, which plans its own fix: a generator change that picks a lighter brand step when the key falls short. The other failing pairs have no such record. No single colour can promise 3:1 against every background, such as an image or a colour from outside Cornerstone. A two-tone indicator that carries its own contrast would fix every pair at once, and it needs a second focus colour that does not exist at any token layer yet. | A two-tone focus indicator ships (UIUX-123) |
+| Single-tone focus indicator | The indicator is one colour, `--cs-color-focus`, drawn 3px wide, and on some surfaces it falls short of the 3:1 that 1.4.11 asks for. In light mode, Cru's `#ffd000` is 1.47:1 on white and 1.28:1 on the lowered surface, and the default theme's `#3e96ff` is 2.9951:1 on white (thresholds do not round up) and 2.67:1 on the lowered surface. In dark mode, FamilyLife's `#006c5b` is 2.94:1 on the default surface and 2.36:1 on the raised one. It passes for FamilyLife in light mode (6.37:1 on white), and for Cru and the default theme in dark mode on the default, raised and lowered surfaces (12.73:1 and 6.25:1 on the default surface). On a `brand-fill-loud` surface the ring is 1.00:1 in Cru and FamilyLife, because it is the same colour as the fill, and 1.53:1 in the default theme, in both modes. Marking a control `.cs-invalid` or `.cs-valid` changes its ring to the danger or success border colour only on these controls: `cs-input`, `cs-textarea`, `cs-select`, `cs-number-input`, `cs-time-input`, `cs-known-date`, `cs-otp-input`, and native text inputs, `<textarea>` and `<select>`. In Cru and FamilyLife that colour passes on the default, raised and lowered surfaces. In the default theme it passes only on white (3.0140:1 and 3.0012:1): it is 2.69:1 and 2.68:1 on the light lowered surface, and in dark mode it is 2.66:1 on the default surface, 2.39:1 on the raised one and 2.81:1 on the lowered one. Every other control keeps the theme's ring when marked, including `cs-checkbox`, `cs-radio`, `cs-switch`, `cs-slider`, `cs-color-picker`, `cs-rating`, `cs-button` and the native checkbox, radio, range, colour input and button, so the pairs above apply to it unchanged: a Cru `cs-checkbox` marked `.cs-invalid` is still 1.47:1 on white in light mode. Two of these failures are recorded. Cru's light-mode ring is a brand trade, written down in `packages/components/tools/palette.mjs`. FamilyLife's dark-mode ring is a known exception in `packages/components/tools/brands/fl.json`, which plans its own fix: a generator change that picks a lighter brand step when the key falls short. The other failing pairs have no such record. No single colour can promise 3:1 against every background, such as an image or a colour from outside Cornerstone. A two-tone indicator that carries its own contrast would fix every pair at once, and it needs a second focus colour that does not exist at any token layer yet. | A two-tone focus indicator ships (UIUX-123) |
+| A scoped focus colour reaches only some controls | Each theme builds `--cs-focus-ring` from `--cs-color-focus` on its root and scheme elements, so the colour is fixed there. Setting `--cs-color-focus` lower in the page, as `.cs-invalid`, `.cs-valid` and the subtree example on the [tokens page](/tokens) do, changes the ring only on `cs-input`, `cs-textarea`, `cs-select`, `cs-number-input`, `cs-time-input`, `cs-known-date`, `cs-otp-input`, and native text inputs, `<textarea>` and `<select>`. Components that draw the shared `--cs-focus-ring`, such as `cs-checkbox`, `cs-button` and `cs-tab`, keep the theme's ring. So an app cannot fix a failing focus pair on one surface, such as a `brand-fill-loud` band, by setting `--cs-color-focus` there alone. | Every component's focus ring follows `--cs-color-focus` wherever it is set (UIUX-253) |
 | `delegatesFocus` on two composites | `cs-radio-group` and `cs-color-picker` both set `delegatesFocus` and both manage roving focus across children, which the rule above says they should not. | Reviewed per component |
 | Forced colors | Not tested in a real high-contrast environment, and no conformance is claimed. Indicators are drawn with `outline` and `border` rather than `box-shadow` alone, which is the groundwork. | Tested against a real high-contrast environment |
 | A state shown by fill alone vanishes in forced colors | In Chromium's forced-colors emulation, all five `cs-button` appearances look the same: the fill is dropped and each button gets the same system-colour border and text. So a state shown only by a change of appearance disappears, such as marking the current page by switching one button from `plain` to `filled`. A fill is colour alone (1.4.1), and outside forced colors that change is only 1.25:1 to 1.48:1 against the page, for every variant in every shipped theme, under the 3:1 of 1.4.11. This was emulated in a test browser, not seen in a real high-contrast setup. | `cs-button` gets a current state that is not shown by colour alone (UIUX-213) |

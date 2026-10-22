@@ -13,6 +13,10 @@ use-cases:
   - rgb picker
   - hsl picker
 description: "Color pickers let users choose a color from a visual palette or by entering a value. They support HEX, RGB, HSL, and HSV formats with optional alpha channel and swatch presets."
+contrast: |
+  # Read by scripts/check-contrast.js, which checks every ratio and hex colour the site prints.
+  [To offer a fully transparent option]
+  not measured | #00000000 | the value the transparent swatch sets, not a theme colour
 ---
 
 ```html {.example}
