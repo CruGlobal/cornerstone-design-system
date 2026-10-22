@@ -253,7 +253,7 @@ export function checkContract(steps) {
   return out;
 }
 
-export { STEPS, Y_LADDER, luminance, contrast, hexToOklch, NEUTRAL_CHROMA };
+export { STEPS, Y_LADDER, luminance, contrast, hexToOklch, oklchToHex, NEUTRAL_CHROMA };
 
 // ─── variants ─────────────────────────────────────────────────────────────
 /**

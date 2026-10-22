@@ -30,6 +30,12 @@ export const collections = {
          * parent", which is why it cannot be modelled as a plain boolean with a default.
          */
         hasAnatomy: z.boolean().optional(),
+        /**
+         * The contrast ratios and colours the page prints, one claim per line, so a theme change that makes one
+         * wrong fails the build instead of shipping. Read by scripts/check-contrast.js, which says what each
+         * column means; the site renders nothing from it.
+         */
+        contrast: z.string().optional(),
       }),
     }),
   }),

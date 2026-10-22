@@ -5,7 +5,7 @@ description: Which browsers Cornerstone supports, and which screen reader pairin
 
 Cornerstone officially supports the latest two major versions of the most popular browsers, including Chrome, Safari, Edge, Firefox, and Opera.
 
-The test suite runs every component in Chromium, Firefox and WebKit, the engines behind these browsers, one version each. If you're using an older version, we strongly recommend upgrading to enjoy the best experience.
+The test suite runs every component in one version each of Chromium, Firefox and WebKit, the engines behind these browsers. If your browser is older than the latest two major versions, we strongly recommend upgrading.
 
 <p>
 <img src="/assets/images/chrome.png" alt="Chrome" width="64" height="64">
@@ -23,7 +23,7 @@ Cornerstone targets these screen reader and browser pairings:
 - NVDA with Firefox
 - VoiceOver with Safari
 
-No screen reader has been run against any component yet, and no one who relies on one has tested a component. What has been checked is the code level: automated accessibility tests on every component with an interactive surface, in Chromium, Firefox and WebKit. The [accessibility page](/resources/accessibility) says what is verified and lists the [known gaps](/resources/accessibility#known-gaps), this one included. If a component does not work with one of these pairings, [report it](/resources/accessibility#reporting-something) with the screen reader, the browser and what you expected to hear.
+No component has a recorded screen reader test yet, either by the team or by a person who relies on a screen reader. What has been checked is the code level: automated accessibility tests on every component with an interactive surface, in Chromium, Firefox and WebKit. The [accessibility page](/resources/accessibility) says what is verified and lists the [known gaps](/resources/accessibility#known-gaps), this one included. If a component does not work with one of these pairings, [report it](/resources/accessibility#reporting-something) with the screen reader, the browser and what you expected to hear.
 
 ## Legacy Browser Support
 

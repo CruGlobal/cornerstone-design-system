@@ -54,6 +54,14 @@ unchecked. Every site path (`href`, `src`, `value`, redirect, sidebar link) is b
 under the Pages base path and renders fine on a developer's machine. Repository links derive from
 `package.json`'s `repository`, as `remark-roadmap.js` does.
 
+**A measured number is declared, not only typed**
+
+A contrast ratio or colour printed on a page is a fact about the shipped themes, and a theme changes without
+anyone opening the page. The page declares each one in its `contrast` front matter, one line per claim, and
+`check:contrast` recomputes it from `packages/components/src/styles/themes/`. It fails when a printed value no
+longer matches, lands on the other side of 3:1, or is no longer on the built page, and when the page prints a
+ratio or hex colour no line declares. Look for: a number edited in the prose but not in its line, or the reverse.
+
 **The anatomy renderer is roadmap**
 
 Twenty-six pages flag an anatomy example and `check-anatomy.js` validates the flag, but nothing renders it
@@ -62,7 +70,7 @@ Twenty-six pages flag an anatomy example and `check-anatomy.js` validates the fl
 **The checks are the gate**
 
 `npm run verify --workspace cornerstone-docs-site` runs Prettier, `astro check`, the build, then
-`check:assets`, `check:pages`, `check:tokens`, `check:components` and `check:anatomy`. A page is not
+`check:assets`, `check:pages`, `check:tokens`, `check:components`, `check:anatomy` and `check:contrast`. A page is not
 "working" until that ran. Each check asserts an invariant over the built output; a diff that narrows one to
 an allowlist is a finding.
 
@@ -77,6 +85,7 @@ an allowlist is a finding.
 - Every changed example loaded and its computed style checked, not only built: Yes/No/N/A
 - New directives have a plugin and a `check-pages.js` assertion: Yes/No/N/A
 - No literal address or bare root path: Yes/No/N/A
+- Every contrast ratio or colour a page prints is declared in its `contrast` front matter: Yes/No/N/A
 - `npm run verify` for the docs site ran: Yes/No/N/A
 
 ---

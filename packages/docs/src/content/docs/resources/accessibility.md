@@ -1,6 +1,47 @@
 ---
 title: Accessibility
 description: What Cornerstone Components targets, how each claim is checked, and which gaps are known.
+contrast: |
+  # Every ratio and colour the Known gaps table prints, checked against the shipped themes by
+  # scripts/check-contrast.js, which says what each column means. Change a number here and in the prose together.
+  #
+  # theme | scheme | foreground                      | background                  | printed  | precision
+  cru     | light  | --cs-color-focus                | --cs-color-surface-default  | 1.47:1   | 2dp
+  cru     | light  | --cs-color-focus                | --cs-color-surface-lowered  | 1.28:1   | 2dp
+  default | light  | --cs-color-focus                | --cs-color-surface-default  | 2.9951:1 | 4dp
+  default | light  | --cs-color-focus                | --cs-color-surface-lowered  | 2.67:1   | 2dp
+  fl      | dark   | --cs-color-focus                | --cs-color-surface-default  | 2.94:1   | 2dp
+  fl      | dark   | --cs-color-focus                | --cs-color-surface-raised   | 2.36:1   | 2dp
+  fl      | light  | --cs-color-focus                | --cs-color-surface-default  | 6.37:1   | 2dp
+  cru     | dark   | --cs-color-focus                | --cs-color-surface-default  | 12.73:1  | 2dp
+  default | dark   | --cs-color-focus                | --cs-color-surface-default  | 6.25:1   | 2dp
+  cru     | light  | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.00:1   | 2dp
+  cru     | dark   | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.00:1   | 2dp
+  fl      | light  | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.00:1   | 2dp
+  fl      | dark   | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.00:1   | 2dp
+  default | light  | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.53:1   | 2dp
+  default | dark   | --cs-color-focus                | --cs-color-brand-fill-loud  | 1.53:1   | 2dp
+  default | light  | --cs-color-focus in .cs-invalid | --cs-color-surface-default  | 3.0140:1 | 4dp
+  default | light  | --cs-color-focus in .cs-valid   | --cs-color-surface-default  | 3.0012:1 | 4dp
+  default | light  | --cs-color-focus in .cs-invalid | --cs-color-surface-lowered  | 2.69:1   | 2dp
+  default | light  | --cs-color-focus in .cs-valid   | --cs-color-surface-lowered  | 2.68:1   | 2dp
+  default | dark   | --cs-color-focus in .cs-invalid | --cs-color-surface-default  | 2.66:1   | 2dp
+  default | dark   | --cs-color-focus in .cs-valid   | --cs-color-surface-default  | 2.66:1   | 2dp
+  default | dark   | --cs-color-focus in .cs-invalid | --cs-color-surface-raised   | 2.39:1   | 2dp
+  default | dark   | --cs-color-focus in .cs-valid   | --cs-color-surface-raised   | 2.39:1   | 2dp
+  default | dark   | --cs-color-focus in .cs-invalid | --cs-color-surface-lowered  | 2.81:1   | 2dp
+  default | dark   | --cs-color-focus in .cs-valid   | --cs-color-surface-lowered  | 2.81:1   | 2dp
+  all     | both   | --cs-color-{neutral,brand,success,warning,danger,information,highlight}-fill-normal | --cs-color-surface-default | 1.25:1 to 1.48:1 | 2dp
+  #
+  # Passes the prose states without printing a number.
+  cru, default | dark | --cs-color-focus                | --cs-color-surface-{raised,lowered}         | at least 3:1 |
+  cru, fl      | both | --cs-color-focus in .cs-invalid | --cs-color-surface-{default,raised,lowered} | at least 3:1 |
+  cru, fl      | both | --cs-color-focus in .cs-valid   | --cs-color-surface-{default,raised,lowered} | at least 3:1 |
+  #
+  # Colours the prose names.
+  cru     | light  | --cs-color-focus                | -                           | #ffd000  |
+  default | light  | --cs-color-focus                | -                           | #3e96ff  |
+  fl      | both   | --cs-color-focus                | -                           | #006c5b  |
 ---
 
 Cornerstone Components targets **WCAG 2.2 Level AA**. This page states what that means in practice, how each
@@ -11,7 +52,7 @@ Two things this page does not claim. It does not claim your application is acces
 are necessary but not enough, and page structure, reading order, headings and landmarks belong to the application.
 And it does not claim a screen reader was run or that anyone with a disability has tested a component. Verification
 has two halves: the code-level checks below, and a person using real assistive technology. Neither is complete. The
-automated checks run, but no component has a record of its hand review, and the second half has not begun.
+automated checks run, but no component has a record of its hand review, and nothing is recorded for the second half.
 
 ## The floor every component is held to
 
@@ -71,18 +112,18 @@ visual order, and no focusable element is repositioned with `order`, `row-revers
 | Gap | Detail | Revisit when |
 | --- | --- | --- |
 | Target size below 24px at three sizes | 2.5.8 asks for 24×24 CSS px. The click target for `cs-checkbox`, `cs-radio` and `cs-switch` is the full label, which is wide enough, but only as tall as the control: 15px at `xs`, 18px at `s`, 20px at `m`, and 24px is met only at `l` and `xl`. Stacked usage passes through 2.5.8's spacing exception — measured centre-to-centre spacing is 32–44px — so a checkbox list conforms while a lone toggle at the default size does not. | The control size ramp is reconciled with the design system's, which pins its smallest control at exactly 24px |
-| Single-tone focus indicator | The indicator is one colour, `--cs-color-focus`, drawn 3px wide, and it does not reach the 3:1 that 1.4.11 asks for on every surface it lands on. In light mode, Cru's `#ffd000` is 1.47:1 on white and 1.28:1 on the lowered surface, and the default theme's `#3e96ff` is 2.9951:1 on white (thresholds do not round up) and 2.67:1 on the lowered surface. FamilyLife's `#006c5b` passes in light mode (6.37:1 on white) and fails in dark mode: 2.94:1 on the default surface and 2.36:1 on the raised one. Cru and the default theme pass in dark mode on the default, raised and lowered surfaces (12.73:1 and 6.25:1 on the default surface). On a `brand-fill-loud` surface the ring is 1:1 in Cru and FamilyLife, because it is the same colour as the fill, and 1.53:1 in the default theme, in both modes. Cru's light-mode value is a deliberate brand trade, recorded in `packages/components/tools/palette.mjs`. No such record exists for the other failing pairs. No single colour can promise 3:1 against every background, such as an image or a colour from outside Cornerstone. A two-tone indicator that carries its own contrast is the fix, and it needs a second focus colour that does not exist at any token layer yet. | UIUX-123 lands |
+| Single-tone focus indicator | The indicator is one colour, `--cs-color-focus`, drawn 3px wide, and on some surfaces it falls short of the 3:1 that 1.4.11 asks for. In light mode, Cru's `#ffd000` is 1.47:1 on white and 1.28:1 on the lowered surface, and the default theme's `#3e96ff` is 2.9951:1 on white (thresholds do not round up) and 2.67:1 on the lowered surface. In dark mode, FamilyLife's `#006c5b` is 2.94:1 on the default surface and 2.36:1 on the raised one. It passes for FamilyLife in light mode (6.37:1 on white), and for Cru and the default theme in dark mode on the default, raised and lowered surfaces (12.73:1 and 6.25:1 on the default surface). On a `brand-fill-loud` surface the ring is 1.00:1 in Cru and FamilyLife, because it is the same colour as the fill, and 1.53:1 in the default theme, in both modes. On a form control marked `.cs-invalid` or `.cs-valid`, the ring changes to the danger or success border colour. In Cru and FamilyLife that passes on the default, raised and lowered surfaces. In the default theme it passes only on white (3.0140:1 and 3.0012:1): it is 2.69:1 and 2.68:1 on the light lowered surface, and in dark mode it is 2.66:1 on the default surface, 2.39:1 on the raised one and 2.81:1 on the lowered one. Two of these failures are recorded. Cru's light-mode ring is a brand trade, written down in `packages/components/tools/palette.mjs`. FamilyLife's dark-mode ring is a known exception in `packages/components/tools/brands/fl.json`, which plans its own fix: a generator change that picks a lighter brand step when the key falls short. The other failing pairs have no such record. No single colour can promise 3:1 against every background, such as an image or a colour from outside Cornerstone. A two-tone indicator that carries its own contrast would fix every pair at once, and it needs a second focus colour that does not exist at any token layer yet. | A two-tone focus indicator ships (UIUX-123) |
 | `delegatesFocus` on two composites | `cs-radio-group` and `cs-color-picker` both set `delegatesFocus` and both manage roving focus across children, which the rule above says they should not. | Reviewed per component |
 | Forced colors | Not tested in a real high-contrast environment, and no conformance is claimed. Indicators are drawn with `outline` and `border` rather than `box-shadow` alone, which is the groundwork. | Tested against a real high-contrast environment |
-| A state shown by fill alone vanishes in forced colors | In Chromium's forced-colors emulation, all five `cs-button` appearances look the same: the fill is dropped and each button gets the same system-colour border and text. So a state shown only by a change of appearance disappears, such as marking the current page by switching one button from `plain` to `filled`. A fill is colour alone (1.4.1), and outside forced colors that change is only 1.25:1 to 1.47:1 against the page in every shipped theme, under the 3:1 of 1.4.11. This was emulated in a test browser, not seen in a real high-contrast setup. | UIUX-213 gives `cs-button` a current state that is not shown by colour alone |
-| Per-component hand review unrecorded | The hand review described under "How it is verified" has no written record for any component: nothing says what was checked, by whom, when, or what was found. So the parts only that review covers, such as the tab path through slotted content, the keyboard bindings for each archetype and the focus restoration target, have no evidence behind them yet. The automated checks and the measurements in this table are the evidence that exists. | UIUX-121 lands |
-| Screen reader verification | No component has been verified against a screen reader by a person who relies on one. | Assistive-technology testing is arranged |
+| A state shown by fill alone vanishes in forced colors | In Chromium's forced-colors emulation, all five `cs-button` appearances look the same: the fill is dropped and each button gets the same system-colour border and text. So a state shown only by a change of appearance disappears, such as marking the current page by switching one button from `plain` to `filled`. A fill is colour alone (1.4.1), and outside forced colors that change is only 1.25:1 to 1.48:1 against the page, for every variant in every shipped theme, under the 3:1 of 1.4.11. This was emulated in a test browser, not seen in a real high-contrast setup. | `cs-button` gets a current state that is not shown by colour alone (UIUX-213) |
+| Per-component hand review unrecorded | The hand review described under "How it is verified" has no written record for any component: nothing says what was checked, by whom, when, or what was found. So the parts only that review covers, such as the tab path through slotted content, the keyboard bindings for each archetype and the focus restoration target, have no evidence behind them yet. The automated checks and the measurements in this table are the evidence that exists. | The per-component review is recorded (UIUX-121) |
+| Screen reader verification | No component has a recorded screen reader test, either by the team or by a person who relies on a screen reader. | Screen reader testing is arranged and its results recorded |
 | One WebKit keyboard divergence | `cs-otp-input` does not advance focus out of the field on Tab in WebKit. Its field is a visually hidden real `<input>` reached through `delegatesFocus`, and WebKit's sequential focus does not leave that combination. Chromium and Firefox behave correctly. | WebKit's behaviour changes |
 | One WebKit scroll divergence | `cs-carousel` with `loop` ends on the wrong slide in WebKit when paging backwards from the first slide. | The carousel's clone-and-jump approach is revisited |
 | One WebKit name divergence | WebKit leaves out the space between a `cs-button`'s text and a `cs-badge` inside it, so a button reading "Requests" with a "30" badge is named "Requests30". Chromium and Firefox name it "Requests 30". A native `<button>` with a badge, or a `cs-button` with a plain `<span>`, keeps the space in WebKit, so the cause is in how the two components combine. | The cause is found and fixed |
-| Tooltip text on a `cs-button` is not in its name or description | `cs-tooltip` adds its ID to `aria-labelledby` on the element it is attached to. On a `cs-button` that element is the host, and an ID reference cannot cross into the shadow root where the real `<button>` is, so the tooltip text is in neither the button's accessible name nor its description. | UIUX-212 lands |
-| `cs-callout` variants unchecked under SSR | The axe test that renders each `cs-callout` variant returns early under the server-rendered-then-hydrated fixture, so in that mode it passes without checking anything. The axe test on default properties still runs in both modes. Until this closes, the claim above that axe runs in both render modes does not hold for callout variants. | UIUX-119 lands |
-| axe cannot see ARIA on a `<slot>` | axe builds its own flattened tree and leaves `<slot>` elements out, so a role or name written on a `<slot>` is never checked, and the component's axe test passes without seeing it. Two components do this. `cs-button-group` puts `role="group"` and `aria-label` on a `<slot>`, and `cs-avatar` puts `role="img"` and `aria-label` on the `<slot>` that holds its default icon. Chromium and Firefox give both an empty name, so the group's `label`, and the `label` of an avatar showing its default icon, do nothing there. WebKit names both. | UIUX-204 (`cs-button-group`) and UIUX-202 (`cs-avatar`) land |
+| Tooltip text does not reach a `cs-*` control | `cs-tooltip` adds its ID to `aria-labelledby` on the element its `for` points to. On a `cs-*` component that element is the host, which has no role, so the label is ignored there and never reaches the real control inside. Copying the attribute onto that control would not help either, because an ID reference cannot cross into a shadow root. In Chromium, Firefox and WebKit, the tooltip text is in neither the name nor the description of `cs-button`, `cs-input`, `cs-checkbox`, `cs-switch`, `cs-select` or `cs-avatar`, whether the tooltip is open or closed. So a `cs-button` whose only label is its tooltip, like the buttons in the tooltip page's placement example, has no accessible name at all, which fails 4.1.2. On a native element the reference does work, but it replaces the visible name instead of adding a description, and only while the tooltip is open: a `<button>` reading "Save" is named by its tooltip text when the tooltip is open and "Save" when it is closed. | `cs-tooltip` describes the real control instead of labelling the host (UIUX-212) |
+| `cs-callout` variants unchecked under SSR | The axe test that renders each `cs-callout` variant returns early under the server-rendered-then-hydrated fixture, so in that mode it passes without checking anything. The axe test on default properties still runs in both modes. Until this closes, the claim above that axe runs in both render modes does not hold for callout variants. | The variant test checks each variant under SSR (UIUX-119) |
+| axe cannot see ARIA on a `<slot>` | axe builds its own flattened tree and leaves `<slot>` elements out, so a role or name written on a `<slot>` is never checked, and the component's axe test passes without seeing it. Two components do this. `cs-button-group` puts `role="group"` and `aria-label` on a `<slot>`, and `cs-avatar` puts `role="img"` and `aria-label` on the `<slot>` that holds its default icon. Chromium and Firefox give both an empty name, so the group's `label`, and the `label` of an avatar showing its default icon, do nothing there. WebKit names both. | `cs-button-group` (UIUX-204) and `cs-avatar` (UIUX-202) put their role and name on a real element |
 
 ## Reporting something
 
