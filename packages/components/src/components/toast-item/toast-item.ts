@@ -46,10 +46,11 @@ import styles from './toast-item.styles.js';
  * @csspart close-icon - The close icon element.
  * @csspart close-icon__svg - The close icon's exported svg part.
  *
- * @cssproperty --accent-width - The width of the accent line. Defaults to 4px.
- * @cssproperty --padding - The internal spacing of the toast item. Scales with the `size` attribute.
- * @cssproperty [--show-duration=var(--cs-transition-normal)] - The animation duration when showing.
- * @cssproperty [--hide-duration=var(--cs-transition-normal)] - The animation duration when hiding.
+ * @cssproperty [--cs-toast-item-accent-width=4px] - The width of the accent line.
+ * @cssproperty [--cs-toast-item-padding=var(--cs-space-m)] - The internal spacing of the toast item. Defaults to the space
+ *  token matching the `size` attribute: `var(--cs-space-xs)` at `xs` through `var(--cs-space-xl)` at `xl`.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-normal)] - The animation duration when showing.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-normal)] - The animation duration when hiding.
  */
 @customElement('cs-toast-item')
 export default class CsToastItem extends CornerstoneElement {

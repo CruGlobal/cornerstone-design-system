@@ -320,9 +320,10 @@ export default css`
       visibility: hidden;
     }
 
+    /* Hand-off: the spinner takes the button's text color, whatever a page sets for spinners. */
     cs-spinner {
-      --indicator-color: currentColor;
-      --track-color: color-mix(in oklab, currentColor, transparent 90%);
+      --cs-indicator-color: currentColor;
+      --cs-track-color: color-mix(in oklab, currentColor, transparent 90%);
 
       position: absolute;
       font-size: 1em;

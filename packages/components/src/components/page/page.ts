@@ -125,12 +125,12 @@ function toLength(px: number | string): string {
  * @csspart skip-to-content - The "skip to content" link that lets keyboard users bypass navigation.
  * @csspart footer - The footer of the page. This is always below the initial viewport size.
  *
- * @cssproperty [--menu-width=auto] - The width of the page's "menu" section.
- * @cssproperty [--main-width=1fr] - The width of the page's "main" section.
- * @cssproperty [--aside-width=auto] - The wide of the page's "aside" section.
- * @cssproperty [--banner-height=0px] - The height of the banner. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
- * @cssproperty [--header-height=0px] - The height of the header. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
- * @cssproperty [--subheader-height=0px] - The height of the subheader. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
+ * @cssproperty [--cs-page-menu-width=auto] - The width of the page's "menu" section.
+ * @cssproperty [--cs-page-main-width=1fr] - The width of the page's "main" section.
+ * @cssproperty [--cs-page-aside-width=auto] - The width of the page's "aside" section.
+ * @cssproperty [--cs-page-banner-height=0px] - The height of the banner. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
+ * @cssproperty [--cs-page-header-height=0px] - The height of the header. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
+ * @cssproperty [--cs-page-subheader-height=0px] - The height of the subheader. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
  */
 @customElement('cs-page')
 export default class CsPage extends CornerstoneElement {
@@ -142,7 +142,6 @@ export default class CsPage extends CornerstoneElement {
   private headerResizeObserver = !isServer ? this.slotResizeObserver('header') : null;
   private subheaderResizeObserver = !isServer ? this.slotResizeObserver('subheader') : null;
   private bannerResizeObserver = !isServer ? this.slotResizeObserver('banner') : null;
-  private footerResizeObserver = !isServer ? this.slotResizeObserver('footer') : null;
 
   // A DOM morph resets the style attribute; put the measured heights back.
   // SSR guard: MutationObserver is not available during server-side rendering
@@ -154,7 +153,7 @@ export default class CsPage extends CornerstoneElement {
         for (const entry of entries) {
           if (entry.contentBoxSize) {
             const contentBoxSize = entry.borderBoxSize[0];
-            const property = `--${slot}-height`;
+            const property = `--cs-page-${slot}-height`;
             const height = `${Math.round(contentBoxSize.blockSize)}px`;
             this.measuredHeights.set(property, height);
             this.style.setProperty(property, height);
@@ -311,7 +310,6 @@ export default class CsPage extends CornerstoneElement {
           this.headerResizeObserver?.observe(this.header);
           this.subheaderResizeObserver?.observe(this.subheader);
           this.bannerResizeObserver?.observe(this.banner);
-          this.footerResizeObserver?.observe(this.footer);
         });
       });
     }
@@ -357,7 +355,6 @@ export default class CsPage extends CornerstoneElement {
     this.pageResizeObserver?.unobserve(this);
     this.headerResizeObserver?.unobserve(this.header);
     this.subheaderResizeObserver?.unobserve(this.subheader);
-    this.footerResizeObserver?.unobserve(this.footer);
     this.bannerResizeObserver?.unobserve(this.banner);
     this.styleObserver?.disconnect();
   }

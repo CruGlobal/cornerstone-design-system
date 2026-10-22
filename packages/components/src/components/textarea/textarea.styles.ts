@@ -59,7 +59,7 @@ export default css`
     cursor: inherit;
     scroll-padding-block: var(--cs-form-control-padding-block);
     padding: calc(var(--cs-form-control-padding-block) - ((1lh - 1em) / 2)) var(--cs-form-control-padding-inline); /* accounts for the larger line height of textarea content */
-    min-height: calc(var(--cs-form-control-height) - var(--border-width) * 2);
+    min-height: calc(var(--cs-form-control-height) - var(--cs-form-control-border-width) * 2);
     box-shadow: none;
     margin: 0;
 

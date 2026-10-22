@@ -388,20 +388,6 @@
     --cs-panel-border-style: var(--cs-border-style);
     --cs-panel-border-width: var(--cs-border-width-s);
     --cs-panel-border-radius: var(--cs-border-radius-l);
-
-    /* Tooltips */
-    --cs-tooltip-arrow-size: 0.375rem;
-
-    --cs-tooltip-background-color: var(--cs-color-text-normal);
-
-    --cs-tooltip-border-color: var(--cs-tooltip-background-color);
-    --cs-tooltip-border-style: var(--cs-border-style);
-    --cs-tooltip-border-width: var(--cs-border-width-s);
-    --cs-tooltip-border-radius: var(--cs-border-radius-s);
-
-    --cs-tooltip-content-color: var(--cs-color-surface-default);
-    --cs-tooltip-font-size: var(--cs-font-size-s);
-    --cs-tooltip-line-height: var(--cs-line-height-normal);
     /* #endregion */
   }
 

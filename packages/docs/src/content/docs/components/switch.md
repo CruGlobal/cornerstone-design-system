@@ -78,5 +78,5 @@ Use the `size` attribute to change a switch's size.
 Use the available custom properties to change how the switch is styled.
 
 ```html {.example}
-<cs-switch style="--width: 80px; --height: 40px; --thumb-size: 36px;">Really big</cs-switch>
+<cs-switch style="--cs-switch-width: 80px; --cs-switch-height: 40px; --cs-switch-thumb-size: 36px;">Really big</cs-switch>
 ```

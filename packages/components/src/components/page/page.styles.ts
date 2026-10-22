@@ -6,17 +6,9 @@ export default css`
     background-color: var(--cs-color-surface-default);
     box-sizing: border-box;
     min-height: 100%;
-    --menu-width: auto;
-    --main-width: 1fr;
-    --aside-width: auto;
-    --banner-height: 0px;
-    --header-height: 0px;
-    --subheader-height: 0px;
-    --scroll-margin-top: calc(var(--header-height, 0px) + var(--subheader-height, 0px) + 0.5em);
-
-    --banner-top: var(--banner-height);
-    --header-top: var(--header-height);
-    --subheader-top: var(--subheader-height);
+    --_banner-top: var(--cs-page-banner-height, 0px);
+    --_header-top: var(--cs-page-header-height, 0px);
+    --_subheader-top: var(--cs-page-subheader-height, 0px);
   }
 
   slot[name]:not([name='skip-to-content'], [name='navigation-toggle'])::slotted(*) {
@@ -82,13 +74,13 @@ export default css`
   }
 
   :host([disable-sticky~='banner']) {
-    --banner-top: 0px;
+    --_banner-top: 0px;
   }
   :host([disable-sticky~='header']) {
-    --header-top: 0px;
+    --_header-top: 0px;
   }
   :host([disable-sticky~='subheader']) {
-    --subheader-top: 0px;
+    --_subheader-top: 0px;
   }
 
   /* Nothing else depends on subheader-height. */
@@ -167,7 +159,7 @@ export default css`
     top: 0px;
   }
   [part~='header'] {
-    top: var(--banner-top);
+    top: var(--_banner-top);
 
     /** Make the header flex so that you don't unexpectedly have the default toggle button appearing above a slotted div because block elements are fun. */
     display: flex;
@@ -176,13 +168,16 @@ export default css`
     justify-content: space-between;
   }
   [part~='subheader'] {
-    top: calc(var(--header-top) + var(--banner-top));
+    top: calc(var(--_header-top) + var(--_banner-top));
   }
   [part~='body'] {
     display: grid;
     min-height: 100%;
     align-items: start;
-    grid-template-columns: minmax(0, var(--menu-width)) minmax(0, var(--main-width)) minmax(0, var(--aside-width));
+    grid-template-columns:
+      minmax(0, var(--cs-page-menu-width, auto))
+      minmax(0, var(--cs-page-main-width, 1fr))
+      minmax(0, var(--cs-page-aside-width, auto));
     grid-template-rows: minmax(0, 1fr);
     grid-template-areas: 'menu main aside';
   }
@@ -231,12 +226,12 @@ export default css`
   [part~='menu'],
   [part~='aside'] {
     position: sticky;
-    top: calc(var(--banner-top) + var(--header-top) + var(--subheader-top));
+    top: calc(var(--_banner-top) + var(--_header-top) + var(--_subheader-top));
     z-index: 4;
     min-height: 0;
     /** Allows the menu / aside to always be 100% of the height of the main content area */
     align-self: stretch;
-    max-height: calc(100dvh - var(--header-top) - var(--banner-top) - var(--subheader-top));
+    max-height: calc(100dvh - var(--_header-top) - var(--_banner-top) - var(--_subheader-top));
     overflow: auto;
   }
 

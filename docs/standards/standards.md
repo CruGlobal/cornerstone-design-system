@@ -66,7 +66,7 @@ repository unless a diff genuinely introduces one of those concerns.
 | Purpose                                                                   | Command                                                              |
 | ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | Lint the token tree                                                       | `npm run validate --workspace @cruglobal/cornerstone-design-system`  |
-| Library static gate (prettier, build, eslint, cspell, tsc, four checks)   | `npm run verify:static --workspace @cruglobal/cornerstone-components` |
+| Library static gate (prettier, build, eslint, cspell, tsc, five checks)   | `npm run verify:static --workspace @cruglobal/cornerstone-components` |
 | Library browser suite                                                     | `npm test --workspace @cruglobal/cornerstone-components`             |
 | Library full gate                                                         | `npm run verify --workspace @cruglobal/cornerstone-components`       |
 | Docs site gate                                                            | `npm run verify --workspace cornerstone-docs-site`                   |
@@ -91,8 +91,8 @@ relative import missing its `.js` extension.
       `src/events/`, named `cs-<kebab>`, `composed: true`
 - [ ] Class names inside the shadow root follow BEM; parts are kebab-case with `__` for a forwarded child
       part; no part on a `<slot>` or on slot fallback content
-- [ ] Component custom properties are unprefixed (`--color`) and scoped to `:host`; `--cs-` is reserved
-      for the global theme
+- [ ] Component custom properties are named `--cs-<component>-<property>` or a shared name, read with a
+      fallback and never set on `:host` (`api-surface.md`, **Custom property names**)
 - [ ] `label` and `hint` are a slot whose fallback is the attribute, and `aria-labelledby` points at the
       rendered element rather than reading `this.label`
 - [ ] `private` on private members; no `public`; member order per contributing.md

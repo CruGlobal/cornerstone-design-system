@@ -28,11 +28,11 @@ import styles from './split-panel.styles.js';
  * @csspart panel - Targets both the start and end panels.
  * @csspart divider - The divider that separates the start and end panels.
  *
- * @cssproperty [--divider-width=4px] - The width of the visible divider.
- * @cssproperty [--divider-hit-area=12px] - The invisible region around the divider where dragging can occur. This is
+ * @cssproperty [--cs-split-panel-divider-width=0.25rem] - The width of the visible divider.
+ * @cssproperty [--cs-split-panel-divider-hit-area=0.75rem] - The invisible region around the divider where dragging can occur. This is
  *  usually wider than the divider to facilitate easier dragging.
- * @cssproperty [--min=0] - The minimum allowed size of the primary panel.
- * @cssproperty [--max=100%] - The maximum allowed size of the primary panel.
+ * @cssproperty [--cs-split-panel-min=0%] - The minimum allowed size of the primary panel.
+ * @cssproperty [--cs-split-panel-max=100%] - The maximum allowed size of the primary panel.
  */
 @customElement('cs-split-panel')
 export default class CsSplitPanel extends CornerstoneElement {
@@ -280,26 +280,26 @@ export default class CsSplitPanel extends CornerstoneElement {
       clamp(
         0%,
         clamp(
-          var(--min),
-          ${this.position}% - var(--divider-width) / 2,
-          var(--max)
+          var(--cs-split-panel-min, 0%),
+          ${this.position}% - var(--_divider-width) / 2,
+          var(--cs-split-panel-max, 100%)
         ),
-        calc(100% - var(--divider-width))
+        calc(100% - var(--_divider-width))
       )
     `;
     const secondary = 'auto';
 
     if (this.primary === 'end') {
       if (isRtl && this.orientation === 'horizontal') {
-        this.setStyle(gridTemplate, `${primary} var(--divider-width) ${secondary}`);
+        this.setStyle(gridTemplate, `${primary} var(--_divider-width) ${secondary}`);
       } else {
-        this.setStyle(gridTemplate, `${secondary} var(--divider-width) ${primary}`);
+        this.setStyle(gridTemplate, `${secondary} var(--_divider-width) ${primary}`);
       }
     } else {
       if (isRtl && this.orientation === 'horizontal') {
-        this.setStyle(gridTemplate, `${secondary} var(--divider-width) ${primary}`);
+        this.setStyle(gridTemplate, `${secondary} var(--_divider-width) ${primary}`);
       } else {
-        this.setStyle(gridTemplate, `${primary} var(--divider-width) ${secondary}`);
+        this.setStyle(gridTemplate, `${primary} var(--_divider-width) ${secondary}`);
       }
     }
 

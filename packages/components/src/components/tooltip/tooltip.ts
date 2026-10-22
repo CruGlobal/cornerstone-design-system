@@ -35,7 +35,18 @@ import styles from './tooltip.styles.js';
  * @csspart tooltip__arrow - The popup's exported `arrow` part. Use this to target the tooltip's arrow.
  * @csspart body - The tooltip's body where its content is rendered.
  *
- * @cssproperty --max-width - The maximum width of the tooltip before its content will wrap.
+ * @cssproperty [--cs-tooltip-max-width=30ch] - The maximum width of the tooltip before its content will wrap.
+ * @cssproperty [--cs-tooltip-arrow-size=0.375rem] - The size of the arrow. Set it to `0` to remove the arrow.
+ * @cssproperty [--cs-tooltip-background-color=var(--cs-color-text-normal)] - The tooltip's background color.
+ * @cssproperty [--cs-tooltip-border-color=var(--cs-tooltip-background-color)] - The color of the tooltip's border.
+ * @cssproperty [--cs-tooltip-border-style=var(--cs-border-style)] - The style of the tooltip's border.
+ * @cssproperty [--cs-tooltip-border-width=var(--cs-border-width-s)] - The width of the tooltip's border.
+ * @cssproperty [--cs-tooltip-border-radius=var(--cs-border-radius-s)] - The radius of the tooltip's corners.
+ * @cssproperty [--cs-tooltip-content-color=var(--cs-color-surface-default)] - The color of the tooltip's text.
+ * @cssproperty [--cs-tooltip-font-size=var(--cs-font-size-s)] - The tooltip's font size.
+ * @cssproperty [--cs-tooltip-line-height=var(--cs-line-height-normal)] - The tooltip's line height.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-fast)] - The duration of the show animation.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-fast)] - The duration of the hide animation.
  */
 @customElement('cs-tooltip')
 export default class CsTooltip extends CornerstoneElement {

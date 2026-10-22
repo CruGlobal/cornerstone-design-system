@@ -2,10 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --spacing: var(--cs-space-m);
-    --show-duration: var(--cs-transition-normal);
-    --hide-duration: var(--cs-transition-normal);
-
     display: block;
   }
 
@@ -59,8 +55,8 @@ export default css`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--spacing);
-    padding: var(--spacing); /* Add padding here */
+    gap: var(--cs-details-spacing, var(--cs-space-m));
+    padding: var(--cs-details-spacing, var(--cs-space-m)); /* Add padding here */
     border-radius: calc(var(--cs-panel-border-radius) - var(--cs-panel-border-width));
     user-select: none;
     -webkit-user-select: none;
@@ -125,8 +121,8 @@ export default css`
   .content {
     display: block;
     box-sizing: border-box; /* Ensure contents don't overflow */
-    padding-block-start: var(--spacing);
-    padding-inline: var(--spacing); /* Add horizontal padding */
-    padding-block-end: var(--spacing); /* Add bottom padding */
+    padding-block-start: var(--cs-details-spacing, var(--cs-space-m));
+    padding-inline: var(--cs-details-spacing, var(--cs-space-m)); /* Add horizontal padding */
+    padding-block-end: var(--cs-details-spacing, var(--cs-space-m)); /* Add bottom padding */
   }
 `;

@@ -3,11 +3,6 @@ import { css } from 'lit';
 export default css`
   @layer cs-component {
     :host {
-      --spacing: var(--cs-space-m);
-      --show-duration: var(--cs-transition-normal);
-      --hide-duration: var(--cs-transition-normal);
-      --easing: var(--cs-transition-easing);
-
       display: block;
     }
 
@@ -32,8 +27,8 @@ export default css`
     [part~='button'] {
       display: flex;
       align-items: center;
-      gap: var(--spacing);
-      padding: var(--spacing);
+      gap: var(--cs-accordion-item-spacing, var(--cs-space-m));
+      padding: var(--cs-accordion-item-spacing, var(--cs-space-m));
       width: 100%;
       background: none;
       border: none;
@@ -90,12 +85,13 @@ export default css`
       display: flex;
       align-items: center;
       color: var(--cs-color-text-quiet);
-      transition: rotate var(--hide-duration) var(--easing);
+      transition: rotate var(--cs-hide-duration, var(--cs-transition-normal))
+        var(--cs-accordion-item-easing, var(--cs-transition-easing));
     }
 
     :host([expanded]) [part~='icon'] {
       rotate: 90deg;
-      transition-duration: var(--show-duration);
+      transition-duration: var(--cs-show-duration, var(--cs-transition-normal));
     }
 
     :host([expanded]:dir(rtl)) [part~='icon'] {
@@ -111,9 +107,17 @@ export default css`
       overflow: visible;
     }
 
+    /* Reduced motion wins over any duration, including one a page sets for every component. The expanded rule names the host, so it is listed too. */
+    @media (prefers-reduced-motion: reduce) {
+      [part~='icon'],
+      :host([expanded]) [part~='icon'] {
+        transition-duration: 0ms;
+      }
+    }
+
     .content {
       display: block;
-      padding: 0 var(--spacing) var(--spacing);
+      padding: 0 var(--cs-accordion-item-spacing, var(--cs-space-m)) var(--cs-accordion-item-spacing, var(--cs-space-m));
     }
   }
 `;

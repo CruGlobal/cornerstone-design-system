@@ -136,10 +136,10 @@ Use the `attention` attribute to draw attention to the badge with a subtle anima
 </style>
 ```
 
-Set the `--pulse-color` custom property to color the pulse independently of the badge's variant.
+Set the `--cs-badge-pulse-color` custom property to color the pulse independently of the badge's variant.
 
 ```html {.example}
-<cs-badge variant="neutral" attention="pulse" pill style="--pulse-color: var(--cs-color-brand-fill-loud)">1</cs-badge>
+<cs-badge variant="neutral" attention="pulse" pill style="--cs-badge-pulse-color: var(--cs-color-brand-fill-loud)">1</cs-badge>
 ```
 
 ### Start & End Decorations

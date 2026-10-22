@@ -1,4 +1,5 @@
 import { expect, oneEvent, waitUntil } from '@open-wc/testing';
+import { emulateMedia } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
@@ -127,6 +128,29 @@ describe('<cs-tree-item>', () => {
           await expectAnimationDuration(children, '--cs-transition-normal');
           finishAnimations(parentItem);
           await collapsed;
+        });
+
+        it('should expand and collapse in no time when the user prefers reduced motion', async () => {
+          const children = parentItem.shadowRoot!.querySelector<HTMLElement>('.children')!;
+          parentItem.style.setProperty('--cs-show-duration', '400ms');
+          parentItem.style.setProperty('--cs-hide-duration', '400ms');
+          const animate = sinon.spy(children, 'animate');
+          await emulateMedia({ reducedMotion: 'reduce' });
+          try {
+            const expanded = oneEvent(parentItem, 'cs-after-expand');
+            parentItem.expanded = true;
+            await expanded;
+
+            const collapsed = oneEvent(parentItem, 'cs-after-collapse');
+            parentItem.expanded = false;
+            await collapsed;
+
+            expect(animate.getCalls().map((call) => (call.args[1] as KeyframeAnimationOptions).duration)).to.deep.equal(
+              [0, 0],
+            );
+          } finally {
+            await emulateMedia({ reducedMotion: 'no-preference' });
+          }
         });
       });
 

@@ -25,30 +25,6 @@ use-cases:
     position: relative;
     aspect-ratio: 1.5 / 1;
   }
-  .swatch-button {
-    all: revert;
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    border: none;
-    cursor: pointer;
-    background-color: var(--color);
-    border-radius: var(--cs-border-radius-m);
-    transition: transform 0.1s ease, translate 0.1s ease, box-shadow 0.1s ease;
-
-    &:hover {
-      transform: scale(1.075);
-      box-shadow: var(--cs-shadow-s);
-      z-index: 1;
-    }
-
-    &:active {
-      translate: 0 1px;
-      box-shadow: none;
-    }
-  }
   @media (max-width: 576px) {
     .palette-swatches {
       grid-template-columns: repeat(6, 1fr);

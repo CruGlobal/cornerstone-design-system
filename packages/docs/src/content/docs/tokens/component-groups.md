@@ -203,57 +203,15 @@ Panel tokens apply to components with larger, contained surface areas, like [cal
 
 ## Tooltips
 
-Tooltip tokens apply to the [tooltip](/components/tooltip) component and built-in tooltips in other components like [slider](/components/slider) and [copy button](/components/copy-button).
+Tooltips have no group tokens. How they look comes from custom properties of the [tooltip](/components/tooltip) itself, named `--cs-tooltip-*` and listed with their defaults in its [API reference](/components/tooltip#css-custom-properties). No theme sets them; the tooltip reads each one with its default as a fallback.
 
-<cs-scroller>
-  <table class="token-table cs-hover-rows">
-    <thead>
-      <tr><th>Custom Property</th><th>Description</th></tr>
-    </thead>
-    <tbody>
-      <tr id="token-cs-tooltip-arrow-size">
-        <td class="token-name"><code>--cs-tooltip-arrow-size</code></td>
-        <td>Size of the tooltip arrow/caret</td>
-      </tr>
-      <tr id="token-cs-tooltip-background-color">
-        <td class="token-name"><code>--cs-tooltip-background-color</code></td>
-        <td>Background color of the tooltip body</td>
-      </tr>
-      <tr id="token-cs-tooltip-border-color">
-        <td class="token-name"><code>--cs-tooltip-border-color</code></td>
-        <td>Border color of the tooltip</td>
-      </tr>
-      <tr id="token-cs-tooltip-border-style">
-        <td class="token-name"><code>--cs-tooltip-border-style</code></td>
-        <td>Border line style of the tooltip</td>
-      </tr>
-      <tr id="token-cs-tooltip-border-width">
-        <td class="token-name"><code>--cs-tooltip-border-width</code></td>
-        <td>Border thickness of the tooltip</td>
-      </tr>
-      <tr id="token-cs-tooltip-border-radius">
-        <td class="token-name"><code>--cs-tooltip-border-radius</code></td>
-        <td>Corner rounding of the tooltip</td>
-      </tr>
-      <tr id="token-cs-tooltip-content-color">
-        <td class="token-name"><code>--cs-tooltip-content-color</code></td>
-        <td>Text color of tooltip content</td>
-      </tr>
-      <tr id="token-cs-tooltip-font-size">
-        <td class="token-name"><code>--cs-tooltip-font-size</code></td>
-        <td>Font size of tooltip text</td>
-      </tr>
-      <tr id="token-cs-tooltip-line-height">
-        <td class="token-name"><code>--cs-tooltip-line-height</code></td>
-        <td>Line height of tooltip text</td>
-      </tr>
-    </tbody>
-  </table>
-</cs-scroller>
+They still reach every tooltip, because a value set on `:root`, a theme class or a section is inherited. That includes the built-in tooltips in [slider](/components/slider) and [copy button](/components/copy-button), which are tooltips too. Only a tooltip reads them, though, so your own CSS that uses one needs the same fallback, such as `var(--cs-tooltip-background-color, var(--cs-color-text-normal))`.
 
 ```html {.example}
-<cs-button id="tooltip-demo" appearance="plain">
-  <cs-icon label="Target" name="target"></cs-icon>
-</cs-button>
-<cs-tooltip for="tooltip-demo" open trigger="manual">This is a tooltip</cs-tooltip>
+<div style="--cs-tooltip-background-color: var(--cs-color-brand-fill-loud); --cs-tooltip-content-color: var(--cs-color-brand-on-loud);">
+  <cs-button id="tooltip-demo" appearance="plain">
+    <cs-icon label="Target" name="target"></cs-icon>
+  </cs-button>
+  <cs-tooltip for="tooltip-demo" open trigger="manual">This is a tooltip</cs-tooltip>
+</div>
 ```

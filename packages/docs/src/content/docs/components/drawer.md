@@ -144,10 +144,10 @@ Drawers slide in from the end by default. Set the `placement` attribute to slide
 
 ### Size
 
-Use the `--size` custom property to set the drawer's size. This will be applied to the drawer's width or height depending on its `placement`.
+Use the `--cs-drawer-size` custom property to set the drawer's size. This will be applied to the drawer's width or height depending on its `placement`.
 
 ```html {.example}
-<cs-drawer label="Drawer" class="drawer-custom-size" style="--size: 50vw;">
+<cs-drawer label="Drawer" class="drawer-custom-size" style="--cs-drawer-size: 50vw;">
   This drawer is always 50% of the viewport.
   <cs-button slot="footer" variant="brand" data-drawer="close">Close</cs-button>
 </cs-drawer>

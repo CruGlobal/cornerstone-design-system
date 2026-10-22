@@ -2,11 +2,7 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --track-width: 2px;
-    --track-color: var(--cs-color-neutral-fill-normal);
-    --indicator-color: var(--cs-color-brand-fill-loud);
-    --speed: 2s;
-    --size: 1em;
+    --_size: 1em;
 
     /*
       Resizing a spinner element using anything but font-size will break the animation because the animation uses em
@@ -16,38 +12,38 @@ export default css`
     */
     flex: none;
     display: inline-flex;
-    width: var(--size);
-    height: var(--size);
+    width: var(--_size);
+    height: var(--_size);
   }
 
   svg {
     width: 100%;
     height: 100%;
     aspect-ratio: 1;
-    animation: spin var(--speed) linear infinite;
+    animation: spin var(--cs-spinner-speed, 2s) linear infinite;
   }
 
   .track,
   .indicator {
-    --radius: calc(var(--size) / 2 - var(--track-width) / 2);
-    --circumference: calc(var(--radius) * 2 * 3.141592654);
+    --_radius: calc(var(--_size) / 2 - var(--cs-track-width, 2px) / 2);
+    --_circumference: calc(var(--_radius) * 2 * 3.141592654);
 
-    cx: calc(var(--size) / 2);
-    cy: calc(var(--size) / 2);
-    r: var(--radius);
+    cx: calc(var(--_size) / 2);
+    cy: calc(var(--_size) / 2);
+    r: var(--_radius);
     fill: none;
-    stroke-width: var(--track-width);
+    stroke-width: var(--cs-track-width, 2px);
   }
 
   .track {
-    stroke: var(--track-color);
+    stroke: var(--cs-track-color, var(--cs-color-neutral-fill-normal));
   }
 
   .indicator {
-    stroke: var(--indicator-color);
+    stroke: var(--cs-indicator-color, var(--cs-color-brand-fill-loud));
     stroke-linecap: round;
-    stroke-dasharray: calc(0.597 * var(--circumference)), calc(0.796 * var(--circumference));
-    stroke-dashoffset: calc(-0.04 * var(--circumference));
+    stroke-dasharray: calc(0.597 * var(--_circumference)), calc(0.796 * var(--_circumference));
+    stroke-dashoffset: calc(-0.04 * var(--_circumference));
     animation: dash 1.5s ease-in-out infinite;
   }
 
@@ -62,16 +58,16 @@ export default css`
 
   @keyframes dash {
     0% {
-      stroke-dasharray: calc(0.008 * var(--circumference)), calc(1.194 * var(--circumference));
+      stroke-dasharray: calc(0.008 * var(--_circumference)), calc(1.194 * var(--_circumference));
       stroke-dashoffset: 0;
     }
     50% {
-      stroke-dasharray: calc(0.716 * var(--circumference)), calc(1.194 * var(--circumference));
-      stroke-dashoffset: calc(-0.278 * var(--circumference));
+      stroke-dasharray: calc(0.716 * var(--_circumference)), calc(1.194 * var(--_circumference));
+      stroke-dashoffset: calc(-0.278 * var(--_circumference));
     }
     100% {
-      stroke-dasharray: calc(0.716 * var(--circumference)), calc(1.194 * var(--circumference));
-      stroke-dashoffset: calc(-0.987 * var(--circumference));
+      stroke-dasharray: calc(0.716 * var(--_circumference)), calc(1.194 * var(--_circumference));
+      stroke-dashoffset: calc(-0.987 * var(--_circumference));
     }
   }
 `;

@@ -2,9 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --divider-width: 0.125rem;
-    --handle-size: 2.5rem;
-
     display: block;
     position: relative;
     max-width: 100%;
@@ -50,10 +47,10 @@ export default css`
     justify-content: center;
     position: absolute;
     top: 0;
-    width: var(--divider-width);
+    width: var(--cs-comparison-divider-width, 0.125rem);
     height: 100%;
     background-color: var(--cs-color-surface-default);
-    translate: calc(var(--divider-width) / -2);
+    translate: calc(var(--cs-comparison-divider-width, 0.125rem) / -2);
     cursor: ew-resize;
   }
 
@@ -62,12 +59,12 @@ export default css`
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: calc(50% - (var(--handle-size) / 2));
-    width: var(--handle-size);
-    height: var(--handle-size);
+    top: calc(50% - (var(--cs-comparison-handle-size, 2.5rem) / 2));
+    width: var(--cs-comparison-handle-size, 2.5rem);
+    height: var(--cs-comparison-handle-size, 2.5rem);
     background-color: var(--cs-color-surface-default);
     border-radius: var(--cs-border-radius-circle);
-    font-size: calc(var(--handle-size) * 0.4);
+    font-size: calc(var(--cs-comparison-handle-size, 2.5rem) * 0.4);
     color: var(--cs-color-neutral-on-quiet);
     cursor: inherit;
     z-index: 10;

@@ -505,6 +505,20 @@ describe('<cs-input>', () => {
       });
 
       describe('CSS parts and states', () => {
+        // It once read --box-shadow and --border-width, which nothing set, so a page's own values reached it.
+        it('should ignore unprefixed custom properties a page sets', async () => {
+          const wrapper = await fixture<HTMLDivElement>(
+            html`<div style="--box-shadow: 0 0 0 6px red; --border-width: 9px"><cs-input></cs-input></div>`,
+          );
+          const el = wrapper.querySelector<CsInput>('cs-input')!;
+          await el.updateComplete;
+          const field = el.shadowRoot!.querySelector<HTMLElement>('[part~="input-wrapper"]')!;
+          const input = el.shadowRoot!.querySelector<HTMLInputElement>('input')!;
+
+          expect(getComputedStyle(field).boxShadow).to.equal('none');
+          expect(input.getBoundingClientRect().height).to.equal(field.clientHeight);
+        });
+
         it('should receive the correct validation states when valid', async () => {
           const el = await fixture<CsInput>(html`<cs-input required value="a"></cs-input>`);
 

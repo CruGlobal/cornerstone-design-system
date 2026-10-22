@@ -165,7 +165,7 @@ export default class CsZoomableFrame extends CornerstoneElement {
 
   willUpdate(changedProperties: PropertyValues<this>) {
     if (changedProperties.has('zoom')) {
-      this.setStyleProperty('--zoom', `${this.zoom}`);
+      this.setStyleProperty('--_zoom', `${this.zoom}`);
     }
 
     super.willUpdate(changedProperties);

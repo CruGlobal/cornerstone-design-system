@@ -226,6 +226,45 @@ describe('<cs-card>', () => {
           expect(el.shadowRoot!.querySelector('[part~="actions"]')).to.exist;
         });
       });
+
+      // GitHub #182: the default lives in the fallback, so a value set anywhere above the card reaches it, and the
+      // card sets nothing its content would inherit.
+      describe('custom properties', () => {
+        const bodyPadding = (el: CsCard) =>
+          getComputedStyle(el.shadowRoot!.querySelector('[part~="body"]')!).paddingTop;
+
+        it('should default --cs-card-spacing to --cs-space-l', async () => {
+          const el = await fixture<CsCard>(html`<cs-card>Content</cs-card>`);
+          expect(bodyPadding(el)).to.equal('24px');
+        });
+
+        it('should take --cs-card-spacing from the root, a section, or the card itself', async () => {
+          document.documentElement.style.setProperty('--cs-card-spacing', '10px');
+          try {
+            const wrapper = await fixture<HTMLDivElement>(html`
+              <div>
+                <cs-card id="from-root">Root</cs-card>
+                <section style="--cs-card-spacing: 20px">
+                  <cs-card id="from-section">Section</cs-card>
+                </section>
+                <cs-card id="from-card" style="--cs-card-spacing: 30px">Card</cs-card>
+              </div>
+            `);
+            const cards = [...wrapper.querySelectorAll<CsCard>('cs-card')];
+            await Promise.all(cards.map((card) => card.updateComplete));
+            expect(cards.map(bodyPadding)).to.deep.equal(['10px', '20px', '30px']);
+          } finally {
+            document.documentElement.style.removeProperty('--cs-card-spacing');
+          }
+        });
+
+        it('should not hand a spacing value to its content', async () => {
+          const el = await fixture<CsCard>(html`<cs-card><p>Content</p></cs-card>`);
+          const content = getComputedStyle(el.querySelector('p')!);
+          expect(content.getPropertyValue('--spacing')).to.equal('');
+          expect(content.getPropertyValue('--cs-card-spacing')).to.equal('');
+        });
+      });
     });
   }
 });

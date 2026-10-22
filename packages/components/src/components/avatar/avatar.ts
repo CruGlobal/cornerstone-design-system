@@ -25,7 +25,7 @@ import styles from './avatar.styles.js';
  * @csspart initials - The container that wraps the avatar's initials.
  * @csspart image - The avatar image. Only shown when the `image` attribute is set.
  *
- * @cssproperty --size - The size of the avatar.
+ * @cssproperty [--cs-avatar-size=3rem] - The size of the avatar.
  */
 @customElement('cs-avatar')
 export default class CsAvatar extends CornerstoneElement {

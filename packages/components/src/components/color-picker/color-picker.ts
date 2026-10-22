@@ -101,11 +101,13 @@ declare const EyeDropper: EyeDropperConstructor;
  * @csspart format-button__end - The format button's exported `end` part.
  * @csspart format-button__caret - The format button's exported `caret` part.
  *
- * @cssproperty --grid-width - The width of the color grid.
- * @cssproperty --grid-height - The height of the color grid.
- * @cssproperty --grid-handle-size - The size of the color grid's handle.
- * @cssproperty --slider-height - The height of the hue and alpha sliders.
- * @cssproperty --slider-handle-size - The diameter of the slider's handle.
+ * @cssproperty [--cs-color-picker-grid-width=17em] - The width of the color grid.
+ * @cssproperty [--cs-color-picker-grid-height=12em] - The height of the color grid.
+ * @cssproperty [--cs-color-picker-grid-handle-size=1.25em] - The size of the color grid's handle.
+ * @cssproperty [--cs-color-picker-slider-height=1em] - The height of the hue and alpha sliders.
+ * @cssproperty [--cs-color-picker-slider-handle-size=calc(var(--cs-color-picker-slider-height) + 0.25em)] - The diameter of the slider's handle.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-fast)] - The duration of the panel's show animation.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-fast)] - The duration of the panel's hide animation.
  */
 @customElement('cs-color-picker')
 export default class CsColorPicker extends CornerstoneFormAssociatedElement {
@@ -1284,7 +1286,7 @@ export default class CsColorPicker extends CornerstoneFormAssociatedElement {
             class="preview transparent-bg"
             aria-label=${this.localize.term('copy')}
             style=${styleMap({
-              '--preview-color': this.getHexString(this.hue, this.saturation, this.brightness, this.alpha),
+              '--_preview-color': this.getHexString(this.hue, this.saturation, this.brightness, this.alpha),
             })}
             @click=${this.handleCopy}
           ></button>

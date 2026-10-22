@@ -4,14 +4,15 @@ description: A page to visually test component styles against native styles.
 ---
 
 <style>
-  #content {
+  /* Scoped to the page's own content, which sits in `main`, so the site's header and navigation keep their dividers. */
+  main {
     p {
       max-width: 90ch;
     }
 
     tbody {
       & .cs-grid {
-        --min-column-size: 5ch;
+        --cs-grid-min-column-size: 5ch;
       }
 
       & tr th:first-of-type {
@@ -28,8 +29,8 @@ description: A page to visually test component styles against native styles.
     }
 
     cs-divider {
-      --width: var(--cs-border-width-m);
-      --spacing: var(--cs-space-3xl);
+      --cs-divider-width: var(--cs-border-width-m);
+      --cs-divider-spacing: var(--cs-space-3xl);
     }
   }
 </style>

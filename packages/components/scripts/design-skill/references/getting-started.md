@@ -32,10 +32,10 @@ default. It's a complete, on-brand, responsive starting point. Change one thing 
         margin: 0;
       }
       cs-page {
-        --menu-width: 16rem;
+        --cs-page-menu-width: 16rem;
       }
       cs-page[view='mobile'] {
-        --menu-width: auto;
+        --cs-page-menu-width: auto;
       }
     </style>
   </head>

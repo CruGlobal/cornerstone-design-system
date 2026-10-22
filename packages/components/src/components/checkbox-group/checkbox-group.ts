@@ -30,7 +30,8 @@ import styles from './checkbox-group.styles.js';
  * @csspart form-control-input - The element that wraps the grouped checkboxes, exposed as a `role="group"`.
  * @csspart hint - The hint's wrapper.
  *
- * @cssproperty [--gap=0.5em] - The gap between grouped checkboxes.
+ * @cssproperty [--cs-checkbox-group-gap=0.5em] - The gap between grouped checkboxes. Defaults to `1em` when the group is
+ *  horizontal.
  */
 @customElement('cs-checkbox-group')
 export default class CsCheckboxGroup extends CornerstoneElement {

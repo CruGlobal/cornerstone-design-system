@@ -14,9 +14,9 @@ export default css`
     position: absolute;
     top: 0;
     left: 0;
-    width: calc(100% / var(--zoom));
-    height: calc(100% / var(--zoom));
-    transform: scale(var(--zoom));
+    width: calc(100% / var(--_zoom));
+    height: calc(100% / var(--_zoom));
+    transform: scale(var(--_zoom));
     transform-origin: 0 0;
   }
 

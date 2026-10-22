@@ -102,26 +102,26 @@ Use the `case` attribute to transform characters as they are entered. The defaul
 
 ### Mask
 
-Add the `mask` attribute to display entered characters using `--mask-char` (a bullet, `•`, by default) instead of their real value. The value remains accessible via the `value` property, masking is display-only, and only visual: screen readers still announce entered characters.
+Add the `mask` attribute to display entered characters using `--cs-otp-input-mask-char` (a bullet, `•`, by default) instead of their real value. The value remains accessible via the `value` property, masking is display-only, and only visual: screen readers still announce entered characters.
 
 ```html {.example}
 <cs-otp-input label="PIN" mask length="4"></cs-otp-input>
 ```
 
-Add the `with-mask` attribute to also show `--mask-char` as a hint in each empty segment, so the field reads like a password field even before anything is typed.
+Add the `with-mask` attribute to also show `--cs-otp-input-mask-char` as a hint in each empty segment, so the field reads like a password field even before anything is typed.
 
 ```html {.example}
 <cs-otp-input label="PIN" mask with-mask length="4"></cs-otp-input>
 ```
 
-Customize the character with the `--mask-char` custom property. It must be a quoted string.
+Customize the character with the `--cs-otp-input-mask-char` custom property. It must be a quoted string.
 
 ```html {.example}
 <cs-otp-input id="custom-mask-char" label="PIN" mask with-mask length="4"></cs-otp-input>
 
 <style>
   #custom-mask-char {
-    --mask-char: '*';
+    --cs-otp-input-mask-char: '*';
   }
 </style>
 ```
@@ -289,16 +289,16 @@ Use the `setCustomValidity()` method to set a custom validation message. This wi
 
 ### Customizing
 
-Use the `--segment-size`, `--segment-gap`, and `--segment-border-radius` custom properties along with [CSS parts](#css-parts) to style the segments, including their border and background.
+Use the `--cs-otp-input-segment-size`, `--cs-otp-input-segment-gap`, and `--cs-otp-input-segment-border-radius` custom properties along with [CSS parts](#css-parts) to style the segments, including their border and background.
 
 ```html {.example}
 <cs-otp-input id="styled-otp" label="Card PIN" length="4"></cs-otp-input>
 
 <style>
   #styled-otp {
-    --segment-size: 3.5rem;
-    --segment-gap: 0.75rem;
-    --segment-border-radius: 0.75rem;
+    --cs-otp-input-segment-size: 3.5rem;
+    --cs-otp-input-segment-gap: 0.75rem;
+    --cs-otp-input-segment-border-radius: 0.75rem;
   }
 
   #styled-otp::part(segment) {
