@@ -2,4 +2,4 @@
 "@cruglobal/cornerstone-components": patch
 ---
 
-Fixed: The accessibility and browser support pages now claim only what the test record shows, and the Known gaps table records four more gaps. A new docs check fails the build when a contrast ratio or colour on the accessibility page stops matching the shipped themes. Docs site only; the package output is unchanged.
+Fixed: The tooltip placement example gives each button visible text, so none relies on its tooltip for a name. The accessibility and browser support pages now claim only what the test record shows, and a docs check fails the build when a contrast ratio or colour the accessibility page prints stops matching the shipped themes.
