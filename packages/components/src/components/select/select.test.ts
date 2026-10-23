@@ -524,6 +524,27 @@ describe('<cs-select>', () => {
           });
         });
 
+        it('should clear from a click near the top edge of the field', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1" with-clear>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+            </cs-select>
+          `);
+          const combobox = el.shadowRoot!.querySelector<HTMLElement>('[part~="combobox"]')!;
+          const clearButton = el.shadowRoot!.querySelector<HTMLElement>('[part~="clear-button"]')!;
+
+          // The button spans the field, so the whole column clears, not just a band through the middle
+          expect(combobox.getBoundingClientRect().height - clearButton.getBoundingClientRect().height).to.be.lessThan(
+            4,
+          );
+
+          await expectEvent(el, 'cs-clear', async () => {
+            await clickOnElement(clearButton, 'top', 0, 2);
+            await el.updateComplete;
+          });
+        });
+
         it('should emit change and input when a tag is removed', async () => {
           const el = await fixture<CsSelect>(html`
             <cs-select multiple>
