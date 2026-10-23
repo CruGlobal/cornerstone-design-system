@@ -47,6 +47,12 @@ import styles from './button.styles.js';
  *
  * @cssproperty [--cs-button-justify-content=center] - Where a one-row button places its content along the row, as a
  *  `justify-content` value. Icon-only and vertical buttons ignore it.
+ * @cssproperty [--cs-button-stacked-gap=0.25em] - The space between `start`, the label, and `end` or the caret in a
+ *  stacked button. Applies only to a vertical button that isn't icon-only.
+ * @cssproperty [--cs-button-stacked-padding-block=var(--cs-form-control-padding-block)] - A stacked button's block
+ *  padding. Applies only to a vertical button that isn't icon-only.
+ * @cssproperty [--cs-button-stacked-padding-inline=var(--cs-form-control-padding-inline)] - A stacked button's inline
+ *  padding. Applies only to a vertical button that isn't icon-only.
  */
 @customElement('cs-button')
 export default class CsButton extends CornerstoneFormAssociatedElement {

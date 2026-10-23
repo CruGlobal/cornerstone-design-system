@@ -43,6 +43,30 @@ async function endSlotWarnings(action: () => Promise<unknown>) {
   }
 }
 
+/** The computed pixel value `length` resolves to at `element`'s font size, such as `0.25em` or a theme token. */
+function lengthAt(element: Element, length: string) {
+  const probe = document.createElement('div');
+  probe.style.fontSize = getComputedStyle(element).fontSize;
+  probe.style.paddingTop = length;
+  document.body.append(probe);
+  const value = getComputedStyle(probe).paddingTop;
+  probe.remove();
+  return value;
+}
+
+/** The padding of a button's `button` part and the margins on its `start` element and caret, as computed strings. */
+function spacingOf(el: CsButton) {
+  const button = getComputedStyle(partOf(el, 'button'));
+  const start = el.querySelector('[slot="start"]');
+  const startStyle = start ? getComputedStyle(start) : null;
+  const caret = getComputedStyle(partOf(el, 'caret'));
+  return {
+    padding: [button.paddingTop, button.paddingRight, button.paddingBottom, button.paddingLeft].join(' '),
+    start: startStyle ? `${startStyle.marginRight} ${startStyle.marginBottom}` : null,
+    caret: `${caret.marginLeft} ${caret.marginTop}`,
+  };
+}
+
 /** Whether `inner` lies inside `outer`, allowing half a pixel for subpixel rounding. */
 function isInside(inner: DOMRect, outer: DOMRect) {
   return (
@@ -564,6 +588,108 @@ describe('<cs-button>', () => {
 
           expect(getComputedStyle(partOf(iconOnly, 'button')).justifyContent).to.equal('center');
           expect(getComputedStyle(partOf(stacked, 'button')).justifyContent).to.equal('center');
+        });
+      });
+
+      describe('stacked spacing properties', () => {
+        it('should keep the stacked gap and padding at their defaults when nothing is set', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical" with-caret>
+              <cs-icon slot="start" library="system" name="settings"></cs-icon>
+              Settings
+            </cs-button>
+          `);
+          const button = partOf(el, 'button');
+          const style = getComputedStyle(button);
+          const start = getComputedStyle(el.querySelector('[slot="start"]')!);
+          const caret = getComputedStyle(partOf(el, 'caret'));
+          const paddingBlock = lengthAt(button, 'var(--cs-form-control-padding-block)');
+          const paddingInline = lengthAt(button, 'var(--cs-form-control-padding-inline)');
+
+          expect([style.paddingTop, style.paddingBottom]).to.deep.equal([paddingBlock, paddingBlock]);
+          expect([style.paddingLeft, style.paddingRight]).to.deep.equal([paddingInline, paddingInline]);
+          expect(start.marginBottom).to.equal(lengthAt(el.querySelector('[slot="start"]')!, '0.25em'));
+          expect(caret.marginTop).to.equal(lengthAt(partOf(el, 'caret'), '0.25em'));
+        });
+
+        it('should follow the stacked gap and padding set on an ancestor', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button orientation="vertical" with-caret>
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+              </cs-button>
+              <div
+                style="--cs-button-stacked-gap: 7px; --cs-button-stacked-padding-block: 5px; --cs-button-stacked-padding-inline: 9px"
+              >
+                <cs-button orientation="vertical" with-caret>
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Settings
+                </cs-button>
+              </div>
+            </div>
+          `);
+          const [plain, set] = [...el.querySelectorAll<CsButton>('cs-button')];
+          const style = getComputedStyle(partOf(set, 'button'));
+
+          expect([style.paddingTop, style.paddingBottom]).to.deep.equal(['5px', '5px']);
+          expect([style.paddingLeft, style.paddingRight]).to.deep.equal(['9px', '9px']);
+
+          // Measured: the space from the start icon to the label, and from the label to the caret.
+          const gaps = (item: CsButton) => {
+            const start = item.querySelector('[slot="start"]')!.getBoundingClientRect();
+            const label = labelTextRect(item);
+            const caret = partOf(item, 'caret').getBoundingClientRect();
+            return [label.top - start.bottom, caret.top - label.bottom];
+          };
+          const defaults = [
+            parseFloat(getComputedStyle(plain.querySelector('[slot="start"]')!).marginBottom),
+            parseFloat(getComputedStyle(partOf(plain, 'caret')).marginTop),
+          ];
+          const [plainGaps, setGaps] = [gaps(plain), gaps(set)];
+          for (const index of [0, 1]) {
+            expect(Math.abs(setGaps[index] - plainGaps[index] - (7 - defaults[index]))).to.be.below(0.5);
+          }
+        });
+
+        it('should be ignored by one-row and icon-only buttons', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <div>
+                <cs-button with-caret>
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Settings
+                </cs-button>
+                <cs-button orientation="vertical" with-caret>
+                  <cs-icon library="system" name="settings" label="Settings"></cs-icon>
+                </cs-button>
+              </div>
+              <div
+                style="--cs-button-stacked-gap: 7px; --cs-button-stacked-padding-block: 5px; --cs-button-stacked-padding-inline: 9px"
+              >
+                <cs-button with-caret>
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Settings
+                </cs-button>
+                <cs-button orientation="vertical" with-caret>
+                  <cs-icon library="system" name="settings" label="Settings"></cs-icon>
+                </cs-button>
+              </div>
+            </div>
+          `);
+          const [rowPlain, iconPlain, rowSet, iconSet] = [...el.querySelectorAll<CsButton>('cs-button')];
+          await waitUntil(() =>
+            [iconPlain, iconSet].every((item) => partOf(item, 'button').classList.contains('is-icon-button')),
+          );
+          const sizeOf = (item: CsButton) => {
+            const rect = partOf(item, 'button').getBoundingClientRect();
+            return `${rect.width.toFixed(2)}x${rect.height.toFixed(2)}`;
+          };
+
+          expect(spacingOf(rowSet)).to.deep.equal(spacingOf(rowPlain));
+          expect(spacingOf(iconSet)).to.deep.equal(spacingOf(iconPlain));
+          expect(sizeOf(rowSet)).to.equal(sizeOf(rowPlain));
+          expect(sizeOf(iconSet)).to.equal(sizeOf(iconPlain));
         });
       });
 

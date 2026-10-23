@@ -202,6 +202,8 @@ Only the slots stack, so put the icon in `start`. An icon beside text in the lab
 
 A stacked button is never shorter or narrower than a one-row button, and it grows to fit its content. Its label wraps instead of spilling out, so the button still fits a narrow bar when text is zoomed or spaced out.
 
+To tune a stacked button's spacing, set `--cs-button-stacked-gap` for the space between the icon, the label and anything below it, and `--cs-button-stacked-padding-block` and `--cs-button-stacked-padding-inline` for its padding. Set them on a section, such as a bar, and every stacked button inside follows them.
+
 Leave the `start` icon's `label` off. The icon is decorative, so the button is named by its text alone. Give the icon a `label` only when it says something the text does not, and know that the button's name will then read the icon's label first.
 
 Buttons in a horizontal [button group](/components/button-group) share one height, so a stacked toolbar can end with a one-row or icon-only button, which grows taller to match. An icon-only button keeps its width, so it becomes a tall rectangle. Outside a group, such as the navigation bar below, a one-row button keeps its fixed height so it lines up with form fields. It won't match the stacked buttons beside it, so keep every item in such a bar stacked. A `pill` stacked button is drawn as a capsule, since `pill` rounds every corner fully.
@@ -236,6 +238,7 @@ A bar of stacked items that changes the page is navigation, not tabs. Use `cs-bu
 
 <style>
   .bottom-bar {
+    --cs-button-stacked-padding-inline: var(--cs-space-2xs);
     display: flex;
     gap: var(--cs-space-2xs);
   }
@@ -245,6 +248,8 @@ A bar of stacked items that changes the page is navigation, not tabs. Use `cs-bu
   }
 </style>
 ```
+
+The bar cuts the side padding to 4px with `--cs-button-stacked-padding-inline`. On a narrow screen the default padding breaks every label mid-word, and 4px keeps short labels such as "Home" on one line.
 
 - **Leave room for the focus ring.** A container that clips its content, such as one with `overflow: hidden`, needs at least 4px of padding inside it, or it cuts the ring off.
 - **Keep focus out from under a fixed bar.** A bar fixed to the bottom of the screen covers whatever scrolls beneath it. Set `scroll-padding-block-end` on the scrolling element to the bar's height, so a focused control is never hidden behind it.

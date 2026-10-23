@@ -279,7 +279,10 @@ export default css`
     height: 100%;
     min-height: var(--cs-form-control-height);
     min-inline-size: var(--cs-form-control-height);
-    padding-block: var(--cs-form-control-padding-block);
+    padding-block: var(--cs-button-stacked-padding-block, var(--cs-form-control-padding-block));
+    padding-inline: var(--cs-button-stacked-padding-inline, var(--cs-form-control-padding-inline));
+    /* Resolved once here, since both the start margin and the end and caret margins below read it. */
+    --_button-stacked-gap: var(--cs-button-stacked-gap, 0.25em);
     line-height: var(--cs-form-control-value-line-height);
     white-space: normal;
     text-align: center;
@@ -396,13 +399,13 @@ export default css`
   /* Stacked, the spacing turns to the block axis; an inline margin left behind pushes the icon off center. */
   :host([orientation='vertical']) .button:not(.is-icon-button) slot[name='start']::slotted(*) {
     margin-inline-end: 0 !important;
-    margin-block-end: 0.25em !important;
+    margin-block-end: var(--_button-stacked-gap) !important;
   }
 
   /* Not a badge: a block margin would move it down from the corner it pins to. */
   :host([orientation='vertical']) .button:not(.is-icon-button) slot[name='end']::slotted(:not(cs-badge)),
   :host([orientation='vertical']) .button:not(.is-icon-button) [part='caret'] {
     margin-inline-start: 0 !important;
-    margin-block-start: 0.25em !important;
+    margin-block-start: var(--_button-stacked-gap) !important;
   }
 `;
