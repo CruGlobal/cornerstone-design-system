@@ -23,7 +23,7 @@ What runs today: components with an interactive surface assert against axe, on t
 Two things to hold about it:
 
 - **A green suite is a floor, not a conformance statement.** axe catches a minority of WCAG failures. It cannot tell you a keyboard path is sensible, that a focus indicator is visible against a consumer's page, or that an announcement arrives at a useful moment.
-- **A test that returns early under the SSR fixture passes while asserting nothing.** One of those is an axe test — `cs-callout`'s variants have no accessibility coverage under SSR while the page claims axe runs in both modes. UIUX-119 tracks it. That mismatch between a published claim and what runs is the exact defect you exist to catch, so treat the accessibility page as something to verify, not only to write.
+- **A test that returns early under the SSR fixture passes while asserting nothing.** UIUX-119 tracks the ones still in the suite. A published claim that no running test backs is the exact defect you exist to catch, so treat the accessibility page as something to verify, not only to write.
 
 ## The half automation cannot reach
 
