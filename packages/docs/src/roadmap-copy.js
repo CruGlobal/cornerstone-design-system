@@ -41,7 +41,7 @@ export const roadmapCopy = {
     summary:
       'The release that declares the component API stable: a version you can build on, where a breaking ' +
       'change waits for the next major and anything deprecated stays available through it. It is the one ' +
-      'release on this page whose meaning is a bar rather than a subject, so the bar is stated — three ' +
+      'release on this page whose meaning is a bar rather than a subject, so the bar is stated: four ' +
       'things are true before the number is used.',
     criteria: [
       'Every component is marked stable. A component still marked experimental can change its API in a ' +
@@ -50,6 +50,9 @@ export const roadmapCopy = {
       'Every component carries its accessibility record — what has been reviewed, and what a consumer ' +
         'still has to do themselves. A component library cannot hand you an accessible page on its own, ' +
         'and the record is where that line is drawn per component rather than claimed once for all of them.',
+      'The known defects in what ships are fixed. A promise that the API will not break is only worth ' +
+        'building on if the components already behave the way their documentation says, so the bugs and ' +
+        'the wrong documentation on file are cleared before the number is used.',
       'The Inspiration library has shipped: a prescriptive set of patterns, screens and flows, composed ' +
         'from the components that already ship. The component reference tells you what `<cs-input>` does; ' +
         'Inspiration tells you what a sign-in screen built out of Cornerstone parts should look like, and ' +
