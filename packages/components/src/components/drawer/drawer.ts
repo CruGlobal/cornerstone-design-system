@@ -68,7 +68,7 @@ export default class CsDrawer extends CornerstoneElement {
   static css = styles;
 
   private readonly localize = new LocalizeController(this);
-  private readonly hasSlotController = new HasSlotController(this, 'footer');
+  private readonly hasSlotController = new HasSlotController(this, 'footer', 'label');
   private readonly renderedWatcher = new RenderedWatcher(this, (isRendered) => this.handleRenderedChange(isRendered));
   private originalTrigger: HTMLElement | null;
 
@@ -79,7 +79,8 @@ export default class CsDrawer extends CornerstoneElement {
 
   /**
    * The drawer's label as displayed in the header. You should always include a relevant label, as it is required for
-   * proper accessibility. If you need to display HTML, use the `label` slot instead.
+   * proper accessibility. If you need to display HTML, use the `label` slot instead. When `without-header` is set,
+   * only the attribute provides the drawer's accessible name.
    */
   @property({ reflect: true }) label = '';
 
@@ -97,6 +98,12 @@ export default class CsDrawer extends CornerstoneElement {
    * includes the footer before the component hydrates on the client.
    */
   @property({ attribute: 'ssr-footer', type: Boolean }) ssrFooter = false;
+
+  /**
+   * Only required for SSR. Set to `true` if you're slotting in a `label` element so the server-rendered markup names
+   * the drawer before the component hydrates on the client.
+   */
+  @property({ attribute: 'ssr-label', type: Boolean }) ssrLabel = false;
 
   firstUpdated(changedProperties: PropertyValues<typeof this>) {
     super.firstUpdated(changedProperties);
@@ -265,15 +272,14 @@ export default class CsDrawer extends CornerstoneElement {
 
   render() {
     const hasHeader = !this.withoutHeader;
-    // The header's `<h2 id="title">` is the only accessible name available, and it exists only when
-    // there is a header. Without this the element has no name at all, `label` attribute or not.
-    const labelledBy = hasHeader ? 'title' : undefined;
     const hasFooter = this.hasSlotController.test('footer', 'ssrFooter');
+    const hasLabel = this.label.length > 0 || this.hasSlotController.test('label', 'ssrLabel');
 
     return html`
       <dialog
         part="dialog"
-        aria-labelledby=${ifDefined(labelledBy)}
+        aria-labelledby=${ifDefined(hasHeader && hasLabel ? 'title' : undefined)}
+        aria-label=${ifDefined(!hasHeader && this.label ? this.label : undefined)}
         class=${classMap({
           drawer: true,
           open: this.open,
