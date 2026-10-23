@@ -448,7 +448,6 @@ export default class CsInput extends CornerstoneFormAssociatedElement {
                   type="button"
                   aria-label=${this.localize.term(this.passwordVisible ? 'hidePassword' : 'showPassword')}
                   @click=${this.handlePasswordToggle}
-                  tabindex="-1"
                 >
                   ${
                     !this.passwordVisible

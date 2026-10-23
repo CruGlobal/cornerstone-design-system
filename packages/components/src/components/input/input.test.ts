@@ -215,6 +215,13 @@ describe('<cs-input>', () => {
           expect(toggleButton).to.not.be.null;
         });
 
+        it('should keep the password toggle button in the tab order', async () => {
+          const el = await fixture<CsInput>(html`<cs-input type="password" password-toggle></cs-input>`);
+          const toggleButton = el.shadowRoot!.querySelector<HTMLButtonElement>('[part~="password-toggle-button"]')!;
+
+          expect(toggleButton.tabIndex).to.equal(0);
+        });
+
         it('should toggle password visibility when the toggle button is clicked', async () => {
           const el = await fixture<CsInput>(html`<cs-input type="password" password-toggle></cs-input>`);
           await el.updateComplete;
