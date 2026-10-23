@@ -1,0 +1,470 @@
+<meta charset="utf-8">
+<title>Inspiration Page Shells</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* PROTOTYPE, throwaway. Question: what does an Inspiration page look like for each tier?
+   Layout: a docs-site frame (sidebar + content) that swaps its inner layout per variant A/B/C. */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --sunken:#eef0f4; --fg:#1d2330; --muted:#5b6475;
+  --line:#d9dde5; --accent:#2b5fd9; --accent-soft:#e3ebfc; --danger:#b42318; --danger-soft:#fdecea;
+  --success:#1f7a4a; --success-soft:#e5f4ec; --warn:#8a5a00; --warn-soft:#fdf2d8;
+  --mark:#c2410c; --mark-soft:rgba(194,65,12,.10); --bar:#1d2330; --bar-fg:#ffffff;
+  --body:"Source Sans 3",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12151c; --surface:#1a1f29; --sunken:#232937; --fg:#e7eaf0; --muted:#9aa3b5;
+  --line:#2f3646; --accent:#7ea3ff; --accent-soft:#22304f; --danger:#ff8a80; --danger-soft:#3a1d1d;
+  --success:#6fd29b; --success-soft:#173226; --warn:#f2c46b; --warn-soft:#3a2f14;
+  --mark:#fb923c; --mark-soft:rgba(251,146,60,.14); --bar:#e7eaf0; --bar-fg:#12151c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151c; --surface:#1a1f29; --sunken:#232937; --fg:#e7eaf0; --muted:#9aa3b5;
+  --line:#2f3646; --accent:#7ea3ff; --accent-soft:#22304f; --danger:#ff8a80; --danger-soft:#3a1d1d;
+  --success:#6fd29b; --success-soft:#173226; --warn:#f2c46b; --warn-soft:#3a2f14;
+  --mark:#fb923c; --mark-soft:rgba(251,146,60,.14); --bar:#e7eaf0; --bar-fg:#12151c; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);padding-bottom:96px}
+a{color:var(--accent)}
+code,pre{font-family:var(--mono);font-size:13px}
+h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:30px} h2{font-size:21px} h3{font-size:16px}
+p{margin:0}
+.proto-note{background:var(--warn-soft);color:var(--warn);font-size:14px;padding-block:8px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.site{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100vh}
+.side{border-right:1px solid var(--line);padding:20px 16px;font-size:14px;background:var(--surface)}
+.side .brand{font-weight:700;margin-bottom:16px}
+.side h4{margin:16px 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.side a{display:block;padding:3px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+.side a[aria-current]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.main{padding-block:28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));min-width:0}
+.content{max-width:820px;margin:0 auto;display:grid;gap:22px}
+.content.wide{max-width:1100px}
+.crumbs{font-size:13px;color:var(--muted)}
+.lede{color:var(--muted);font-size:18px;max-width:65ch}
+.tierbar{display:flex;gap:6px;flex-wrap:wrap}
+.tierbar button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:5px 12px;border-radius:999px;cursor:pointer}
+.tierbar button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;font-size:13px}
+.chip{display:inline-flex;gap:4px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--surface)}
+.chip b{font-weight:600}
+.badge{border-radius:8px;padding:8px 12px;font-size:14px;background:var(--success-soft);color:var(--success)}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.pad{padding:18px}
+.reason{display:grid;gap:14px}
+.reason section{display:grid;gap:6px}
+.reason ul{margin:0;padding-left:20px}
+.rule{display:flex;gap:8px;align-items:baseline}
+.rule .tag{font-size:11px;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;padding:1px 6px;background:var(--sunken);color:var(--muted);white-space:nowrap}
+.code{position:relative;background:var(--sunken);border-radius:10px;overflow-x:auto}
+.code pre{margin:0;padding:16px;white-space:pre}
+.code .copy{position:absolute;top:8px;right:8px;font:inherit;font-size:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:6px;padding:2px 8px;cursor:pointer}
+.small{font-size:13px;color:var(--muted)}
+.list-links{display:flex;flex-wrap:wrap;gap:6px}
+.list-links a{font-family:var(--mono);font-size:13px;background:var(--sunken);padding:2px 8px;border-radius:6px;text-decoration:none;color:var(--fg)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{font:inherit;font-size:13px;border:0;background:var(--surface);color:var(--fg);padding:5px 10px;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+select,.btnlink{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:5px 10px;border-radius:8px}
+.btnlink{text-decoration:none;cursor:pointer}
+label.inline{display:inline-flex;gap:6px;align-items:center;font-size:13px}
+.frame{background:var(--sunken);border:1px solid var(--line);border-radius:10px;overflow:auto;padding:16px;display:flex;justify-content:center}
+.frame .device{background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;transform-origin:top center}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:28px;align-items:start}
+.rail{display:grid;gap:16px;position:sticky;top:16px}
+.rail h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{font:inherit;font-size:14px;border:0;background:none;color:var(--muted);padding:8px 12px;cursor:pointer;border-bottom:2px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent);font-weight:600}
+.flow-prose{display:grid;gap:10px}
+.flow-step{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;align-items:start}
+.flow-step .n{width:28px;height:28px;border-radius:50%;background:var(--fg);color:var(--bg);display:grid;place-items:center;font-size:13px;font-weight:700}
+.strip{display:flex;gap:10px;align-items:center;overflow-x:auto;padding:4px 2px 10px}
+.strip .arrow{color:var(--muted);font-size:22px;flex:none}
+.thumb{flex:none;display:grid;gap:6px;text-decoration:none;color:var(--fg)}
+.thumb .win{width:240px;height:170px;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#fff;position:relative}
+.thumb .win > div{transform:scale(.36);transform-origin:top left;width:666px;position:absolute;top:0;left:0}
+.thumb .win.big{width:260px;height:184px}
+.thumb .win.big > div{transform:scale(.39)}
+.thumb .cap{font-size:13px}
+.thumb .cap small{display:block;color:var(--muted)}
+.stepper{display:grid;gap:18px}
+.stepper > .row{display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px;align-items:start}
+.inctx-note{font-size:12px;color:var(--mark)}
+details.why summary{cursor:pointer;color:var(--muted);font-size:14px}
+
+/* ---- the mocked app (stand-ins for cs-* components, always light like a real screen render) ---- */
+.app{font:15px/1.5 var(--body);color:#1d2330;background:#fff;--a:#2b5fd9}
+.app *{box-sizing:border-box}
+.app .hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid #e3e6ec;font-weight:700}
+.app .hdr .av{width:28px;height:28px;border-radius:50%;background:#cfd8ea}
+.app .body{padding:20px;display:grid;gap:16px;position:relative}
+.app h2{font-size:22px;margin:0}
+.app .crumb{font-size:13px;color:#5b6475}
+.app .card{border:1px solid #e3e6ec;border-radius:10px}
+.app .row{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid #eef0f4;flex-wrap:wrap}
+.app .row:last-child{border-bottom:0}
+.app .row .k{color:#5b6475;font-size:13px;min-width:110px}
+.app .row .v{flex:1}
+.app .row a{color:var(--a);font-size:14px}
+.app .field{display:grid;gap:4px}
+.app .field label{font-weight:600;font-size:14px}
+.app .field .help{font-size:13px;color:#5b6475}
+.app .field .in{border:1px solid #b8bfcc;border-radius:6px;padding:8px 10px;background:#fff}
+.app .field .in.ro{background:#f2f4f7;color:#5b6475;border-style:dashed}
+.app .field.err .in{border-color:#b42318;border-width:2px}
+.app .field .msg{font-size:13px;color:#b42318}
+.app .callout{border-radius:8px;padding:12px 14px;font-size:14px}
+.app .callout.danger{background:#fdecea;border:1px solid #f3b8b1;color:#7a1a12}
+.app .callout.danger ul{margin:6px 0 0;padding-left:18px}
+.app .callout.danger a{color:#7a1a12}
+.app .actions{display:flex;gap:8px;flex-wrap:wrap}
+.app .btn{border-radius:6px;padding:8px 14px;font-weight:600;font-size:14px;border:1px solid var(--a);background:var(--a);color:#fff;display:inline-flex;gap:6px;align-items:center}
+.app .btn.ghost{background:#fff;color:var(--a)}
+.app .spin{width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;display:inline-block}
+.app .toast{position:absolute;right:16px;top:12px;background:#1f7a4a;color:#fff;border-radius:8px;padding:8px 14px;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.app .scrim{position:absolute;inset:0;background:rgba(15,20,30,.45);display:grid;place-items:center;padding:20px}
+.app .dialog{background:#fff;border-radius:12px;padding:20px;max-width:340px;display:grid;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.app .pm{outline:2px dashed transparent;outline-offset:4px;position:relative;border-radius:6px}
+.show-patterns .app .pm{outline-color:var(--mark);background:var(--mark-soft)}
+.app .pm-tag{display:none}
+.show-patterns .app .pm-tag{display:inline-block;position:absolute;top:-13px;left:6px;font:600 11px/1 var(--mono);background:var(--mark);color:#fff;padding:4px 7px;border-radius:4px;z-index:2;text-decoration:none}
+.show-patterns .app .pm-tag:hover{text-decoration:underline}
+.show-patterns .app .pm .pm{outline-style:dotted;outline-offset:0;margin-top:6px}
+.show-patterns .app .pm .pm > .pm-tag{left:auto;right:6px}
+.show-patterns .app .pm.solo{outline-color:var(--mark)}
+.show-patterns .app .pm:not(.solo).ctx-only{outline-color:transparent;background:none}
+.show-patterns .app .pm:not(.solo).ctx-only > .pm-tag{display:none}
+.app .ctx-dim{opacity:.38}
+
+/* switcher */
+.pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 10px 2px 8px;font-size:13px;font-weight:600;line-height:1.6;text-decoration:none;border:1px solid transparent}
+.pill svg{width:14px;height:14px;flex:none}
+.pill.stable{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.pill.exp{background:var(--warn);color:var(--surface)}
+.pill.neutral{background:var(--sunken);color:var(--fg)}
+.usedin{font-size:13px;color:var(--muted)}
+.usedin a{font-weight:600}
+.exp-line{display:flex;gap:10px;align-items:flex-start;background:var(--warn-soft);color:var(--fg);border:1px solid var(--warn);border-left-width:4px;border-radius:8px;padding:10px 14px;font-size:14px}
+.exp-line svg{width:18px;height:18px;flex:none;color:var(--warn);margin-top:2px}
+.exp-line code{background:var(--surface);padding:0 4px;border-radius:4px}
+.protoctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--warn);border:1px dashed var(--warn);border-radius:8px;padding:6px 10px}
+.switcher{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:4px;background:var(--bar);color:var(--bar-fg);border-radius:999px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:20;max-width:calc(100% - 32px)}
+.switcher button{font:inherit;border:0;background:transparent;color:inherit;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px}
+.switcher button:hover{background:rgba(127,127,127,.25)}
+.switcher .lbl{font-size:14px;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+@media (max-width:900px){.cols{grid-template-columns:minmax(0,1fr)}.rail{position:static}.stepper > .row{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:720px){.site{grid-template-columns:minmax(0,1fr)}.side{display:none}h1{font-size:25px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="proto-note"><b>Prototype, throwaway.</b> Plain HTML stand-ins for the <code>cs-*</code> components, not the real site. Decides the page shell for <a href="https://github.com/CruGlobal/cornerstone-design-system/issues/148">Design the page shell for each of the three tiers</a>. Use the bar at the bottom (or ← →) to switch layouts.</div>
+
+<div class="site">
+  <nav class="side" aria-label="Docs">
+    <div class="brand">Cornerstone</div>
+    <h4>Inspiration</h4>
+    <a href="#" data-side="flow">Flows</a>
+    <a href="#" data-side="screen">Screens</a>
+    <a href="#" data-side="pattern">Patterns</a>
+    <h4>Account management</h4>
+    <a href="#" data-side="flow">Update your profile</a>
+    <a href="#" data-side="screen">Edit profile</a>
+    <a href="#">Settings overview</a>
+    <h4>Feedback</h4>
+    <a href="#" data-side="pattern">Error summary</a>
+    <a href="#">Confirm dialog</a>
+  </nav>
+  <main class="main" id="main"></main>
+</div>
+
+<div class="switcher" role="group" aria-label="Prototype layout switcher">
+  <button type="button" id="prev" aria-label="Previous layout">‹</button>
+  <span class="lbl" id="vlabel" aria-live="polite"></span>
+  <button type="button" id="next" aria-label="Next layout">›</button>
+</div>
+
+<script>
+const VARIANTS=[
+  {key:'a',name:'Docs page, as sketched'},
+  {key:'b',name:'Reasoning first, facts rail'},
+  {key:'c',name:'Workbench'},
+  {key:'d',name:'Workbench, reasoning tabs on top'}
+];
+const TIERS={pattern:'Pattern',screen:'Screen',flow:'Flow'};
+const S={v:'a',tier:'screen',state:'default',vp:'desktop',marks:false,ctx:false,tab:'preview',rtab:'when',status:'stable',reveal:'line',open:false};
+const ICON={
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  flask:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></svg>',
+  tag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.5"/></svg>'
+};
+(function(){const h=(location.hash||'').slice(1).split('-');if(VARIANTS.some(x=>x.key===h[0]))S.v=h[0];if(TIERS[h[1]])S.tier=h[1];})();
+
+/* ---------- content (from the settled slice) ---------- */
+const STATES={default:'Default',fix:'Fix these fields',cantsave:"Couldn't save",saving:'Saving',unsaved:'Unsaved changes'};
+const STATE_LINES={
+  fix:'Shows after a submit with errors. The person follows a link in the summary to each field and fixes it.',
+  cantsave:'Shows when the save request fails. Their edits stay in place and they can try again.',
+  saving:'Shows while the request is in flight. The Save button is busy so they cannot submit twice.',
+  unsaved:'Shows when they leave with edits not saved. They choose to stay or throw the edits away.'
+};
+const R={
+  pattern:{
+    title:'Error summary',desc:'One list at the top of a form that names every field that needs fixing, each linked to its field.',
+    cat:['Kind','Feedback'],composed:['cs-callout','cs-icon'],usedIn:['Edit profile'],
+    when:['A form submit fails validation on one or more fields.','The form is long enough that some errors are out of view.'],
+    not:[['One field, right next to the button','Use the field\'s own error message alone.'],['The save request failed, not the fields','Use a danger <code>cs-callout</code> without links.'],['You want to warn while they type','Build your own inline hint, because a summary on every keystroke steals focus.']],
+    why:'People scanning a long form after a failed submit need one place that tells them how much is wrong and where. Linking each item to its field means a keyboard or screen reader user can reach the problem in one step instead of hunting.',
+    rules:[['Move focus to the summary after every failed submit, never while typing.','Check by hand: submit with two empty required fields and confirm focus lands on the heading.'],['Each link\'s text matches the field\'s error message.','Check by hand: compare each link with the message under its field.'],['Do not also add role="alert" or a toast for the same failure.','Check by hand: search the screen for role="alert".']],
+    code:`<cs-callout variant="danger" tabindex="-1" focus-link-targets>
+  <h2 slot="heading">Fix these fields</h2>
+  <ul>
+    <li><a href="#display-name">Enter a display name</a></li>
+    <li><a href="#phone">Enter a phone number in the format 555-555-5555</a></li>
+  </ul>
+</cs-callout>`
+  },
+  screen:{
+    title:'Edit profile',desc:'A form for changing the profile details an app owns, with the ones the Cru account owns shown read-only.',
+    cat:['Goal','Account management'],composed:['cs-page','cs-input','cs-select','cs-button','cs-callout','cs-dialog'],patterns:['Form layout','Error summary','Confirm dialog'],usedIn:['Update your profile'],
+    when:['People need to change a few details the app itself stores.','Some details are owned by another system and must be shown but not edited.'],
+    not:[['Every setting fits on one short page','Use one long settings page and skip the edit step.'],['The detail is their sign-in identity','Link to the Cru account instead, because the app does not own it.']],
+    why:'Keeping read-only fields visible, with a note on where to change them, answers "why can\'t I edit my email?" before it is asked. Separating view from edit means people only see form controls when they meant to change something.',
+    rules:[['Read-only fields say where they can be changed.','Check by hand: every read-only field has help text with a link.'],['Cancel never saves.','Check by hand: edit, press Cancel, confirm nothing changed.']],
+    code:`<cs-page>
+  <!-- pattern: form-layout -->
+  <form class="cs-stack">
+    <cs-input label="Display name" id="display-name"></cs-input>
+    …
+  </form>
+  <!-- /pattern -->
+</cs-page>`
+  },
+  flow:{
+    title:'Update your profile',desc:'Go from the settings overview into an edit screen and back, with clear feedback that the save worked.',
+    cat:['Goal','Account management'],composed:['cs-page','cs-card','cs-input','cs-select','cs-button','cs-callout','cs-dialog','cs-toast'],
+    steps:[['overview','default','Settings overview','See everything at a glance, each group with its own Edit link.'],['edit','default','Edit profile','Change only the group they picked, so the form stays short.'],['edit','fix','Edit profile · Fix these fields','A failed submit sends them to the summary, then to each field.'],['overview','saved','Settings overview · Just saved','They land back where they started, with a toast saying it worked.']],
+    when:['An app has a handful of setting groups that each need a few fields.'],
+    not:[['Fewer than about six settings in total','Use one long settings page, because the extra step costs more than it saves.']],
+    why:'Returning people to the overview after a save shows them the new value in context, which is the proof the save worked. Editing one group at a time keeps each form short enough to scan.',
+    rules:[['After a save, return to the overview and show a toast.','Check by hand: save and confirm the overview shows the new value.']]
+  }
+};
+
+/* ---------- the mocked screens ---------- */
+let ONLY=null; // when set, only this pattern is outlined (the Pattern page's "Show it in a screen")
+const pm=(name,html)=>`<div class="pm${ONLY?(ONLY===name?' solo':' ctx-only'):''}" data-pattern="${name}"><a class="pm-tag" href="#" title="Open the ${name} pattern">${name} ↗</a>${html}</div>`;
+function field(l,v,o={}){return `<div class="field${o.err?' err':''}"><label>${l}</label><div class="in${o.ro?' ro':''}">${v}</div>${o.err?`<div class="msg">${o.err}</div>`:''}${o.help?`<div class="help">${o.help}</div>`:''}</div>`}
+function errorSummary(){return `<div class="callout danger"><b>Fix these fields</b><ul><li><a href="#">Enter a display name</a></li><li><a href="#">Enter a phone number in the format 555-555-5555</a></li></ul></div>`}
+function editScreen(state,opt={}){
+  const fix=state==='fix';
+  const top=fix?'':state==='cantsave'?`<div class="callout danger">We couldn't save your changes. Check your connection and try again.</div>`:'';
+  const form=`${fix?pm('error-summary',errorSummary()):''}${field('Display name',fix?'&nbsp;':'Jo Catanus',{err:fix&&'Enter a display name'})}
+    ${field('Phone',fix?'555 01':'555-555-0142',{err:fix&&'Enter a phone number in the format 555-555-5555'})}
+    ${field('Time zone','(UTC−05:00) Eastern Time ▾')}
+    ${field('Name','Joanna Catanus',{ro:1,help:'Managed by your Cru account. <a href="#">Change it there</a>.'})}
+    ${field('Email','joanna@example.org',{ro:1,help:'Managed by your Cru account.'})}
+    <div class="actions"><span class="btn">${state==='saving'?'<span class="spin"></span> Saving':'Save'}</span><span class="btn ghost">Cancel</span></div>`;
+  const dim=opt.ctx?' ctx-dim':'';
+  return `<div class="app"><div class="hdr${dim}">Mission Hub <span class="av"></span></div><div class="body">
+    <div class="${dim}"><div class="crumb">Settings ›</div><h2>Edit profile</h2></div>
+    ${top}
+    <div class="${dim}">${pm('form-layout',`<div style="display:grid;gap:14px">${form}</div>`)}</div>
+    ${state==='unsaved'?pm('confirm-dialog',`<div class="scrim"><div class="dialog"><b>Leave without saving?</b><div style="font-size:14px">Your changes to Edit profile will be lost.</div><div class="actions"><span class="btn">Stay</span><span class="btn ghost">Leave</span></div></div></div>`):''}
+  </div></div>`;
+}
+function overviewScreen(state){
+  return `<div class="app"><div class="hdr">Mission Hub <span class="av"></span></div><div class="body">
+    ${state==='saved'?'<div class="toast">Profile saved</div>':''}
+    <h2>Settings</h2>
+    ${pm('summary-list',`<div class="card"><div class="row"><b>Profile</b><a href="#">Edit</a></div>
+      <div class="row"><span class="k">Display name</span><span class="v">Jo Catanus</span></div>
+      <div class="row"><span class="k">Phone</span><span class="v">555-555-0142</span></div>
+      <div class="row"><span class="k">Time zone</span><span class="v">Eastern Time</span></div></div>`)}
+    ${pm('summary-list',`<div class="card"><div class="row"><b>Notifications</b><a href="#">Edit</a></div>
+      <div class="row"><span class="k">Email digest</span><span class="v">Weekly</span></div></div>`)}
+  </div></div>`;
+}
+const screenHTML=(id,st)=>id==='overview'?overviewScreen(st):editScreen(st);
+
+/* ---------- shared bits ---------- */
+const e=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const stripMarkers=s=>s.replace(/^\s*<!-- \/?pattern:?[^>]*-->\n?/gm,'');
+function head(r,tier){
+  return `<div class="crumbs">Inspiration › ${TIERS[tier]}s › ${r.cat[1]}</div>
+  <div style="display:grid;gap:8px"><h1>${r.title}</h1><p class="lede">${r.desc}</p></div>`;
+}
+const tierbar=()=>`<div class="tierbar" role="group" aria-label="Which tier to preview">${Object.entries(TIERS).map(([k,l])=>`<button type="button" data-tier="${k}" aria-pressed="${S.tier===k}">${l} page</button>`).join('')}</div>`;
+const badge=()=>`<div class="badge">Stable. Every component here is stable.</div>`;
+const chips=(r)=>`<div class="meta-row"><span class="chip"><b>${r.cat[0]}</b> ${r.cat[1]}</span></div>`;
+const links=a=>`<div class="list-links">${a.map(x=>`<a href="#">${x}</a>`).join('')}</div>`;
+const plain=a=>a.map(x=>`<a href="#">${x}</a>`).join(', ');
+function codeBlock(src){return `<div class="code"><button class="copy" type="button" data-copy>Copy</button><pre><code>${e(stripMarkers(src))}</code></pre></div><p class="small">Copied markup has the <code>&lt;!-- pattern --&gt;</code> markers taken out.</p>`}
+function reasoning(r,tier,o={}){
+  const h=o.h||'h2';
+  let s=`<section><${h}>When to use</${h}><ul>${r.when.map(x=>`<li>${x}</li>`).join('')}</ul></section>
+  <section><${h}>When not to use</${h}><ul>${r.not.map(([a,b])=>`<li><b>${a}.</b> ${b}</li>`).join('')}</ul></section>
+  <section><${h}>Why it works</${h}><p>${r.why}</p></section>
+  <section><${h}>Rules</${h}>${r.rules.map(([a,b])=>`<div class="rule"><span class="tag">Check by hand</span><div>${a}<div class="small">${b}</div></div></div>`).join('')}</section>`;
+  if(tier==='screen'&&!o.noStates) s+=`<section><${h}>States</${h}>${Object.entries(STATE_LINES).map(([k,v])=>`<div><b>${STATES[k]}.</b> ${v}</div>`).join('')}</section>`;
+  return `<div class="reason">${s}</div>`;
+}
+function stateSelect(kind){
+  if(kind==='seg') return `<div class="seg" role="group" aria-label="State">${Object.entries(STATES).map(([k,l])=>`<button type="button" data-state="${k}" aria-pressed="${S.state===k}">${l}</button>`).join('')}</div>`;
+  return `<label class="inline">State <select id="state-sel">${Object.entries(STATES).map(([k,l])=>`<option value="${k}" ${S.state===k?'selected':''}>${l}</option>`).join('')}</select></label>`;
+}
+const VP={phone:375,tablet:768,desktop:1100};
+function vpSeg(){return `<div class="seg" role="group" aria-label="Viewport">${Object.keys(VP).map(k=>`<button type="button" data-vp="${k}" aria-pressed="${S.vp===k}">${k[0].toUpperCase()+k.slice(1)}</button>`).join('')}</div>`}
+function frame(inner,width,zoom){
+  return `<div class="frame ${S.marks?'show-patterns':''}"><div class="device" style="width:${width}px;zoom:${zoom}">${inner}</div></div>`;
+}
+const openNew=()=>`<a class="btnlink" href="#">Open in a new window ↗</a>`;
+function thumb(st,big){
+  const [id,state,label,why]=st;
+  // A div, not a link: the mock screen has links of its own, and a link inside a link breaks the page.
+  return `<div class="thumb"><div class="win${big?' big':''}" inert><div>${screenHTML(id,state)}</div></div>${big?'':`<div class="cap"><a href="#">${label}</a><small>${why}</small></div>`}</div>`;
+}
+
+/* ---------- Variant A: the sketch, top to bottom ---------- */
+function A(){
+  const r=R[S.tier];let preview='';
+  if(S.tier==='pattern'){
+    preview=`<div class="box pad app" style="border-radius:10px">${errorSummary()}</div>${codeBlock(r.code)}`;
+  }else if(S.tier==='screen'){
+    preview=`<div class="toolbar">${stateSelect('select')}${openNew()}</div>${frame(editScreen(S.state),1000,.68)}${codeBlock(r.code)}`;
+  }else{
+    preview=`<div class="flow-prose">${r.steps.map((s,i)=>`<div class="flow-step"><span class="n">${i+1}</span><div><a href="#"><b>${s[2]}</b></a><p>${s[3]}</p></div></div>`).join('')}</div>`;
+  }
+  return `<div class="content">${tierbar()}${head(r,S.tier)}${badge()}${preview}
+    <section style="display:grid;gap:8px"><h2>Composed of</h2>${links(r.composed)}</section>
+    ${reasoning(r,S.tier)}
+    <div class="box pad small" style="display:grid;gap:4px"><div><b>${r.cat[0]}:</b> ${r.cat[1]}</div>
+      ${r.patterns?`<div><b>Patterns:</b> ${plain(r.patterns)}</div>`:''}${r.usedIn?`<div><b>Used in:</b> ${plain(r.usedIn)}</div>`:''}</div>
+  </div>`;
+}
+
+/* ---------- Variant B: reasoning leads, facts in a rail ---------- */
+function B(){
+  const r=R[S.tier];let preview='';
+  if(S.tier==='pattern'){
+    preview=`<div class="toolbar"><label class="inline"><input type="checkbox" id="ctx" ${S.ctx?'checked':''}> Show it in a screen</label></div>
+      ${S.ctx?`<div class="frame show-patterns"><div class="device" style="width:900px;zoom:.62">${editScreen('fix',{ctx:true})}</div></div><p class="inctx-note">Shown inside Edit profile · Fix these fields. Only the outlined part is this pattern.</p>`
+      :`<div class="box pad app" style="border-radius:10px">${errorSummary()}</div>`}${codeBlock(r.code)}`;
+  }else if(S.tier==='screen'){
+    const w=VP[S.vp];const z=S.vp==='desktop'?.6:S.vp==='tablet'?.62:.8;
+    preview=`${stateSelect('seg')}<div class="toolbar">${vpSeg()}${openNew()}</div>${frame(editScreen(S.state),w,z)}${codeBlock(r.code)}`;
+  }else{
+    preview=`<div class="strip">${r.steps.map((s,i)=>(i?'<span class="arrow" aria-hidden="true">→</span>':'')+thumb(s)).join('')}</div>`;
+  }
+  const rail=`<aside class="rail">${badge()}
+    <div><h3>${r.cat[0]}</h3>${chips(r)}</div>
+    <div><h3>Composed of</h3>${links(r.composed)}</div>
+    ${r.patterns?`<div><h3>Patterns in this screen</h3>${links(r.patterns)}</div>`:''}
+    ${r.usedIn?`<div><h3>${S.tier==='pattern'?'Used in screens':'Used in flows'}</h3>${links(r.usedIn)}</div>`:''}
+  </aside>`;
+  return `<div class="content wide">${tierbar()}<div class="cols"><div style="display:grid;gap:22px;min-width:0">${head(r,S.tier)}
+    ${reasoning(r,S.tier,{noStates:true})}
+    <h2>${S.tier==='flow'?'The steps':'Example'}</h2>${preview}
+    ${S.tier==='screen'?`<section class="reason"><section><h2>States</h2>${Object.entries(STATE_LINES).map(([k,v])=>`<div><b>${STATES[k]}.</b> ${v}</div>`).join('')}</section></section>`:''}
+  </div>${rail}</div></div>`;
+}
+
+/* ---------- Variant C: preview canvas first, everything else in tabs ---------- */
+function C(top){
+  const r=R[S.tier];let canvas='';
+  if(S.tier==='pattern'){
+    const tabs=`<div class="tabs" role="tablist">${['preview','code'].map(t=>`<button role="tab" type="button" data-ptab="${t}" aria-selected="${S.tab===t}">${t==='preview'?'Preview':'Markup'}</button>`).join('')}</div>`;
+    let pv;
+    if(S.ctx){ONLY='error-summary';pv=`<div class="frame show-patterns"><div class="device" style="width:900px;zoom:.7">${editScreen('fix')}</div></div><p class="small">Shown in <a href="#">Edit profile</a> · Fix these fields, the first screen it is used in. Only the outlined part is this pattern.</p>`;ONLY=null;}
+    else pv=`<div class="box pad app" style="border-radius:10px;min-height:160px;display:grid;place-items:center"><div style="width:100%;max-width:520px">${errorSummary()}</div></div>`;
+    canvas=`${tabs}${S.tab==='preview'?`<div class="toolbar"><label class="inline"><input type="checkbox" id="ctx" ${S.ctx?'checked':''}> Show it in a screen</label></div>${pv}`:codeBlock(r.code)}`;
+  }else if(S.tier==='screen'){
+    const w=VP[S.vp];const z=S.vp==='desktop'?.82:S.vp==='tablet'?.8:1;
+    const tabs=`<div class="tabs" role="tablist">${['preview','code'].map(t=>`<button role="tab" type="button" data-ptab="${t}" aria-selected="${S.tab===t}">${t==='preview'?'Preview':'Markup'}</button>`).join('')}</div>`;
+    canvas=`${tabs}${stateSelect('seg')}<div class="toolbar">${vpSeg()}<label class="inline"><input type="checkbox" id="marks" ${S.marks?'checked':''}> Show patterns</label>${openNew()}</div>
+      ${S.tab==='preview'?frame(editScreen(S.state),w,z):codeBlock(r.code)}
+      ${S.state!=='default'?`<p class="small"><b>${STATES[S.state]}:</b> ${STATE_LINES[S.state]}</p>`:''}`;
+  }else{
+    canvas=`<div class="stepper">${r.steps.map((s,i)=>`<div class="row">${thumb(s,true)}<div style="display:grid;gap:6px"><div class="small">Step ${i+1} of ${r.steps.length}</div><a href="#" style="font-weight:700">${s[2]}</a><p>${s[3]}</p></div></div>`).join('')}</div>`;
+  }
+  const rtabs=[['when','When to use'],['why','Why it works'],['rules','Rules']].concat(top&&S.tier==='screen'?[['states','States']]:[],[['about',top?'Connections':'Composed of']]);
+  if(!rtabs.some(x=>x[0]===S.rtab))S.rtab='when';
+  let rbody='';
+  if(S.rtab==='states') rbody=`<div class="reason">${Object.entries(STATE_LINES).map(([k,v])=>`<div><b>${STATES[k]}.</b> ${v}</div>`).join('')}</div>`;
+  if(S.rtab==='when') rbody=`<div class="reason"><section><h3>When to use</h3><ul>${r.when.map(x=>`<li>${x}</li>`).join('')}</ul></section><section><h3>When not to use</h3><ul>${r.not.map(([a,b])=>`<li><b>${a}.</b> ${b}</li>`).join('')}</ul></section></div>`;
+  if(S.rtab==='why') rbody=`<p style="max-width:65ch">${r.why}</p>`;
+  if(S.rtab==='rules') rbody=r.rules.map(([a,b])=>`<div class="rule"><span class="tag">Check by hand</span><div>${a}<div class="small">${b}</div></div></div>`).join('');
+  if(S.rtab==='about'&&top) rbody=`<div style="display:grid;gap:14px"><div><h3 style="margin-bottom:6px">Built from</h3>${links(r.composed)}${r.patterns?`<div style="margin-top:8px"><b>Patterns:</b> ${plain(r.patterns)}</div>`:''}</div>${r.usedIn?`<div><h3 style="margin-bottom:6px">Used in</h3>${plain(r.usedIn)}</div>`:''}</div>`;
+  else if(S.rtab==='about') rbody=`<div style="display:grid;gap:10px">${links(r.composed)}${r.patterns?`<div><b>Patterns:</b> ${plain(r.patterns)}</div>`:''}${r.usedIn?`<div><b>Used in:</b> ${plain(r.usedIn)}</div>`:''}</div>`;
+  const reasonBlock=`<div class="tabs" role="tablist" aria-label="Reasoning">${rtabs.map(([k,l])=>`<button role="tab" type="button" data-rtab="${k}" aria-selected="${S.rtab===k}">${l}</button>`).join('')}</div>
+    <div class="box pad">${rbody}</div>`;
+  const exp=S.status!=='stable';
+  const pills=`<div class="pills">
+    ${!exp?`<span class="pill stable">${ICON.check}Stable</span>`
+      :S.reveal==='click'?`<button type="button" class="pill exp" data-toggle-exp aria-expanded="${S.open}" aria-controls="exp-why" style="cursor:pointer;font:inherit;font-size:13px;font-weight:600">${ICON.flask}Experimental <span aria-hidden="true">${S.open?'▴':'▾'}</span></button>`
+      :`<span class="pill exp">${ICON.flask}Experimental</span>`}
+    <a class="pill neutral" href="#" title="All ${r.cat[1]} entries">${ICON.tag}${r.cat[1]}</a>
+    ${r.usedIn?`<span class="usedin">Used in ${r.usedIn.map(x=>`<a href="#">${x}</a>`).join(', ')}</span>`:''}
+  </div>`;
+  const expLine=!exp?'':S.status==='derived'
+    ?`<div class="exp-line" role="note">${ICON.flask}<div>Uses <a href="#"><code>cs-time-input</code></a>, which is experimental. Its attributes may change before it is stable, so check its page before you copy this.</div></div>`
+    :S.status==='both'
+    ?`<div class="exp-line" role="note">${ICON.flask}<div style="display:grid;gap:4px"><div>Uses <a href="#"><code>cs-time-input</code></a> and <a href="#"><code>cs-otp-input</code></a>, which are experimental. Their attributes may change before they are stable, so check their pages before you copy this.</div><div>This layout is also still being settled, so the arrangement may change.</div></div></div>`
+    :`<div class="exp-line" role="note">${ICON.flask}<div>This layout is still being settled. The components in it are stable, but the arrangement may change.</div></div>`;
+  const ctl=`<div class="protoctl"><b>Prototype only:</b> pretend this entry is
+    <div class="seg" role="group" aria-label="Pretend status">${[['stable','Stable'],['derived','Experimental: a component'],['raised','Experimental: the layout'],['both','Both']].map(([k,l])=>`<button type="button" data-status="${k}" aria-pressed="${S.status===k}">${l}</button>`).join('')}</div>
+    ${exp?`· reason is <div class="seg" role="group" aria-label="How the reason shows">${[['line','Always shown'],['click','Behind the pill']].map(([k,l])=>`<button type="button" data-reveal="${k}" aria-pressed="${S.reveal===k}">${l}</button>`).join('')}</div>`:''}</div>`;
+  const clickMode=exp&&S.reveal==='click';
+  const underPills=clickMode?`<div id="exp-why" ${S.open?'':'hidden'}>${expLine}</div>`:'';
+  const aboveCanvas=clickMode?'':expLine;
+  return `<div class="content wide">${tierbar()}${ctl}${head(r,S.tier)}${pills}${underPills}
+    ${top?`${reasonBlock}<div style="height:4px"></div>${aboveCanvas}${canvas}`:`${aboveCanvas}${canvas}${reasonBlock}`}</div>`;
+}
+
+/* ---------- render + wiring ---------- */
+const main=document.getElementById('main');
+function render(){
+  main.innerHTML=({a:A,b:B,c:()=>C(false),d:()=>C(true)})[S.v]();
+  const v=VARIANTS.find(x=>x.key===S.v);
+  document.getElementById('vlabel').textContent=`${v.key.toUpperCase()} · ${v.name} · ${TIERS[S.tier]}`;
+  document.querySelectorAll('.side a').forEach(a=>a.toggleAttribute('aria-current',a.textContent===R[S.tier].title));
+  try{history.replaceState(null,'','#'+S.v+'-'+S.tier)}catch(_){}
+}
+function cycle(d){const i=VARIANTS.findIndex(x=>x.key===S.v);S.v=VARIANTS[(i+d+VARIANTS.length)%VARIANTS.length].key;render();}
+document.getElementById('prev').onclick=()=>cycle(-1);
+document.getElementById('next').onclick=()=>cycle(1);
+document.addEventListener('keydown',ev=>{
+  if(ev.target.closest('input,textarea,select,[contenteditable]'))return;
+  if(ev.key==='ArrowLeft')cycle(-1); if(ev.key==='ArrowRight')cycle(1);
+});
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-toggle-exp],[data-reveal],[data-status],[data-tier],[data-state],[data-vp],[data-ptab],[data-rtab],[data-copy],[data-side],a[href="#"]');
+  if(!t)return;
+  if(t.dataset.side){ev.preventDefault();S.tier=t.dataset.side;return render();}
+  if(t.matches('a[href="#"]')){ev.preventDefault();return;}
+  if(t.dataset.tier){S.tier=t.dataset.tier;S.tab='preview';}
+  if(t.dataset.toggleExp!==undefined){S.open=!S.open;render();document.querySelector('[data-toggle-exp]')?.focus();return;}
+  if(t.dataset.reveal){S.reveal=t.dataset.reveal;S.open=false;}
+  if(t.dataset.status)S.status=t.dataset.status;
+  if(t.dataset.state)S.state=t.dataset.state;
+  if(t.dataset.vp)S.vp=t.dataset.vp;
+  if(t.dataset.ptab)S.tab=t.dataset.ptab;
+  if(t.dataset.rtab)S.rtab=t.dataset.rtab;
+  if(t.dataset.copy!==undefined){const txt=t.nextElementSibling.textContent;
+    Promise.resolve().then(()=>navigator.clipboard.writeText(txt)).then(()=>{t.textContent='Copied'},()=>{t.textContent='Select and copy'});return;}
+  render();
+});
+document.addEventListener('change',ev=>{
+  if(ev.target.id==='state-sel')S.state=ev.target.value;
+  if(ev.target.id==='marks')S.marks=ev.target.checked;
+  if(ev.target.id==='ctx')S.ctx=ev.target.checked;
+  render();
+});
+render();
+</script>
