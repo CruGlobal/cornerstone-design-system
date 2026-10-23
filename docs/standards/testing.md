@@ -68,9 +68,8 @@ and running only the group has tested the previous build.
 - Tests iterate `for (const fixture of fixtures)` from `src/internal/test/fixture.js` so every assertion runs
   in both render modes. A test outside the loop is client-only; say so in its name or move it in.
 - **A branch that returns early under `fixture.type === 'ssr-client-hydrated'` passes while asserting
-  nothing.** `cs-callout`'s variant axe test does this today (UIUX-119) while the accessibility page claims
-  axe runs in both modes. Flag any new one as a blocker; an existing one the PR touches is fixed or
-  gets its reason recorded in the test.
+  nothing.** UIUX-119 tracks the ones still in the suite. Flag any new one as a blocker; an existing one the
+  PR touches is fixed or gets its reason recorded in the test.
 - Form controls call `runFormControlBaseTests({ tagName, formValue })` from
   `src/internal/test/form-control-base-tests.js`. Omitting `formValue` leaves reset untested; it is omitted
   only for controls that own no value (`cs-button`, `cs-radio`).
@@ -79,8 +78,8 @@ and running only the group has tested the previous build.
 
 - Every component with an interactive surface asserts `await expect(el).to.be.accessible()` per fixture type
   and per variant (`button.test.ts` is the model). axe sees only the rendered DOM: open the popup, dialog or
-  drawer before asserting. An `ignoredRules` list (as `cs-badge` passes for `color-contrast`) carries a
-  comment saying why.
+  drawer before asserting. An `ignoredRules` list (as `cs-breadcrumb` passes for `color-contrast`) carries
+  a comment saying why.
 
 **Tests that cannot fail, in this runner's idiom**
 
