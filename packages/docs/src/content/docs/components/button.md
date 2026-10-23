@@ -12,6 +12,13 @@ use-cases:
   - icon button
   - loading button
 description: "Buttons represent actions the user can take, such as submitting a form, opening a dialog, or navigating to another page."
+contrast: |
+  # Every ratio this page prints, checked against the shipped themes by scripts/check-contrast.js, which says
+  # what each column means. Change a number here and in the prose together.
+  #
+  # theme | scheme | foreground                                                                    | background                 | printed          | precision
+  [Mark the current page with more than colour.]
+  all     | both   | --cs-color-{neutral,brand,success,warning,danger,information,highlight}-fill-normal | --cs-color-surface-default | 1.25:1 to 1.48:1 | 2dp
 ---
 
 ```html {.example}
@@ -254,7 +261,7 @@ The bar cuts the side padding to 4px with `--cs-button-stacked-padding-inline`. 
 - **Leave room for the focus ring.** A container that clips its content, such as one with `overflow: hidden`, needs at least 4px of padding inside it, or it cuts the ring off.
 - **Keep focus out from under a fixed bar.** A bar fixed to the bottom of the screen covers whatever scrolls beneath it. Set `scroll-padding-block-end` on the scrolling element to the bar's height, so a focused control is never hidden behind it.
 - **Render one navigation the same way twice.** If the same navigation shows as a side rail on wide screens and a bottom bar on narrow ones, give both the same links in the same order, and add `hidden` to the copy that isn't showing so it leaves the tab order and the accessibility tree.
-- **Mark the current page with more than colour.** Changing the current item from `plain` to `filled` is not enough on its own: the two differ by only 1.25:1 to 1.47:1, and forced colours mode drops the fill altogether. Add a cue that isn't colour, such as a bar under the item. Setting `aria-current` on a `cs-button` does not reach the link inside it.
+- **Mark the current page with more than colour.** Changing the current item from `plain` to `filled` is not enough on its own: the two differ by only 1.25:1 to 1.48:1, and forced colours mode drops the fill altogether. Add a cue that isn't colour, such as a bar under the item. Setting `aria-current` on a `cs-button` does not reach the link inside it.
 
 ### Caret
 
