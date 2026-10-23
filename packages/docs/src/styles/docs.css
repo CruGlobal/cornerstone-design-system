@@ -1418,8 +1418,8 @@ cs-icon.roadmap-mark {
  * The entry criteria, for the one release whose meaning is a bar rather than a subject.
  *
  * An ordinary list, because they are conditions and a reader should be able to count them. Kept as a list
- * rather than folded into the summary for exactly that reason: three things that must all be true read as
- * three things in a list and as hedging in a paragraph.
+ * rather than folded into the summary for exactly that reason: conditions that must all be true read as
+ * conditions in a list and as hedging in a paragraph.
  */
 .roadmap-criteria {
   margin-block: var(--cs-space-s) 0;
