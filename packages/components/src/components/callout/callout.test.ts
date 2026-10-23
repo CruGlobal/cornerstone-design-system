@@ -1,4 +1,4 @@
-import { aTimeout, expect } from '@open-wc/testing';
+import { expect } from '@open-wc/testing';
 import { html } from 'lit';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsCallout from './callout.js';
@@ -12,16 +12,16 @@ describe('<cs-callout>', () => {
           await expect(el).to.be.accessible();
         });
 
-        it('should be accessible with all variants', async () => {
-          const variants = ['brand', 'neutral', 'highlight', 'information', 'success', 'warning', 'danger'] as const;
+        // One test per variant, so each server render, hydration and axe pass has its own timeout and retry
+        // rather than all seven sharing one.
+        const variants = ['brand', 'neutral', 'highlight', 'information', 'success', 'warning', 'danger'] as const;
 
-          for (const variant of variants) {
+        for (const variant of variants) {
+          it(`should be accessible with the ${variant} variant`, async () => {
             const el = await fixture<CsCallout>(html`<cs-callout variant="${variant}">Callout</cs-callout>`);
-            await el.updateComplete;
             await expect(el).to.be.accessible();
-            await aTimeout(1);
-          }
-        });
+          });
+        }
       });
 
       describe('properties', () => {
