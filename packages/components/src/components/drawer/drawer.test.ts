@@ -40,6 +40,49 @@ describe('<cs-drawer>', () => {
 
           expect(document.activeElement).to.equal(input);
         });
+
+        it('should name the drawer from its label', async () => {
+          const el = await fixture<CsDrawer>(html`<cs-drawer label="Settings" open>Content</cs-drawer>`);
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+          const title = el.shadowRoot!.getElementById('title')!;
+
+          expect(drawer.getAttribute('aria-labelledby')).to.equal(title.id);
+          expect(title.textContent.trim()).to.equal('Settings');
+        });
+
+        it('should name the drawer from a slotted label', async () => {
+          const el = await fixture<CsDrawer>(
+            html`<cs-drawer open><span slot="label">Settings</span>Content</cs-drawer>`,
+          );
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(drawer.getAttribute('aria-labelledby')).to.equal('title');
+        });
+
+        it('should name the drawer from a slotted label before hydration when ssr-label is set', async () => {
+          const el = await fixture<CsDrawer>(
+            html`<cs-drawer open ssr-label><span slot="label">Settings</span>Content</cs-drawer>`,
+          );
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(drawer.getAttribute('aria-labelledby')).to.equal('title');
+        });
+
+        it('should leave the drawer unnamed when it has no label', async () => {
+          const el = await fixture<CsDrawer>(html`<cs-drawer open>Content</cs-drawer>`);
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(drawer.hasAttribute('aria-labelledby')).to.be.false;
+          expect(drawer.hasAttribute('aria-label')).to.be.false;
+        });
+
+        it('should name the drawer from its label when the header is hidden', async () => {
+          const el = await fixture<CsDrawer>(html`<cs-drawer label="Settings" without-header open>Content</cs-drawer>`);
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(drawer.getAttribute('aria-label')).to.equal('Settings');
+          expect(drawer.hasAttribute('aria-labelledby')).to.be.false;
+        });
       });
 
       describe('properties', () => {
