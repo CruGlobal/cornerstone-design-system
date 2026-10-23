@@ -9,9 +9,9 @@ on:
   # open PR doesn't build twice.
   pull_request:
 
-# One run per ref. A second push used to leave the first still going, and the component gate is
-# ~35 minutes — two of them competing for the same runners is how a suite starts failing on
-# timeouts rather than assertions. `cancel-in-progress` is safe here because nothing in this
+# One run per ref. A second push used to leave the first still going, and the component gate holds
+# four runners for about ten minutes each — two of them competing for the same runners is how a suite
+# starts failing on timeouts rather than assertions. `cancel-in-progress` is safe here because nothing in this
 # workflow deploys or publishes; the worst a cancelled run loses is a result we no longer want.
 concurrency:
   group: ci-${{ github.ref }}
@@ -49,8 +49,8 @@ jobs:
       # root build here would do it twice per PR.
       - run: npm run build --workspace @cruglobal/cornerstone-design-system
 
-  # What changed decides what runs. The component suite drives three real browsers and takes ~35
-  # minutes; a change to a documentation page has no way to affect it, and paying for it anyway is
+  # What changed decides what runs. The component suite drives three real browsers on four runners for
+  # about ten minutes each; a change to a documentation page has no way to affect it, and paying for it anyway is
   # how a gate stops being run.
   #
   # The dependency is one-directional and the filters mirror it: the documentation site consumes the
@@ -132,6 +132,18 @@ jobs:
     needs: changes
     if: needs.changes.outputs.component-code == 'true'
     runs-on: ubuntu-latest
+    # Playwright's own image already holds this version's three browsers and the ~130 apt packages they
+    # need. Installing those packages on a bare runner is what made a shard slow: 26-46s from a quick
+    # Ubuntu mirror, 34-42 minutes from a slow one, and once a hang cancelled at 207 minutes, against
+    # 4-9 minutes of tests. The tag must match the `playwright` version the root `overrides` pins; a
+    # mismatch fails at launch ("Executable doesn't exist"), not by testing the wrong browsers.
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0-noble
+      # Firefox won't start as root when HOME belongs to another user, as it does in a job container.
+      # `--ipc=host` is Playwright's advice for Chromium, which can run out of shared memory without it.
+      options: --user 1001 --ipc=host
+    # A shard takes about ten minutes. Past thirty it is stuck, and waiting longer only holds the runner.
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -143,23 +155,6 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
       - run: npm ci
-      # The three browsers are ~400 MB and only a Playwright bump invalidates them. The version is pinned
-      # by the root `overrides`, so the lockfile hash is exactly the right key — it changes when, and only
-      # when, the browsers need to.
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
-      # `--with-deps` also installs apt packages, and those live outside the cached directory — so a cache
-      # hit still needs the system libraries, just not the download.
-      - name: Install Playwright system dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps
       # The suite loads components from `dist/`, and nothing is shared between runners, so each shard
       # builds the library for itself. Seconds, against the tens of minutes the shard saves.
       - run: npm run build --workspace @cruglobal/cornerstone-components
