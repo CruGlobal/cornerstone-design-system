@@ -11,10 +11,12 @@
  *  1. Every `<cs-*>` tag mentioned in `agent-skill/choosing-components.md` exists as a component
  *     under `src/components/<name>/`.
  *  2. Every attribute cited alongside those tags exists on that component per the CEM.
- *  3. Every relative markdown link in `agent-skill/**.md` and `design-skill/**.md` resolves to a file
- *     that exists, and every absolute link into the docs site names a page the site builds.
+ *  3. Every relative markdown link in `agent-skill/**.md`, `design-skill/**.md` and the built skill
+ *     resolves to a file that exists, and every absolute link in the sources names a page the site builds.
  *  4. No file asserts a claim known to be false: a domain Cru does not own, a Pro product that does not
  *     exist, a mangled third-party host, or a component count that is wrong.
+ *  5. The build wrote the agent files whole: each skill's `SKILL.md`, a reference file per component,
+ *     and `llms.txt`. With no build at all this is a warning at a terminal and an error in CI.
  */
 
 import fs from 'fs';
@@ -25,6 +27,11 @@ import { docsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = path.resolve(__dirname, '..');
+
+// CI sets `CI=true`. A missing build output is a warning at a terminal, so `npm run verify:skills` works
+// before a first build, but an error in CI: nobody reads a warning in a passing job, and a build that crashed
+// while writing the agent files used to exit 0, leaving this check the only thing that could notice.
+const IN_CI = Boolean(process.env.CI) && process.env.CI !== 'false';
 
 const COMPONENTS_DIR = path.join(PACKAGE_ROOT, 'src', 'components');
 
@@ -106,8 +113,8 @@ if (components.size === 0) {
  * Loads the Custom Elements Manifest into a tagName → declaration map.
  * Each declaration carries `attributes`, `members`, `events`, etc. — used by the attribute-existence
  * check below. The CEM is produced by the build, so when running `verify:skills` standalone (no build),
- * the map may be empty; in that case the attribute check is skipped with a warning rather than a hard
- * failure, since `verify` always builds before running this and CI catches it there.
+ * the map may be empty; in that case the attribute check is skipped with a warning at a terminal and
+ * fails in CI, where a skipped check would otherwise pass unread.
  */
 function loadCem(cemPath) {
   if (!fs.existsSync(cemPath)) {
@@ -128,8 +135,8 @@ function loadCem(cemPath) {
 const cemByTag = loadCem(CEM_PATH) || new Map();
 const cemAvailable = cemByTag.size > 0;
 if (!cemAvailable) {
-  warnings.push(
-    `Custom Elements Manifest not found (run \`npm run build\` first); skipping attribute-existence check.`,
+  (IN_CI ? errors : warnings).push(
+    `Custom Elements Manifest not found (run \`npm run build\` first), so the attribute checks did not run`,
   );
 }
 
@@ -393,6 +400,48 @@ const filesToScan = [
   ...new Set([CHOOSING_COMPONENTS, ...walkMarkdown(AGENT_SKILL_DIR), ...walkMarkdown(DESIGN_SKILL_DIR)]),
 ];
 
+// The hand-written sources above are only half the skill. The rest is generated from the docs, and that
+// half shipped `Cornerstone Pro` and a link to a repository that does not exist while this check was
+// passing — because it never looked at the built output. Scan it too.
+const BUILT_DIR = path.join(PACKAGE_ROOT, 'dist', 'unbundled');
+const BUILT_SKILLS_DIR = path.join(BUILT_DIR, 'skills');
+const builtFilesToScan = fs.existsSync(BUILT_SKILLS_DIR) ? [...walkMarkdown(BUILT_SKILLS_DIR)] : [];
+// A skill's directory is named after the `name` in its SKILL.md. The design skill's is hand-written, so its
+// name is read from the source; the component skill's is generated, and is the `cornerstone` that the
+// reference-file check below already names.
+const designSkillName = /^name:\s*(\S+)\s*$/m.exec(
+  fs.readFileSync(path.join(DESIGN_SKILL_DIR, 'SKILL.md'), 'utf-8'),
+)?.[1];
+if (!designSkillName) {
+  errors.push(`design-skill/SKILL.md has no \`name\` in its front matter, so its built copy cannot be found`);
+}
+const requiredBuiltFiles = [
+  'skills/cornerstone/SKILL.md',
+  designSkillName && `skills/${designSkillName}/SKILL.md`,
+  'llms.txt',
+].filter(Boolean);
+
+if (builtFilesToScan.length === 0) {
+  const where = path.relative(PACKAGE_ROOT, BUILT_SKILLS_DIR);
+  if (IN_CI) {
+    errors.push(
+      `no built skill found at ${where}. Build before this check; if it did, the build wrote no agent skill ` +
+        `and the package would ship without one`,
+    );
+  } else {
+    warnings.push(`no built skill found at ${where} — run \`npm run build\` to check the generated half`);
+  }
+} else {
+  // Something was built, so a missing piece is a build that stopped partway rather than one that has not run:
+  // an error at a terminal too. These are the files no link points at. The references each SKILL.md links to
+  // are covered by the relative-link check, and every component's by the reference-file check below.
+  for (const file of requiredBuiltFiles) {
+    if (!fs.existsSync(path.join(BUILT_DIR, file))) {
+      errors.push(`the build is incomplete: ${path.relative(PACKAGE_ROOT, path.join(BUILT_DIR, file))} is missing`);
+    }
+  }
+}
+
 // An absolute docs link is resolved against the docs source rather than fetched, so the check stays offline.
 // A route is a page when the content collection holds `<route>.md` or `<route>/index.md`, or an asset when
 // `public/` holds that file. A redirect source in `astro.config.mjs` does not count: a skill should link the
@@ -402,9 +451,12 @@ const DOCS_PUBLIC_DIR = path.join(docsDir(), 'public');
 const docsUrlRegex = new RegExp(`${DOCS_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^\\s)>\`"']*`, 'g');
 let docsLinksChecked = 0;
 
-for (const file of filesToScan) {
+// The built skill gets the relative-link half only. Its absolute docs links are not checked yet: two of them
+// name no page today, and fixing those pages is its own change.
+for (const [file, generated] of [...filesToScan.map((f) => [f, false]), ...builtFilesToScan.map((f) => [f, true])]) {
   const content = fs.readFileSync(file, 'utf-8');
   const lines = content.split('\n');
+  const label = generated ? '[generated] ' : '';
   lines.forEach((line, idx) => {
     let m;
     const re = new RegExp(linkRegex.source, 'g');
@@ -428,12 +480,15 @@ for (const file of filesToScan) {
       const resolved = path.resolve(path.dirname(file), pathPart);
       if (!fs.existsSync(resolved)) {
         errors.push(
-          `${path.relative(PACKAGE_ROOT, file)}:${idx + 1}: broken link to '${href}' (resolved to ${path.relative(
+          `${label}${path.relative(PACKAGE_ROOT, file)}:${idx + 1}: broken link to '${href}' (resolved to ${path.relative(
             PACKAGE_ROOT,
             resolved,
           )})`,
         );
       }
+    }
+    if (generated) {
+      return;
     }
     for (const [url] of line.matchAll(docsUrlRegex)) {
       docsLinksChecked += 1;
@@ -465,20 +520,6 @@ const FORBIDDEN_PROSE = [
   [/50\+\s*components/i, 'the library ships 70'],
   [/Theme Builder/i, 'a Pro feature Cornerstone does not ship'],
 ];
-
-// The hand-written sources above are only half the skill. The rest is generated from the docs, and that
-// half shipped `Cornerstone Pro` and a link to a repository that does not exist while this check was
-// passing — because it never looked at the built output. Scan it too when it is there.
-const BUILT_SKILLS_DIR = path.join(PACKAGE_ROOT, 'dist', 'unbundled', 'skills');
-const builtFilesToScan = fs.existsSync(BUILT_SKILLS_DIR) ? [...walkMarkdown(BUILT_SKILLS_DIR)] : [];
-if (builtFilesToScan.length === 0) {
-  warnings.push(
-    `no built skill found at ${path.relative(
-      PACKAGE_ROOT,
-      BUILT_SKILLS_DIR,
-    )} — run \`npm run build\` to check the generated half`,
-  );
-}
 
 for (const [file, generated] of [...filesToScan.map((f) => [f, false]), ...builtFilesToScan.map((f) => [f, true])]) {
   const lines = fs.readFileSync(file, 'utf-8').split('\n');
@@ -533,7 +574,9 @@ if (errors.length > 0) {
 
 console.log(`✓ Skill verification passed.`);
 console.log(`  ${seenTags.size} <cs-*> tags checked against ${components.size} components`);
-console.log(`  ${filesToScan.length} markdown files scanned for broken relative links`);
+console.log(
+  `  ${filesToScan.length} skill source(s) and ${builtFilesToScan.length} generated file(s) scanned for broken relative links`,
+);
 console.log(`  ${docsLinksChecked} absolute docs link(s) checked against the docs site's pages`);
 console.log(
   `  ${attrValuesChecked} closed-set attribute value(s) checked against the CEM across ${attrCheckFiles} skill source(s)`,
@@ -543,4 +586,5 @@ console.log(
 );
 if (builtFilesToScan.length > 0) {
   console.log(`  ${components.size} manifest component(s) each have a reference file`);
+  console.log(`  ${requiredBuiltFiles.join(', ')} present in ${path.relative(PACKAGE_ROOT, BUILT_DIR)}`);
 }

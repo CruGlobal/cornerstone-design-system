@@ -181,6 +181,10 @@ jobs:
       # The site reads the library's manifest and copies its bundled build, so the library has to be
       # built — but not tested. That is the whole saving: minutes instead of half an hour.
       - run: npm run build --workspace @cruglobal/cornerstone-components
+      # Most of the agent skill is generated from the docs pages, so a docs-only change can break the skill
+      # the package ships. A docs-only change never runs the static gate, the only other place this check
+      # runs, so it runs here too. The library was built a line up, so it scans the real output in a second.
+      - run: npm run verify:skills --workspace @cruglobal/cornerstone-components
       - run: npm run verify --workspace cornerstone-docs-site
 
   changeset:
