@@ -13,5 +13,10 @@
     overflow: hidden !important;
     white-space: nowrap !important;
     padding: 0 !important;
+
+    /* Anchor the box, or it keeps its static position and can push a container into overflow by its 1px.
+       https://github.com/shoelace-style/webawesome/issues/2567 */
+    top: 0 !important;
+    left: 0 !important;
   }
 }
