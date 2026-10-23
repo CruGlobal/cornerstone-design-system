@@ -34,7 +34,7 @@ describe('<cs-toast-item>', () => {
 
       describe('variants', () => {
         // For some reason SSR tests tend to fail in these `for ()` loops in CI, so this should help fix them.
-        const variants = ['brand', 'success', 'warning', 'danger', 'neutral'] as const;
+        const variants = ['brand', 'highlight', 'information', 'success', 'warning', 'danger', 'neutral'] as const;
         for (const variant of variants) {
           it(`should properly render ${variant}`, async () => {
             const el = await fixture<CsToastItem>(

@@ -7,7 +7,7 @@ import { runFormControlBaseTests } from '../../internal/test/form-control-base-t
 import { formControlHeight } from '../../internal/test/form-control-height.js';
 import type CsButton from './button.js';
 
-const variants = ['brand', 'success', 'neutral', 'warning', 'danger'];
+const variants = ['brand', 'highlight', 'information', 'success', 'neutral', 'warning', 'danger'];
 
 interface AccessibilityNode {
   role: string;
