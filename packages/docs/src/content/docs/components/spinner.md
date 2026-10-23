@@ -31,24 +31,24 @@ Spinners are sized based on the current font size. To change the size, set `font
 
 ### Track Width
 
-Use the `--track-width` custom property to change the thickness of the spinner's track.
+Use the `--cs-track-width` custom property to change the thickness of the spinner's track.
 
 ```html {.example}
-<cs-spinner class="cs-font-size-4xl" style="--track-width: 10px;"></cs-spinner>
+<cs-spinner class="cs-font-size-4xl" style="--cs-track-width: 10px;"></cs-spinner>
 ```
 
 ### Colors
 
-Use the `--track-color` and `--indicator-color` custom properties to recolor the spinner.
+Use the `--cs-track-color` and `--cs-indicator-color` custom properties to recolor the spinner.
 
 ```html {.example}
-<cs-spinner class="cs-font-size-4xl" style="--indicator-color: var(--cs-color-success-fill-loud); --track-color: var(--cs-color-success-fill-quiet);"></cs-spinner>
+<cs-spinner class="cs-font-size-4xl" style="--cs-indicator-color: var(--cs-color-success-fill-loud); --cs-track-color: var(--cs-color-success-fill-quiet);"></cs-spinner>
 ```
 
 ### Speed
 
-Use the `--speed` custom property to set how long one full rotation takes.
+Use the `--cs-spinner-speed` custom property to set how long one full rotation takes.
 
 ```html {.example}
-<cs-spinner class="cs-font-size-4xl" style="--speed: 4s;"></cs-spinner>
+<cs-spinner class="cs-font-size-4xl" style="--cs-spinner-speed: 4s;"></cs-spinner>
 ```

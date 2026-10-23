@@ -198,7 +198,7 @@ describe('<cs-carousel>', () => {
 
             await el.updateComplete;
 
-            expect(el.scrollContainer.style.getPropertyValue('--slides-per-page').trim()).to.be.equal('2');
+            expect(el.scrollContainer.style.getPropertyValue('--_slides-per-page').trim()).to.be.equal('2');
           });
 
           [

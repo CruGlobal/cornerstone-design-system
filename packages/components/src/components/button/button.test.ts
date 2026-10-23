@@ -1,11 +1,81 @@
 import { aTimeout, expect, waitUntil } from '@open-wc/testing';
+import { a11ySnapshot } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
+import { formControlHeight } from '../../internal/test/form-control-height.js';
 import type CsButton from './button.js';
 
-const variants = ['brand', 'success', 'neutral', 'warning', 'danger'];
+const variants = ['brand', 'highlight', 'information', 'success', 'neutral', 'warning', 'danger'];
+
+interface AccessibilityNode {
+  role: string;
+  name: string;
+}
+
+function partOf(el: CsButton, name: string) {
+  return el.shadowRoot!.querySelector<HTMLElement>(`[part~="${name}"]`)!;
+}
+
+/** The box a button's label text paints in. A `<slot>` reports no box of its own, so measure the text node. */
+function labelTextRect(el: CsButton) {
+  const text = [...el.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent!.trim())!;
+  const range = document.createRange();
+  range.selectNodeContents(text);
+  return range.getBoundingClientRect();
+}
+
+function centerX(rect: DOMRect) {
+  return rect.left + rect.width / 2;
+}
+
+/** Runs `action` with `console.warn` stubbed and returns the vertical end slot warnings it logged. */
+async function endSlotWarnings(action: () => Promise<unknown>) {
+  const warn = sinon.stub(console, 'warn');
+
+  try {
+    await action();
+    await aTimeout(0);
+    return warn.getCalls().filter((call) => String(call.args[0]).includes('end slot of a vertical button'));
+  } finally {
+    warn.restore();
+  }
+}
+
+/** The computed pixel value `length` resolves to at `element`'s font size, such as `0.25em` or a theme token. */
+function lengthAt(element: Element, length: string) {
+  const probe = document.createElement('div');
+  probe.style.fontSize = getComputedStyle(element).fontSize;
+  probe.style.paddingTop = length;
+  document.body.append(probe);
+  const value = getComputedStyle(probe).paddingTop;
+  probe.remove();
+  return value;
+}
+
+/** The padding of a button's `button` part and the margins on its `start` element and caret, as computed strings. */
+function spacingOf(el: CsButton) {
+  const button = getComputedStyle(partOf(el, 'button'));
+  const start = el.querySelector('[slot="start"]');
+  const startStyle = start ? getComputedStyle(start) : null;
+  const caret = getComputedStyle(partOf(el, 'caret'));
+  return {
+    padding: [button.paddingTop, button.paddingRight, button.paddingBottom, button.paddingLeft].join(' '),
+    start: startStyle ? `${startStyle.marginRight} ${startStyle.marginBottom}` : null,
+    caret: `${caret.marginLeft} ${caret.marginTop}`,
+  };
+}
+
+/** Whether `inner` lies inside `outer`, allowing half a pixel for subpixel rounding. */
+function isInside(inner: DOMRect, outer: DOMRect) {
+  return (
+    inner.left >= outer.left - 0.5 &&
+    inner.right <= outer.right + 0.5 &&
+    inner.top >= outer.top - 0.5 &&
+    inner.bottom <= outer.bottom + 0.5
+  );
+}
 
 describe('<cs-button>', () => {
   runFormControlBaseTests({
@@ -277,6 +347,467 @@ describe('<cs-button>', () => {
           expect(submitter.value).to.equal('value-2');
         });
       });
+
+      describe('orientation', () => {
+        it('should default to horizontal and reflect a change', async () => {
+          const el = await fixture<CsButton>(html`<cs-button>Settings</cs-button>`);
+          expect(el.orientation).to.equal('horizontal');
+          expect(el.getAttribute('orientation')).to.equal('horizontal');
+
+          el.orientation = 'vertical';
+          await el.updateComplete;
+          expect(el.getAttribute('orientation')).to.equal('vertical');
+        });
+
+        it('should be accessible and named by its label when vertical with a decorative start icon', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical">
+              <cs-icon slot="start" library="system" name="settings"></cs-icon>
+              Settings
+            </cs-button>
+          `);
+          await expect(el).to.be.accessible();
+
+          const button = (await a11ySnapshot({ selector: 'cs-button button' })) as unknown as AccessibilityNode;
+          expect(button).to.include({ role: 'button', name: 'Settings' });
+        });
+
+        it('should be accessible and named by its label when a vertical link has a decorative start icon', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical" href="#settings">
+              <cs-icon slot="start" library="system" name="settings"></cs-icon>
+              Settings
+            </cs-button>
+          `);
+          await expect(el).to.be.accessible();
+
+          const link = (await a11ySnapshot({ selector: 'cs-button a' })) as unknown as AccessibilityNode;
+          expect(link).to.include({ role: 'link', name: 'Settings' });
+        });
+
+        it('should stack start above the label and end below it, centered, in DOM order and with no added ARIA', async () => {
+          let el!: CsButton;
+          // Still laid out, though it warns; the stub keeps the warning out of the test output.
+          const warnings = await endSlotWarnings(async () => {
+            el = await fixture<CsButton>(html`
+              <cs-button orientation="vertical">
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+                <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+              </cs-button>
+            `);
+          });
+          expect(warnings).to.have.lengthOf(1);
+          const button = partOf(el, 'button');
+          const buttonRect = button.getBoundingClientRect();
+          const start = el.querySelector('[slot="start"]')!.getBoundingClientRect();
+          const end = el.querySelector('[slot="end"]')!.getBoundingClientRect();
+          const label = labelTextRect(el);
+
+          expect(getComputedStyle(button).flexDirection).to.equal('column');
+          expect(start.bottom).to.be.at.most(label.top + 0.5);
+          expect(label.bottom).to.be.at.most(end.top + 0.5);
+          for (const rect of [start, label, end]) {
+            expect(Math.abs(centerX(rect) - centerX(buttonRect))).to.be.below(1);
+          }
+
+          for (const name of ['start', 'label', 'end']) {
+            expect(getComputedStyle(partOf(el, name)).order).to.equal('0');
+          }
+          expect(el.hasAttribute('aria-orientation')).to.be.false;
+          expect(button.hasAttribute('aria-orientation')).to.be.false;
+        });
+
+        it('should keep the one-row height fixed and use it as the stacked minimum', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button>Settings</cs-button>
+              <cs-button orientation="vertical">
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+              </cs-button>
+            </div>
+          `);
+          const [row, stacked] = [...el.querySelectorAll<CsButton>('cs-button')].map((button) =>
+            partOf(button, 'button'),
+          );
+          const rowStyle = getComputedStyle(row);
+          const stackedStyle = getComputedStyle(stacked);
+
+          expect(rowStyle.whiteSpace).to.equal('nowrap');
+          expect(stackedStyle.minHeight).to.equal(rowStyle.height);
+          expect(stackedStyle.minWidth).to.equal(rowStyle.height);
+          expect(stacked.getBoundingClientRect().height).to.be.above(row.getBoundingClientRect().height);
+        });
+
+        it('should keep a one-row button one control tall beside a labelled input in a stretching row', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div style="display: flex">
+              <cs-input label="Name"></cs-input>
+              <cs-button>Save</cs-button>
+            </div>
+          `);
+          const host = el.querySelector<CsButton>('cs-button')!;
+          const button = partOf(host, 'button');
+          const control = formControlHeight(button);
+
+          // The row stretches the host to the labelled input's height; the button inside must not follow it.
+          expect(host.getBoundingClientRect().height).to.be.above(control + 1);
+          expect(button.getBoundingClientRect().height).to.equal(control);
+        });
+
+        it('should keep the focus ring outside the box when vertical', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical" appearance="filled" variant="brand">
+              <cs-icon slot="start" library="system" name="settings"></cs-icon>
+              Settings
+            </cs-button>
+          `);
+          const button = partOf(el, 'button');
+
+          el.focus();
+          await waitUntil(() => button.matches(':focus-visible'), 'the button never showed its focus ring');
+          const style = getComputedStyle(button);
+
+          expect(style.outlineStyle).to.equal('solid');
+          expect(style.outlineOffset).to.equal('1px');
+        });
+
+        it('should be ignored by an icon-only button', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical">
+              <cs-icon library="system" name="settings" label="Settings"></cs-icon>
+            </cs-button>
+          `);
+          await waitUntil(() => partOf(el, 'button').classList.contains('is-icon-button'));
+          const button = partOf(el, 'button');
+          const rect = button.getBoundingClientRect();
+
+          expect(getComputedStyle(button).flexDirection).to.equal('row');
+          expect(Math.abs(rect.width - rect.height)).to.be.below(1);
+        });
+
+        it('should give every stacked button in a horizontal group the same height', async () => {
+          const el = await fixture<HTMLElement>(html`
+            <cs-button-group label="Sections">
+              <cs-button orientation="vertical">
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+              </cs-button>
+              <cs-button orientation="vertical">Search</cs-button>
+              <cs-button orientation="vertical" with-caret>
+                <cs-icon slot="start" library="system" name="person"></cs-icon>
+                Profile
+              </cs-button>
+            </cs-button-group>
+          `);
+          const buttons = [...el.querySelectorAll<CsButton>('cs-button')].map((button) => partOf(button, 'button'));
+          const heights = buttons.map((button) => button.getBoundingClientRect().height);
+          const textOnlyMinimum = parseFloat(getComputedStyle(buttons[1]).minHeight);
+
+          // The text-only button needs only the minimum; matching the others means it was stretched.
+          expect(heights[1]).to.be.above(textOnlyMinimum + 1);
+          for (const height of heights) {
+            expect(Math.abs(height - heights[0])).to.be.below(1);
+          }
+        });
+
+        for (const [name, textSpacing] of [
+          ['default text spacing', ''],
+          ['WCAG 1.4.12 text spacing', 'letter-spacing: 0.12em; word-spacing: 0.16em; line-height: 1.5;'],
+        ]) {
+          it(`should keep five small stacked items inside a 320px bar with ${name}`, async () => {
+            // Written out rather than mapped: the SSR fixture cannot serialize nested templates.
+            const el = await fixture<HTMLElement>(html`
+              <nav aria-label="Main" style="display: flex; gap: 4px; width: 320px; ${textSpacing}">
+                <cs-button orientation="vertical" size="s" href="#" style="flex: 1 1 0">
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Home
+                </cs-button>
+                <cs-button orientation="vertical" size="s" href="#" style="flex: 1 1 0">
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Search
+                </cs-button>
+                <cs-button orientation="vertical" size="s" href="#" style="flex: 1 1 0">
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Notifications
+                </cs-button>
+                <cs-button orientation="vertical" size="s" href="#" style="flex: 1 1 0">
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Messages
+                </cs-button>
+                <cs-button orientation="vertical" size="s" href="#" style="flex: 1 1 0">
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Settings
+                </cs-button>
+              </nav>
+            `);
+            const bar = el.getBoundingClientRect();
+
+            for (const item of el.querySelectorAll<CsButton>('cs-button')) {
+              const button = partOf(item, 'button').getBoundingClientRect();
+              const icon = item.querySelector('cs-icon')!.getBoundingClientRect();
+              const label = item.textContent.trim();
+
+              expect(isInside(button, bar), `"${label}" button spills out of the bar`).to.be.true;
+              expect(isInside(labelTextRect(item), button), `"${label}" text spills out of its button`).to.be.true;
+              expect(isInside(icon, button), `"${label}" icon spills out of its button`).to.be.true;
+            }
+          });
+        }
+      });
+
+      describe('content alignment', () => {
+        it('should center by default and follow --cs-button-justify-content set on an ancestor', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button>Settings</cs-button>
+              <div style="--cs-button-justify-content: start">
+                <cs-button>Settings</cs-button>
+              </div>
+            </div>
+          `);
+          const [plain, aligned] = [...el.querySelectorAll<CsButton>('cs-button')];
+
+          expect(getComputedStyle(partOf(plain, 'button')).justifyContent).to.equal('center');
+          expect(getComputedStyle(partOf(aligned, 'button')).justifyContent).to.equal('start');
+        });
+
+        it('should be ignored by icon-only and vertical buttons', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div style="--cs-button-justify-content: start">
+              <cs-button><cs-icon library="system" name="settings" label="Settings"></cs-icon></cs-button>
+              <cs-button orientation="vertical">
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+              </cs-button>
+            </div>
+          `);
+          const [iconOnly, stacked] = [...el.querySelectorAll<CsButton>('cs-button')];
+          await waitUntil(() => partOf(iconOnly, 'button').classList.contains('is-icon-button'));
+
+          expect(getComputedStyle(partOf(iconOnly, 'button')).justifyContent).to.equal('center');
+          expect(getComputedStyle(partOf(stacked, 'button')).justifyContent).to.equal('center');
+        });
+      });
+
+      describe('stacked spacing properties', () => {
+        it('should keep the stacked gap and padding at their defaults when nothing is set', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical" with-caret>
+              <cs-icon slot="start" library="system" name="settings"></cs-icon>
+              Settings
+            </cs-button>
+          `);
+          const button = partOf(el, 'button');
+          const style = getComputedStyle(button);
+          const start = getComputedStyle(el.querySelector('[slot="start"]')!);
+          const caret = getComputedStyle(partOf(el, 'caret'));
+          const paddingBlock = lengthAt(button, 'var(--cs-form-control-padding-block)');
+          const paddingInline = lengthAt(button, 'var(--cs-form-control-padding-inline)');
+
+          expect([style.paddingTop, style.paddingBottom]).to.deep.equal([paddingBlock, paddingBlock]);
+          expect([style.paddingLeft, style.paddingRight]).to.deep.equal([paddingInline, paddingInline]);
+          expect(start.marginBottom).to.equal(lengthAt(el.querySelector('[slot="start"]')!, '0.25em'));
+          expect(caret.marginTop).to.equal(lengthAt(partOf(el, 'caret'), '0.25em'));
+        });
+
+        it('should follow the stacked gap and padding set on an ancestor', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button orientation="vertical" with-caret>
+                <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                Settings
+              </cs-button>
+              <div
+                style="--cs-button-stacked-gap: 7px; --cs-button-stacked-padding-block: 5px; --cs-button-stacked-padding-inline: 9px"
+              >
+                <cs-button orientation="vertical" with-caret>
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Settings
+                </cs-button>
+              </div>
+            </div>
+          `);
+          const [plain, set] = [...el.querySelectorAll<CsButton>('cs-button')];
+          const style = getComputedStyle(partOf(set, 'button'));
+
+          expect([style.paddingTop, style.paddingBottom]).to.deep.equal(['5px', '5px']);
+          expect([style.paddingLeft, style.paddingRight]).to.deep.equal(['9px', '9px']);
+
+          // Measured: the space from the start icon to the label, and from the label to the caret.
+          const gaps = (item: CsButton) => {
+            const start = item.querySelector('[slot="start"]')!.getBoundingClientRect();
+            const label = labelTextRect(item);
+            const caret = partOf(item, 'caret').getBoundingClientRect();
+            return [label.top - start.bottom, caret.top - label.bottom];
+          };
+          const defaults = [
+            parseFloat(getComputedStyle(plain.querySelector('[slot="start"]')!).marginBottom),
+            parseFloat(getComputedStyle(partOf(plain, 'caret')).marginTop),
+          ];
+          const [plainGaps, setGaps] = [gaps(plain), gaps(set)];
+          for (const index of [0, 1]) {
+            expect(Math.abs(setGaps[index] - plainGaps[index] - (7 - defaults[index]))).to.be.below(0.5);
+          }
+        });
+
+        it('should be ignored by one-row and icon-only buttons', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <div>
+                <cs-button with-caret>
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Settings
+                </cs-button>
+                <cs-button orientation="vertical" with-caret>
+                  <cs-icon library="system" name="settings" label="Settings"></cs-icon>
+                </cs-button>
+              </div>
+              <div
+                style="--cs-button-stacked-gap: 7px; --cs-button-stacked-padding-block: 5px; --cs-button-stacked-padding-inline: 9px"
+              >
+                <cs-button with-caret>
+                  <cs-icon slot="start" library="system" name="settings"></cs-icon>
+                  Settings
+                </cs-button>
+                <cs-button orientation="vertical" with-caret>
+                  <cs-icon library="system" name="settings" label="Settings"></cs-icon>
+                </cs-button>
+              </div>
+            </div>
+          `);
+          const [rowPlain, iconPlain, rowSet, iconSet] = [...el.querySelectorAll<CsButton>('cs-button')];
+          await waitUntil(() =>
+            [iconPlain, iconSet].every((item) => partOf(item, 'button').classList.contains('is-icon-button')),
+          );
+          const sizeOf = (item: CsButton) => {
+            const rect = partOf(item, 'button').getBoundingClientRect();
+            return `${rect.width.toFixed(2)}x${rect.height.toFixed(2)}`;
+          };
+
+          expect(spacingOf(rowSet)).to.deep.equal(spacingOf(rowPlain));
+          expect(spacingOf(iconSet)).to.deep.equal(spacingOf(iconPlain));
+          expect(sizeOf(rowSet)).to.equal(sizeOf(rowPlain));
+          expect(sizeOf(iconSet)).to.equal(sizeOf(iconPlain));
+        });
+      });
+
+      describe('caret and the end slot', () => {
+        for (const orientation of ['horizontal', 'vertical']) {
+          it(`should hide an end icon behind the caret when ${orientation}`, async () => {
+            const el = await fixture<CsButton>(html`
+              <cs-button orientation=${orientation} with-caret>
+                Options
+                <cs-icon slot="end" library="system" name="settings"></cs-icon>
+              </cs-button>
+            `);
+            const icon = el.querySelector('[slot="end"]')!.getBoundingClientRect();
+
+            expect(icon.width).to.equal(0);
+            expect(icon.height).to.equal(0);
+          });
+
+          it(`should keep an end badge pinned to the same corner with a caret when ${orientation}`, async () => {
+            const el = await fixture<HTMLDivElement>(html`
+              <div>
+                <cs-button orientation=${orientation}>
+                  Inbox
+                  <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+                </cs-button>
+                <cs-button orientation=${orientation} with-caret>
+                  Inbox
+                  <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+                </cs-button>
+              </div>
+            `);
+            // Where the badge's center sits relative to the button's top end corner.
+            const [plain, caret] = [...el.querySelectorAll<CsButton>('cs-button')].map((item) => {
+              const button = partOf(item, 'button').getBoundingClientRect();
+              const badge = item.querySelector('cs-badge')!.getBoundingClientRect();
+              return { badge, x: centerX(badge) - button.right, y: badge.top + badge.height / 2 - button.top };
+            });
+
+            expect(caret.badge.width).to.be.above(0);
+            expect(caret.badge.height).to.be.above(0);
+            expect(Math.abs(caret.x - plain.x)).to.be.below(0.5);
+            expect(Math.abs(caret.y - plain.y)).to.be.below(0.5);
+          });
+
+          it(`should add no size for an end holding only a badge, with or without a caret, when ${orientation}`, async () => {
+            const el = await fixture<HTMLDivElement>(html`
+              <div>
+                <cs-button orientation=${orientation}>Inbox</cs-button>
+                <cs-button orientation=${orientation}>
+                  Inbox
+                  <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+                </cs-button>
+                <cs-button orientation=${orientation} with-caret>Inbox</cs-button>
+                <cs-button orientation=${orientation} with-caret>
+                  Inbox
+                  <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+                </cs-button>
+              </div>
+            `);
+            const [bare, badged, caret, caretBadged] = [...el.querySelectorAll<CsButton>('cs-button')].map((item) =>
+              partOf(item, 'button').getBoundingClientRect(),
+            );
+
+            for (const [without, withBadge] of [
+              [bare, badged],
+              [caret, caretBadged],
+            ]) {
+              expect(Math.abs(withBadge.width - without.width)).to.be.below(0.5);
+              expect(Math.abs(withBadge.height - without.height)).to.be.below(0.5);
+            }
+          });
+        }
+
+        it('should be accessible and add an end badge to its name when it has a caret', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button with-caret>Notifications <cs-badge slot="end" pill>3</cs-badge></cs-button>
+          `);
+          await expect(el).to.be.accessible();
+
+          const button = (await a11ySnapshot({ selector: 'cs-button button' })) as unknown as AccessibilityNode;
+          // In end, WebKit keeps the space it drops for a badge in the default slot (see resources/accessibility.md).
+          expect(button).to.include({ role: 'button', name: 'Notifications 3' });
+        });
+
+        it('should leave a hidden end badge out of its name when it has a caret', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button with-caret>Notifications <cs-badge slot="end" pill aria-hidden="true">3</cs-badge></cs-button>
+          `);
+          await expect(el).to.be.accessible();
+
+          const button = (await a11ySnapshot({ selector: 'cs-button button' })) as unknown as AccessibilityNode;
+          expect(button).to.include({ role: 'button', name: 'Notifications' });
+        });
+
+        it('should keep the size of an icon-only button with a caret when it gains a badge', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-button with-caret><cs-icon library="system" name="settings" label="Settings"></cs-icon></cs-button>
+              <cs-button with-caret>
+                <cs-icon library="system" name="settings" label="Settings, 3 unread"></cs-icon>
+                <cs-badge slot="end" pill aria-hidden="true">3</cs-badge>
+              </cs-button>
+            </div>
+          `);
+          const [plain, badged] = [...el.querySelectorAll<CsButton>('cs-button')].map((item) => partOf(item, 'button'));
+          await waitUntil(
+            () => plain.classList.contains('is-icon-button') && badged.classList.contains('is-icon-button'),
+          );
+          const control = formControlHeight(plain);
+          const [plainRect, badgedRect] = [plain, badged].map((button) => button.getBoundingClientRect());
+
+          // Wider than the square, since an icon-only button with a caret grows to fit both.
+          expect(plainRect.width).to.be.above(control + 1);
+          expect(plainRect.height).to.equal(control);
+          expect(Math.abs(badgedRect.width - plainRect.width)).to.be.below(0.5);
+          expect(badgedRect.height).to.equal(plainRect.height);
+        });
+      });
     });
   }
 
@@ -330,5 +861,106 @@ describe('<cs-button>', () => {
       await expect(el).to.be.accessible();
       expect(el.querySelector('cs-icon')!.getAttribute('aria-label')).to.equal('Confirm');
     });
+  });
+
+  describe('vertical end slot warning', () => {
+    for (const fixture of fixtures) {
+      describe(`with "${fixture.type}" rendering`, () => {
+        it('should warn when a vertical button has an element other than a badge in end', async () => {
+          let el!: CsButton;
+          const calls = await endSlotWarnings(async () => {
+            el = await fixture<CsButton>(html`
+              <cs-button orientation="vertical">
+                Settings
+                <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+              </cs-button>
+            `);
+          });
+
+          expect(calls).to.have.lengthOf(1);
+          expect(calls[0].args[1]).to.equal(el);
+        });
+
+        it('should not warn when the only element in end of a vertical button is a badge', async () => {
+          const calls = await endSlotWarnings(() =>
+            fixture<CsButton>(html`
+              <cs-button orientation="vertical">
+                Messages
+                <cs-badge slot="end" variant="danger" pill>3</cs-badge>
+              </cs-button>
+            `),
+          );
+          expect(calls).to.have.lengthOf(0);
+        });
+
+        it('should not warn when a horizontal button has an element in end', async () => {
+          const calls = await endSlotWarnings(() =>
+            fixture<CsButton>(html`
+              <cs-button>
+                Settings
+                <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+              </cs-button>
+            `),
+          );
+          expect(calls).to.have.lengthOf(0);
+        });
+
+        it('should not warn when a vertical icon-only button has an element in end', async () => {
+          const calls = await endSlotWarnings(() =>
+            fixture<CsButton>(html`
+              <cs-button orientation="vertical">
+                <cs-icon library="system" name="settings" label="Settings"></cs-icon>
+                <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+              </cs-button>
+            `),
+          );
+          expect(calls).to.have.lengthOf(0);
+        });
+
+        it('should warn when orientation changes to vertical after render', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button>
+              Settings
+              <cs-icon slot="end" library="system" name="keyboard_arrow_down"></cs-icon>
+            </cs-button>
+          `);
+          const calls = await endSlotWarnings(async () => {
+            el.orientation = 'vertical';
+            await el.updateComplete;
+          });
+
+          expect(calls).to.have.lengthOf(1);
+          expect(calls[0].args[1]).to.equal(el);
+        });
+
+        it('should not warn when a vertical button with a caret has an element in end', async () => {
+          const calls = await endSlotWarnings(() =>
+            fixture<CsButton>(html`
+              <cs-button orientation="vertical" with-caret>
+                Settings
+                <cs-icon slot="end" library="system" name="settings"></cs-icon>
+              </cs-button>
+            `),
+          );
+          expect(calls).to.have.lengthOf(0);
+        });
+
+        it('should warn when with-caret is removed from a vertical button with an element in end', async () => {
+          const el = await fixture<CsButton>(html`
+            <cs-button orientation="vertical" with-caret>
+              Settings
+              <cs-icon slot="end" library="system" name="settings"></cs-icon>
+            </cs-button>
+          `);
+          const calls = await endSlotWarnings(async () => {
+            el.withCaret = false;
+            await el.updateComplete;
+          });
+
+          expect(calls).to.have.lengthOf(1);
+          expect(calls[0].args[1]).to.equal(el);
+        });
+      });
+    }
   });
 });

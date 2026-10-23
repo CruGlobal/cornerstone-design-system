@@ -398,7 +398,7 @@ describe('<cs-otp-input>', () => {
           expect(firstSegment.classList.contains('segment--masked')).to.equal(true);
         });
 
-        it('should draw --mask-char via a pseudo-element when mask is true', async () => {
+        it('should draw --cs-otp-input-mask-char via a pseudo-element when mask is true', async () => {
           const el = await fixture<CsOtpInput>(html`<cs-otp-input value="1" mask></cs-otp-input>`);
           const firstSegment = el.shadowRoot!.querySelector('[part~="segment"]')!;
           const content = getComputedStyle(firstSegment, '::before').content;
@@ -658,8 +658,10 @@ describe('<cs-otp-input>', () => {
           expect(hints.length).to.equal(0);
         });
 
-        it('should respect a custom --mask-char', async () => {
-          const el = await fixture<CsOtpInput>(html`<cs-otp-input with-mask style="--mask-char: '*'"></cs-otp-input>`);
+        it('should respect a custom --cs-otp-input-mask-char', async () => {
+          const el = await fixture<CsOtpInput>(
+            html`<cs-otp-input with-mask style="--cs-otp-input-mask-char: '*'"></cs-otp-input>`,
+          );
           await el.updateComplete;
           const hint = el.shadowRoot!.querySelector('.segment--mask-hint')!;
           const content = getComputedStyle(hint, '::before').content;

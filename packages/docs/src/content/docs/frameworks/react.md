@@ -120,7 +120,7 @@ Testing with web components can be challenging if your test environment runs in 
 
 Here are some tips that will help smooth things over if you're having trouble with Jest + Cornerstone.
 
-:::info
+:::tip
 If you're looking for a fast, modern testing alternative, consider [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/).
 :::
 

@@ -95,7 +95,8 @@ describe('<cs-badge>', () => {
           expect(el.getAttribute('attention')).to.equal('pulse');
         });
 
-        for (const variant of ['brand', 'neutral', 'success', 'warning', 'danger'] as const) {
+        const variants = ['brand', 'neutral', 'highlight', 'information', 'success', 'warning', 'danger'] as const;
+        for (const variant of variants) {
           it(`should accept variant="${variant}"`, async () => {
             const el = await fixture<CsBadge>(html`<cs-badge variant="${variant}">Badge</cs-badge>`);
             expect(el.variant).to.equal(variant);

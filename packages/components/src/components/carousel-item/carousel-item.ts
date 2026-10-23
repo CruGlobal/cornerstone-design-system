@@ -11,7 +11,8 @@ import styles from './carousel-item.styles.js';
  *
  * @slot - The carousel item's content..
  *
- * @cssproperty --aspect-ratio - The slide's aspect ratio. Inherited from the carousel by default.
+ * @cssproperty [--cs-carousel-aspect-ratio=16 / 9] - The slide's aspect ratio. The carousel's property, so a value set
+ *  on the carousel reaches every slide; set it on one item to change only that slide.
  *
  */
 @customElement('cs-carousel-item')

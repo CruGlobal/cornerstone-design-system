@@ -21,12 +21,13 @@ import styles from './progress-ring.styles.js';
  * @csspart track - The progress ring's track.
  * @csspart indicator - The progress ring's indicator.
  *
- * @cssproperty --size - The diameter of the progress ring (cannot be a percentage).
- * @cssproperty --track-width - The width of the track.
- * @cssproperty --track-color - The color of the track.
- * @cssproperty --indicator-width - The width of the indicator. Defaults to the track width.
- * @cssproperty --indicator-color - The color of the indicator.
- * @cssproperty --indicator-transition-duration - The duration of the indicator's transition when the value changes.
+ * @cssproperty [--cs-progress-ring-size=8rem] - The diameter of the progress ring (cannot be a percentage).
+ * @cssproperty [--cs-track-width=0.25em] - The width of the track.
+ * @cssproperty [--cs-track-color=var(--cs-color-neutral-fill-normal)] - The color of the track.
+ * @cssproperty [--cs-progress-ring-indicator-width=var(--cs-track-width)] - The width of the indicator. Defaults to the track
+ *  width.
+ * @cssproperty [--cs-indicator-color=var(--cs-color-brand-fill-loud)] - The color of the indicator.
+ * @cssproperty [--cs-progress-ring-indicator-transition-duration=0.35s] - The duration of the indicator's transition when the value changes.
  */
 @customElement('cs-progress-ring')
 export default class CsProgressRing extends CornerstoneElement {
@@ -72,7 +73,7 @@ export default class CsProgressRing extends CornerstoneElement {
         aria-valuemin="0"
         aria-valuemax="100"
         aria-valuenow="${this.value}"
-        style=${styleMap({ '--percentage': this.value / 100 })}
+        style=${styleMap({ '--_percentage': this.value / 100 })}
       >
         <svg class="image">
           <circle part="track" class="track"></circle>

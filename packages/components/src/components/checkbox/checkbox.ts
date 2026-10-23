@@ -40,8 +40,9 @@ import styles from './checkbox.styles.js';
  * @csspart label - The container that wraps the checkbox's label.
  * @csspart hint - The hint's wrapper.
  *
- * @cssproperty --checked-icon-color - The color of the checked and indeterminate icons.
- * @cssproperty --checked-icon-scale - The size of the checked and indeterminate icons relative to the checkbox.
+ * @cssproperty [--cs-checkbox-checked-icon-color=var(--cs-color-brand-on-loud)] - The color of the checked and
+ *  indeterminate icons, drawn on the filled box. Native checkboxes styled by `native.css` read it too.
+ * @cssproperty [--cs-checked-icon-scale=0.8] - The size of the checked and indeterminate icons relative to the checkbox.
  *
  * @cssstate checked - Applied when the checkbox is checked.
  * @cssstate disabled - Applied when the checkbox is disabled.

@@ -13,11 +13,7 @@ describe('<cs-callout>', () => {
         });
 
         it('should be accessible with all variants', async () => {
-          const variants = ['brand', 'neutral', 'success', 'warning', 'danger'] as const;
-          // dumb reason these fail in CI.
-          if (fixture.type === 'ssr-client-hydrated') {
-            return;
-          }
+          const variants = ['brand', 'neutral', 'highlight', 'information', 'success', 'warning', 'danger'] as const;
 
           for (const variant of variants) {
             const el = await fixture<CsCallout>(html`<cs-callout variant="${variant}">Callout</cs-callout>`);
@@ -57,8 +53,9 @@ describe('<cs-callout>', () => {
 
         it('should accept all valid variants', async () => {
           const el = await fixture<CsCallout>(html`<cs-callout>Test</cs-callout>`);
+          const variants = ['brand', 'neutral', 'highlight', 'information', 'success', 'warning', 'danger'] as const;
 
-          for (const variant of ['brand', 'neutral', 'success', 'warning', 'danger'] as const) {
+          for (const variant of variants) {
             el.variant = variant;
             await el.updateComplete;
             expect(el.variant).to.equal(variant);

@@ -3,14 +3,14 @@ import { html } from 'lit';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsPage from './page.js';
 
-function measuredHeight(el: CsPage, slot: 'banner' | 'header' | 'subheader' | 'footer') {
-  return getComputedStyle(el).getPropertyValue(`--${slot}-height`).trim();
+function measuredHeight(el: CsPage, slot: 'banner' | 'header' | 'subheader') {
+  return getComputedStyle(el).getPropertyValue(`--cs-page-${slot}-height`).trim();
 }
 
 async function waitForMeasurement(el: CsPage, header = '51px', banner = '30px') {
   await waitUntil(
     () => measuredHeight(el, 'header') === header && measuredHeight(el, 'banner') === banner,
-    `expected --header-height ${header} and --banner-height ${banner}`,
+    `expected --cs-page-header-height ${header} and --cs-page-banner-height ${banner}`,
   );
 }
 
@@ -293,6 +293,58 @@ describe('<cs-page>', () => {
 
       // `removeAttribute('style')` is what idiomorph does when the server's element has no `style` at all.
       describe('measured heights', () => {
+        // The footer sits below the first viewport by design, so nothing is offset by it and its height is not
+        // published. Only the measured heights below appear on the host, and nothing else the app could inherit.
+        it('should publish only the banner, header and subheader heights on itself', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <div slot="banner" style="box-sizing: border-box; height: 30px;">Banner</div>
+              <div slot="header" style="box-sizing: border-box; height: 51px;">Header</div>
+              <main>Main content</main>
+              <div slot="footer" style="box-sizing: border-box; height: 40px;">Footer</div>
+            </cs-page>
+          `);
+          await waitForMeasurement(el);
+          await settle();
+
+          const custom = [...el.style].filter((name) => name.startsWith('--'));
+          expect(custom.every((name) => /^--cs-page-(banner|header|subheader)-height$/.test(name))).to.be.true;
+          expect(getComputedStyle(el).getPropertyValue('--cs-page-footer-height')).to.equal('');
+        });
+
+        // layers.css builds the margin from the published heights where it is used, so the page sets no
+        // intermediate property on itself for the app's own elements to inherit.
+        it('should keep anchors clear of the header and subheader', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <div slot="header" style="box-sizing: border-box; height: 51px;">Header</div>
+              <div slot="subheader" style="box-sizing: border-box; height: 20px;">Subheader</div>
+              <main><h2 style="font-size: 16px;">Anchor</h2></main>
+            </cs-page>
+          `);
+          await waitUntil(() => measuredHeight(el, 'header') === '51px' && measuredHeight(el, 'subheader') !== '');
+
+          const heading = getComputedStyle(el.querySelector('h2')!);
+          const subheader = parseFloat(measuredHeight(el, 'subheader'));
+          expect(heading.scrollMarginTop).to.equal(`${51 + subheader + 8}px`);
+          expect(heading.getPropertyValue('--scroll-margin-top')).to.equal('');
+        });
+
+        // WCAG 2.4.11: the banner sticks above the header, so an anchor has to clear all three.
+        it('should keep anchors clear of a sticky banner as well', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <div slot="banner" style="box-sizing: border-box; height: 30px;">Banner</div>
+              <div slot="header" style="box-sizing: border-box; height: 51px;">Header</div>
+              <main><h2 style="font-size: 16px;">Anchor</h2></main>
+            </cs-page>
+          `);
+          await waitForMeasurement(el);
+
+          const heading = getComputedStyle(el.querySelector('h2')!);
+          expect(heading.scrollMarginTop).to.equal(`${30 + 51 + 8}px`);
+        });
+
         it('should restore its measured heights when a morph removes the style attribute', async () => {
           const el = await fixture<CsPage>(html`
             <cs-page>
@@ -321,7 +373,7 @@ describe('<cs-page>', () => {
           await waitForMeasurement(el);
 
           // A server that presets the heights to avoid a layout shift sends them back on every morph
-          el.setAttribute('style', '--header-height: 40px;');
+          el.setAttribute('style', '--cs-page-header-height: 40px;');
           await settle();
 
           expect(measuredHeight(el, 'header')).to.equal('51px');
@@ -338,11 +390,11 @@ describe('<cs-page>', () => {
           `);
           await waitForMeasurement(el);
 
-          el.setAttribute('style', 'color: rgb(255, 0, 0); --menu-width: 200px;');
+          el.setAttribute('style', 'color: rgb(255, 0, 0); --cs-page-menu-width: 200px;');
           await settle();
 
           expect(el.style.color).to.equal('rgb(255, 0, 0)');
-          expect(el.style.getPropertyValue('--menu-width').trim()).to.equal('200px');
+          expect(el.style.getPropertyValue('--cs-page-menu-width').trim()).to.equal('200px');
           expect(measuredHeight(el, 'header')).to.equal('51px');
         });
 
@@ -357,7 +409,7 @@ describe('<cs-page>', () => {
           await waitForMeasurement(el);
 
           const heightsOnHost = [...el.style].filter((name) =>
-            /^--(banner|header|subheader|footer)-height$/.test(name),
+            /^--cs-page-(banner|header|subheader|footer)-height$/.test(name),
           );
           const records: MutationRecord[] = [];
           const watcher = new MutationObserver((list) => records.push(...list));
@@ -436,7 +488,7 @@ describe('<cs-page>', () => {
           el.remove();
           el.removeAttribute('style');
           await settle();
-          expect(el.style.getPropertyValue('--header-height')).to.equal('');
+          expect(el.style.getPropertyValue('--cs-page-header-height')).to.equal('');
 
           parent.append(el);
           await waitForMeasurement(el);

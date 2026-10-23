@@ -41,11 +41,11 @@ Pair `cs-frame` with one of the [`cs-border-radius-*`](/utilities/rounding) clas
 Frames are well-suited for images and image placeholders.
 
 ```html {.example}
-<div class="cs-flank" style="--flank-size: 8rem;">
+<div class="cs-flank" style="--cs-flank-size: 8rem;">
   <div class="cs-frame cs-border-radius-m">
     <img src="https://images.unsplash.com/photo-1523593288094-3ccfb6b2c192?q=20" alt="" />
   </div>
-  <div class="cs-flank:end" style="--content-percentage: 70%">
+  <div class="cs-flank:end" style="--cs-flank-content-percentage: 70%">
     <div class="cs-stack cs-gap-xs">
       <h3>The Lord of the Rings: The Fellowship of the Ring</h3>
       <span>J.R.R. Tolkien</span>
@@ -59,7 +59,7 @@ Frames are well-suited for images and image placeholders.
 ```
 
 ```html {.example}
-<div class="cs-grid" style="--min-column-size: 25ch;">
+<div class="cs-grid" style="--cs-grid-min-column-size: 25ch;">
   <cs-card>
     <div class="cs-frame:landscape" slot="media">
       <img src="https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?q=20" alt="Grey and white tabby kitten" />

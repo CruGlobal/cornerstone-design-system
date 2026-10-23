@@ -35,30 +35,30 @@ Use the `placement` attribute to set the tooltip's preferred position. The actua
 ```html {.example}
 <div class="tooltip-placement-example">
   <div class="tooltip-placement-example-row">
-    <cs-button appearance="filled" id="tooltip-top-start"></cs-button>
-    <cs-button appearance="filled" id="tooltip-top"></cs-button>
-    <cs-button appearance="filled" id="tooltip-top-end"></cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-top-start">top-start</cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-top">top</cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-top-end">top-end</cs-button>
   </div>
 
   <div class="tooltip-placement-example-row">
-    <cs-button appearance="filled" id="tooltip-left-start"></cs-button>
-    <cs-button appearance="filled" id="tooltip-right-start"></cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-left-start">left-start</cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-right-start">right-start</cs-button>
   </div>
 
   <div class="tooltip-placement-example-row">
-    <cs-button appearance="filled" id="tooltip-left"></cs-button>
-    <cs-button appearance="filled" id="tooltip-right"></cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-left">left</cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-right">right</cs-button>
   </div>
 
   <div class="tooltip-placement-example-row">
-    <cs-button appearance="filled" id="tooltip-left-end"></cs-button>
-    <cs-button appearance="filled" id="tooltip-right-end"></cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-left-end">left-end</cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-right-end">right-end</cs-button>
   </div>
 
   <div class="tooltip-placement-example-row">
-    <cs-button appearance="filled" id="tooltip-bottom-start"></cs-button>
-    <cs-button appearance="filled" id="tooltip-bottom"></cs-button>
-    <cs-button appearance="filled" id="tooltip-bottom-end"></cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-bottom-start">bottom-start</cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-bottom">bottom</cs-button>
+    <cs-button appearance="filled" size="s" id="tooltip-bottom-end">bottom-end</cs-button>
   </div>
 </div>
 
@@ -77,16 +77,17 @@ Use the `placement` attribute to set the tooltip's preferred position. The actua
 
 <style>
   .tooltip-placement-example {
-    width: 250px;
+    max-width: 25rem;
     margin: var(--cs-space-m);
   }
 
   .tooltip-placement-example cs-button {
-    width: 2.5rem;
+    width: 7.5rem;
   }
 
   .tooltip-placement-example-row {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--cs-space-xs);
     margin-bottom: var(--cs-space-xs);
@@ -128,10 +129,10 @@ Use the default slot to add presentational HTML, such as emphasis or line breaks
 
 ### Customizing
 
-Use the `--max-width` custom property to set the width at which the tooltip's content wraps.
+Use the `--cs-tooltip-max-width` custom property to set the width at which the tooltip's content wraps.
 
 ```html {.example}
-<cs-tooltip for="wrapping-tooltip" style="--max-width: 80px;">
+<cs-tooltip for="wrapping-tooltip" style="--cs-tooltip-max-width: 80px;">
   This tooltip will wrap after only 80 pixels.
 </cs-tooltip>
 <cs-button appearance="filled" id="wrapping-tooltip">Hover me</cs-button>
@@ -144,7 +145,7 @@ Remove the arrow on a single tooltip with the `without-arrow` attribute.
 <cs-tooltip for="no-arrow" without-arrow>This is a tooltip with no arrow</cs-tooltip>
 ```
 
-Resize the arrow on every tooltip with the `--cs-tooltip-arrow-size` design token. Set it in a `:root` block after the Cornerstone stylesheet loads — `0` removes arrows globally.
+Resize the arrow with the `--cs-tooltip-arrow-size` custom property. Set it on one tooltip, on a section, or on `:root` to change every tooltip on the page. `0` removes the arrows.
 
 ```css
 :root {

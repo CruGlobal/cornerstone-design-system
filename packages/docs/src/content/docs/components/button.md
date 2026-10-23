@@ -12,6 +12,13 @@ use-cases:
   - icon button
   - loading button
 description: "Buttons represent actions the user can take, such as submitting a form, opening a dialog, or navigating to another page."
+contrast: |
+  # Every ratio this page prints, checked against the shipped themes by scripts/check-contrast.js, which says
+  # what each column means. Change a number here and in the prose together.
+  #
+  # theme | scheme | foreground                                                                    | background                 | printed          | precision
+  [Mark the current page with more than colour.]
+  all     | both   | --cs-color-{neutral,brand,success,warning,danger,information,highlight}-fill-normal | --cs-color-surface-default | 1.25:1 to 1.48:1 | 2dp
 ---
 
 ```html {.example}
@@ -36,6 +43,8 @@ Use the `variant` attribute to set the button's [semantic variant](/theming-over
 <div class="cs-cluster cs-gap-2xs">
   <cs-button variant="neutral">Neutral</cs-button>
   <cs-button variant="brand">Brand</cs-button>
+  <cs-button variant="highlight">Highlight</cs-button>
+  <cs-button variant="information">Information</cs-button>
   <cs-button variant="success">Success</cs-button>
   <cs-button variant="warning">Warning</cs-button>
   <cs-button variant="danger">Danger</cs-button>
@@ -61,6 +70,20 @@ Use the `appearance` attribute to change the button's visual appearance. Pair it
     <cs-button appearance="filled" variant="brand">Filled</cs-button>
     <cs-button appearance="outlined" variant="brand">Outlined</cs-button>
     <cs-button appearance="plain" variant="brand">Plain</cs-button>
+  </div>
+  <div class="cs-cluster cs-gap-2xs">
+    <cs-button appearance="accent" variant="highlight">Accent</cs-button>
+    <cs-button appearance="filled-outlined" variant="highlight">Filled-Outlined</cs-button>
+    <cs-button appearance="filled" variant="highlight">Filled</cs-button>
+    <cs-button appearance="outlined" variant="highlight">Outlined</cs-button>
+    <cs-button appearance="plain" variant="highlight">Plain</cs-button>
+  </div>
+  <div class="cs-cluster cs-gap-2xs">
+    <cs-button appearance="accent" variant="information">Accent</cs-button>
+    <cs-button appearance="filled-outlined" variant="information">Filled-Outlined</cs-button>
+    <cs-button appearance="filled" variant="information">Filled</cs-button>
+    <cs-button appearance="outlined" variant="information">Outlined</cs-button>
+    <cs-button appearance="plain" variant="information">Plain</cs-button>
   </div>
   <div class="cs-cluster cs-gap-2xs">
     <cs-button appearance="accent" variant="success">Accent</cs-button>
@@ -177,9 +200,88 @@ Use the `start` and `end` slots to add presentational elements like `<cs-icon>` 
 </div>
 ```
 
+### Stacked
+
+Set `orientation="vertical"` to stack a button's content in a column: the `start` slot above the label, and the `end` slot and the caret below it. Use it for an icon with a caption, as in a bottom navigation bar or a toolbar with captions.
+
+Only the slots stack, so put the icon in `start`. An icon beside text in the label stays in the row. Don't put anything in `end` but a badge, which pins to the button's top corner. Anything else lands under the label, and the button logs a console warning, unless a caret hides it. An icon-only button ignores `orientation` and, outside a group, keeps its square shape.
+
+```html {.example}
+<div class="cs-cluster cs-gap-2xs">
+  <cs-button orientation="vertical">
+    <cs-icon slot="start" name="home"></cs-icon>
+    Home
+  </cs-button>
+  <cs-button orientation="vertical" appearance="outlined">
+    <cs-icon slot="start" name="search"></cs-icon>
+    Search
+  </cs-button>
+  <cs-button orientation="vertical" appearance="plain" with-caret>
+    <cs-icon slot="start" name="person"></cs-icon>
+    Account
+  </cs-button>
+</div>
+```
+
+A stacked button is never shorter or narrower than a one-row button, and it grows to fit its content. Its label wraps instead of spilling out, so the button still fits a narrow bar when text is zoomed or spaced out.
+
+To tune a stacked button's spacing, set `--cs-button-stacked-gap` for the space between the icon, the label and anything below it, and `--cs-button-stacked-padding-block` and `--cs-button-stacked-padding-inline` for its padding. Set them on a section, such as a bar, and every stacked button inside follows them.
+
+Leave the `start` icon's `label` off. The icon is decorative, so the button is named by its text alone. Give the icon a `label` only when it says something the text does not, and know that the button's name will then read the icon's label first.
+
+Buttons in a horizontal [button group](/components/button-group) share one height, so a stacked toolbar can end with a one-row or icon-only button, which grows taller to match. An icon-only button keeps its width, so it becomes a tall rectangle. Outside a group, such as the navigation bar below, a one-row button keeps its fixed height so it lines up with form fields. It won't match the stacked buttons beside it, so keep every item in such a bar stacked. A `pill` stacked button is drawn as a capsule, since `pill` rounds every corner fully.
+
+#### Navigation Bar
+
+A bar of stacked items that changes the page is navigation, not tabs. Use `cs-button` links (`href`) inside a `<nav>` with an `aria-label`, and don't give them tab roles. Keep at least 4px between items, which is how far the focus ring reaches, or join them in a button group.
+
+```html {.example}
+<nav aria-label="Main" class="bottom-bar">
+  <cs-button orientation="vertical" appearance="plain" size="s" href="#home">
+    <cs-icon slot="start" name="home"></cs-icon>
+    Home
+  </cs-button>
+  <cs-button orientation="vertical" appearance="plain" size="s" href="#search">
+    <cs-icon slot="start" name="search"></cs-icon>
+    Search
+  </cs-button>
+  <cs-button orientation="vertical" appearance="plain" size="s" href="#notifications">
+    <cs-icon slot="start" name="notifications"></cs-icon>
+    Notifications
+  </cs-button>
+  <cs-button orientation="vertical" appearance="plain" size="s" href="#messages">
+    <cs-icon slot="start" name="mail"></cs-icon>
+    Messages
+  </cs-button>
+  <cs-button orientation="vertical" appearance="plain" size="s" href="#profile">
+    <cs-icon slot="start" name="person"></cs-icon>
+    Profile
+  </cs-button>
+</nav>
+
+<style>
+  .bottom-bar {
+    --cs-button-stacked-padding-inline: var(--cs-space-2xs);
+    display: flex;
+    gap: var(--cs-space-2xs);
+  }
+
+  .bottom-bar cs-button {
+    flex: 1 1 0;
+  }
+</style>
+```
+
+The bar cuts the side padding to 4px with `--cs-button-stacked-padding-inline`. On a narrow screen the default padding breaks every label mid-word, and 4px keeps short labels such as "Home" on one line.
+
+- **Leave room for the focus ring.** A container that clips its content, such as one with `overflow: hidden`, needs at least 4px of padding inside it, or it cuts the ring off.
+- **Keep focus out from under a fixed bar.** A bar fixed to the bottom of the screen covers whatever scrolls beneath it. Set `scroll-padding-block-end` on the scrolling element to the bar's height, so a focused control is never hidden behind it.
+- **Render one navigation the same way twice.** If the same navigation shows as a side rail on wide screens and a bottom bar on narrow ones, give both the same links in the same order, and add `hidden` to the copy that isn't showing so it leaves the tab order and the accessibility tree.
+- **Mark the current page with more than colour.** Changing the current item from `plain` to `filled` is not enough on its own: the two differ by only 1.25:1 to 1.48:1, and forced colours mode drops the fill altogether. Add a cue that isn't colour, such as a bar under the item. Setting `aria-current` on a `cs-button` does not reach the link inside it.
+
 ### Caret
 
-Use the `with-caret` attribute to add a dropdown indicator when a button triggers a dropdown, menu, or popover.
+Use the `with-caret` attribute to add a dropdown indicator when a button triggers a dropdown, menu, or popover. The caret takes the place of anything in the `end` slot. A badge there still shows, pinned to the button's top corner. Its text joins the button's accessible name, as on any button. On an icon-only button, follow [Icon Button With a Badge](#icon-button-with-a-badge).
 
 ```html {.example}
 <cs-button with-caret>Options</cs-button>
@@ -192,8 +294,10 @@ Use the `loading` attribute to put a button in a busy state. Its width stays the
 ```html {.example}
 <div class="cs-cluster cs-gap-2xs">
   <cs-button variant="brand" loading>Brand</cs-button>
-  <cs-button variant="success" loading>Success</cs-button>
   <cs-button variant="neutral" loading>Neutral</cs-button>
+  <cs-button variant="highlight" loading>Highlight</cs-button>
+  <cs-button variant="information" loading>Information</cs-button>
+  <cs-button variant="success" loading>Success</cs-button>
   <cs-button variant="warning" loading>Warning</cs-button>
   <cs-button variant="danger" loading>Danger</cs-button>
 </div>
@@ -207,8 +311,10 @@ Use the `disabled` attribute to disable a button. It works on link buttons too.
 <div class="cs-stack">
   <div class="cs-cluster cs-gap-2xs">
     <cs-button variant="brand" disabled>Brand</cs-button>
-    <cs-button variant="success" disabled>Success</cs-button>
     <cs-button variant="neutral" disabled>Neutral</cs-button>
+    <cs-button variant="highlight" disabled>Highlight</cs-button>
+    <cs-button variant="information" disabled>Information</cs-button>
+    <cs-button variant="success" disabled>Success</cs-button>
     <cs-button variant="warning" disabled>Warning</cs-button>
     <cs-button variant="danger" disabled>Danger</cs-button>
   </div>
@@ -227,6 +333,41 @@ Give a button a custom `width` to size it independently of its content — usefu
 
 ```html {.example}
 <cs-button style="width: 100%;">Save</cs-button>
+```
+
+### Content Alignment
+
+A button centers its content. Set `--cs-button-justify-content` to place it elsewhere along the row, such as at the start of a full-width button in a menu or sidebar. It takes any `justify-content` value. Set it on a section and every button inside follows it, including buttons inside other components. Icon-only and stacked buttons ignore it and stay centered.
+
+`start` keeps the `end` slot beside the label. To push it to the far end, as a menu row does with a trailing arrow, give the `end` part an automatic start margin.
+
+```html {.example}
+<div class="cs-stack cs-gap-2xs side-menu">
+  <cs-button appearance="plain">
+    <cs-icon slot="start" name="inbox"></cs-icon>
+    Inbox
+  </cs-button>
+  <cs-button appearance="plain">
+    <cs-icon slot="start" name="draft"></cs-icon>
+    Drafts
+  </cs-button>
+  <cs-button appearance="plain" class="trailing">
+    <cs-icon slot="start" name="settings"></cs-icon>
+    Settings
+    <cs-icon slot="end" name="keyboard_arrow_right"></cs-icon>
+  </cs-button>
+</div>
+
+<style>
+  .side-menu {
+    --cs-button-justify-content: start;
+    max-width: 16rem;
+  }
+
+  .side-menu .trailing::part(end) {
+    margin-inline-start: auto;
+  }
+</style>
 ```
 
 ### Customizing

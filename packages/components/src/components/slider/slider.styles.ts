@@ -12,14 +12,6 @@ export default css`
     white-space: nowrap;
   }
 
-  :host {
-    --track-size: 0.5em;
-    --thumb-width: 1.4em;
-    --thumb-height: 1.4em;
-    --marker-width: 0.1875em;
-    --marker-height: 0.1875em;
-  }
-
   :host([orientation='vertical']) {
     width: auto;
   }
@@ -70,12 +62,12 @@ export default css`
 
   /* Orientation */
   .horizontal #track {
-    height: var(--track-size);
+    height: var(--cs-slider-track-size, 0.5em);
   }
 
   .vertical #track {
     order: 1;
-    width: var(--track-size);
+    width: var(--cs-slider-track-size, 0.5em);
     height: 200px;
   }
 
@@ -92,13 +84,13 @@ export default css`
     background-color: var(--cs-form-control-activated-color);
 
     &:dir(ltr) {
-      right: calc(100% - max(var(--start), var(--end)));
-      left: min(var(--start), var(--end));
+      right: calc(100% - max(var(--_start), var(--_end)));
+      left: min(var(--_start), var(--_end));
     }
 
     &:dir(rtl) {
-      right: min(var(--start), var(--end));
-      left: calc(100% - max(var(--start), var(--end)));
+      right: min(var(--_start), var(--_end));
+      left: calc(100% - max(var(--_start), var(--_end)));
     }
   }
 
@@ -108,8 +100,8 @@ export default css`
   }
 
   .vertical #indicator {
-    top: calc(100% - var(--end));
-    bottom: var(--start);
+    top: calc(100% - var(--_end));
+    bottom: var(--_start);
     left: 0;
     width: 100%;
   }
@@ -120,8 +112,8 @@ export default css`
   #thumb-max {
     z-index: 3;
     position: absolute;
-    width: var(--thumb-width);
-    height: var(--thumb-height);
+    width: var(--cs-slider-thumb-width, 1.4em);
+    height: var(--cs-slider-thumb-height, 1.4em);
     border: solid 0.125em var(--cs-color-surface-default);
     border-radius: 50%;
     background-color: var(--cs-form-control-activated-color);
@@ -137,15 +129,15 @@ export default css`
   .horizontal #thumb,
   .horizontal #thumb-min,
   .horizontal #thumb-max {
-    top: calc(50% - var(--thumb-height) / 2);
+    top: calc(50% - var(--cs-slider-thumb-height, 1.4em) / 2);
 
     &:dir(ltr) {
       right: auto;
-      left: calc(var(--position) - var(--thumb-width) / 2);
+      left: calc(var(--_position) - var(--cs-slider-thumb-width, 1.4em) / 2);
     }
 
     &:dir(rtl) {
-      right: calc(var(--position) - var(--thumb-width) / 2);
+      right: calc(var(--_position) - var(--cs-slider-thumb-width, 1.4em) / 2);
       left: auto;
     }
   }
@@ -153,8 +145,8 @@ export default css`
   .vertical #thumb,
   .vertical #thumb-min,
   .vertical #thumb-max {
-    bottom: calc(var(--position) - var(--thumb-height) / 2);
-    left: calc(50% - var(--thumb-width) / 2);
+    bottom: calc(var(--_position) - var(--cs-slider-thumb-height, 1.4em) / 2);
+    left: calc(50% - var(--cs-slider-thumb-width, 1.4em) / 2);
   }
 
   /* Range-specific thumb styles */
@@ -175,8 +167,8 @@ export default css`
   .marker {
     z-index: 2;
     position: absolute;
-    width: var(--marker-width);
-    height: var(--marker-height);
+    width: var(--cs-slider-marker-width, 0.1875em);
+    height: var(--cs-slider-marker-height, 0.1875em);
     border-radius: 50%;
     background-color: var(--cs-color-surface-default);
   }
@@ -187,13 +179,13 @@ export default css`
   }
 
   .horizontal .marker {
-    top: calc(50% - var(--marker-height) / 2);
-    left: calc(var(--position) - var(--marker-width) / 2);
+    top: calc(50% - var(--cs-slider-marker-height, 0.1875em) / 2);
+    left: calc(var(--_position) - var(--cs-slider-marker-width, 0.1875em) / 2);
   }
 
   .vertical .marker {
-    top: calc(var(--position) - var(--marker-height) / 2);
-    left: calc(50% - var(--marker-width) / 2);
+    top: calc(var(--_position) - var(--cs-slider-marker-height, 0.1875em) / 2);
+    left: calc(50% - var(--cs-slider-marker-width, 0.1875em) / 2);
   }
 
   /* Marker labels */

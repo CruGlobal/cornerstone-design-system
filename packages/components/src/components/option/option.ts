@@ -32,7 +32,7 @@ import styles from './option.styles.js';
  * @cssstate disabled - Applied when the option is disabled
  * @cssstate hover - Like `:hover` but works while dragging in Safari
  *
- * @cssproperty --current-text-color - The text color of the current (highlighted) option, paired with `--cs-form-control-activated-color`.
+ * @cssproperty [--cs-option-current-text-color=var(--cs-color-brand-on-loud)] - The text color of the current (highlighted) option, paired with `--cs-form-control-activated-color`.
  */
 @customElement('cs-option')
 export default class CsOption extends CornerstoneElement {

@@ -9,6 +9,10 @@ use-cases:
   - border width
   - border style
   - border color
+contrast: |
+  # Read by scripts/check-contrast.js, which checks every ratio and hex colour the site prints.
+  [--cs-border-radius-circle]
+  not measured | 1:1 | an aspect ratio, not a contrast ratio
 ---
 
 <style>

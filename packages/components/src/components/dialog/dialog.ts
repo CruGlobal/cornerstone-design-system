@@ -51,11 +51,11 @@ import styles from './dialog.styles.js';
  * @csspart body - The dialog's body.
  * @csspart footer - The dialog's footer.
  *
- * @cssproperty --spacing - The amount of space around and between the dialog's content.
- * @cssproperty --width - The preferred width of the dialog. Note that the dialog will shrink to accommodate smaller screens.
- * @cssproperty [--backdrop-filter=none] - A filter to apply to the backdrop behind the dialog.
- * @cssproperty [--show-duration=var(--cs-transition-normal)] - The animation duration when showing the dialog.
- * @cssproperty [--hide-duration=var(--cs-transition-normal)] - The animation duration when hiding the dialog.
+ * @cssproperty [--cs-dialog-spacing=var(--cs-space-l)] - The amount of space around and between the dialog's content.
+ * @cssproperty [--cs-dialog-width=31rem] - The preferred width of the dialog. Note that the dialog will shrink to accommodate smaller screens.
+ * @cssproperty [--cs-backdrop-filter=none] - A filter to apply to the backdrop behind the dialog.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-normal)] - The animation duration when showing the dialog.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-normal)] - The animation duration when hiding the dialog.
  */
 @customElement('cs-dialog')
 export default class CsDialog extends CornerstoneElement {

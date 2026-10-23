@@ -1,5 +1,5 @@
 import { expect, oneEvent, waitUntil } from '@open-wc/testing';
-import { sendKeys } from '@web/test-runner-commands';
+import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
@@ -151,6 +151,56 @@ describe('<cs-details>', () => {
           const hidden = oneEvent(el, 'cs-after-hide');
           el.open = false;
           await expectAnimationDuration(body, '--cs-transition-normal');
+          finishAnimations(el);
+          await hidden;
+        });
+
+        it('should show and hide in no time when the user prefers reduced motion', async () => {
+          const el = await fixture<CsDetails>(
+            html`<cs-details summary="Test" style="--cs-show-duration: 400ms; --cs-hide-duration: 400ms"
+              >Content</cs-details
+            >`,
+          );
+          const body = el.shadowRoot!.querySelector<HTMLElement>('.body')!;
+          const animate = sinon.spy(body, 'animate');
+          await emulateMedia({ reducedMotion: 'reduce' });
+          try {
+            const shown = oneEvent(el, 'cs-after-show');
+            el.open = true;
+            await shown;
+
+            const hidden = oneEvent(el, 'cs-after-hide');
+            el.open = false;
+            await hidden;
+
+            expect(animate.getCalls().map((call) => (call.args[1] as KeyframeAnimationOptions).duration)).to.deep.equal(
+              [0, 0],
+            );
+          } finally {
+            await emulateMedia({ reducedMotion: 'no-preference' });
+          }
+        });
+
+        // The script reads the duration, and getComputedStyle has no var() fallback, so this guards both halves.
+        it('should run the show and hide animations for durations set on an ancestor', async () => {
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--cs-show-duration: 120ms; --cs-hide-duration: 80ms">
+              <cs-details summary="Test">Content</cs-details>
+            </div>
+          `);
+          const el = wrapper.querySelector<CsDetails>('cs-details')!;
+          await el.updateComplete;
+          const body = el.shadowRoot!.querySelector('.body')!;
+
+          const shown = oneEvent(el, 'cs-after-show');
+          el.open = true;
+          await expectAnimationDuration(body, '--cs-show-duration');
+          finishAnimations(el);
+          await shown;
+
+          const hidden = oneEvent(el, 'cs-after-hide');
+          el.open = false;
+          await expectAnimationDuration(body, '--cs-hide-duration');
           finishAnimations(el);
           await hidden;
         });

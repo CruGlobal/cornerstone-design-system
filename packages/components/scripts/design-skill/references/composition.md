@@ -46,7 +46,7 @@ Don't. Use the scales instead:
 | You're sizing…            | Use                                                                                                                                         |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | A round icon "chip"/badge | `width`/`height` from `--cs-space-*` (e.g. `--cs-space-2xl`), `--cs-border-radius-circle`, center the glyph with `cs-cluster`               |
-| An avatar                 | The `<cs-avatar>` component (sizes itself); set `--size` only if needed                                                                     |
+| An avatar                 | The `<cs-avatar>` component (sizes itself); set `--cs-avatar-size` only if needed                                                                     |
 | A readable content column | A reused class with `max-width` in `ch` for prose (`60ch`–`75ch`) or a `--cs-space-*` multiple — define it **once**, not inline per section |
 | A hairline border / rule  | `var(--cs-border-width-s)` + `var(--cs-color-surface-border)`, or just `<cs-divider>`                                                       |
 | A glyph's size            | `font-size: var(--cs-font-size-*)` — icons inherit it (see Icons below)                                                                     |
@@ -75,8 +75,8 @@ Reach for a utility class before writing flexbox/grid by hand.
 | ---------------------------------- | ------------ | ------------------------------------------------------------------------------------------ |
 | Things stacked vertically          | `cs-stack`   | Children stretch to full width by default                                                  |
 | Inline items that wrap             | `cs-cluster` | Vertically centered; wraps when tight. Great for buttons, tags, nav                        |
-| Responsive columns                 | `cs-grid`    | Auto-fits columns; tune with `--min-column-size` (default `20ch`). No media queries        |
-| A fixed item beside a flexible one | `cs-flank`   | Media object. `cs-flank:end` flanks the last child. `--flank-size` sets the fixed width    |
+| Responsive columns                 | `cs-grid`    | Auto-fits columns; tune with `--cs-grid-min-column-size` (default `20ch`). No media queries        |
+| A fixed item beside a flexible one | `cs-flank`   | Media object. `cs-flank:end` flanks the last child. `--cs-flank-size` sets the fixed width    |
 | Push items to opposite ends        | `cs-split`   | Toolbars, headers-with-action. `cs-split:column` stacks vertically                         |
 | A fixed aspect ratio               | `cs-frame`   | `cs-frame:square` (default), `:landscape` (16:9), `:portrait` (9:16). Images cover the box |
 
@@ -94,7 +94,7 @@ Modifiers combine: `class="cs-cluster cs-gap-xs cs-align-items-start"`. Make one
 </div>
 
 <!-- Responsive tiles -->
-<div class="cs-grid cs-gap-l" style="--min-column-size: 14rem;">…</div>
+<div class="cs-grid cs-gap-l" style="--cs-grid-min-column-size: 14rem;">…</div>
 ```
 
 ---
@@ -130,6 +130,7 @@ For text alignment, wrapping, and transformation, prefer `cs-text-*` over inline
 | Text alignment            | `cs-text-start` / `cs-text-center` / `cs-text-end` / `cs-text-justify` |
 | Avoid awkward line breaks | `cs-text-balance` (headings) / `cs-text-pretty` (paragraphs)           |
 | Prevent wrapping          | `cs-text-nowrap`                                                       |
+| Cut text with an ellipsis | `cs-text-truncate` (one line) / `cs-text-truncate-2` to `-5` (lines)   |
 | Letter casing             | `cs-text-uppercase` / `cs-text-lowercase` / `cs-text-capitalize`       |
 
 (Large blocks of uppercase text are harder to read for everyone, especially folks with dyslexia.
@@ -370,7 +371,7 @@ playbook so your CSS stays themed, accessible, and dark-mode-aware automatically
    use the corresponding `-on-*` token — `--cs-color-brand-on-loud` for text on `--cs-color-brand-fill-loud`.
    The built-in palettes are WCAG-tuned for these pairings, so contrast is correct without manual checking.
 4. **Pick `loud` / `normal` / `quiet` as a contrast lever.** Each semantic variant (`brand`, `neutral`,
-   `success`, `warning`, `danger`) exposes three weight steps:
+   `highlight`, `information`, `success`, `warning`, `danger`) exposes three weight steps:
 
    - **`loud`** — boldest fill, highest visual weight. Use for primary actions and hero callouts.
    - **`normal`** — default mid-step. Use for secondary surfaces and standard emphasis.

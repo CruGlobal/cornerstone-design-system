@@ -36,16 +36,28 @@ Set the `variant` attribute to match the callout to its message.
     Try it from Settings whenever you're ready.
   </cs-callout>
 
-  <cs-callout variant="success">
-    <cs-icon slot="icon" name="check_circle" variant="fill"></cs-icon>
-    <strong>Your changes have been saved</strong><br />
-    You can safely close this tab now.
-  </cs-callout>
-
   <cs-callout variant="neutral">
     <cs-icon slot="icon" name="settings"></cs-icon>
     <strong>Your settings have been updated</strong><br />
     Changes take effect on your next login.
+  </cs-callout>
+
+  <cs-callout variant="highlight">
+    <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+    <strong>Featured this month</strong><br />
+    The new study guide is ready to download.
+  </cs-callout>
+
+  <cs-callout variant="information">
+    <cs-icon slot="icon" name="schedule"></cs-icon>
+    <strong>Maintenance is planned for Saturday</strong><br />
+    The site will be read-only from 2 to 4 a.m.
+  </cs-callout>
+
+  <cs-callout variant="success">
+    <cs-icon slot="icon" name="check_circle" variant="fill"></cs-icon>
+    <strong>Your changes have been saved</strong><br />
+    You can safely close this tab now.
   </cs-callout>
 
   <cs-callout variant="warning">

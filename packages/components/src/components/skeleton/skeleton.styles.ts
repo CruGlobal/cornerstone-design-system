@@ -2,9 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --color: var(--cs-color-neutral-fill-normal);
-    --sheen-color: color-mix(in oklab, var(--color), var(--cs-color-surface-raised));
-
     display: flex;
     position: relative;
     width: 100%;
@@ -13,13 +10,17 @@ export default css`
   }
 
   .indicator {
+    /* The sheen's default derives from the skeleton's color, so both are written once here. */
+    --_color: var(--cs-skeleton-color, var(--cs-color-neutral-fill-normal));
+    --_sheen-color: var(--cs-skeleton-sheen-color, color-mix(in oklab, var(--_color), var(--cs-color-surface-raised)));
+
     flex: 1 1 auto;
-    background: var(--color);
+    background: var(--_color);
     border-radius: var(--cs-border-radius-pill);
   }
 
   :host([effect='sheen']) .indicator {
-    background: linear-gradient(270deg, var(--sheen-color), var(--color), var(--color), var(--sheen-color));
+    background: linear-gradient(270deg, var(--_sheen-color), var(--_color), var(--_color), var(--_sheen-color));
     background-size: 400% 100%;
     animation: sheen 8s ease-in-out infinite;
   }
@@ -28,10 +29,10 @@ export default css`
     animation: pulse 2s ease-in-out 0.5s infinite;
   }
 
-  /* Forced colors mode */
+  /* Forced colors mode turns any other color into Canvas, which hides the skeleton, so GrayText wins over a page's. */
   @media (forced-colors: active) {
-    :host {
-      --color: GrayText;
+    .indicator {
+      --_color: GrayText;
     }
   }
 

@@ -143,7 +143,7 @@
       </div>
       <main>
         <div class="cs-stack cs-gap-3xl">
-          <div class="cs-flank cs-gap-3xl" style="--content-percentage: 40%">
+          <div class="cs-flank cs-gap-3xl" style="--cs-flank-content-percentage: 40%">
             <div class="cs-frame cs-border-radius-l" style="max-inline-size: 40ch">
               <img
                 src="https://images.unsplash.com/photo-1732430579016-8d5e5ebd3c99?q=20"
@@ -362,13 +362,13 @@
 
     <style>
       cs-page {
-        --menu-width: 30ch;
+        --cs-page-menu-width: 30ch;
         --cs-tooltip-arrow-size: 0;
         background-color: var(--cs-color-surface-lowered);
       }
 
       cs-page[view='mobile'] {
-        --menu-width: auto;
+        --cs-page-menu-width: auto;
 
         [slot*='main'],
         main {
@@ -400,7 +400,7 @@
           --cs-color-text-link: var(--cs-color-text-normal);
           --cs-link-decoration-default: none;
           --cs-link-decoration-hover: none;
-          --flank-size: 2rem;
+          --cs-flank-size: 2rem;
           font-weight: var(--cs-font-weight-action);
           gap: 0.5rem;
         }
@@ -451,7 +451,7 @@
         }
 
         .cs-flank {
-          --flank-size: 2rem;
+          --cs-flank-size: 2rem;
         }
       }
       main,

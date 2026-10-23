@@ -45,9 +45,9 @@ Each palette has its own hue shifts and chroma, so the palette sets much of a pr
 
 `.cs-{variant}-{hue}`
 
-Variants assign palette hues to semantic roles — `brand`, `neutral`, `success`, `warning`, and `danger` among them — so components like buttons and callouts can convey meaning through color. Any hue from your palette can be assigned to any variant with `class="cs-{variant}-{hue}"`. Apply the class to the `<html>` element to set variants globally, to a wrapper to scope them to one section, or to a single component to override just that element. For deeper customization, [override the `--cs-color-{variant}-*` tokens](/customizing#customizing-with-css) in your own CSS.
+Variants assign palette hues to semantic roles — `brand`, `neutral`, `highlight`, `information`, `success`, `warning`, and `danger` among them — so components like buttons and callouts can convey meaning through color. Any hue from your palette can be assigned to any variant with `class="cs-{variant}-{hue}"`. Apply the class to the `<html>` element to set variants globally, to a wrapper to scope them to one section, or to a single component to override just that element. For deeper customization, [override the `--cs-color-{variant}-*` tokens](/customizing#customizing-with-css) in your own CSS.
 
-::color-scales{scales="brand neutral success warning danger"}
+::color-scales{scales="brand neutral highlight information success warning danger"}
 
 <cs-button appearance="outlined" size="s" href="/tokens/color#variant-colors">
   See Variant Tokens

@@ -28,30 +28,30 @@ Use the `label` attribute to tell assistive devices how to announce the progress
 
 ### Size
 
-Use the `--size` custom property to set the diameter of the ring.
+Use the `--cs-progress-ring-size` custom property to set the diameter of the ring.
 
 ```html {.example}
-<cs-progress-ring value="50" style="--size: 200px;"></cs-progress-ring>
+<cs-progress-ring value="50" style="--cs-progress-ring-size: 200px;"></cs-progress-ring>
 ```
 
 ### Track & Indicator Width
 
-Use the `--track-width` and `--indicator-width` custom properties to set the width of the ring's track and indicator independently.
+Use the `--cs-track-width` and `--cs-progress-ring-indicator-width` custom properties to set the width of the ring's track and indicator independently.
 
 ```html {.example}
-<cs-progress-ring value="50" style="--track-width: 6px; --indicator-width: 12px;"></cs-progress-ring>
+<cs-progress-ring value="50" style="--cs-track-width: 6px; --cs-progress-ring-indicator-width: 12px;"></cs-progress-ring>
 ```
 
 ### Colors
 
-Use the `--track-color` and `--indicator-color` custom properties to recolor the ring.
+Use the `--cs-track-color` and `--cs-indicator-color` custom properties to recolor the ring.
 
 ```html {.example}
 <cs-progress-ring
   value="50"
   style="
-    --track-color: var(--cs-color-success-fill-quiet);
-    --indicator-color: var(--cs-color-success-fill-loud);
+    --cs-track-color: var(--cs-color-success-fill-quiet);
+    --cs-indicator-color: var(--cs-color-success-fill-loud);
   "
 ></cs-progress-ring>
 ```

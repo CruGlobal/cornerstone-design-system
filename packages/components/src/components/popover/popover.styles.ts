@@ -2,11 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --arrow-size: 0.375rem;
-    --max-width: 25rem;
-    --show-duration: var(--cs-transition-fast);
-    --hide-duration: var(--cs-transition-fast);
-
     display: contents;
 
     /** Defaults for inherited CSS properties */
@@ -41,10 +36,10 @@ export default css`
 
   /* The <cs-popup> element */
   .popover {
-    --arrow-size: inherit;
-    --popup-border-width: var(--cs-panel-border-width);
-    --show-duration: inherit;
-    --hide-duration: inherit;
+    /* Hand-off: the popup draws the arrow, so it takes the popover's size and the panel's border width. The show and
+       hide durations need no hand-off: the popup reads the shared names, and its default matches the popover's. */
+    --cs-popup-arrow-size: var(--cs-popover-arrow-size, 0.375rem);
+    --cs-popup-border-width: var(--cs-panel-border-width);
 
     pointer-events: auto;
 
@@ -78,7 +73,7 @@ export default css`
     display: flex;
     flex-direction: column;
     width: auto;
-    max-width: min(var(--max-width), 100vw);
+    max-width: min(var(--cs-popover-max-width, 25rem), 100vw);
     padding: var(--cs-space-l);
     background-color: var(--cs-color-surface-default);
     border: var(--cs-panel-border-width) solid var(--cs-color-surface-border);

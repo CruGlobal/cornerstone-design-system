@@ -2,8 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --current-text-color: var(--cs-color-brand-on-loud);
-
     display: block;
     color: var(--cs-color-text-normal);
     -webkit-user-select: none;
@@ -34,7 +32,7 @@ export default css`
   :host(:state(current)),
   :host(:state(disabled):state(current)) {
     background-color: var(--cs-form-control-activated-color);
-    color: var(--current-text-color);
+    color: var(--cs-option-current-text-color, var(--cs-color-brand-on-loud));
     opacity: 1;
   }
 

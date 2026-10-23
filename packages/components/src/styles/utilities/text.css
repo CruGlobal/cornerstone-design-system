@@ -142,10 +142,37 @@
     color: var(--cs-color-text-link);
   }
 
-  .cs-text-truncate {
+  .cs-text-truncate,
+  .cs-text-truncate-1 {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  /* -webkit-line-clamp needs display: -webkit-box, so a layout utility on the same element cancels it. */
+  .cs-text-truncate-2,
+  .cs-text-truncate-3,
+  .cs-text-truncate-4,
+  .cs-text-truncate-5 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .cs-text-truncate-2 {
+    -webkit-line-clamp: 2;
+  }
+
+  .cs-text-truncate-3 {
+    -webkit-line-clamp: 3;
+  }
+
+  .cs-text-truncate-4 {
+    -webkit-line-clamp: 4;
+  }
+
+  .cs-text-truncate-5 {
+    -webkit-line-clamp: 5;
   }
 
   .cs-text-nowrap,

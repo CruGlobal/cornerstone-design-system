@@ -49,13 +49,15 @@ This page has many `<cs-toast>` elements to show off the component — most apps
 
 ### Variant
 
-Set the `variant` option to `brand`, `success`, `warning`, `danger`, or `neutral` to change the type of notification.
+Set the `variant` option to `neutral`, `brand`, `highlight`, `information`, `success`, `warning`, or `danger` to change the type of notification.
 
 ```html {.example}
 <div id="toast-variant">
   <div class="cs-cluster cs-gap-xs">
     <cs-button appearance="filled" data-variant="neutral" data-icon="gear">Neutral</cs-button>
     <cs-button appearance="filled" data-variant="brand" data-icon="circle-info">Brand</cs-button>
+    <cs-button appearance="filled" data-variant="highlight" data-icon="star">Highlight</cs-button>
+    <cs-button appearance="filled" data-variant="information" data-icon="info">Information</cs-button>
     <cs-button appearance="filled" data-variant="success" data-icon="check">Success</cs-button>
     <cs-button appearance="filled" data-variant="warning" data-icon="circle-exclamation">Warning</cs-button>
     <cs-button appearance="filled" data-variant="danger" data-icon="triangle-exclamation">Danger</cs-button>

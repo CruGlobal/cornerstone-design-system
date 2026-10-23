@@ -32,7 +32,7 @@ export default css`
   @keyframes cs-rc-fade-up {
     from {
       opacity: 0;
-      transform: translateY(var(--animation-translate, 0.5em));
+      transform: translateY(var(--cs-random-content-animation-translate, 0.5em));
     }
     to {
       opacity: 1;
@@ -43,7 +43,7 @@ export default css`
   @keyframes cs-rc-fade-down {
     from {
       opacity: 0;
-      transform: translateY(calc(-1 * var(--animation-translate, 0.5em)));
+      transform: translateY(calc(-1 * var(--cs-random-content-animation-translate, 0.5em)));
     }
     to {
       opacity: 1;
@@ -54,7 +54,7 @@ export default css`
   @keyframes cs-rc-fade-left {
     from {
       opacity: 0;
-      transform: translateX(var(--animation-translate, 0.5em));
+      transform: translateX(var(--cs-random-content-animation-translate, 0.5em));
     }
     to {
       opacity: 1;
@@ -65,7 +65,7 @@ export default css`
   @keyframes cs-rc-fade-right {
     from {
       opacity: 0;
-      transform: translateX(calc(-1 * var(--animation-translate, 0.5em)));
+      transform: translateX(calc(-1 * var(--cs-random-content-animation-translate, 0.5em)));
     }
     to {
       opacity: 1;
@@ -76,8 +76,8 @@ export default css`
   /* The JS already skips animations under reduced motion; this guards CSS-only consumers too. */
   @media (prefers-reduced-motion: no-preference) {
     ::slotted([data-cs-animation]) {
-      animation-duration: var(--animation-duration, 300ms);
-      animation-timing-function: var(--animation-easing, ease);
+      animation-duration: var(--cs-random-content-animation-duration, 300ms);
+      animation-timing-function: var(--cs-random-content-animation-easing, ease);
       animation-fill-mode: both;
     }
 

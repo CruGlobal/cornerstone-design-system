@@ -61,7 +61,9 @@ The published [contributing guide](../docs/src/content/docs/resources/contributi
 
 - Export default `css` tagged template literal from `component.styles.ts`.
 - Wrap component styles in `@layer cs-component { ... }`.
-- Use CSS custom properties with `--cs-*` prefix.
+- Name a component custom property `--cs-<component>-<property>` or a shared name, and read it with its default as
+  the fallback, `var(--cs-card-spacing, var(--cs-space-l))`, never as a value on `:host`. `npm run test:properties`
+  checks both; the rule is in the repo root's `docs/standards/api-surface.md`.
 - Import shared styles: `variantStyles` (`brand` `neutral` `success` `warning` `danger` `information` `highlight`), `sizeStyles` (`xs` `s` `m` `l` `xl`) from `src/styles/component/`.
 - Combine via `static css = [styles, variantStyles, sizeStyles]`.
 - Style host states via `:host(:state(loading))`, variants via `:host([variant='brand'])`.

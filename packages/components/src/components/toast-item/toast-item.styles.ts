@@ -2,30 +2,24 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --accent-width: 4px;
-    --show-duration: var(--cs-transition-normal);
-    --hide-duration: var(--cs-transition-normal);
-    --accent-color: var(--cs-color-fill-loud);
+    --_accent-color: var(--cs-color-fill-loud);
 
     display: block;
     pointer-events: auto;
   }
 
-  /* Sizes */
+  /* Sizes. Each sets the padding it defaults to; m's is the readers' own fallback. */
   :host([size='xs']) {
-    --padding: var(--cs-space-xs);
+    --_padding: var(--cs-space-xs);
   }
   :host([size='s']) {
-    --padding: var(--cs-space-s);
-  }
-  :host([size='m']) {
-    --padding: var(--cs-space-m);
+    --_padding: var(--cs-space-s);
   }
   :host([size='l']) {
-    --padding: var(--cs-space-l);
+    --_padding: var(--cs-space-l);
   }
   :host([size='xl']) {
-    --padding: var(--cs-space-xl);
+    --_padding: var(--cs-space-xl);
   }
 
   .toast-item {
@@ -40,11 +34,11 @@ export default css`
 
   /* Animations */
   .toast-item.show {
-    animation: toast-show var(--show-duration) var(--cs-transition-easing) forwards;
+    animation: toast-show var(--cs-show-duration, var(--cs-transition-normal)) var(--cs-transition-easing) forwards;
   }
 
   .toast-item.hide {
-    animation: toast-hide var(--hide-duration) var(--cs-transition-easing) forwards;
+    animation: toast-hide var(--cs-hide-duration, var(--cs-transition-normal)) var(--cs-transition-easing) forwards;
   }
 
   @keyframes toast-show {
@@ -72,17 +66,17 @@ export default css`
   /* Accent line */
   .accent {
     flex: 0 0 auto;
-    width: var(--accent-width);
-    background: var(--accent-color);
+    width: var(--cs-toast-item-accent-width, 4px);
+    background: var(--_accent-color);
   }
 
   /* Icon - only show if slot has content */
   .icon {
     display: flex;
     align-items: center;
-    padding: var(--padding, var(--cs-space-m));
+    padding: var(--cs-toast-item-padding, var(--_padding, var(--cs-space-m)));
     padding-inline-end: 0;
-    color: var(--accent-color);
+    color: var(--_accent-color);
     font-size: 1.25em;
   }
 
@@ -95,7 +89,7 @@ export default css`
     flex: 1 1 auto;
     align-self: center;
     min-width: 0;
-    padding: var(--padding, var(--cs-space-m));
+    padding: var(--cs-toast-item-padding, var(--_padding, var(--cs-space-m)));
     color: var(--cs-color-text-normal);
   }
 
@@ -106,11 +100,9 @@ export default css`
     align-items: center;
     justify-content: center;
     align-self: stretch;
-    padding-inline: var(--padding, var(--cs-space-m));
+    padding-inline: var(--cs-toast-item-padding, var(--_padding, var(--cs-space-m)));
     background: transparent;
     border: none;
-    border-start-end-radius: var(--border-radius);
-    border-end-end-radius: var(--border-radius);
     color: var(--cs-color-neutral-on-quiet);
     font-size: inherit;
     cursor: pointer;
@@ -132,20 +124,20 @@ export default css`
     }
   }
 
-  /* Progress ring styling */
+  /* Hand-off: the countdown ring is sized and colored by the toast, whatever a page sets for progress rings. */
   cs-progress-ring {
-    --size: var(--cs-form-control-height);
-    --track-width: 0.125rem;
-    --indicator-width: 0.125rem;
-    --track-color: var(--cs-color-neutral-fill-quiet);
-    --indicator-color: var(--accent-color);
-    --indicator-transition-duration: 50ms;
+    --cs-progress-ring-size: var(--cs-form-control-height);
+    --cs-track-width: 0.125rem;
+    --cs-progress-ring-indicator-width: 0.125rem;
+    --cs-track-color: var(--cs-color-neutral-fill-quiet);
+    --cs-indicator-color: var(--_accent-color);
+    --cs-progress-ring-indicator-transition-duration: 50ms;
   }
 
   /* Hide progress ring indicator when no duration */
   .toast-item:not(.toast-item--has-duration) cs-progress-ring {
-    --track-color: transparent;
-    --indicator-color: transparent;
+    --cs-track-color: transparent;
+    --cs-indicator-color: transparent;
   }
 
   /* Reduced motion */

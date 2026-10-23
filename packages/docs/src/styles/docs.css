@@ -115,7 +115,7 @@ cs-page {
   /* The aside is capped rather than left at `auto`, which sizes it to its widest entry — "Attributes &
      Properties" is enough to steal 300px from the reading column. 240px of content plus the shared measure
      on each side, expressed as a multiple of the space scale per composition.md's sizing recipe. */
-  --aside-width: calc(var(--cs-space-5xl) * 3 + 2 * var(--content-padding-inline));
+  --cs-page-aside-width: calc(var(--cs-space-5xl) * 3 + 2 * var(--content-padding-inline));
 }
 
 cs-page[view='mobile'] {
@@ -125,13 +125,13 @@ cs-page[view='mobile'] {
 /**
  * Below 72rem the table of contents gives its column back to the reading column.
  *
- * `cs-page` lays its body out as `minmax(0, var(--menu-width)) minmax(0, var(--main-width)) minmax(0,
- * var(--aside-width))` with no `gap` (page.styles.ts:181-188), and `--main-width` is `1fr`. So zeroing
- * `--aside-width` collapses the track and main takes the space. It is the component's own knob, not a reach
- * into its shadow DOM.
+ * `cs-page` lays its body out as three `minmax(0, …)` tracks read from `--cs-page-menu-width`,
+ * `--cs-page-main-width` and `--cs-page-aside-width`, with no `gap` (the `[part~='body']` rule in page.styles.ts),
+ * and `--cs-page-main-width` defaults to `1fr`. So zeroing `--cs-page-aside-width` collapses the track and main
+ * takes the space. It is the component's own knob, not a reach into its shadow DOM.
  *
- * The reserved space was this file's own doing, which is worth being honest about. `--aside-width` defaults to
- * `auto`, and `minmax(0, auto)` content-sizes with a zero floor — so with the default, hiding the aside
+ * The reserved space was this file's own doing, which is worth being honest about. `--cs-page-aside-width` defaults
+ * to `auto`, and `minmax(0, auto)` content-sizes with a zero floor — so with the default, hiding the aside
  * collapses the track by itself. Measured: `display: none` with `auto` gives `248px 1048px 0px`. The cap above
  * exists because `auto` sizes the track to the aside's widest entry, and it is that fixed 320px which holds the
  * track open no matter what happens to the element — `display: none` with the cap in place still gives
@@ -151,7 +151,7 @@ cs-page[view='mobile'] {
  */
 @media (width < 72rem) {
   cs-page {
-    --aside-width: 0px;
+    --cs-page-aside-width: 0px;
   }
 
   cs-page > [slot='aside'] {
@@ -167,7 +167,7 @@ cs-page[view='mobile'] {
  * which is what keeps the same headings from being announced twice.
  *
  * The list is `cs-grid cs-gap-xs cs-list-plain`, the classes the Eleventy transformer gave this copy, so it
- * needs none of the resets the aside's `docs-nav` rules would have to have undone. `--min-column-size` is
+ * needs none of the resets the aside's `docs-nav` rules would have to have undone. `--cs-grid-min-column-size` is
  * `cs-grid`'s own knob and a measure, like `--cs-prose-line-length` above: wide enough for a heading, so a
  * short outline in a wide reading column flows into columns instead of one long thin list.
  */
@@ -176,7 +176,7 @@ cs-page[view='mobile'] {
 }
 
 .outline-expandable ul {
-  --min-column-size: 25ch;
+  --cs-grid-min-column-size: 25ch;
 }
 
 @media (width >= 72rem) {
@@ -194,12 +194,12 @@ cs-page[view='mobile'] {
  * its logo and search line up with the sidebar and the reading column. Capping `::part(page)` instead would put
  * empty gutters either side of the header bar.
  *
- * `inline-size: 100%` is not redundant next to a max: it gives the grid a definite size so `--main-width: 1fr`
+ * `inline-size: 100%` is not redundant next to a max: it gives the grid a definite size so `--cs-page-main-width: 1fr`
  * has something to resolve against. Upstream's comment says the same.
  *
- * 90rem is upstream's envelope. `cs-page` documents no property for this — its six are `--menu-width`,
- * `--main-width`, `--aside-width` and the three height hints — so a consumer has to reach in through the part and
- * know about the `inline-size` companion. That is a gap worth closing in the library.
+ * 90rem is upstream's envelope. `cs-page` documents no property for this — its six are `--cs-page-menu-width`,
+ * `--cs-page-main-width`, `--cs-page-aside-width` and the three height hints — so a consumer has to reach in
+ * through the part and know about the `inline-size` companion. That is a gap worth closing in the library.
  */
 :root {
   --page-max-inline-size: 90rem;
@@ -368,8 +368,8 @@ html[data-has-sidebar] cs-page:not([view='mobile'])::part(menu) {
  * One scroll offset, not two.
  *
  * `Page.astro` puts `scroll-padding-top: calc(1.5rem + var(--sl-nav-height) + var(--sl-mobile-toc-height))` on
- * `html` — 88px here — while `cs-page` puts `scroll-margin-top: var(--scroll-margin-top)` on every element inside
- * itself (`layers.css:9-11`), computed from the header's measured height. Both apply, and scroll padding on the
+ * `html` — 88px here — while the library's `layers.css` puts a `scroll-margin-top` on every element inside
+ * `cs-page`, summed from the banner's, header's and subheader's measured heights. Both apply, and scroll padding on the
  * container adds to scroll margin on the target, so every in-page anchor landed about 180px below a 76px header.
  *
  * `cs-page`'s is the one worth keeping: it measures the header rather than deriving it from a token that has to be
@@ -384,20 +384,21 @@ html[data-has-sidebar] cs-page:not([view='mobile'])::part(menu) {
 /**
  * The header's height, told to `cs-page` up front.
  *
- * `cs-page` measures its header with a ResizeObserver and publishes the result as `--header-height`, which is
- * what `--scroll-margin-top` is built from. That measurement lands a frame after first paint, and a cold load of
- * a URL with a fragment scrolls *before* it — so a deep link put the heading 60px behind the sticky header.
+ * `cs-page` measures its header with a ResizeObserver and publishes the result as `--cs-page-header-height`, which
+ * is what `layers.css` builds each element's `scroll-margin-top` from. That measurement lands a frame after first
+ * paint, and a cold load of a URL with a fragment scrolls *before* it — so a deep link put the heading 60px behind
+ * the sticky header.
  * Starlight's static `scroll-padding-top` used to paper over this; with it correctly gone, the gap shows.
  *
- * The component documents the fix itself: `@cssproperty [--header-height=0px] … If the height is known, you can
- * set it here to prevent shifting when the page loads.` So this is the supported knob, not a workaround, and it
+ * The component documents the fix itself: `@cssproperty [--cs-page-header-height=0px] … If the height is known, you
+ * can set it here to prevent shifting when the page loads.` So this is the supported knob, not a workaround, and it
  * also removes the layout shift that property exists to prevent.
  *
  * In `rem`, deliberately, and not derived from `--cs-form-control-height` as it first was. That token is `em`
- * based, and `--header-height` is read where `--scroll-margin-top` is *used* — on the target heading — so an
- * `em` expression resolved against a 32px `h2` instead of the header's 16px and overshot by 58px. A hint for the
- * observer only has to be approximately right for one frame, so it should not depend on the font size of whatever
- * element happens to consume it. 4.5625rem is the observed 73px; the observer replaces it with the real
+ * based, and `layers.css` substitutes `--cs-page-header-height` into `scroll-margin-top` on the target heading
+ * itself, so an `em` expression resolved against a 32px `h2` instead of the header's 16px and overshot by 58px. A
+ * hint for the observer only has to be approximately right for one frame, so it should not depend on the font size
+ * of whatever element happens to consume it. 4.5625rem is the observed 73px; the observer replaces it with the real
  * measurement immediately after, and `rem` keeps the hint tracking the root font size in the meantime.
  *
  * It was 4.75rem for 76px until the header's two icon buttons were corrected from the long-dead
@@ -405,14 +406,14 @@ html[data-has-sidebar] cs-page:not([view='mobile'])::part(menu) {
  * the tallest thing in the row.
  */
 cs-page {
-  --header-height: 4.5625rem;
+  --cs-page-header-height: 4.5625rem;
 
-  /* And the subheader's, for exactly the same reason: `--scroll-margin-top` sums both, the observer's
+  /* And the subheader's, for exactly the same reason: the `scroll-margin-top` adds it in, the observer's
      measurement lands a frame after first paint, and a cold load with a fragment scrolls before it. The
      hint only has to be right for one frame. 3.4375rem is the observed 55px — a small button's 38px plus
      the 8px of block padding `cs-page` gives a slotted subheader, top and bottom, which is also exactly
      upstream's band height. In `rem` for the reason above. */
-  --subheader-height: 3.4375rem;
+  --cs-page-subheader-height: 3.4375rem;
 }
 
 /**
@@ -544,7 +545,7 @@ cs-page {
 }
 
 /**
- * A section index's card grid. `cs-grid` does the responsive columns — `--min-column-size` is the knob it
+ * A section index's card grid. `cs-grid` does the responsive columns — `--cs-grid-min-column-size` is the knob it
  * actually reads, not a column count — so this sets that and nothing else about the layout.
  */
 .page-index {
@@ -552,7 +553,7 @@ cs-page {
      composition.md gives for a fixed-size element, and it keeps the grid on the same scale as
      everything around it. `--cs-space-4xl` is 4rem, so this is 14rem at the default scale, and it
      tracks `--cs-space-scale` if a brand changes it. */
-  --min-column-size: calc(var(--cs-space-4xl) * 3.5);
+  --cs-grid-min-column-size: calc(var(--cs-space-4xl) * 3.5);
 
   margin-block: var(--cs-content-spacing);
 }
@@ -809,13 +810,13 @@ html:has(.component-browser-grid) {
 /**
  * Four columns at desktop, at close to upstream's card width.
  *
- * `cs-grid` packs `repeat(auto-fit, minmax(min(var(--min-column-size), 100%), 1fr))`, so the column count
+ * `cs-grid` packs `repeat(auto-fit, minmax(min(var(--cs-grid-min-column-size), 100%), 1fr))`, so the column count
  * follows from the minimum rather than being stated: at this container width it yields four columns of
  * ~310px against upstream's 322px, and it reflows to three and then two as the window narrows. Naming a
  * column count instead would have to be re-broken at every breakpoint.
  */
 .component-browser-grid {
-  --min-column-size: calc(var(--cs-space-4xl) * 4.5);
+  --cs-grid-min-column-size: calc(var(--cs-space-4xl) * 4.5);
 }
 
 /**
@@ -853,17 +854,17 @@ html:has(.component-browser-grid) {
  *
  * The page has no headings to outline — it is one flat grid — and the aside was rendering with a single
  * "Overview" entry. `tableOfContents: false` in the front matter is Starlight's own switch for that, and it
- * drops `data-has-toc` from `<html>`, which is the hook this keys on. Zeroing `--aside-width` is `cs-page`'s
+ * drops `data-has-toc` from `<html>`, which is the hook this keys on. Zeroing `--cs-page-aside-width` is `cs-page`'s
  * own knob, and hiding the slot as well is not belt-and-braces: a zero-width track still paints the
  * element's padding and lays a scrollbar over the content.
  *
- * Only the aside needs this. An empty *menu* collapses on its own, because `--menu-width` is left at the
+ * Only the aside needs this. An empty *menu* collapses on its own, because `--cs-page-menu-width` is left at the
  * component's `auto` and `minmax(0, auto)` content-sizes to nothing — measured 0px. The aside does not,
- * because this file caps `--aside-width` at a fixed length, and a fixed max holds a track open regardless
+ * because this file caps `--cs-page-aside-width` at a fixed length, and a fixed max holds a track open regardless
  * of content.
  */
 html:not([data-has-toc]) cs-page {
-  --aside-width: 0px;
+  --cs-page-aside-width: 0px;
 }
 
 html:not([data-has-toc]) cs-page > [slot='aside'] {
@@ -1083,7 +1084,7 @@ cs-page[view='mobile'] .site-logo {
 
 /* Two links side by side where there is room, stacked where there is not. */
 .pagination-links {
-  --min-column-size: calc(var(--cs-space-4xl) * 4.5);
+  --cs-grid-min-column-size: calc(var(--cs-space-4xl) * 4.5);
 }
 
 .pagination-link {
@@ -1360,7 +1361,7 @@ cs-page[view='mobile'] .site-logo {
  * not, instead of one sentence wrapping under the other's logo.
  */
 .roadmap-trackers {
-  --min-column-size: calc(var(--cs-space-4xl) * 4);
+  --cs-grid-min-column-size: calc(var(--cs-space-4xl) * 4);
 
   margin-block: var(--cs-content-spacing);
 }
@@ -1376,7 +1377,7 @@ cs-page[view='mobile'] .site-logo {
 /*
  * One size for both marks, whether it arrives as `cs-icon` or as an inline `<svg>`.
  *
- * The two are not interchangeable by default: `cs-icon` applies `--icon-scale` to cancel Material Symbols'
+ * The two are not interchangeable by default: `cs-icon` applies `--cs-icon-scale` to cancel Material Symbols'
  * padding, and a Simple Icons SVG has no such padding to cancel. Sized here from the same declaration so
  * the two logos read as one pair rather than as one logo and one imported graphic.
  */
@@ -1390,7 +1391,7 @@ cs-page[view='mobile'] .site-logo {
 }
 
 cs-icon.roadmap-mark {
-  --icon-scale: 1;
+  --cs-icon-scale: 1;
 }
 
 /*
@@ -1417,8 +1418,8 @@ cs-icon.roadmap-mark {
  * The entry criteria, for the one release whose meaning is a bar rather than a subject.
  *
  * An ordinary list, because they are conditions and a reader should be able to count them. Kept as a list
- * rather than folded into the summary for exactly that reason: three things that must all be true read as
- * three things in a list and as hedging in a paragraph.
+ * rather than folded into the summary for exactly that reason: conditions that must all be true read as
+ * conditions in a list and as hedging in a paragraph.
  */
 .roadmap-criteria {
   margin-block: var(--cs-space-s) 0;

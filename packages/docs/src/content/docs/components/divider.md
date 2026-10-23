@@ -22,33 +22,33 @@ description: "Dividers visually separate or group adjacent elements with a horiz
 
 ### Width
 
-Use the `--width` custom property to change the width of the divider.
+Use the `--cs-divider-width` custom property to change the width of the divider.
 
 ```html {.example}
-<cs-divider style="--width: 4px;"></cs-divider>
+<cs-divider style="--cs-divider-width: 4px;"></cs-divider>
 ```
 
 ### Color
 
-Use the `--color` custom property to change the color of the divider.
+Use the `--cs-divider-color` custom property to change the color of the divider.
 
 ```html {.example}
-<cs-divider style="--color: var(--cs-color-brand-fill-loud);"></cs-divider>
+<cs-divider style="--cs-divider-color: var(--cs-color-brand-fill-loud);"></cs-divider>
 ```
 
 ### Spacing
 
-Use the `--spacing` custom property to change the amount of space between the divider and its neighboring elements.
+Use the `--cs-divider-spacing` custom property to change the amount of space between the divider and its neighboring elements.
 
 ```html {.example}
 <div class="cs-text-center">
   Above
-  <cs-divider style="--spacing: 2rem;"></cs-divider>
+  <cs-divider style="--cs-divider-spacing: 2rem;"></cs-divider>
   Below
 </div>
 ```
 
-As a direct child of a layout utility such as `cs-stack` or `cs-cluster`, `--spacing` has no effect and the container's gap sets the space instead. These utilities set the margins of their children to zero, the divider included, so the gap is the only space between items. Add a [`cs-gap-*`](/utilities/gap) class to the container to change it.
+As a direct child of a layout utility such as `cs-stack` or `cs-cluster`, `--cs-divider-spacing` has no effect and the container's gap sets the space instead. These utilities set the margins of their children to zero, the divider included, so the gap is the only space between items. Add a [`cs-gap-*`](/utilities/gap) class to the container to change it.
 
 ```html {.example}
 <div class="cs-stack cs-gap-xl cs-text-center">

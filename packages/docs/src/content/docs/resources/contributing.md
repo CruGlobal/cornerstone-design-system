@@ -82,13 +82,20 @@ Special callouts can be added using the following syntax.
 
 ```
 :::info
-This is a tip/informational callout
+This is an informational callout
+:::
+
+:::tip
+This is a tip callout
 :::
 
 :::warning
 This is a caution callout
 :::
 ```
+
+Starlight's `:::note`, `:::caution` and `:::danger` render as callouts too. Each name's variant and icon are set in
+`packages/docs/src/plugins/remark-markdown-features.js`.
 
 ### Frontmatter
 
@@ -127,7 +134,7 @@ The following is a non-exhaustive list of conventions, patterns, and best practi
 
 If in doubt, use your best judgment — code review is the place to settle it. If you want the question answered before you write the code, open an issue.
 
-:::info
+:::tip
 This section can be a lot to digest in one sitting, so don't feel like you need to take it all in right now. Most contributors will be better off skimming this section and reviewing the relevant content as needed.
 :::
 
@@ -278,27 +285,39 @@ The `id` parameter must point to the ID of the target component. The ID may be o
 
 Custom properties allow users to customize Cornerstone components by exposing specific styles across a component's shadow boundary. Use custom properties to expose key characteristics of a component for low-level theming. Avoid using custom properties for styles that may interfere with proper rendering.
 
-To expose custom properties as part of a component's API, scope them to the `:host` block.
+**Name each one after its component:** `--cs-<component>-<property>`, such as `--cs-card-spacing` on `<cs-card>`. A child element whose tag extends its parent's reads the parent's name for a value the parent owns, so `<cs-carousel-item>` reads `--cs-carousel-aspect-ratio`. A component that hands a value to a child component sets the child's own name on it, the way `<cs-dropdown>` sets `--cs-divider-spacing` on a slotted `<cs-divider>`.
+
+Seven shared names, such as `--cs-show-duration`, do the same job on every component that reads them, so they carry no component name. A name joins that list only if it does the same job everywhere, its right value doesn't depend on the surface under it, it is still right when it flows into a child component, and it doesn't start with a tag name. The list is `SHARED` in `packages/components/scripts/check-css-properties.js`.
+
+**Read it with a fallback, and never set it on `:host`.** A declaration on `:host` beats a value the element inherits, so a value set on `:root`, a theme class or a section would never reach the component. Write the default as the `var()` fallback instead:
 
 ```css
-:host {
-  --color: var(--cs-color-brand-on-loud);
-  --background-color: var(--cs-color-brand-fill-loud);
+.example {
+  color: var(--cs-example-color, var(--cs-color-brand-on-loud));
+  background-color: var(--cs-example-background-color, var(--cs-color-brand-fill-loud));
 }
 ```
 
-Then use the following syntax for comments so they appear in the generated docs. Do not use the `--cs-` prefix, as that is reserved for design tokens that live in the global scope.
+Write each default once. If the component reads a property in several places, or derives one default from another, hold the value in a private `--_name` instead of repeating the fallback. When several components share one value, the default lives in the theme instead, as `--cs-form-control-*` and `--cs-panel-*` do. Script that reads a property with `getComputedStyle()` gets an empty string when nothing is set, so it needs the same fallback.
+
+Anything else a component keeps to itself is a private `--_name`, such as a percentage a script writes for the stylesheet to read. Slotted content inherits whatever the host carries, so an unprefixed name there would reach the app's own CSS. For the same reason a component reads only `--cs-*` and `--_*` names: an unprefixed one it never sets reads whatever the page happens to define.
+
+Then document each one with its default, using the following syntax so it appears in the generated docs:
 
 ```js
 /**
- * @cssproperty --color: The component's text color.
- * @cssproperty --background-color: The component's background color.
+ * @cssproperty [--cs-example-color=var(--cs-color-brand-on-loud)] - The component's text color.
+ * @cssproperty [--cs-example-background-color=var(--cs-color-brand-fill-loud)] - The component's background color.
  */
 @customElement('cs-example')
 export default class CsExample {
   // ...
 }
 ```
+
+`npm run test:properties` fails when a `@cssproperty` isn't named for its component, its parent or a shared name, when a component sets one on `:host`, when a host carries or a script writes anything else that isn't a `--_` name, a theme token or a documented property, or when a component reads a name that isn't `--cs-*` or `--_*`. The reasoning behind the rule is in [#182](https://github.com/CruGlobal/cornerstone-design-system/issues/182).
+
+Layout utilities name their custom properties the same way, `--cs-<utility>-<property>`, as in `--cs-grid-min-column-size`. Unlike a component property, each one stays on the element it's set on: the utility resets it on itself, so a grid's column size never reaches a grid nested inside it. The reasoning is in [#226](https://github.com/CruGlobal/cornerstone-design-system/issues/226).
 
 ### Focusing on Disabled Items
 
@@ -314,7 +333,7 @@ There are some exceptions to this (e.g. when it significantly improves developer
 
 There are two ways to enable customizations for components. One way is with CSS custom properties ("CSS variables"), the other is with CSS parts ("parts").
 
-CSS variables are scoped to the host element and can be reused throughout the component. A good example of a CSS variable would be `--border-width`, which might get reused throughout a component to ensure borders share the same width for all internal elements.
+CSS variables can be reused throughout the component, and they inherit, so one value set on a section reaches every component inside it. A good example of a CSS variable would be `--cs-example-border-width`, which might get reused throughout a component to ensure borders share the same width for all internal elements.
 
 Parts let you target a specific element inside the component's shadow DOM but, by design, you can't target a part's children or siblings. You can _only_ customize the part itself. Use a part when you need to allow a single element inside the component to accept styles.
 

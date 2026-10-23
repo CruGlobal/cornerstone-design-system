@@ -8,8 +8,10 @@ or a check fails when it stops being true.
 
 **Applies when the diff touches** `packages/docs/**`, the skill generators
 (`scripts/agent-skill*`, `scripts/design-skill*`, `scripts/llms.js`), `check-docs-url.js`,
-`build-tools/site-url.js`, or any line carrying `SKILL_PAGES`, `{.example`, `:::`, `hasAnatomy`, `remark`,
-`homepage`, `cruglobal.github.io`, `llms.txt` or `@documentation`.
+`build-tools/site-url.js`, the stylesheets and colour maths `check:contrast` reads
+(`packages/components/src/styles/**`, `packages/components/tools/palette.mjs`), or any line carrying
+`SKILL_PAGES`, `{.example`, `:::`, `hasAnatomy`, `contrast:`, `remark`, `homepage`, `cruglobal.github.io`,
+`llms.txt` or `@documentation`.
 
 ---
 
@@ -35,13 +37,17 @@ verbatim into the skill. An example that no longer runs still renders, just wron
 Look for: a fence using a component the library does not ship (`check-components.js` catches the tag; it
 cannot catch a prop that does nothing); a value appended to `var(--cs-shadow-m)` (the shorthand already
 ends in a colour, so the declaration is invalid); an icon name not in Material Symbols (renders nothing).
-When a component page changes, the PR says it loaded the page.
+`check-variants.js` catches a colour role missing from a component's Variant example, read from its manifest
+`variant`, or from any list that names three or more roles. When a component page changes, the PR says it
+loaded the page.
 
 **Directives and fences the plugins define**
 
-Starlight knows `note`, `tip`, `caution` and `danger`. Everything else (`:::added`, `::changelog`,
-`::roadmap`, `{.example .anatomy}`) is a remark plugin in `packages/docs/src/plugins/`. A new `:::name`
-without a handler renders a bare `<div>` for the page's whole life. A construct the plugin set does not
+Every directive and fence flag (`:::info`, `:::added`, `::changelog`, `::roadmap`, `{.example .anatomy}`) is a
+remark plugin in `packages/docs/src/plugins/`. Starlight's own `note`, `tip`, `caution` and `danger` are taken
+over too and render as `cs-callout`, because the site stubs Starlight's aside styles; `check-pages.js` fails on
+any `starlight-aside` in the build. A new `:::name` without a handler renders a bare `<div>` for the page's
+whole life. A construct the plugin set does not
 handle needs the plugin and an assertion in `scripts/check-pages.js` against the built HTML in the same
 diff.
 
@@ -54,6 +60,24 @@ unchecked. Every site path (`href`, `src`, `value`, redirect, sidebar link) is b
 under the Pages base path and renders fine on a developer's machine. Repository links derive from
 `package.json`'s `repository`, as `remark-roadmap.js` does.
 
+**A measured number is declared, not only typed**
+
+A contrast ratio or colour printed on a page is a fact about the shipped themes, and a theme changes without
+anyone opening the page. The page declares each one in its `contrast` front matter, under a `[label]` naming the
+table row or paragraph that prints it, one line per printed copy. `check:contrast` recomputes it from the
+stylesheets a consumer loads: `cornerstone.css` and everything it imports, `native.css` included, with each
+theme stacked after it as `theming-overview.md` says. It fails when a value no longer matches, lands on the
+other side of 3:1, or is no longer in its row, and when any built page prints a ratio or hex colour its row does
+not declare; one that is not a measurement, such as an aspect ratio, is declared `not measured` with its reason.
+Look for: a number edited in the prose but not in its line, or the reverse.
+
+The `contrast` block is a hand-kept list a plugin could generate, so the rule above applies, and generation is
+not impossible here: a remark directive could print each number from the same resolver. It was declined on
+UIUX-207, because every number would become markup inside prose its author writes by hand, the directive would
+still need the resolver, and the scan for undeclared numbers would still be needed to catch a number typed
+without it. What the block costs is a second copy of each number, and `check:contrast` fails whenever the two
+disagree.
+
 **The anatomy renderer is roadmap**
 
 Twenty-six pages flag an anatomy example and `check-anatomy.js` validates the flag, but nothing renders it
@@ -62,10 +86,10 @@ Twenty-six pages flag an anatomy example and `check-anatomy.js` validates the fl
 **The checks are the gate**
 
 `npm run verify --workspace cornerstone-docs-site` runs Prettier, `astro check`, the build, then
-`check:assets`, `check:pages`, `check:tokens`, `check:components`, `check:anatomy`, then `check:a11y`, which
-runs axe on every Inspiration Screen state file in Chromium, light and dark, and `test:a11y`, its fixtures. A page is not
-"working" until that ran. Each check asserts an invariant over the built output; a diff that narrows one to
-an allowlist is a finding.
+`check:assets`, `check:pages`, `check:tokens`, `check:components`, `check:anatomy`, `check:contrast` and
+`check:variants`, then `check:a11y`, which runs axe on every Inspiration Screen state file in Chromium, light and
+dark, and `test:a11y`, its fixtures. A page is not "working" until that ran. Each check asserts an invariant over
+the built output or the page source; a diff that narrows one to an allowlist is a finding.
 
 **Storybook is roadmap** (UIUX-117, UIUX-91). Future tense.
 
@@ -78,6 +102,8 @@ an allowlist is a finding.
 - Every changed example loaded and its computed style checked, not only built: Yes/No/N/A
 - New directives have a plugin and a `check-pages.js` assertion: Yes/No/N/A
 - No literal address or bare root path: Yes/No/N/A
+- Every contrast ratio or colour a page prints is declared under its row's label in that page's `contrast`
+  front matter, or declared `not measured` with a reason: Yes/No/N/A
 - `npm run verify` for the docs site ran: Yes/No/N/A
 
 ---

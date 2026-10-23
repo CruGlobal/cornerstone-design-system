@@ -111,10 +111,12 @@ const SINGLE_GROUP = 'single';
  * @csspart column-item-selected - The currently selected option inside a column.
  * @csspart now-button - The default "Now" button rendered in the popup footer when `with-now` is set.
  *
- * @cssproperty [--show-duration=var(--cs-transition-fast)] - The duration of the show animation.
- * @cssproperty [--hide-duration=var(--cs-transition-fast)] - The duration of the hide animation.
- * @cssproperty [--column-item-height=2.25em] - Height of each option inside a popup column.
- * @cssproperty [--column-width=3em] - Width of each popup column.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-fast)] - The duration of the show animation. `0ms` when the user
+ *  prefers reduced motion.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-fast)] - The duration of the hide animation. `0ms` when the user
+ *  prefers reduced motion.
+ * @cssproperty [--cs-time-input-column-item-height=2.25em] - Height of each option inside a popup column.
+ * @cssproperty [--cs-time-input-column-width=3em] - Width of each popup column.
  *
  * @cssstate blank - The time picker has no committed value.
  * @cssstate open - The popup is open.

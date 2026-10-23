@@ -101,12 +101,12 @@ Use the `distance` attribute to control how far the popover appears from its anc
 
 ### Arrow Size
 
-Use the `--arrow-size` custom property to change the size of the popover's arrow. To remove it, use the `without-arrow` attribute.
+Use the `--cs-popover-arrow-size` custom property to change the size of the popover's arrow. To remove it, use the `without-arrow` attribute.
 
 ```html {.example}
 <div class="cs-cluster">
   <cs-button appearance="filled" id="popover__big-arrow">Big arrow</cs-button>
-  <cs-popover for="popover__big-arrow" style="--arrow-size: 8px;">I have a big arrow</cs-popover>
+  <cs-popover for="popover__big-arrow" style="--cs-popover-arrow-size: 8px;">I have a big arrow</cs-popover>
 
   <cs-button appearance="filled" id="popover__no-arrow">No arrow</cs-button>
   <cs-popover for="popover__no-arrow" without-arrow>I don't have an arrow</cs-popover>
@@ -115,11 +115,11 @@ Use the `--arrow-size` custom property to change the size of the popover's arrow
 
 ### Max Width
 
-Use the `--max-width` custom property to control the maximum width of the popover.
+Use the `--cs-popover-max-width` custom property to control the maximum width of the popover.
 
 ```html {.example}
 <cs-button appearance="filled" id="popover__max-width">Toggle me</cs-button>
-<cs-popover for="popover__max-width" style="--max-width: 160px;">
+<cs-popover for="popover__max-width" style="--cs-popover-max-width: 160px;">
   Popovers will usually grow to be much wider, but this one has a custom max width that forces text to wrap.
 </cs-popover>
 ```

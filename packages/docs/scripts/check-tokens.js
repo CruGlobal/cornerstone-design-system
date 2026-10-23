@@ -28,8 +28,8 @@
  * That asymmetry is the whole design. A token this site uses has to resolve against the full cascade the
  * browser assembles, library included — but the library's and Starlight's own stylesheets are not ours to
  * answer for, and they legitimately reference properties this check cannot see: `--cs-scroll-lock-size` is
- * written by `internal/scroll.ts` at runtime, `--_button-vertical-indent` and `--scroll-margin-top` are
- * declared inside a shadow root, and Starlight's `print.css` still reaches for the `--sl-*` variables whose
+ * written by `internal/scroll.ts` at runtime, `--_button-vertical-indent` is declared inside a shadow root,
+ * and Starlight's `print.css` still reaches for the `--sl-*` variables whose
  * defining stylesheets this site deliberately stubs out. Judging those would be nineteen findings of which
  * seventeen are somebody else's, and a check that cries wolf gets switched off.
  *
@@ -56,6 +56,7 @@ import { dirname, extname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOCS_BASE_PATH as BASE_PATH } from '@cruglobal/cornerstone-build-tools/site-url.js';
 import { brandBlocks, brands, defaultBrand } from '../src/brands.js';
+import { withoutDisplayedSource } from './displayed-source.js';
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const distDir = join(siteDir, 'dist');
@@ -86,16 +87,6 @@ function walk(dir) {
 }
 
 const stripCssComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '');
-
-/**
- * A page with its displayed source removed.
- *
- * Load-bearing in both directions. `native.md` documents `<link rel="stylesheet"
- * href="/dist/styles/themes/default.css">` as a snippet; read literally, that made the whole reference
- * theme — and every hue in `palettes/default.css` — look reachable, which silently masked the dead-hue
- * bug this check exists to find. Example source is prose about CSS, not CSS.
- */
-const withoutDisplayedSource = (html) => html.replace(/<pre\b[\s\S]*?<\/pre>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
 
 /**
  * The CSS a browser would actually apply from some page markup: its `<style>` blocks and its inline `style`

@@ -95,7 +95,7 @@ describe('<cs-toast>', () => {
         it('should create a toast item with custom variant', async () => {
           const el = await fixture<CsToast>(html`<cs-toast></cs-toast>`);
 
-          const variants = ['brand', 'success', 'warning', 'danger', 'neutral'] as const;
+          const variants = ['brand', 'highlight', 'information', 'success', 'warning', 'danger', 'neutral'] as const;
           for (const variant of variants) {
             const toastItem = await el.create(`${variant} message`, { variant });
             expect(toastItem.variant).to.equal(variant);

@@ -1,7 +1,7 @@
 # Accessibility — Focus Areas
 
 Cornerstone Components targets WCAG 2.2 AA. `packages/docs/src/content/docs/resources/accessibility.md`
-states the target, the floor every component meets, how each claim is verified, and the known gaps; keep
+states the target, the floor every component is held to, how each claim is verified, and the known gaps; keep
 that page true rather than restating it. This is the area most likely to block a component pull request.
 Be a gate on the defect, not on the person: every blocking finding arrives with what would make it pass.
 
@@ -13,7 +13,7 @@ Be a gate on the defect, not on the person: every blocking finding arrives with 
 
 ---
 
-**The floor every component meets** (from the accessibility page; verify it, do not restate it)
+**The floor every component is held to** (from the accessibility page; verify it, do not restate it)
 
 Keyboard reachable and operable with no trap (2.1.1, 2.1.2); correct name, role and value (4.1.2); a
 visible focus indicator on every focusable element the component owns (2.4.7); no state by colour alone
@@ -68,8 +68,8 @@ useful. Never change a control's label and its state signal in the same moment.
 - 59 of 70 components assert `to.be.accessible()` on three engines in both render modes; the eleven that do
   not are utilities rendering nothing interactive, by decision. A new interactive component without the
   assertion is a blocker.
-- **A test that returns early under the SSR fixture passes while asserting nothing** (`cs-callout`,
-  UIUX-119). Flag any new one; it is the exact gap this document exists to catch.
+- **A test that returns early under the SSR fixture passes while asserting nothing** (UIUX-119 tracks the
+  ones still in the suite). Flag any new one; it is the exact gap this document exists to catch.
 - axe covers the rendered DOM only: a popup, dialog or menu must be opened before the assertion. A green
   suite is a floor, not a conformance statement; say which half a finding rests on (established from code
   and computation, or needing a human at real assistive technology), and never word a finding so it reads

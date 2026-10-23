@@ -56,8 +56,9 @@ describe('<cs-tag>', () => {
 
         it('should accept all valid variants', async () => {
           const el = await fixture<CsTag>(html`<cs-tag>Test</cs-tag>`);
+          const variants = ['brand', 'neutral', 'highlight', 'information', 'success', 'warning', 'danger'] as const;
 
-          for (const variant of ['brand', 'neutral', 'success', 'warning', 'danger'] as const) {
+          for (const variant of variants) {
             el.variant = variant;
             await el.updateComplete;
             expect(el.variant).to.equal(variant);

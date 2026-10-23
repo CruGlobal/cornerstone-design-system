@@ -58,19 +58,19 @@ const SUPPORTS_POPOVER = Boolean(
  * @csspart popup - The popup's container. Useful for setting a background color, box shadow, etc.
  * @csspart hover-bridge - The hover bridge element. Only available when the `hover-bridge` option is enabled.
  *
- * @cssproperty [--arrow-size=6px] - The size of the arrow. Note that an arrow won't be shown unless the `arrow`
+ * @cssproperty [--cs-popup-arrow-size=0.375rem] - The size of the arrow. Note that an arrow won't be shown unless the `arrow`
  *  attribute is used.
- * @cssproperty [--popup-border-width] - The width of any custom border applied to the popup. This is used to reposition
+ * @cssproperty [--cs-popup-border-width=0px] - The width of any custom border applied to the popup. This is used to reposition
  *  the arrow to overlap to the inside edge of the popup border.
- * @cssproperty [--arrow-color=black] - The color of the arrow.
- * @cssproperty [--auto-size-available-width] - A read-only custom property that determines the amount of width the
+ * @cssproperty [--cs-popup-arrow-color=black] - The color of the arrow.
+ * @cssproperty --cs-popup-auto-size-available-width - A read-only custom property that determines the amount of width the
  *  popup can be before overflowing. Useful for positioning child elements that need to overflow. This property is only
  *  available when using `auto-size`.
- * @cssproperty [--auto-size-available-height] - A read-only custom property that determines the amount of height the
+ * @cssproperty --cs-popup-auto-size-available-height - A read-only custom property that determines the amount of height the
  *  popup can be before overflowing. Useful for positioning child elements that need to overflow. This property is only
  *  available when using `auto-size`.
- * @cssproperty [--show-duration=var(--cs-transition-fast)] - The show duration to use when applying built-in animation classes.
- * @cssproperty [--hide-duration=var(--cs-transition-fast)] - The hide duration to use when applying built-in animation classes.
+ * @cssproperty [--cs-show-duration=var(--cs-transition-fast)] - The show duration to use when applying built-in animation classes.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-fast)] - The hide duration to use when applying built-in animation classes.
  */
 @customElement('cs-popup')
 export default class CsPopup extends CornerstoneElement {
@@ -130,8 +130,8 @@ export default class CsPopup extends CornerstoneElement {
   @property({ type: Number }) skidding = 0;
 
   /**
-   * Attaches an arrow to the popup. The arrow's size and color can be customized using the `--arrow-size` and
-   * `--arrow-color` custom properties. For additional customizations, you can also target the arrow using
+   * Attaches an arrow to the popup. The arrow's size and color can be customized using the `--cs-popup-arrow-size` and
+   * `--cs-popup-arrow-color` custom properties. For additional customizations, you can also target the arrow using
    * `::part(arrow)` in your stylesheet.
    */
   @property({ type: Boolean }) arrow = false;
@@ -319,8 +319,8 @@ export default class CsPopup extends CornerstoneElement {
         this.cleanup();
         this.cleanup = undefined;
         this.removeAttribute('data-current-placement');
-        this.style.removeProperty('--auto-size-available-width');
-        this.style.removeProperty('--auto-size-available-height');
+        this.style.removeProperty('--cs-popup-auto-size-available-width');
+        this.style.removeProperty('--cs-popup-auto-size-available-height');
         requestAnimationFrame(() => resolve());
       } else {
         resolve();
@@ -402,23 +402,23 @@ export default class CsPopup extends CornerstoneElement {
           padding: this.autoSizePadding,
           apply: ({ availableWidth, availableHeight }) => {
             if (this.autoSize === 'vertical' || this.autoSize === 'both') {
-              this.style.setProperty('--auto-size-available-height', `${availableHeight}px`);
+              this.style.setProperty('--cs-popup-auto-size-available-height', `${availableHeight}px`);
             } else {
-              this.style.removeProperty('--auto-size-available-height');
+              this.style.removeProperty('--cs-popup-auto-size-available-height');
             }
 
             if (this.autoSize === 'horizontal' || this.autoSize === 'both') {
-              this.style.setProperty('--auto-size-available-width', `${availableWidth}px`);
+              this.style.setProperty('--cs-popup-auto-size-available-width', `${availableWidth}px`);
             } else {
-              this.style.removeProperty('--auto-size-available-width');
+              this.style.removeProperty('--cs-popup-auto-size-available-width');
             }
           },
         }),
       );
     } else {
       // Cleanup styles if we're no longer using auto-size
-      this.style.removeProperty('--auto-size-available-width');
-      this.style.removeProperty('--auto-size-available-height');
+      this.style.removeProperty('--cs-popup-auto-size-available-width');
+      this.style.removeProperty('--cs-popup-auto-size-available-height');
     }
 
     // Finally, we add an arrow
@@ -475,20 +475,20 @@ export default class CsPopup extends CornerstoneElement {
 
         if (this.arrowPlacement === 'start') {
           // Start
-          const value = typeof arrowX === 'number' ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : '';
-          top = typeof arrowY === 'number' ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : '';
+          const value = typeof arrowX === 'number' ? `calc(${this.arrowPadding}px - var(--_arrow-padding-offset))` : '';
+          top = typeof arrowY === 'number' ? `calc(${this.arrowPadding}px - var(--_arrow-padding-offset))` : '';
           right = isRtl ? value : '';
           left = isRtl ? '' : value;
         } else if (this.arrowPlacement === 'end') {
           // End
-          const value = typeof arrowX === 'number' ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : '';
+          const value = typeof arrowX === 'number' ? `calc(${this.arrowPadding}px - var(--_arrow-padding-offset))` : '';
           right = isRtl ? '' : value;
           left = isRtl ? value : '';
-          bottom = typeof arrowY === 'number' ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : '';
+          bottom = typeof arrowY === 'number' ? `calc(${this.arrowPadding}px - var(--_arrow-padding-offset))` : '';
         } else if (this.arrowPlacement === 'center') {
           // Center
-          left = typeof arrowX === 'number' ? `calc(50% - var(--arrow-size-diagonal))` : '';
-          top = typeof arrowY === 'number' ? `calc(50% - var(--arrow-size-diagonal))` : '';
+          left = typeof arrowX === 'number' ? `calc(50% - var(--_arrow-size-diagonal))` : '';
+          top = typeof arrowY === 'number' ? `calc(50% - var(--_arrow-size-diagonal))` : '';
         } else {
           // Anchor (default)
           left = typeof arrowX === 'number' ? `${arrowX}px` : '';
@@ -500,7 +500,7 @@ export default class CsPopup extends CornerstoneElement {
           right,
           bottom,
           left,
-          [staticSide]: 'calc(var(--arrow-base-offset) - var(--arrow-size-diagonal))',
+          [staticSide]: 'calc(var(--_arrow-base-offset) - var(--_arrow-size-diagonal))',
         });
       }
     });
@@ -575,14 +575,14 @@ export default class CsPopup extends CornerstoneElement {
         }
       }
 
-      this.style.setProperty('--hover-bridge-top-left-x', `${topLeftX}px`);
-      this.style.setProperty('--hover-bridge-top-left-y', `${topLeftY}px`);
-      this.style.setProperty('--hover-bridge-top-right-x', `${topRightX}px`);
-      this.style.setProperty('--hover-bridge-top-right-y', `${topRightY}px`);
-      this.style.setProperty('--hover-bridge-bottom-left-x', `${bottomLeftX}px`);
-      this.style.setProperty('--hover-bridge-bottom-left-y', `${bottomLeftY}px`);
-      this.style.setProperty('--hover-bridge-bottom-right-x', `${bottomRightX}px`);
-      this.style.setProperty('--hover-bridge-bottom-right-y', `${bottomRightY}px`);
+      this.style.setProperty('--_hover-bridge-top-left-x', `${topLeftX}px`);
+      this.style.setProperty('--_hover-bridge-top-left-y', `${topLeftY}px`);
+      this.style.setProperty('--_hover-bridge-top-right-x', `${topRightX}px`);
+      this.style.setProperty('--_hover-bridge-top-right-y', `${topRightY}px`);
+      this.style.setProperty('--_hover-bridge-bottom-left-x', `${bottomLeftX}px`);
+      this.style.setProperty('--_hover-bridge-bottom-left-y', `${bottomLeftY}px`);
+      this.style.setProperty('--_hover-bridge-bottom-right-x', `${bottomRightX}px`);
+      this.style.setProperty('--_hover-bridge-bottom-right-y', `${bottomRightY}px`);
     }
   };
 

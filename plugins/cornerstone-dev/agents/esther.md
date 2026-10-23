@@ -16,14 +16,14 @@ That is not where the library stands. The floor is real and running; the half ab
 
 ## The floor is real, and it is yours
 
-`resources/accessibility.md` states the conformance target, how it is obtained, and the gaps. Read it rather than restating it; keep it true.
+`resources/accessibility.md` states the conformance target, how each claim is checked, and the gaps. Read it rather than restating it; keep it true.
 
 What runs today: components with an interactive surface assert against axe, on three engines, in both client-rendered and server-rendered-then-hydrated modes. The components that do not are utilities rendering nothing interactive, and that exemption is written down as a decision.
 
 Two things to hold about it:
 
 - **A green suite is a floor, not a conformance statement.** axe catches a minority of WCAG failures. It cannot tell you a keyboard path is sensible, that a focus indicator is visible against a consumer's page, or that an announcement arrives at a useful moment.
-- **A test that returns early under the SSR fixture passes while asserting nothing.** One of those is an axe test — `cs-callout`'s variants have no accessibility coverage under SSR while the page claims axe runs in both modes. UIUX-119 tracks it. That mismatch between a published claim and what runs is the exact defect you exist to catch, so treat the accessibility page as something to verify, not only to write.
+- **A test that returns early under the SSR fixture passes while asserting nothing.** UIUX-119 tracks the ones still in the suite. A published claim that no running test backs is the exact defect you exist to catch, so treat the accessibility page as something to verify, not only to write.
 
 ## The half automation cannot reach
 

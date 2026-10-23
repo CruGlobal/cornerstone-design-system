@@ -33,12 +33,18 @@ import styles from './dropdown-item.styles.js';
  * @csspart submenu-icon - The submenu indicator icon (a `<cs-icon>` element).
  * @csspart submenu-icon__svg - The submenu icon's `svg` part.
  * @csspart submenu - The submenu container.
+ *
+ * @cssproperty [--cs-show-duration=var(--cs-transition-fast)] - The duration of the submenu's show animation.
+ * @cssproperty [--cs-hide-duration=var(--cs-transition-fast)] - The duration of the submenu's hide animation.
  */
 @customElement('cs-dropdown-item')
 export default class CsDropdownItem extends CornerstoneElement {
   static css = styles;
 
   private readonly hasSlotController = new HasSlotController(this, '[default]', 'start', 'end');
+
+  // The submenu's show or hide in progress, so `openSubmenu()` and `closeSubmenu()` can resolve once it settles.
+  private submenuTransition: Promise<void> = Promise.resolve();
 
   @query('#submenu') submenuElement: HTMLDivElement;
 
@@ -140,13 +146,10 @@ export default class CsDropdownItem extends CornerstoneElement {
       }
     }
 
+    // The property alone runs the transition, so it runs once whichever way it changed; the methods only set it.
     if (changedProperties.has('submenuOpen')) {
       this.customStates.set('submenu-open', this.submenuOpen);
-      if (this.submenuOpen) {
-        this.openSubmenu();
-      } else {
-        this.closeSubmenu();
-      }
+      this.submenuTransition = this.submenuOpen ? this.showSubmenu() : this.hideSubmenu();
     }
   }
 
@@ -168,8 +171,25 @@ export default class CsDropdownItem extends CornerstoneElement {
     this.customStates.set('has-submenu', this.hasSubmenu);
   }
 
-  /** Opens the submenu. */
+  /** Opens the submenu, resolving once it has shown. */
   async openSubmenu() {
+    if (!this.hasSubmenu || !this.submenuElement || !this.isConnected) {
+      return;
+    }
+
+    this.submenuOpen = true;
+    await this.updateComplete;
+    await this.submenuTransition;
+  }
+
+  /** Closes the submenu, resolving once it has hidden. */
+  async closeSubmenu() {
+    this.submenuOpen = false;
+    await this.updateComplete;
+    await this.submenuTransition;
+  }
+
+  private async showSubmenu() {
     const submenu = this.submenuElement;
     if (!this.hasSubmenu || !submenu || !this.isConnected) {
       return;
@@ -182,7 +202,6 @@ export default class CsDropdownItem extends CornerstoneElement {
     submenu.showPopover?.();
     submenu.hidden = false;
     submenu.setAttribute('data-visible', '');
-    this.submenuOpen = true;
     this.setAttribute('aria-expanded', 'true');
 
     // Animate the submenu
@@ -226,14 +245,12 @@ export default class CsDropdownItem extends CornerstoneElement {
     }
   }
 
-  /** Closes the submenu. */
-  async closeSubmenu() {
+  private async hideSubmenu() {
     const submenu = this.submenuElement;
     if (!this.hasSubmenu || !submenu) {
       return;
     }
 
-    this.submenuOpen = false;
     this.setAttribute('aria-expanded', 'false');
 
     if (!submenu.hidden) {

@@ -513,7 +513,7 @@ describe('<cs-icon>', () => {
             html`<cs-icon library="system" name="check" style="font-size:16px"></cs-icon>`,
           );
           const native = await fixture<CsIcon>(
-            html`<cs-icon library="system" name="check" style="font-size:16px; --icon-scale: 1"></cs-icon>`,
+            html`<cs-icon library="system" name="check" style="font-size:16px; --cs-icon-scale: 1"></cs-icon>`,
           );
           await Promise.all([scaled.updateComplete, native.updateComplete]);
           expect(getComputedStyle(scaled).width).to.equal(getComputedStyle(native).width);
@@ -521,9 +521,9 @@ describe('<cs-icon>', () => {
         });
 
         // The default lives in the var() fallback, not on :host, so an ancestor's value reaches the artwork.
-        it('should take --icon-scale from an ancestor', async () => {
+        it('should take --cs-icon-scale from an ancestor', async () => {
           const wrapper = await fixture<HTMLDivElement>(
-            html`<div style="--icon-scale: 1">
+            html`<div style="--cs-icon-scale: 1">
               <cs-icon library="system" name="check" style="font-size:16px"></cs-icon>
             </div>`,
           );
@@ -534,9 +534,9 @@ describe('<cs-icon>', () => {
           expect(getComputedStyle(svg).scale).to.equal('1');
         });
 
-        it('should let --icon-scale render the artwork at its native size', async () => {
+        it('should let --cs-icon-scale render the artwork at its native size', async () => {
           const el = await fixture<CsIcon>(
-            html`<cs-icon library="system" name="check" style="font-size:16px; --icon-scale: 1"></cs-icon>`,
+            html`<cs-icon library="system" name="check" style="font-size:16px; --cs-icon-scale: 1"></cs-icon>`,
           );
           await elementUpdated(el);
           await el.updateComplete;

@@ -1,9 +1,11 @@
 import { aTimeout, expect, fixture, html, oneEvent } from '@open-wc/testing';
-import { sendKeys } from '@web/test-runner-commands';
+import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import sinon from 'sinon';
+import { expectAnimationDuration, expectNoMotion } from '../../internal/test/expect-animation-duration.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
 import { serialize } from '../../utilities/form.js';
+import type CsPopup from '../popup/popup.js';
 import type CsTimeInput from './time-input.js';
 
 function waitForEvent(el: EventTarget, eventName: string): Promise<void> {
@@ -306,6 +308,47 @@ describe('<cs-time-input>', () => {
       type(hour, 'ArrowDown', { altKey: true });
       await waitForEvent(el, 'cs-after-show');
       expect(el.open).to.equal(true);
+    });
+
+    // Client-only, like the rest of this file: the popup animates after the user opens it, long after hydration.
+    // The animation runs on the popup's own part, so a value set on the time input has to reach through the popup.
+    it('animates its popup for --cs-show-duration and --cs-hide-duration set on it', async () => {
+      const el = await fixture<CsTimeInput>(
+        html`<cs-time-input lang="en-GB" style="--cs-show-duration: 120ms; --cs-hide-duration: 80ms"></cs-time-input>`,
+      );
+      const popup = el.shadowRoot!.querySelector<CsPopup>('.time-input-popup')!.popup;
+
+      const shown = waitForEvent(el, 'cs-after-show');
+      el.show();
+      await expectAnimationDuration(popup, '--cs-show-duration');
+      await shown;
+
+      const hidden = waitForEvent(el, 'cs-after-hide');
+      el.hide();
+      await expectAnimationDuration(popup, '--cs-hide-duration');
+      await hidden;
+    });
+
+    // Client-only, as above. Reduced motion must win over a duration set on the input or the page.
+    it('opens and closes its popup without motion when the user prefers reduced motion', async () => {
+      const el = await fixture<CsTimeInput>(
+        html`<cs-time-input lang="en-GB" style="--cs-show-duration: 400ms; --cs-hide-duration: 400ms"></cs-time-input>`,
+      );
+      const popup = el.shadowRoot!.querySelector<CsPopup>('.time-input-popup')!.popup;
+      await emulateMedia({ reducedMotion: 'reduce' });
+      try {
+        const shown = waitForEvent(el, 'cs-after-show');
+        el.show();
+        await expectNoMotion(popup, 'show');
+        await shown;
+
+        const hidden = waitForEvent(el, 'cs-after-hide');
+        el.hide();
+        await expectNoMotion(popup, 'hide');
+        await hidden;
+      } finally {
+        await emulateMedia({ reducedMotion: 'no-preference' });
+      }
     });
 
     it('renders one column per segment', async () => {

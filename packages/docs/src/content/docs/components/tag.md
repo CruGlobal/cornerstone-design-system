@@ -31,8 +31,10 @@ Set the `variant` attribute to match the tag to its meaning.
 
 ```html {.example}
 <cs-tag variant="brand">Brand</cs-tag>
-<cs-tag variant="success">Success</cs-tag>
 <cs-tag variant="neutral">Neutral</cs-tag>
+<cs-tag variant="highlight">Highlight</cs-tag>
+<cs-tag variant="information">Information</cs-tag>
+<cs-tag variant="success">Success</cs-tag>
 <cs-tag variant="warning">Warning</cs-tag>
 <cs-tag variant="danger">Danger</cs-tag>
 ```
@@ -50,16 +52,28 @@ Use the `appearance` attribute to change the tag's visual style. The default is 
     <cs-tag variant="brand" appearance="outlined">Outlined</cs-tag>
   </p>
   <p>
-    <cs-tag variant="success" appearance="accent">Accent</cs-tag>
-    <cs-tag variant="success" appearance="filled-outlined">Filled-Outlined</cs-tag>
-    <cs-tag variant="success" appearance="filled">Filled</cs-tag>
-    <cs-tag variant="success" appearance="outlined">Outlined</cs-tag>
-  </p>
-  <p>
     <cs-tag variant="neutral" appearance="accent">Accent</cs-tag>
     <cs-tag variant="neutral" appearance="filled-outlined">Filled-Outlined</cs-tag>
     <cs-tag variant="neutral" appearance="filled">Filled</cs-tag>
     <cs-tag variant="neutral" appearance="outlined">Outlined</cs-tag>
+  </p>
+  <p>
+    <cs-tag variant="highlight" appearance="accent">Accent</cs-tag>
+    <cs-tag variant="highlight" appearance="filled-outlined">Filled-Outlined</cs-tag>
+    <cs-tag variant="highlight" appearance="filled">Filled</cs-tag>
+    <cs-tag variant="highlight" appearance="outlined">Outlined</cs-tag>
+  </p>
+  <p>
+    <cs-tag variant="information" appearance="accent">Accent</cs-tag>
+    <cs-tag variant="information" appearance="filled-outlined">Filled-Outlined</cs-tag>
+    <cs-tag variant="information" appearance="filled">Filled</cs-tag>
+    <cs-tag variant="information" appearance="outlined">Outlined</cs-tag>
+  </p>
+  <p>
+    <cs-tag variant="success" appearance="accent">Accent</cs-tag>
+    <cs-tag variant="success" appearance="filled-outlined">Filled-Outlined</cs-tag>
+    <cs-tag variant="success" appearance="filled">Filled</cs-tag>
+    <cs-tag variant="success" appearance="outlined">Outlined</cs-tag>
   </p>
   <p>
     <cs-tag variant="warning" appearance="accent">Accent</cs-tag>

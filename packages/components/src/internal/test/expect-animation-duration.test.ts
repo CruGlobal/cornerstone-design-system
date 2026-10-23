@@ -1,6 +1,6 @@
 import { expect, fixture } from '@open-wc/testing';
 import { html } from 'lit';
-import { expectAnimationDuration } from './expect-animation-duration.js';
+import { expectAnimationDuration, expectNoMotion } from './expect-animation-duration.js';
 
 /** A host whose shadow root holds a box to animate, a child inside it, and a duration property to measure against. */
 class ExpectAnimationDurationTestHost extends HTMLElement {
@@ -12,6 +12,7 @@ class ExpectAnimationDurationTestHost extends HTMLElement {
         .box { width: 10px; height: 10px; border: 1px solid rgb(0, 0, 0); outline: 1px solid rgb(0, 0, 0); }
         .box.show { animation: expect-duration-fade var(--test-duration); }
         .box.long { animation: expect-duration-fade 3s; }
+        .box.instant { animation: expect-duration-fade 0ms; }
         .box.delayed { animation: expect-duration-fade var(--test-duration) 50ms; }
         .box.spin { animation: expect-duration-fade var(--test-duration), expect-duration-fade 1s infinite; }
         .box.before::before { content: ''; animation: expect-duration-fade 3s; }
@@ -156,5 +157,26 @@ describe('expectAnimationDuration (client-only)', () => {
     expect(await failureOf(expectAnimationDuration(el.box, '--test-duration', { name: /^margin-/ }))).to.include(
       'should be animating /^margin-/',
     );
+  });
+
+  describe('expectNoMotion', () => {
+    it('should pass when the class brings an animation that runs 0ms', async () => {
+      const el = await createHost();
+      el.box.classList.add('instant');
+      expect(await failureOf(expectNoMotion(el.box, 'instant'))).to.equal('');
+    });
+
+    it('should fail when the class brings an animation that takes time', async () => {
+      const el = await createHost();
+      el.box.classList.add('show');
+      expect(await failureOf(expectNoMotion(el.box, 'show'))).to.include(
+        'should not move, but expect-duration-fade runs 120ms',
+      );
+    });
+
+    it('should fail when the class never arrives, rather than pass on nothing', async () => {
+      const el = await createHost();
+      expect(await failureOf(expectNoMotion(el.box, 'show'))).to.include('should take on .show');
+    });
   });
 });

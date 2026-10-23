@@ -2,15 +2,15 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --height: var(--cs-form-control-toggle-size);
-    --width: calc(var(--height) * 1.75);
-    --thumb-size: 0.75em;
-
     display: inline-flex;
     line-height: var(--cs-form-control-value-line-height);
   }
 
   label {
+    /* The width's default derives from the height, so both are written once here. */
+    --_height: var(--cs-switch-height, var(--cs-form-control-toggle-size));
+    --_width: var(--cs-switch-width, calc(var(--_height) * 1.75));
+
     position: relative;
     display: flex;
     align-items: center;
@@ -26,11 +26,11 @@ export default css`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--width);
-    height: var(--height);
+    width: var(--_width);
+    height: var(--_height);
     background-color: var(--cs-form-control-background-color);
     border-color: var(--cs-form-control-border-color);
-    border-radius: var(--height);
+    border-radius: var(--_height);
     border-style: var(--cs-form-control-border-style);
     border-width: var(--cs-form-control-border-width);
     transition-property: translate, background, border-color, box-shadow;
@@ -46,15 +46,15 @@ export default css`
 
   .switch .thumb {
     aspect-ratio: 1 / 1;
-    width: var(--thumb-size);
-    height: var(--thumb-size);
+    width: var(--cs-switch-thumb-size, 0.75em);
+    height: var(--cs-switch-thumb-size, 0.75em);
     background-color: var(--cs-form-control-border-color);
     border-radius: 50%;
-    translate: calc((var(--width) - var(--height)) / -2);
+    translate: calc((var(--_width) - var(--_height)) / -2);
     transition: inherit;
   }
   .switch .thumb:dir(rtl) {
-    translate: calc((var(--width) - var(--height)) / 2);
+    translate: calc((var(--_width) - var(--_height)) / 2);
   }
 
   .input {
@@ -79,10 +79,10 @@ export default css`
 
   .checked .switch .thumb {
     background-color: var(--cs-color-surface-default);
-    translate: calc((var(--width) - var(--height)) / 2);
+    translate: calc((var(--_width) - var(--_height)) / 2);
   }
   .checked .switch .thumb:dir(rtl) {
-    translate: calc((var(--width) - var(--height)) / -2);
+    translate: calc((var(--_width) - var(--_height)) / -2);
   }
 
   /* Disabled */
@@ -93,7 +93,7 @@ export default css`
 
   [part~='label'] {
     display: inline-block;
-    line-height: var(--height);
+    line-height: var(--_height);
     margin-inline-start: 0.5em;
     user-select: none;
     -webkit-user-select: none;

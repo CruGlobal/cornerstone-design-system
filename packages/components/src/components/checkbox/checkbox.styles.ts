@@ -2,9 +2,6 @@ import { css } from 'lit';
 
 export default css`
   :host {
-    --checked-icon-color: var(--cs-color-brand-on-loud);
-    --checked-icon-scale: 0.8;
-
     display: inline-flex;
     color: var(--cs-form-control-value-color);
     font-family: inherit;
@@ -55,7 +52,7 @@ export default css`
 
   /* Checked */
   [part~='control']:has(:checked, :indeterminate) {
-    color: var(--checked-icon-color);
+    color: var(--cs-checkbox-checked-icon-color, var(--cs-color-brand-on-loud));
     border-color: var(--cs-form-control-activated-color);
     background-color: var(--cs-form-control-activated-color);
   }
@@ -84,7 +81,7 @@ export default css`
 
   [part~='icon'] {
     display: flex;
-    scale: var(--checked-icon-scale);
+    scale: var(--cs-checked-icon-scale, 0.8);
 
     /* Without this, Safari renders the icon slightly to the left */
     &::part(svg) {

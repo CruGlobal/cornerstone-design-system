@@ -328,6 +328,22 @@ describe('<cs-checkbox>', () => {
       });
 
       describe('CSS parts and states', () => {
+        // Its own name, not one shared with the radio, whose dot wants the activated color on an empty control.
+        it("should color its glyph from --cs-checkbox-checked-icon-color, not the radio's", async () => {
+          const wrapper = await fixture<HTMLDivElement>(html`
+            <div style="--cs-radio-checked-icon-color: rgb(255, 0, 0)">
+              <cs-checkbox checked>Default</cs-checkbox>
+              <cs-checkbox checked style="--cs-checkbox-checked-icon-color: rgb(0, 0, 255)">Set</cs-checkbox>
+            </div>
+          `);
+          const [plain, set] = [...wrapper.querySelectorAll<CsCheckbox>('cs-checkbox')];
+          await Promise.all([plain.updateComplete, set.updateComplete]);
+          const glyph = (box: CsCheckbox) => getComputedStyle(box.shadowRoot!.querySelector('[part="control"]')!).color;
+
+          expect(glyph(plain)).not.to.equal('rgb(255, 0, 0)');
+          expect(glyph(set)).to.equal('rgb(0, 0, 255)');
+        });
+
         it('should expose CSS parts', async () => {
           const el = await fixture<CsCheckbox>(html`<cs-checkbox hint="Help">Checkbox</cs-checkbox>`);
           expect(el.shadowRoot!.querySelector('[part~="checkbox"]')).to.exist;

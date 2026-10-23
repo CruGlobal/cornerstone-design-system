@@ -11,9 +11,11 @@
     "check:anatomy": "node scripts/check-anatomy.js",
     "check:assets": "node scripts/check-asset-paths.js",
     "check:components": "node scripts/check-components.js",
+    "check:contrast": "node scripts/check-contrast.js",
     "check:markdown-remark": "node scripts/check-markdown-remark.js",
     "check:pages": "node scripts/check-pages.js",
     "check:tokens": "node scripts/check-tokens.js",
+    "check:variants": "node scripts/check-variants.js",
     "dev": "astro dev --force",
     "postbuild": "node scripts/prune-pagefind.js",
     "prebuild": "node scripts/check-markdown-remark.js && node scripts/link-library.js",
@@ -22,19 +24,19 @@
     "prettier": "prettier --check --log-level=warn --ignore-path=\".prettierignore\" .",
     "preview": "astro preview",
     "test:a11y": "node --test scripts/check-a11y.test.js",
-    "verify": "npm run check && npm run build && npm run check:assets && npm run check:pages && npm run check:tokens && npm run check:components && npm run check:anatomy && npm run check:a11y && npm run test:a11y"
+    "verify": "npm run check && npm run build && npm run check:assets && npm run check:pages && npm run check:tokens && npm run check:components && npm run check:anatomy && npm run check:contrast && npm run check:variants && npm run check:a11y && npm run test:a11y"
   },
   "engines": {
     "node": ">=22.12.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@astrojs/markdown-remark": "^7.2.4",
+    "@astrojs/markdown-remark": "^7.3.4",
     "@astrojs/starlight": "0.41.7",
     "@cruglobal/cornerstone-build-tools": "*",
     "@cruglobal/cornerstone-components": "*",
     "@types/node": "^24.13.3",
-    "astro": "7.2.9",
+    "astro": "7.3.3",
     "axe-core": "^4.13.0",
     "gray-matter": "^4.0.3",
     "playwright": "1.52.0",

@@ -88,7 +88,7 @@ description: "Popups declaratively anchor one element to another and keep them p
 
 <style>
   .popup-overview cs-popup {
-    --arrow-color: var(--cs-color-brand-fill-loud);
+    --cs-popup-arrow-color: var(--cs-color-brand-fill-loud);
   }
 
   .popup-overview span[slot='anchor'] {
@@ -378,7 +378,7 @@ The `skidding` attribute is similar to `distance`, but instead allows you to off
 
 ### Arrows
 
-Add an arrow to your popup with the `arrow` attribute. It's usually a good idea to set a `distance` to make room for the arrow. To adjust the arrow's color and size, use the `--arrow-color` and `--arrow-size` custom properties, respectively. You can also target the `arrow` part to add additional styles such as shadows and borders to match styles applied to rest of the popup element.
+Add an arrow to your popup with the `arrow` attribute. It's usually a good idea to set a `distance` to make room for the arrow. To adjust the arrow's color and size, use the `--cs-popup-arrow-color` and `--cs-popup-arrow-size` custom properties, respectively. You can also target the `arrow` part to add additional styles such as shadows and borders to match styles applied to rest of the popup element.
 
 By default, the arrow will be aligned as close to the center of the _anchor_ as possible, considering available space and `arrow-padding`. You can use the `arrow-placement` attribute to force the arrow to align to the start, end, or center of the _popup_ instead.
 
@@ -415,7 +415,7 @@ By default, the arrow will be aligned as close to the center of the _anchor_ as 
 
   <style>
     .popup-arrow cs-popup {
-      --arrow-color: var(--cs-color-brand-fill-loud);
+      --cs-popup-arrow-color: var(--cs-color-brand-fill-loud);
     }
 
     .popup-arrow span[slot='anchor'] {
@@ -489,7 +489,7 @@ By default, the arrow will be aligned as close to the center of the _anchor_ as 
 
 Borders can also be added to the popup element by targeting the contents of the `cs-popup` element. This styling can also be extended to the arrow itself by targeting `.arrow` class in the popup.
 
-When adding borders to the popup element which has an arrow, make sure to set the `--popup-border-width` custom property to match the width of the border of the popup. Setting this will allow the arrow to overlap the border of the popup so that they visually appear connected.
+When adding borders to the popup element which has an arrow, make sure to set the `--cs-popup-border-width` custom property to match the width of the border of the popup. Setting this will allow the arrow to overlap the border of the popup so that they visually appear connected.
 
 ```html {.example}
 <div class="popup-border">
@@ -529,8 +529,8 @@ When adding borders to the popup element which has an arrow, make sure to set th
     }
 
     .popup-border cs-popup {
-      --arrow-color: var(--cs-color-brand-on-loud);
-      --popup-border-width: var(--cs-panel-border-width);
+      --cs-popup-arrow-color: var(--cs-color-brand-on-loud);
+      --cs-popup-border-width: var(--cs-panel-border-width);
 
       /* Inset box-shadow, not a border: Safari seams a clip-path edge that runs along a border. */
       &::part(arrow) {
@@ -811,7 +811,7 @@ Possible values are `horizontal`, `vertical`, and `both`. You can use `autoSizeB
 By default, auto-size takes effect when the popup would overflow the viewport.
 You can use `boundary="scroll"` to make the popup resize when it overflows its nearest scrollable container instead.
 
-When using `auto-size`, one or both of `--auto-size-available-width` and `--auto-size-available-height` will be applied to the host element. These values determine the available space the popover has before clipping will occur. Since they cascade, you can use them to set a max-width/height on your popup's content and easily control its overflow.
+When using `auto-size`, one or both of `--cs-popup-auto-size-available-width` and `--cs-popup-auto-size-available-height` will be applied to the host element. These values determine the available space the popover has before clipping will occur. Since they cascade, you can use them to set a max-width/height on your popup's content and easily control its overflow.
 
 Scroll the container to see the popup resize as its available space changes.
 
@@ -854,8 +854,8 @@ Scroll the container to see the popup resize as its available space changes.
     height: 200px;
 
     /* This sets the maximum dimensions and allows scrolling when auto-size kicks in */
-    max-width: var(--auto-size-available-width);
-    max-height: var(--auto-size-available-height);
+    max-width: var(--cs-popup-auto-size-available-width);
+    max-height: var(--cs-popup-auto-size-available-height);
     overflow: auto;
   }
 </style>
@@ -1025,7 +1025,7 @@ This example anchors a popup to the mouse cursor using a virtual element. As suc
 
 ### Built-in Animations
 
-The following classes can be applied to the popup's `popup` part to animate it in or out programmatically. You can control the animation duration with the `--show-duration` and `--hide-duration` custom properties.
+The following classes can be applied to the popup's `popup` part to animate it in or out programmatically. You can control the animation duration with the `--cs-show-duration` and `--cs-hide-duration` custom properties.
 
 - `show` / `hide` - Shows or hides the popover with a fade
 - `show-with-scale` / `hide-with-scale` - Shows or hides the popover with a fade and subtle scale effect
