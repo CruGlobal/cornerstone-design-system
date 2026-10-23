@@ -66,6 +66,19 @@ _Avoid_: primary (reserved for the action colour, which is only sometimes the sa
 A decision settled once and swept across all 70 components — the unit of work in this takeover. Contrast
 with the bespoke pass, which handles the components a swept policy fails to fit.
 
+**Component property**:
+A custom property that lets a consumer adjust one component's look, named after that component
+(`--cs-card-spacing`) and settable on the page, a section, or one element. A component's child parts read
+their parent's (`cs-carousel-item` reads `--cs-carousel-aspect-ratio`). Decided in
+[#182](https://github.com/CruGlobal/cornerstone-design-system/issues/182).
+_Avoid_: host property (nothing is set on the host), token (tokens are the theme's values)
+
+**Shared property**:
+A custom property that does the same job on every component that reads it, so it keeps one name with no
+component in it (`--cs-show-duration`). The list is fixed, and a name joins it only by passing the test in
+[#182](https://github.com/CruGlobal/cornerstone-design-system/issues/182).
+_Avoid_: global property (every `--cs-*` name can be set on the page)
+
 **Agent files**:
 The machine-readable documentation the package ships for AI tools: the Agent Skills under `dist/skills/`
 and `dist/llms.txt`. Named as a set because they share one source and one audience — Cru staff building
