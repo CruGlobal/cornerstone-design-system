@@ -553,6 +553,38 @@ function checkChangelog(failures) {
   return 1;
 }
 
+/**
+ * No built page carries Starlight's aside markup.
+ *
+ * `stub-starlight-styles.js` removes Starlight's `asides.css`, so an aside reaches the reader unstyled.
+ * `remark-markdown-features.js` renders `:::tip`, `:::note`, `:::caution` and `:::danger` as callouts instead,
+ * and this holds it to that: two `:::note` blocks shipped unstyled before it existed (UIUX-267). It matches the
+ * class on an element rather than the bare name, because Starlight's `print.css` names the selector too, and
+ * that stylesheet inlined into a page would match on every page.
+ */
+function checkAsides(failures) {
+  const pages = readdirSync(distDir, { encoding: 'utf8', recursive: true })
+    .filter((file) => file.endsWith('.html'))
+    .sort();
+
+  if (pages.length === 0) {
+    failures.push('no built pages were found, so none was checked for Starlight asides');
+  }
+
+  for (const page of pages) {
+    const asides = count(readFileSync(join(distDir, page), 'utf-8'), /class="[^"]*\bstarlight-aside\b/g);
+
+    if (asides > 0) {
+      failures.push(
+        `${page}: ${asides} Starlight aside(s), which this site does not style. ` +
+          'remark-markdown-features.js should render `:::tip`, `:::note`, `:::caution` and `:::danger` as callouts.',
+      );
+    }
+  }
+
+  return pages.length;
+}
+
 function main() {
   if (!existsSync(builtDir)) {
     console.error(`No build found at ${builtDir}. Run \`npm run build\` first.`);
@@ -638,12 +670,15 @@ function main() {
   checkVariantDefaults(failures);
   checked += checkRoadmap(failures);
   checked += checkChangelog(failures);
+  const scannedForAsides = checkAsides(failures);
 
   for (const failure of failures) {
     console.error(`  ${failure}`);
   }
 
-  console.log(`\n${checked} pages checked, ${failures.length} problems.`);
+  console.log(
+    `\n${checked} pages checked, ${scannedForAsides} scanned for Starlight asides, ${failures.length} problems.`,
+  );
 
   if (failures.length) {
     process.exitCode = 1;

@@ -207,7 +207,7 @@ Cornerstone provides both an [llms.txt file](/ai/llms) and [Agent Skills](https:
 | Context usage | Progressive disclosure (loads as needed) | Loads everything at once      |
 | Supported by  | Tools supporting agentskills.io spec     | Most AI tools                 |
 
-:::info
+:::tip
 If your AI tool supports Agent Skills, **we recommend using the skills** for better context efficiency. Otherwise, the `llms.txt` file is a great fallback.
 :::
 

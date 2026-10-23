@@ -43,7 +43,7 @@ Once a palette is loaded, you can reach for any of its hue and tint tokens in yo
 }
 ```
 
-:::info
+:::tip
 **Building with other tints?** The [Color tokens](/tokens/color) reference lists every tint and semantic
 variant — pair them across the scale and you'll hit WCAG contrast ratios without doing the math.
 :::

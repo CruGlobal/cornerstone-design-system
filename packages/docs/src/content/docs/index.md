@@ -19,11 +19,6 @@ Cornerstone Components is the `cs-*` custom-element library of the Cornerstone d
 pages under **Components** are its reference: every one is generated from the same Custom Elements
 Manifest the package ships, so what you read here is what the component actually does.
 
-:::info
-This site is being ported from its previous generator a page at a time. Pages carry their original
-prose until each is revised, so some of it still describes the library this one was forked from.
-:::
-
 ## Installing via npm
 
 ```bash

@@ -213,7 +213,7 @@ Material Symbols ships no brand marks, so Cornerstone includes a small `brands` 
 </div>
 ```
 
-:::info
+:::tip
 <strong>Need a logo that isn't here?</strong><br />
 The library covers the marks Cornerstone's own documentation uses. Paste any other Simple Icons SVG into a
 [custom library](#third-party-icon-libraries), or point one at their CDN.

@@ -21,16 +21,24 @@ import { visit } from 'unist-util-visit';
  * The icons render in Material Symbols' default outlined cut. Eleventy drew Font Awesome glyphs through
  * upstream's Pro kit, so the names here are not the ones it used.
  *
- * Starlight's native `:::note` / `:::tip` / `:::caution` / `:::danger` asides are left alone. Nothing in
- * the reference authors them, and taking them over would mean owning Starlight's aside markup for no
- * gain.
+ * Starlight's own aside names, `:::tip`, `:::note`, `:::caution` and `:::danger`, become callouts too.
+ * Starlight would render them as `<aside class="starlight-aside">`, and `stub-starlight-styles.js` removes
+ * that stylesheet, so left to Starlight they reach the page unstyled (UIUX-267). Starlight's aside plugin
+ * appends itself to the processor, so it runs after this one, and it claims any container still carrying one
+ * of those names. `check-pages.js` fails if `starlight-aside` reaches a built page.
  */
 
-/** The container types the reference actually uses, with the variant and icon each renders as. */
+/** The container types the reference uses, with the variant and icon each renders as. */
 const CALLOUTS = {
   info: { variant: 'information', icon: 'info' },
   warning: { variant: 'warning', icon: 'warning' },
   new: { variant: 'neutral', icon: 'campaign', className: 'new' },
+  // Starlight's aside names. `tip` keeps the look `:::info` had before the information role existed, for a
+  // suggestion rather than a fact. `note` has a sticky note, because `info` already marks the information role.
+  tip: { variant: 'brand', icon: 'lightbulb' },
+  note: { variant: 'neutral', icon: 'sticky_note_2' },
+  caution: { variant: 'warning', icon: 'warning' },
+  danger: { variant: 'danger', icon: 'error' },
 };
 
 /** Splits a text node on a pattern, replacing each match with a raw HTML node. */
@@ -86,6 +94,16 @@ export function remarkMarkdownFeatures() {
         },
         children: [],
       });
+
+      // remark-directive puts a `[label]` first, as a paragraph. Starlight shows it as the aside's title, so it
+      // leads the callout in bold here rather than reading as the first line of the message.
+      const label = node.children.find((child) => child.data?.directiveLabel);
+      if (label) {
+        label.data.hName = 'strong';
+      }
+
+      // Renamed so Starlight's aside plugin, which runs later and matches on the name, passes over it.
+      node.name = `cs-callout-${node.name}`;
     });
 
     // `[[Key]]` and `==mark==` are inline. Only text nodes are visited, so neither can fire inside a

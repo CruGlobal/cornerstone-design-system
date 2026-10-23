@@ -30,8 +30,11 @@
  *   selector here (`.sl-banner`, `.sl-badge`, `.sl-link-button`, `.sl-steps`, `starlight-file-tree`,
  *   `.expressive-code`), so it has no live dependency either.
  *
- * - `asides.css` (1,268 B) and `util.css` (618 B) — provably dead. `starlight-aside`, `sr-only`,
- *   `sl-hidden`, `sl-flex`, `sl-block` and `rtl:flip` appear **0 times across all 115 built pages**.
+ * - `asides.css` (1,268 B) and `util.css` (618 B) — dead. `sr-only`, `sl-hidden`, `sl-flex`, `sl-block`
+ *   and `rtl:flip` appeared **0 times across all 115 built pages**. `starlight-aside` is kept at 0 by
+ *   construction rather than by measurement: `remark-markdown-features.js` renders Starlight's aside names
+ *   as `cs-callout`, and `check-pages.js` fails if a `starlight-aside` element reaches a built page. Two
+ *   `:::note` blocks reached the site unstyled before that rule existed (UIUX-267).
  *
  * Two things `reset.css` supplied that needed a replacement first, both now in place:
  *
