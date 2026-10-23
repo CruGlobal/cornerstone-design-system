@@ -43,9 +43,11 @@ loaded the page.
 
 **Directives and fences the plugins define**
 
-Starlight knows `note`, `tip`, `caution` and `danger`. Everything else (`:::added`, `::changelog`,
-`::roadmap`, `{.example .anatomy}`) is a remark plugin in `packages/docs/src/plugins/`. A new `:::name`
-without a handler renders a bare `<div>` for the page's whole life. A construct the plugin set does not
+Every directive and fence flag (`:::info`, `:::added`, `::changelog`, `::roadmap`, `{.example .anatomy}`) is a
+remark plugin in `packages/docs/src/plugins/`. Starlight's own `note`, `tip`, `caution` and `danger` are taken
+over too and render as `cs-callout`, because the site stubs Starlight's aside styles; `check-pages.js` fails on
+any `starlight-aside` in the build. A new `:::name` without a handler renders a bare `<div>` for the page's
+whole life. A construct the plugin set does not
 handle needs the plugin and an assertion in `scripts/check-pages.js` against the built HTML in the same
 diff.
 

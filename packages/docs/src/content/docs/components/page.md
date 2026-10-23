@@ -68,7 +68,7 @@ Most slots are optional. Slots that have no content will not be shown, allowing 
 
 ## Using `cs-page`
 
-:::info
+:::tip
 If you're not familiar with how slots work in HTML, you might want to [learn more about slots](/usage/#slots) before using this component.
 :::
 

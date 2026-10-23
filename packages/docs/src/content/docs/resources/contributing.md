@@ -85,10 +85,17 @@ Special callouts can be added using the following syntax.
 This is an informational callout
 :::
 
+:::tip
+This is a tip callout
+:::
+
 :::warning
 This is a caution callout
 :::
 ```
+
+Starlight's `:::note`, `:::caution` and `:::danger` render as callouts too. Each name's variant and icon are set in
+`packages/docs/src/plugins/remark-markdown-features.js`.
 
 ### Frontmatter
 
@@ -127,7 +134,7 @@ The following is a non-exhaustive list of conventions, patterns, and best practi
 
 If in doubt, use your best judgment — code review is the place to settle it. If you want the question answered before you write the code, open an issue.
 
-:::info
+:::tip
 This section can be a lot to digest in one sitting, so don't feel like you need to take it all in right now. Most contributors will be better off skimming this section and reviewing the relevant content as needed.
 :::
 
