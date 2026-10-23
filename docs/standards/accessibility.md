@@ -68,8 +68,8 @@ useful. Never change a control's label and its state signal in the same moment.
 - 59 of 70 components assert `to.be.accessible()` on three engines in both render modes; the eleven that do
   not are utilities rendering nothing interactive, by decision. A new interactive component without the
   assertion is a blocker.
-- **A test that returns early under the SSR fixture passes while asserting nothing** (`cs-callout`,
-  UIUX-119). Flag any new one; it is the exact gap this document exists to catch.
+- **A test that returns early under the SSR fixture passes while asserting nothing** (UIUX-119 tracks the
+  ones still in the suite). Flag any new one; it is the exact gap this document exists to catch.
 - axe covers the rendered DOM only: a popup, dialog or menu must be opened before the assertion. A green
   suite is a floor, not a conformance statement; say which half a finding rests on (established from code
   and computation, or needing a human at real assistive technology), and never word a finding so it reads
