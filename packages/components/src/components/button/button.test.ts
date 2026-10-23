@@ -1,10 +1,11 @@
 import { aTimeout, expect, waitUntil } from '@open-wc/testing';
-import { a11ySnapshot } from '@web/test-runner-commands';
+import { a11ySnapshot, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
 import { formControlHeight } from '../../internal/test/form-control-height.js';
+import { clickOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsButton from './button.js';
 
 const variants = ['brand', 'highlight', 'information', 'success', 'neutral', 'warning', 'danger'];
@@ -115,6 +116,35 @@ describe('<cs-button>', () => {
         it('should be accessible when disabled', async () => {
           const el = await fixture<CsButton>(html` <cs-button disabled>Button Label</cs-button> `);
           await expect(el).to.be.accessible();
+        });
+
+        it('should be accessible when loading', async () => {
+          const el = await fixture<CsButton>(html` <cs-button loading><span>Button Label</span></cs-button> `);
+          await expect(el).to.be.accessible();
+        });
+
+        it('should keep the label in the accessibility tree when loading', async () => {
+          const el = await fixture<CsButton>(html` <cs-button loading><span>Button Label</span></cs-button> `);
+          const label = el.querySelector('span')!;
+          expect(getComputedStyle(label).visibility).to.not.equal('hidden');
+        });
+
+        it('should not let clicks reach the hidden label when loading', async () => {
+          const el = await fixture<CsButton>(html` <cs-button loading><span>Button Label</span></cs-button> `);
+          const label = el.querySelector('span')!;
+          const labelHandler = sinon.spy();
+          label.addEventListener('click', labelHandler);
+
+          // Away from the centre, where the spinner sits
+          await clickOnElement(label, 'left');
+
+          expect(labelHandler).not.to.have.been.called;
+        });
+
+        it('should set aria-busy when loading', async () => {
+          const el = await fixture<CsButton>(html` <cs-button loading>Button Label</cs-button> `);
+          const button = el.shadowRoot!.querySelector<HTMLButtonElement>('[part~="button"]')!;
+          expect(button.getAttribute('aria-busy')).to.equal('true');
         });
       });
 
@@ -465,7 +495,9 @@ describe('<cs-button>', () => {
           `);
           const button = partOf(el, 'button');
 
-          el.focus();
+          // Focus from the keyboard: after a pointer click earlier in the run, a programmatic focus() no longer
+          // counts as keyboard focus, and the ring only shows for :focus-visible.
+          await sendKeys({ press: 'Tab' });
           await waitUntil(() => button.matches(':focus-visible'), 'the button never showed its focus ring');
           const style = getComputedStyle(button);
 
