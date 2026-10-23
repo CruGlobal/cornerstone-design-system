@@ -64,8 +64,8 @@ theming breakage §1.1 is set up to prevent.
 
 ### `loud` / `normal` / `quiet` — your contrast lever
 
-Each semantic role (`brand`, `neutral`, `success`, `warning`, `danger`) exposes three weight steps,
-and these are how you encode hierarchy through color:
+Each semantic role (`brand`, `neutral`, `highlight`, `information`, `success`, `warning`, `danger`)
+exposes three weight steps, and these are how you encode hierarchy through color:
 
 - **`loud`** — boldest fill, highest visual weight. Primary actions, hero callouts, the most
   important band on a page.

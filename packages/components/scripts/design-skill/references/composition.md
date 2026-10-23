@@ -371,7 +371,7 @@ playbook so your CSS stays themed, accessible, and dark-mode-aware automatically
    use the corresponding `-on-*` token — `--cs-color-brand-on-loud` for text on `--cs-color-brand-fill-loud`.
    The built-in palettes are WCAG-tuned for these pairings, so contrast is correct without manual checking.
 4. **Pick `loud` / `normal` / `quiet` as a contrast lever.** Each semantic variant (`brand`, `neutral`,
-   `success`, `warning`, `danger`) exposes three weight steps:
+   `highlight`, `information`, `success`, `warning`, `danger`) exposes three weight steps:
 
    - **`loud`** — boldest fill, highest visual weight. Use for primary actions and hero callouts.
    - **`normal`** — default mid-step. Use for secondary surfaces and standard emphasis.

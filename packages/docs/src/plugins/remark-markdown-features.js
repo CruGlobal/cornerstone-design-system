@@ -12,7 +12,8 @@ import { visit } from 'unist-util-visit';
  * and what the design skill's ladder requires: a callout is a component the system already has, so the
  * site uses it rather than restyling Starlight's own aside. Variant and icon names are carried across
  * unchanged, and each was checked against the component's manifest entry before use — `cs-callout`
- * documents an `icon` slot and the variants `brand | neutral | success | warning | danger`.
+ * documents an `icon` slot and the variants
+ * `brand | neutral | highlight | information | success | warning | danger`.
  *
  * The icons render in Material Symbols' default outlined cut. Eleventy drew Font Awesome glyphs through
  * upstream's Pro kit, so the names here are not the ones it used.

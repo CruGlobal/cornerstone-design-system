@@ -1,6 +1,6 @@
 ---
 title: Color Variants
-description: Color utilities allow you to apply the brand, neutral, success, warning, and danger colors from your theme to any element.
+description: Color utilities allow you to apply the brand, neutral, highlight, information, success, warning, and danger colors from your theme to any element.
 tags: styleUtilities
 synonyms:
   - text color
@@ -17,19 +17,21 @@ use-cases:
   - success color
 ---
 
-Several Cornerstone components (like [`<cs-badge>`](/components/badge), [`<cs-button>`](/components/button), [`<cs-button-group>`](/components/button-group), [`<cs-callout>`](/components/callout), and [`<cs-tag>`](/components/tag)) accept a `variant` attribute to switch between your theme's brand, neutral, success, warning, and danger colors. The color variant utility classes bring that same expressiveness to any element: toggle a brand-colored alert, a warning-styled panel, or a success-tinted badge on your own markup without writing variant-specific CSS for each one.
+Several Cornerstone components (like [`<cs-badge>`](/components/badge), [`<cs-button>`](/components/button), [`<cs-button-group>`](/components/button-group), [`<cs-callout>`](/components/callout), and [`<cs-tag>`](/components/tag)) accept a `variant` attribute to switch between your theme's brand, neutral, highlight, information, success, warning, and danger colors. The color variant utility classes bring that same expressiveness to any element: toggle a brand-colored alert, a warning-styled panel, or a success-tinted badge on your own markup without writing variant-specific CSS for each one.
 
 ## Variant Classes
 
 Add one of these classes to any element to apply a semantic color:
 
-| Class Name   | Best For                              |
-| ------------ | ------------------------------------- |
-| `cs-brand`   | Primary emphasis and brand color      |
-| `cs-neutral` | Default, low-emphasis UI              |
-| `cs-success` | Positive or confirming states         |
-| `cs-warning` | Cautionary states that need attention |
-| `cs-danger`  | Errors and destructive actions        |
+| Class Name       | Best For                              |
+| ---------------- | ------------------------------------- |
+| `cs-brand`       | Primary emphasis and brand color      |
+| `cs-neutral`     | Default, low-emphasis UI              |
+| `cs-highlight`   | Emphasis without a status meaning     |
+| `cs-information` | Neutral, informative messages         |
+| `cs-success`     | Positive or confirming states         |
+| `cs-warning`     | Cautionary states that need attention |
+| `cs-danger`      | Errors and destructive actions        |
 
 ## How Variants Work
 
@@ -44,6 +46,8 @@ Here's a tiny `.callout` class that responds to every color variant without any 
 ```html {.example}
 <p class="callout">Neutral</p>
 <p class="callout cs-brand">Brand</p>
+<p class="callout cs-highlight">Highlight</p>
+<p class="callout cs-information">Information</p>
 <p class="callout cs-success">Success</p>
 <p class="callout cs-warning">Warning</p>
 <p class="callout cs-danger">Danger</p>

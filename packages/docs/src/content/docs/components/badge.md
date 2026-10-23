@@ -35,8 +35,10 @@ Set the `variant` attribute to change the badge's variant.
 
 ```html {.example}
 <cs-badge variant="brand">Brand</cs-badge>
-<cs-badge variant="success">Success</cs-badge>
 <cs-badge variant="neutral">Neutral</cs-badge>
+<cs-badge variant="highlight">Highlight</cs-badge>
+<cs-badge variant="information">Information</cs-badge>
+<cs-badge variant="success">Success</cs-badge>
 <cs-badge variant="warning">Warning</cs-badge>
 <cs-badge variant="danger">Danger</cs-badge>
 ```
@@ -58,6 +60,18 @@ Use the `appearance` attribute to change the badge's visual appearance.
     <cs-badge appearance="filled-outlined" variant="brand">Filled-Outlined</cs-badge>
     <cs-badge appearance="filled" variant="brand">Filled</cs-badge>
     <cs-badge appearance="outlined" variant="brand">Outlined</cs-badge>
+  </div>
+  <div>
+    <cs-badge appearance="accent" variant="highlight">Accent</cs-badge>
+    <cs-badge appearance="filled-outlined" variant="highlight">Filled-Outlined</cs-badge>
+    <cs-badge appearance="filled" variant="highlight">Filled</cs-badge>
+    <cs-badge appearance="outlined" variant="highlight">Outlined</cs-badge>
+  </div>
+  <div>
+    <cs-badge appearance="accent" variant="information">Accent</cs-badge>
+    <cs-badge appearance="filled-outlined" variant="information">Filled-Outlined</cs-badge>
+    <cs-badge appearance="filled" variant="information">Filled</cs-badge>
+    <cs-badge appearance="outlined" variant="information">Outlined</cs-badge>
   </div>
   <div>
     <cs-badge appearance="accent" variant="success">Accent</cs-badge>
@@ -98,8 +112,10 @@ Use the `pill` attribute to give badges rounded edges.
 
 ```html {.example}
 <cs-badge variant="brand" pill>Brand</cs-badge>
-<cs-badge variant="success" pill>Success</cs-badge>
 <cs-badge variant="neutral" pill>Neutral</cs-badge>
+<cs-badge variant="highlight" pill>Highlight</cs-badge>
+<cs-badge variant="information" pill>Information</cs-badge>
+<cs-badge variant="success" pill>Success</cs-badge>
 <cs-badge variant="warning" pill>Warning</cs-badge>
 <cs-badge variant="danger" pill>Danger</cs-badge>
 ```
@@ -111,16 +127,20 @@ Use the `attention` attribute to draw attention to the badge with a subtle anima
 ```html {.example}
 <div class="badge-attention">
   <cs-badge variant="brand" attention="pulse" pill>1</cs-badge>
-  <cs-badge variant="success" attention="pulse" pill>1</cs-badge>
   <cs-badge variant="neutral" attention="pulse" pill>1</cs-badge>
+  <cs-badge variant="highlight" attention="pulse" pill>1</cs-badge>
+  <cs-badge variant="information" attention="pulse" pill>1</cs-badge>
+  <cs-badge variant="success" attention="pulse" pill>1</cs-badge>
   <cs-badge variant="warning" attention="pulse" pill>1</cs-badge>
   <cs-badge variant="danger" attention="pulse" pill>1</cs-badge>
 </div>
 
 <div class="badge-attention">
   <cs-badge variant="brand" attention="bounce" pill>1</cs-badge>
-  <cs-badge variant="success" attention="bounce" pill>1</cs-badge>
   <cs-badge variant="neutral" attention="bounce" pill>1</cs-badge>
+  <cs-badge variant="highlight" attention="bounce" pill>1</cs-badge>
+  <cs-badge variant="information" attention="bounce" pill>1</cs-badge>
+  <cs-badge variant="success" attention="bounce" pill>1</cs-badge>
   <cs-badge variant="warning" attention="bounce" pill>1</cs-badge>
   <cs-badge variant="danger" attention="bounce" pill>1</cs-badge>
 </div>
