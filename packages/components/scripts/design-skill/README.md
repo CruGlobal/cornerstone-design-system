@@ -61,9 +61,12 @@ dist/bundled/skills/cornerstone-design/     ← GENERATED, do not edit
 ## The skill verifier (`npm run verify:skills`)
 
 `scripts/verify-skills.js` cross-checks the skill content against the library so silent drift can't
-ship. It runs automatically as part of `npm run verify` (after `build`, before `test`) and can be run
-standalone for fast iteration. It catches:
+ship. It runs automatically as part of `npm run verify` (after `build`, before `test`), in CI's
+documentation job after it builds the library, and can be run standalone for fast iteration. It catches:
 
+- **A missing or partial build.** Each skill's `SKILL.md`, every file a `SKILL.md` links to, a reference
+  file per component, and `llms.txt` must all be in `dist/unbundled/`. With nothing built it warns at a
+  terminal, so it runs before a first build, and fails in CI, where `CI` is set and nobody reads a warning
 - **Broken `<cs-*>` references** anywhere in the skills — must exist in either `src/components/`
 - **Wrong Pro/Free classification** — rows marked `**(Pro)**` must point at the pro package; unmarked rows must point at the free package
 - **Wrong attribute citations** — every `<cs-tag attr>` or `<cs-tag attr="value">` cited in `agent-skill/choosing-components.md` must reference a real attribute per the CEM. Caught the case where `<cs-tag removable>` should have been `<cs-tag with-remove>`
