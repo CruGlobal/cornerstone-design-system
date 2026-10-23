@@ -1,0 +1,52 @@
+<!doctype html>
+<!--
+  The clean sign-in test Screen with a slow start and a late dark stylesheet, for check-a11y.test.js. Never
+  built into the site.
+
+  It defines its own `cs-later` element 800ms after load and makes no requests in that time, so the dark switch
+  comes long after the load's requests went quiet. A moment after the switch it loads `dark-extras.css`, which
+  turns one line dark grey and fails color-contrast on the dark page. The check finds that only if it waits
+  after the switch itself, rather than counting from the load. It imports its components directly instead of
+  through the loader, which would try to download `cs-later` and 404.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module">
+      import '../../../../dist/components/input/input.js';
+      import '../../../../dist/components/button/button.js';
+
+      setTimeout(() => customElements.define('cs-later', class extends HTMLElement {}), 800);
+    </script>
+    <script>
+      new MutationObserver(() => {
+        if (document.documentElement.classList.contains('cs-dark') && !document.querySelector('link.late')) {
+          setTimeout(() => {
+            const link = Object.assign(document.createElement('link'), {
+              rel: 'stylesheet',
+              className: 'late',
+              href: 'dark-extras.css',
+            });
+            document.head.append(link);
+          }, 300);
+        }
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    </script>
+  </head>
+  <body>
+    <main class="cs-stack">
+      <h1>Sign in</h1>
+      <p class="late-ink">Use the email you signed up with.</p>
+      <cs-later></cs-later>
+      <form class="cs-stack">
+        <cs-input label="Email" type="email" name="email"></cs-input>
+        <cs-input label="Password" type="password" name="password"></cs-input>
+        <cs-button type="submit" variant="brand">Sign in</cs-button>
+      </form>
+    </main>
+  </body>
+</html>

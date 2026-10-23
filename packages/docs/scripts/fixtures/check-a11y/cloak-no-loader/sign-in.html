@@ -1,0 +1,29 @@
+<!doctype html>
+<!--
+  The clean sign-in test Screen that keeps `cs-cloak` and loads its components without the loader, for
+  check-a11y.test.js. Never built into the site. Only the loader removes the class, but the cloak hides nothing
+  once every element inside it is defined (see `utilities/fouce.md`), so the page renders normally and must pass.
+-->
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module">
+      import '../../../../dist/components/input/input.js';
+      import '../../../../dist/components/button/button.js';
+    </script>
+  </head>
+  <body>
+    <main class="cs-stack">
+      <h1>Sign in</h1>
+      <form class="cs-stack">
+        <cs-input label="Email" type="email" name="email"></cs-input>
+        <cs-input label="Password" type="password" name="password"></cs-input>
+        <cs-button type="submit" variant="brand">Sign in</cs-button>
+      </form>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<!--
+  The clean sign-in test Screen with a `cs-*` element nothing ever defines, for check-a11y.test.js. Never built
+  into the site. It loads its components directly rather than through the loader, which would try to download
+  `cs-never` and fail on the 404 instead. axe on a page still waiting for a component is not a result, so the
+  check must fail it and name the element.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module">
+      import '../../../../dist/components/input/input.js';
+      import '../../../../dist/components/button/button.js';
+    </script>
+  </head>
+  <body>
+    <main class="cs-stack">
+      <h1>Sign in</h1>
+      <cs-never></cs-never>
+      <form class="cs-stack">
+        <cs-input label="Email" type="email" name="email"></cs-input>
+        <cs-input label="Password" type="password" name="password"></cs-input>
+        <cs-button type="submit" variant="brand">Sign in</cs-button>
+      </form>
+    </main>
+  </body>
+</html>
