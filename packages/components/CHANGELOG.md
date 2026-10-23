@@ -1,5 +1,59 @@
 # @cruglobal/cornerstone-components
 
+## 0.10.0
+
+### Breaking
+
+- [#262](https://github.com/CruGlobal/cornerstone-design-system/pull/262) [`628cf46`](https://github.com/CruGlobal/cornerstone-design-system/commit/628cf4657215bf5045f44aedf941c576ec4df725) Thanks [@rguinee](https://github.com/rguinee)! - Every component custom property is renamed to `--cs-<component>-<property>` or one of seven shared names (`--spacing` on `<cs-card>` is now `--cs-card-spacing`), and none is set on the host, so each can be set on the page, a section or one element. The layout utilities' `--min-column-size`, `--flank-size` and `--content-percentage` become `--cs-grid-min-column-size`, `--cs-flank-size` and `--cs-flank-content-percentage`, and the themes no longer set `--cs-tooltip-*`, so your own CSS that reads one outside a `<cs-tooltip>` gets nothing.
+
+- [#262](https://github.com/CruGlobal/cornerstone-design-system/pull/262) [`628cf46`](https://github.com/CruGlobal/cornerstone-design-system/commit/628cf4657215bf5045f44aedf941c576ec4df725) Thanks [@rguinee](https://github.com/rguinee)! - Components no longer set unprefixed custom properties on their host for app CSS to inherit. `<cs-page>` drops `--scroll-margin-top` (anchors still clear the header) and stops writing a footer height, and `<cs-qr-code>`'s `--corner-color` is now the documented `--cs-qr-code-corner-color`.
+
+### Added
+
+- [#261](https://github.com/CruGlobal/cornerstone-design-system/pull/261) [`bc26cf5`](https://github.com/CruGlobal/cornerstone-design-system/commit/bc26cf5b9652031b116badf1177f7d3eae34b09d) Thanks [@rguinee](https://github.com/rguinee)! - `cs-button` takes `orientation="vertical"` to stack its `start` slot above the label and `end` below it, spaced by `--cs-button-stacked-gap`, `--cs-button-stacked-padding-block` and `--cs-button-stacked-padding-inline`. It reads `--cs-button-justify-content` to align a one-row button's content. Buttons in a horizontal `cs-button-group` share one height. The Button page gains Stacked, Navigation Bar and Content Alignment examples.
+
+- [#257](https://github.com/CruGlobal/cornerstone-design-system/pull/257) [`80c65bb`](https://github.com/CruGlobal/cornerstone-design-system/commit/80c65bb874e4102bd90ae54a36322bbcdee1d7ac) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - The docs site now runs axe on every Inspiration Screen state file in light and dark mode after it builds, and fails on any violation, missing file or page error. Docs tooling and an unshipped page only; nothing that ships changes.
+
+- [#228](https://github.com/CruGlobal/cornerstone-design-system/pull/228) [`dc56943`](https://github.com/CruGlobal/cornerstone-design-system/commit/dc56943af8095c571e8f1cc0351420174359ce71) Thanks [@rguinee](https://github.com/rguinee)! - glossary terms for component properties and shared properties.
+
+### Changed
+
+- [#282](https://github.com/CruGlobal/cornerstone-design-system/pull/282) [`692dac3`](https://github.com/CruGlobal/cornerstone-design-system/commit/692dac383eccb905848377f8f820693e14cfeb3b) Thanks [@rguinee](https://github.com/rguinee)! - the test suite runs on Playwright 1.55.1 (Chromium 140, Firefox 141, WebKit 26.0) instead of the pinned 1.52.0, which closes GHSA-7mvr-c777-76hp. No package output changes.
+
+- [#278](https://github.com/CruGlobal/cornerstone-design-system/pull/278) [`80fc778`](https://github.com/CruGlobal/cornerstone-design-system/commit/80fc778f823134f3e1ac4c72a3a0976e236d0885) Thanks [@rguinee](https://github.com/rguinee)! - The roadmap lists a fourth 1.0.0 entry criterion, that the known defects in what ships are fixed. Docs site only; the package's output is unchanged.
+
+### Fixed
+
+- [#260](https://github.com/CruGlobal/cornerstone-design-system/pull/260) [`fa39049`](https://github.com/CruGlobal/cornerstone-design-system/commit/fa3904923251f3a68797c8fe0b3e8f3ed5406ec9) Thanks [@rguinee](https://github.com/rguinee)! - The tooltip placement example gives each button visible text, so none relies on its tooltip for a name. The accessibility and browser support pages now claim only what the test record shows, and a docs check fails the build when a contrast ratio or colour the accessibility page prints stops matching the shipped themes.
+
+- [#262](https://github.com/CruGlobal/cornerstone-design-system/pull/262) [`628cf46`](https://github.com/CruGlobal/cornerstone-design-system/commit/628cf4657215bf5045f44aedf941c576ec4df725) Thanks [@rguinee](https://github.com/rguinee)! - The Accessibility page scopes its reduced-motion claim to show and hide animations, corrects its focus-indicator contrast, and lists the remaining contrast and motion gaps.
+
+- [#277](https://github.com/CruGlobal/cornerstone-design-system/pull/277) [`5551146`](https://github.com/CruGlobal/cornerstone-design-system/commit/555114680b140b931aad099af6512bf9d149c675) Thanks [@rguinee](https://github.com/rguinee)! - A failed agent-file step now fails the build. An error while writing the agent skills or `llms.txt` exits non-zero instead of 0.
+
+- [#261](https://github.com/CruGlobal/cornerstone-design-system/pull/261) [`b030ca5`](https://github.com/CruGlobal/cornerstone-design-system/commit/b030ca5a8952a3ffe5849cda6f609dc18985fdc0) Thanks [@rguinee](https://github.com/rguinee)! - `cs-button` with `with-caret` keeps a `cs-badge` in its `end` slot, so it shows and its text joins the button's accessible name; the caret still hides anything else there.
+
+- [#276](https://github.com/CruGlobal/cornerstone-design-system/pull/276) [`767b6df`](https://github.com/CruGlobal/cornerstone-design-system/commit/767b6dfe96ec21f882153b2538cb643a731c160a) Thanks [@rguinee](https://github.com/rguinee)! - the Accessibility page drops the closed `cs-callout` SSR gap; docs site only, the package's output is unchanged.
+
+- [#280](https://github.com/CruGlobal/cornerstone-design-system/pull/280) [`5b1a7a4`](https://github.com/CruGlobal/cornerstone-design-system/commit/5b1a7a483f247f3783d629ae76e6a9fb72e40538) Thanks [@rguinee](https://github.com/rguinee)! - `cs-callout`'s variant accessibility check is one test per variant instead of all seven in one.
+
+- [#264](https://github.com/CruGlobal/cornerstone-design-system/pull/264) [`baa92f8`](https://github.com/CruGlobal/cornerstone-design-system/commit/baa92f8b24a2d549e3a705b6235a2506fe0c3a06) Thanks [@rguinee](https://github.com/rguinee)! - CI runs the component tests in Playwright's container image instead of installing browser libraries on each shard, so a slow Ubuntu mirror no longer stalls them. No package output changes.
+
+- [#275](https://github.com/CruGlobal/cornerstone-design-system/pull/275) [`478925b`](https://github.com/CruGlobal/cornerstone-design-system/commit/478925bb2d4cb10162f6cd3edb4bd7f32ce95b84) Thanks [@rguinee](https://github.com/rguinee)! - The badge, button, callout, tag, toast item and toast tests now cover the `highlight` and `information` variants. No package output changes.
+
+- [#274](https://github.com/CruGlobal/cornerstone-design-system/pull/274) [`e329a8e`](https://github.com/CruGlobal/cornerstone-design-system/commit/e329a8e4ca3d8ef399522b01312379565584eddb) Thanks [@rguinee](https://github.com/rguinee)! - the docs and the shipped agent skills now show the `highlight` and `information` variants. The Badge, Button, Callout, Tag, Toast and Toast Item examples include both, and the Theming, Color Variants and Native Styles pages list all seven roles.
+
+- [#279](https://github.com/CruGlobal/cornerstone-design-system/pull/279) [`b6381ab`](https://github.com/CruGlobal/cornerstone-design-system/commit/b6381ab6341ec903bca5b05fce35843309ad4932) Thanks [@rguinee](https://github.com/rguinee)! - the docs home page and the shipped skill's installation reference no longer say the site is being ported.
+
+- [#262](https://github.com/CruGlobal/cornerstone-design-system/pull/262) [`628cf46`](https://github.com/CruGlobal/cornerstone-design-system/commit/628cf4657215bf5045f44aedf941c576ec4df725) Thanks [@rguinee](https://github.com/rguinee)! - the `<cs-qr-code>` image examples in the docs and agent skill pointed at logos that don't exist, so they drew no image. They now use the Cornerstone mark.
+
+- [#262](https://github.com/CruGlobal/cornerstone-design-system/pull/262) [`628cf46`](https://github.com/CruGlobal/cornerstone-design-system/commit/628cf4657215bf5045f44aedf941c576ec4df725) Thanks [@rguinee](https://github.com/rguinee)! - Every animation that reads `--cs-show-duration` or `--cs-hide-duration` now finishes at once when the user prefers reduced motion, including `<cs-time-input>`'s popup. Anchors in a `<cs-page>` clear a sticky banner as well as the header, and `<cs-skeleton>` stays visible in forced colors mode.
+
+- [#279](https://github.com/CruGlobal/cornerstone-design-system/pull/279) [`4acff5b`](https://github.com/CruGlobal/cornerstone-design-system/commit/4acff5bbeaaef2d17f130cd923a69b07c680bfd8) Thanks [@rguinee](https://github.com/rguinee)! - `:::note`, `:::tip`, `:::caution` and `:::danger` render as styled callouts on the docs site; in the shipped skill, four suggestions now read **Tip** instead of **Info**.
+
+- [#262](https://github.com/CruGlobal/cornerstone-design-system/pull/262) [`628cf46`](https://github.com/CruGlobal/cornerstone-design-system/commit/628cf4657215bf5045f44aedf941c576ec4df725) Thanks [@rguinee](https://github.com/rguinee)! - Calling `openSubmenu()` or `closeSubmenu()` on `<cs-dropdown-item>` runs the transition once, so a submenu closed that way animates instead of vanishing.
+
+- [#262](https://github.com/CruGlobal/cornerstone-design-system/pull/262) [`628cf46`](https://github.com/CruGlobal/cornerstone-design-system/commit/628cf4657215bf5045f44aedf941c576ec4df725) Thanks [@rguinee](https://github.com/rguinee)! - Components no longer read unprefixed custom properties a page happens to define, such as `--color` in `<cs-color-picker>` and `--box-shadow` in `<cs-input>`. A one-row `<cs-textarea>` is now as tall as an input, and a dropdown submenu closes over `--cs-hide-duration` instead of the show duration.
+
 ## 0.9.0
 
 ### Added

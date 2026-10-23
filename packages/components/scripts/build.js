@@ -130,6 +130,13 @@ export async function build(options = {}) {
     } catch (err) {
       spinner.fail();
       console.log(chalk.red(`\n${err}`));
+
+      // Steps without their own catch, the agent skills and llms.txt among them, fail here, so a one-off build
+      // must not exit 0 and let a release publish without them. `exitCode` rather than `exit()` lets the error
+      // above flush. `--develop` runs this once at startup and carries on, so the dev server still comes up.
+      if (!isDeveloping) {
+        process.exitCode = 1;
+      }
     }
   }
 
