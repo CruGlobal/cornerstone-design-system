@@ -135,10 +135,10 @@ jobs:
     # Playwright's own image already holds this version's three browsers and the ~130 apt packages they
     # need. Installing those packages on a bare runner is what made a shard slow: 26-46s from a quick
     # Ubuntu mirror, 34-42 minutes from a slow one, and once a hang cancelled at 207 minutes, against
-    # 4-9 minutes of tests. The tag must match the `playwright` version the root `overrides` pins; a
+    # 4-9 minutes of tests. The tag must match the `playwright` version the packages pin; a
     # mismatch fails at launch ("Executable doesn't exist"), not by testing the wrong browsers.
     container:
-      image: mcr.microsoft.com/playwright:v1.52.0-noble
+      image: mcr.microsoft.com/playwright:v1.55.1-noble
       # Firefox won't start as root when HOME belongs to another user, as it does in a job container.
       # `--ipc=host` is Playwright's advice for Chromium, which can run out of shared memory without it.
       options: --user 1001 --ipc=host
