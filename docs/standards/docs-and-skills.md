@@ -37,7 +37,9 @@ verbatim into the skill. An example that no longer runs still renders, just wron
 Look for: a fence using a component the library does not ship (`check-components.js` catches the tag; it
 cannot catch a prop that does nothing); a value appended to `var(--cs-shadow-m)` (the shorthand already
 ends in a colour, so the declaration is invalid); an icon name not in Material Symbols (renders nothing).
-When a component page changes, the PR says it loaded the page.
+`check-variants.js` catches a colour role missing from a component's Variant example, read from its manifest
+`variant`, or from any list that names three or more roles. When a component page changes, the PR says it
+loaded the page.
 
 **Directives and fences the plugins define**
 
@@ -82,9 +84,9 @@ Twenty-six pages flag an anatomy example and `check-anatomy.js` validates the fl
 **The checks are the gate**
 
 `npm run verify --workspace cornerstone-docs-site` runs Prettier, `astro check`, the build, then
-`check:assets`, `check:pages`, `check:tokens`, `check:components`, `check:anatomy` and `check:contrast`. A page is not
-"working" until that ran. Each check asserts an invariant over the built output; a diff that narrows one to
-an allowlist is a finding.
+`check:assets`, `check:pages`, `check:tokens`, `check:components`, `check:anatomy`, `check:contrast` and
+`check:variants`. A page is not "working" until that ran. Each check asserts an invariant over the built output
+or the page source; a diff that narrows one to an allowlist is a finding.
 
 **Storybook is roadmap** (UIUX-117, UIUX-91). Future tense.
 

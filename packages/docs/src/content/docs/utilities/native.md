@@ -545,11 +545,13 @@ To create links that look like buttons, add the `cs-button` class to an `<a>` el
 <a href="" class="cs-button">Link Button</a>
 ```
 
-Add the `cs-brand`, `cs-neutral`, `cs-success`, `cs-warning`, or `cs-danger` class to specify the button's [color variant](/utilities/color/).
+Add the `cs-brand`, `cs-neutral`, `cs-highlight`, `cs-information`, `cs-success`, `cs-warning`, or `cs-danger` class to specify the button's [color variant](/utilities/color/).
 
 ```html {.example}
 <button class="cs-neutral">Neutral</button>
 <button class="cs-brand">Brand</button>
+<button class="cs-highlight">Highlight</button>
+<button class="cs-information">Information</button>
 <button class="cs-success">Success</button>
 <button class="cs-warning">Warning</button>
 <button class="cs-danger">Danger</button>

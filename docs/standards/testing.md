@@ -101,7 +101,7 @@ and running only the group has tested the previous build.
 
 `test:parts` (`check-css-parts.js`), `test:base-path`, `test:docs-url` and `verify:skills` in
 `packages/components`, and `check:assets`, `check:pages`, `check:tokens`, `check:components`,
-`check:anatomy` and `check:contrast` in `packages/docs`, are the repo's deterministic gates. A change to what one guards updates
+`check:anatomy`, `check:contrast` and `check:variants` in `packages/docs`, are the repo's deterministic gates. A change to what one guards updates
 the script in the same PR; a narrowed regex or an added exemption is a finding until justified.
 
 **Hygiene.** Each test declares its own hand-crafted fixture. Tests do not log.

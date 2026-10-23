@@ -43,6 +43,8 @@ Use the `variant` attribute to set the button's [semantic variant](/theming-over
 <div class="cs-cluster cs-gap-2xs">
   <cs-button variant="neutral">Neutral</cs-button>
   <cs-button variant="brand">Brand</cs-button>
+  <cs-button variant="highlight">Highlight</cs-button>
+  <cs-button variant="information">Information</cs-button>
   <cs-button variant="success">Success</cs-button>
   <cs-button variant="warning">Warning</cs-button>
   <cs-button variant="danger">Danger</cs-button>
@@ -68,6 +70,20 @@ Use the `appearance` attribute to change the button's visual appearance. Pair it
     <cs-button appearance="filled" variant="brand">Filled</cs-button>
     <cs-button appearance="outlined" variant="brand">Outlined</cs-button>
     <cs-button appearance="plain" variant="brand">Plain</cs-button>
+  </div>
+  <div class="cs-cluster cs-gap-2xs">
+    <cs-button appearance="accent" variant="highlight">Accent</cs-button>
+    <cs-button appearance="filled-outlined" variant="highlight">Filled-Outlined</cs-button>
+    <cs-button appearance="filled" variant="highlight">Filled</cs-button>
+    <cs-button appearance="outlined" variant="highlight">Outlined</cs-button>
+    <cs-button appearance="plain" variant="highlight">Plain</cs-button>
+  </div>
+  <div class="cs-cluster cs-gap-2xs">
+    <cs-button appearance="accent" variant="information">Accent</cs-button>
+    <cs-button appearance="filled-outlined" variant="information">Filled-Outlined</cs-button>
+    <cs-button appearance="filled" variant="information">Filled</cs-button>
+    <cs-button appearance="outlined" variant="information">Outlined</cs-button>
+    <cs-button appearance="plain" variant="information">Plain</cs-button>
   </div>
   <div class="cs-cluster cs-gap-2xs">
     <cs-button appearance="accent" variant="success">Accent</cs-button>
@@ -278,8 +294,10 @@ Use the `loading` attribute to put a button in a busy state. Its width stays the
 ```html {.example}
 <div class="cs-cluster cs-gap-2xs">
   <cs-button variant="brand" loading>Brand</cs-button>
-  <cs-button variant="success" loading>Success</cs-button>
   <cs-button variant="neutral" loading>Neutral</cs-button>
+  <cs-button variant="highlight" loading>Highlight</cs-button>
+  <cs-button variant="information" loading>Information</cs-button>
+  <cs-button variant="success" loading>Success</cs-button>
   <cs-button variant="warning" loading>Warning</cs-button>
   <cs-button variant="danger" loading>Danger</cs-button>
 </div>
@@ -293,8 +311,10 @@ Use the `disabled` attribute to disable a button. It works on link buttons too.
 <div class="cs-stack">
   <div class="cs-cluster cs-gap-2xs">
     <cs-button variant="brand" disabled>Brand</cs-button>
-    <cs-button variant="success" disabled>Success</cs-button>
     <cs-button variant="neutral" disabled>Neutral</cs-button>
+    <cs-button variant="highlight" disabled>Highlight</cs-button>
+    <cs-button variant="information" disabled>Information</cs-button>
+    <cs-button variant="success" disabled>Success</cs-button>
     <cs-button variant="warning" disabled>Warning</cs-button>
     <cs-button variant="danger" disabled>Danger</cs-button>
   </div>

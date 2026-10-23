@@ -10,9 +10,13 @@ import { visit } from 'unist-util-visit';
  *
  * The containers become `<cs-callout>`, which is both what Eleventy emitted (docs/_utils/markdown.js:24-50)
  * and what the design skill's ladder requires: a callout is a component the system already has, so the
- * site uses it rather than restyling Starlight's own aside. Variant and icon names are carried across
- * unchanged, and each was checked against the component's manifest entry before use — `cs-callout`
- * documents an `icon` slot and the variants `brand | neutral | success | warning | danger`.
+ * site uses it rather than restyling Starlight's own aside. Each variant was checked against the component's
+ * manifest entry before use — `cs-callout` documents an `icon` slot and the variants
+ * `brand | neutral | highlight | information | success | warning | danger`.
+ *
+ * `:::info` takes the `information` role, which exists for informative messages; Eleventy predates it and drew
+ * these as `brand`. Its icon is `info` rather than a lightbulb, because a lightbulb reads as a tip and most
+ * `:::info` blocks state a fact or a constraint.
  *
  * The icons render in Material Symbols' default outlined cut. Eleventy drew Font Awesome glyphs through
  * upstream's Pro kit, so the names here are not the ones it used.
@@ -22,9 +26,9 @@ import { visit } from 'unist-util-visit';
  * gain.
  */
 
-/** The container types the reference actually uses, with the markup Eleventy gave each. */
+/** The container types the reference actually uses, with the variant and icon each renders as. */
 const CALLOUTS = {
-  info: { variant: 'brand', icon: 'lightbulb' },
+  info: { variant: 'information', icon: 'info' },
   warning: { variant: 'warning', icon: 'warning' },
   new: { variant: 'neutral', icon: 'campaign', className: 'new' },
 };

@@ -217,6 +217,44 @@ Color tests ensure that both the `variant` attribute and `.cs-[variant]` classes
       </td>
     </tr>
     <tr>
+      <th><code>highlight</code></th>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-badge variant="highlight" appearance="accent">Accent</cs-badge>
+          <cs-badge variant="highlight" appearance="filled-outlined">Filled-Outlined</cs-badge>
+          <cs-badge variant="highlight" appearance="filled">Filled</cs-badge>
+          <cs-badge variant="highlight" appearance="outlined">Outlined</cs-badge>
+        </div>
+      </td>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-badge class="cs-highlight" appearance="accent">Accent</cs-badge>
+          <cs-badge class="cs-highlight" appearance="filled-outlined">Filled-Outlined</cs-badge>
+          <cs-badge class="cs-highlight" appearance="filled">Filled</cs-badge>
+          <cs-badge class="cs-highlight" appearance="outlined">Outlined</cs-badge>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th><code>information</code></th>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-badge variant="information" appearance="accent">Accent</cs-badge>
+          <cs-badge variant="information" appearance="filled-outlined">Filled-Outlined</cs-badge>
+          <cs-badge variant="information" appearance="filled">Filled</cs-badge>
+          <cs-badge variant="information" appearance="outlined">Outlined</cs-badge>
+        </div>
+      </td>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-badge class="cs-information" appearance="accent">Accent</cs-badge>
+          <cs-badge class="cs-information" appearance="filled-outlined">Filled-Outlined</cs-badge>
+          <cs-badge class="cs-information" appearance="filled">Filled</cs-badge>
+          <cs-badge class="cs-information" appearance="outlined">Outlined</cs-badge>
+        </div>
+      </td>
+    </tr>
+    <tr>
       <th><code>success</code></th>
       <td>
         <div class="cs-cluster cs-gap-2xs">
@@ -327,6 +365,48 @@ Color tests ensure that both the `variant` attribute and `.cs-[variant]` classes
           <cs-button class="cs-neutral" appearance="filled">Filled</cs-button>
           <cs-button class="cs-neutral" appearance="outlined">Outlined</cs-button>
           <cs-button class="cs-neutral" appearance="plain">Plain</cs-button>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th><code>highlight</code></th>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-button variant="highlight" appearance="accent">Accent</cs-button>
+          <cs-button variant="highlight" appearance="filled-outlined">Filled-Outlined</cs-button>
+          <cs-button variant="highlight" appearance="filled">Filled</cs-button>
+          <cs-button variant="highlight" appearance="outlined">Outlined</cs-button>
+          <cs-button variant="highlight" appearance="plain">Plain</cs-button>
+        </div>
+      </td>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-button class="cs-highlight" appearance="accent">Accent</cs-button>
+          <cs-button class="cs-highlight" appearance="filled-outlined">Filled-Outlined</cs-button>
+          <cs-button class="cs-highlight" appearance="filled">Filled</cs-button>
+          <cs-button class="cs-highlight" appearance="outlined">Outlined</cs-button>
+          <cs-button class="cs-highlight" appearance="plain">Plain</cs-button>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th><code>information</code></th>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-button variant="information" appearance="accent">Accent</cs-button>
+          <cs-button variant="information" appearance="filled-outlined">Filled-Outlined</cs-button>
+          <cs-button variant="information" appearance="filled">Filled</cs-button>
+          <cs-button variant="information" appearance="outlined">Outlined</cs-button>
+          <cs-button variant="information" appearance="plain">Plain</cs-button>
+        </div>
+      </td>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-button class="cs-information" appearance="accent">Accent</cs-button>
+          <cs-button class="cs-information" appearance="filled-outlined">Filled-Outlined</cs-button>
+          <cs-button class="cs-information" appearance="filled">Filled</cs-button>
+          <cs-button class="cs-information" appearance="outlined">Outlined</cs-button>
+          <cs-button class="cs-information" appearance="plain">Plain</cs-button>
         </div>
       </td>
     </tr>
@@ -505,6 +585,108 @@ Color tests ensure that both the `variant` attribute and `.cs-[variant]` classes
           </cs-callout>
           <cs-callout class="cs-neutral" appearance="plain">
             <cs-icon slot="icon" name="info" variant="fill"></cs-icon>
+            Plain
+          </cs-callout>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th><code>highlight</code></th>
+      <td>
+        <div class="cs-grid cs-gap-2xs">
+          <cs-callout variant="highlight" appearance="accent">
+            <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+            Accent
+          </cs-callout>
+          <cs-callout variant="highlight" appearance="filled-outlined">
+            <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+            Filled-Outlined
+          </cs-callout>
+          <cs-callout variant="highlight" appearance="filled">
+            <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+            Filled
+          </cs-callout>
+          <cs-callout variant="highlight" appearance="outlined">
+            <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+            Outlined
+          </cs-callout>
+          <cs-callout variant="highlight" appearance="plain">
+            <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+            Plain
+          </cs-callout>
+        </div>
+      </td>
+      <td>
+        <div class="cs-grid cs-gap-2xs">
+          <cs-callout class="cs-highlight" appearance="accent">
+            <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+            Accent
+          </cs-callout>
+          <cs-callout class="cs-highlight" appearance="filled-outlined">
+            <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+            Filled-Outlined
+          </cs-callout>
+          <cs-callout class="cs-highlight" appearance="filled">
+            <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+            Filled
+          </cs-callout>
+          <cs-callout class="cs-highlight" appearance="outlined">
+            <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+            Outlined
+          </cs-callout>
+          <cs-callout class="cs-highlight" appearance="plain">
+            <cs-icon slot="icon" name="star" variant="fill"></cs-icon>
+            Plain
+          </cs-callout>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th><code>information</code></th>
+      <td>
+        <div class="cs-grid cs-gap-2xs">
+          <cs-callout variant="information" appearance="accent">
+            <cs-icon slot="icon" name="info_i"></cs-icon>
+            Accent
+          </cs-callout>
+          <cs-callout variant="information" appearance="filled-outlined">
+            <cs-icon slot="icon" name="info_i"></cs-icon>
+            Filled-Outlined
+          </cs-callout>
+          <cs-callout variant="information" appearance="filled">
+            <cs-icon slot="icon" name="info_i"></cs-icon>
+            Filled
+          </cs-callout>
+          <cs-callout variant="information" appearance="outlined">
+            <cs-icon slot="icon" name="info_i"></cs-icon>
+            Outlined
+          </cs-callout>
+          <cs-callout variant="information" appearance="plain">
+            <cs-icon slot="icon" name="info_i"></cs-icon>
+            Plain
+          </cs-callout>
+        </div>
+      </td>
+      <td>
+        <div class="cs-grid cs-gap-2xs">
+          <cs-callout class="cs-information" appearance="accent">
+            <cs-icon slot="icon" name="info_i"></cs-icon>
+            Accent
+          </cs-callout>
+          <cs-callout class="cs-information" appearance="filled-outlined">
+            <cs-icon slot="icon" name="info_i"></cs-icon>
+            Filled-Outlined
+          </cs-callout>
+          <cs-callout class="cs-information" appearance="filled">
+            <cs-icon slot="icon" name="info_i"></cs-icon>
+            Filled
+          </cs-callout>
+          <cs-callout class="cs-information" appearance="outlined">
+            <cs-icon slot="icon" name="info_i"></cs-icon>
+            Outlined
+          </cs-callout>
+          <cs-callout class="cs-information" appearance="plain">
+            <cs-icon slot="icon" name="info_i"></cs-icon>
             Plain
           </cs-callout>
         </div>
@@ -717,6 +899,44 @@ Color tests ensure that both the `variant` attribute and `.cs-[variant]` classes
       </td>
     </tr>
     <tr>
+      <th><code>highlight</code></th>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-tag variant="highlight" appearance="accent">Accent</cs-tag>
+          <cs-tag variant="highlight" appearance="filled-outlined">Filled-Outlined</cs-tag>
+          <cs-tag variant="highlight" appearance="filled">Filled</cs-tag>
+          <cs-tag variant="highlight" appearance="outlined">Outlined</cs-tag>
+        </div>
+      </td>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-tag class="cs-highlight" appearance="accent">Accent</cs-tag>
+          <cs-tag class="cs-highlight" appearance="filled-outlined">Filled-Outlined</cs-tag>
+          <cs-tag class="cs-highlight" appearance="filled">Filled</cs-tag>
+          <cs-tag class="cs-highlight" appearance="outlined">Outlined</cs-tag>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th><code>information</code></th>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-tag variant="information" appearance="accent">Accent</cs-tag>
+          <cs-tag variant="information" appearance="filled-outlined">Filled-Outlined</cs-tag>
+          <cs-tag variant="information" appearance="filled">Filled</cs-tag>
+          <cs-tag variant="information" appearance="outlined">Outlined</cs-tag>
+        </div>
+      </td>
+      <td>
+        <div class="cs-cluster cs-gap-2xs">
+          <cs-tag class="cs-information" appearance="accent">Accent</cs-tag>
+          <cs-tag class="cs-information" appearance="filled-outlined">Filled-Outlined</cs-tag>
+          <cs-tag class="cs-information" appearance="filled">Filled</cs-tag>
+          <cs-tag class="cs-information" appearance="outlined">Outlined</cs-tag>
+        </div>
+      </td>
+    </tr>
+    <tr>
       <th><code>success</code></th>
       <td>
         <div class="cs-cluster cs-gap-2xs">
@@ -851,6 +1071,8 @@ Native style tests ensure that supported native elements and utilities look the 
         <div class="cs-cluster cs-gap-2xs">
           <cs-button variant="brand" appearance="accent">Brand</cs-button>
           <cs-button variant="neutral" appearance="accent">Neutral</cs-button>
+          <cs-button variant="highlight" appearance="accent">Highlight</cs-button>
+          <cs-button variant="information" appearance="accent">Information</cs-button>
           <cs-button variant="success" appearance="accent">Success</cs-button>
           <cs-button variant="warning" appearance="accent">Warning</cs-button>
           <cs-button variant="danger" appearance="accent">Danger</cs-button>
@@ -860,6 +1082,8 @@ Native style tests ensure that supported native elements and utilities look the 
         <div class="cs-cluster cs-gap-2xs">
           <button class="cs-brand cs-accent">Brand</button>
           <button class="cs-neutral cs-accent">Neutral</button>
+          <button class="cs-highlight cs-accent">Highlight</button>
+          <button class="cs-information cs-accent">Information</button>
           <button class="cs-success cs-accent">Success</button>
           <button class="cs-warning cs-accent">Warning</button>
           <button class="cs-danger cs-accent">Danger</button>
@@ -872,6 +1096,8 @@ Native style tests ensure that supported native elements and utilities look the 
         <div class="cs-cluster cs-gap-2xs">
           <cs-button variant="brand" appearance="filled-outlined">Brand</cs-button>
           <cs-button variant="neutral" appearance="filled-outlined">Neutral</cs-button>
+          <cs-button variant="highlight" appearance="filled-outlined">Highlight</cs-button>
+          <cs-button variant="information" appearance="filled-outlined">Information</cs-button>
           <cs-button variant="success" appearance="filled-outlined">Success</cs-button>
           <cs-button variant="warning" appearance="filled-outlined">Warning</cs-button>
           <cs-button variant="danger" appearance="filled-outlined">Danger</cs-button>
@@ -881,6 +1107,8 @@ Native style tests ensure that supported native elements and utilities look the 
         <div class="cs-cluster cs-gap-2xs">
           <button class="cs-brand cs-filled cs-outlined">Brand</button>
           <button class="cs-neutral cs-filled cs-outlined">Neutral</button>
+          <button class="cs-highlight cs-filled cs-outlined">Highlight</button>
+          <button class="cs-information cs-filled cs-outlined">Information</button>
           <button class="cs-success cs-filled cs-outlined">Success</button>
           <button class="cs-warning cs-filled cs-outlined">Warning</button>
           <button class="cs-danger cs-filled cs-outlined">Danger</button>
@@ -893,6 +1121,8 @@ Native style tests ensure that supported native elements and utilities look the 
         <div class="cs-cluster cs-gap-2xs">
           <cs-button variant="brand" appearance="filled">Brand</cs-button>
           <cs-button variant="neutral" appearance="filled">Neutral</cs-button>
+          <cs-button variant="highlight" appearance="filled">Highlight</cs-button>
+          <cs-button variant="information" appearance="filled">Information</cs-button>
           <cs-button variant="success" appearance="filled">Success</cs-button>
           <cs-button variant="warning" appearance="filled">Warning</cs-button>
           <cs-button variant="danger" appearance="filled">Danger</cs-button>
@@ -902,6 +1132,8 @@ Native style tests ensure that supported native elements and utilities look the 
         <div class="cs-cluster cs-gap-2xs">
           <button class="cs-brand cs-filled">Brand</button>
           <button class="cs-neutral cs-filled">Neutral</button>
+          <button class="cs-highlight cs-filled">Highlight</button>
+          <button class="cs-information cs-filled">Information</button>
           <button class="cs-success cs-filled">Success</button>
           <button class="cs-warning cs-filled">Warning</button>
           <button class="cs-danger cs-filled">Danger</button>
@@ -914,6 +1146,8 @@ Native style tests ensure that supported native elements and utilities look the 
         <div class="cs-cluster cs-gap-2xs">
           <cs-button variant="brand" appearance="outlined">Brand</cs-button>
           <cs-button variant="neutral" appearance="outlined">Neutral</cs-button>
+          <cs-button variant="highlight" appearance="outlined">Highlight</cs-button>
+          <cs-button variant="information" appearance="outlined">Information</cs-button>
           <cs-button variant="success" appearance="outlined">Success</cs-button>
           <cs-button variant="warning" appearance="outlined">Warning</cs-button>
           <cs-button variant="danger" appearance="outlined">Danger</cs-button>
@@ -923,6 +1157,8 @@ Native style tests ensure that supported native elements and utilities look the 
         <div class="cs-cluster cs-gap-2xs">
           <button class="cs-brand cs-outlined">Brand</button>
           <button class="cs-neutral cs-outlined">Neutral</button>
+          <button class="cs-highlight cs-outlined">Highlight</button>
+          <button class="cs-information cs-outlined">Information</button>
           <button class="cs-success cs-outlined">Success</button>
           <button class="cs-warning cs-outlined">Warning</button>
           <button class="cs-danger cs-outlined">Danger</button>
@@ -935,6 +1171,8 @@ Native style tests ensure that supported native elements and utilities look the 
         <div class="cs-cluster cs-gap-2xs">
           <cs-button variant="brand" appearance="plain">Brand</cs-button>
           <cs-button variant="neutral" appearance="plain">Neutral</cs-button>
+          <cs-button variant="highlight" appearance="plain">Highlight</cs-button>
+          <cs-button variant="information" appearance="plain">Information</cs-button>
           <cs-button variant="success" appearance="plain">Success</cs-button>
           <cs-button variant="warning" appearance="plain">Warning</cs-button>
           <cs-button variant="danger" appearance="plain">Danger</cs-button>
@@ -944,6 +1182,8 @@ Native style tests ensure that supported native elements and utilities look the 
         <div class="cs-cluster cs-gap-2xs">
           <button class="cs-brand cs-plain">Brand</button>
           <button class="cs-neutral cs-plain">Neutral</button>
+          <button class="cs-highlight cs-plain">Highlight</button>
+          <button class="cs-information cs-plain">Information</button>
           <button class="cs-success cs-plain">Success</button>
           <button class="cs-warning cs-plain">Warning</button>
           <button class="cs-danger cs-plain">Danger</button>

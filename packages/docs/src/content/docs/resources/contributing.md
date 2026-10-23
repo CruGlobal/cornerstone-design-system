@@ -82,7 +82,7 @@ Special callouts can be added using the following syntax.
 
 ```
 :::info
-This is a tip/informational callout
+This is an informational callout
 :::
 
 :::warning

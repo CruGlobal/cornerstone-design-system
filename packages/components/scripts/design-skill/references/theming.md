@@ -19,10 +19,10 @@ Color flows through three layers. You usually only touch the top one.
 1. **Palette:** raw hues and tints: `--cs-color-{hue}-{tint}`, e.g. `--cs-color-blue-50`. 10 hues
    (red, orange, yellow, green, cyan, blue, indigo, purple, pink, gray) × 11 tints (`95` lightest to
    `05` darkest). You rarely reference these directly.
-2. **Semantic variants:** roles that map onto hues: **brand**, **neutral**, **success**, **warning**,
-   **danger**. Each exposes a fill/border/on family, e.g. `--cs-color-brand-fill-loud`,
-   `--cs-color-success-border-normal`, `--cs-color-danger-on-loud`. **Prefer these:** they keep the UI
-   consistent and re-theme automatically.
+2. **Semantic variants:** roles that map onto hues: **brand**, **neutral**, **highlight**,
+   **information**, **success**, **warning**, **danger**. Each exposes a fill/border/on family, e.g.
+   `--cs-color-brand-fill-loud`, `--cs-color-success-border-normal`, `--cs-color-danger-on-loud`.
+   **Prefer these:** they keep the UI consistent and re-theme automatically.
 3. **Theme assignments:** surfaces and text: `--cs-color-surface-default`, `--cs-color-surface-raised`,
    `--cs-color-surface-lowered`, `--cs-color-surface-border`, `--cs-color-text-normal`,
    `--cs-color-text-quiet`, `--cs-color-text-link`. Use these for backgrounds, borders, and body text.
