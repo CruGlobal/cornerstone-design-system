@@ -40,7 +40,8 @@ function determineMousePosition(el: Element, position: string, offsetX: number, 
 
   clickX += offsetX;
   clickY += offsetY;
-  return { clickX, clickY };
+  // sendMouse rejects fractional coordinates, and a layout box rarely lands on whole pixels
+  return { clickX: Math.round(clickX), clickY: Math.round(clickY) };
 }
 
 /** A testing utility that measures an element's position and clicks on it. */
