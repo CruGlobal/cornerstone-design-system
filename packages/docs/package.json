@@ -10,6 +10,7 @@
     "check:anatomy": "node scripts/check-anatomy.js",
     "check:assets": "node scripts/check-asset-paths.js",
     "check:components": "node scripts/check-components.js",
+    "check:contrast": "node scripts/check-contrast.js",
     "check:markdown-remark": "node scripts/check-markdown-remark.js",
     "check:pages": "node scripts/check-pages.js",
     "check:tokens": "node scripts/check-tokens.js",
@@ -20,7 +21,7 @@
     "predev": "node scripts/check-markdown-remark.js && node scripts/link-library.js",
     "prettier": "prettier --check --log-level=warn --ignore-path=\".prettierignore\" .",
     "preview": "astro preview",
-    "verify": "npm run check && npm run build && npm run check:assets && npm run check:pages && npm run check:tokens && npm run check:components && npm run check:anatomy"
+    "verify": "npm run check && npm run build && npm run check:assets && npm run check:pages && npm run check:tokens && npm run check:components && npm run check:anatomy && npm run check:contrast"
   },
   "engines": {
     "node": ">=22.12.0"

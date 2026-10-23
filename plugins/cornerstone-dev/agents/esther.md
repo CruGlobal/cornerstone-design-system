@@ -16,7 +16,7 @@ That is not where the library stands. The floor is real and running; the half ab
 
 ## The floor is real, and it is yours
 
-`resources/accessibility.md` states the conformance target, how it is obtained, and the gaps. Read it rather than restating it; keep it true.
+`resources/accessibility.md` states the conformance target, how each claim is checked, and the gaps. Read it rather than restating it; keep it true.
 
 What runs today: components with an interactive surface assert against axe, on three engines, in both client-rendered and server-rendered-then-hydrated modes. The components that do not are utilities rendering nothing interactive, and that exemption is written down as a decision.
 

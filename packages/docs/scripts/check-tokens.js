@@ -56,6 +56,7 @@ import { dirname, extname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOCS_BASE_PATH as BASE_PATH } from '@cruglobal/cornerstone-build-tools/site-url.js';
 import { brandBlocks, brands, defaultBrand } from '../src/brands.js';
+import { withoutDisplayedSource } from './displayed-source.js';
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const distDir = join(siteDir, 'dist');
@@ -86,16 +87,6 @@ function walk(dir) {
 }
 
 const stripCssComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '');
-
-/**
- * A page with its displayed source removed.
- *
- * Load-bearing in both directions. `native.md` documents `<link rel="stylesheet"
- * href="/dist/styles/themes/default.css">` as a snippet; read literally, that made the whole reference
- * theme — and every hue in `palettes/default.css` — look reachable, which silently masked the dead-hue
- * bug this check exists to find. Example source is prose about CSS, not CSS.
- */
-const withoutDisplayedSource = (html) => html.replace(/<pre\b[\s\S]*?<\/pre>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
 
 /**
  * The CSS a browser would actually apply from some page markup: its `<style>` blocks and its inline `style`
