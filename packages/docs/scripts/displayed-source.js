@@ -12,3 +12,16 @@
  */
 export const withoutDisplayedSource = (html) =>
   html.replace(/<pre\b[\s\S]*?<\/pre>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
+
+/**
+ * A built page with every piece of code it shows removed: what `withoutDisplayedSource` removes, and inline `<code>`.
+ *
+ * For the checks that look for syntax a plugin should have consumed, such as a `:::` fence left on the page as text.
+ * A page that names that syntax in code is documenting it, not failing to render it. A plugin that did not run
+ * leaves its directive as paragraph text, never as code. The other checks keep inline code, because a ratio or a
+ * colour in a code span is still printed to the reader.
+ *
+ * @param {string} html
+ * @returns {string}
+ */
+export const withoutCode = (html) => withoutDisplayedSource(html).replace(/<code(?=[\s>])[\s\S]*?<\/code>/gi, '');
