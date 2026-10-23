@@ -30,6 +30,7 @@ import { componentsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
 import { brandBlocks, brands as siteBrands } from '../src/brands.js';
 import { brandTheme, brandViews } from '../src/plugins/remark-theming.js';
 import { themeStylesheets, themes, tints } from '../src/themer.js';
+import { hasStrayDirective } from './stray-directives.js';
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const contentDir = join(siteDir, 'src', 'content', 'docs', 'components');
@@ -546,7 +547,7 @@ function checkChangelog(failures) {
     }
   }
 
-  if (html.includes(':::')) {
+  if (hasStrayDirective(html)) {
     failures.push('resources/changelog: a `:::` directive is on the page as text, so the plugin did not handle it');
   }
 
