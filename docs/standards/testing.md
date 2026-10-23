@@ -99,10 +99,10 @@ and running only the group has tested the previous build.
 **The check scripts are tests too**
 
 `test:parts` (`check-css-parts.js`), `test:base-path`, `test:docs-url` and `verify:skills` in
-`packages/components`, and `check:assets`, `check:pages`, `check:tokens`, `check:components`, `check:anatomy`,
-`check:contrast`, `check:variants` and `check:a11y` (with `test:a11y`, which proves it can fail) in
-`packages/docs`, are the repo's deterministic gates. A change to what one guards updates
-the script in the same PR; a narrowed regex or an added exemption is a finding until justified.
+`packages/components`, and `check:assets`, `check:pages` (with `test:displayed-source`, for the code it skips),
+`check:tokens`, `check:components`, `check:anatomy`, `check:contrast`, `check:variants` and `check:a11y` (with
+`test:a11y`, which proves it can fail) in `packages/docs`, are the repo's deterministic gates. A change to what
+one guards updates the script in the same PR; a narrowed regex or an added exemption is a finding until justified.
 
 **Hygiene.** Each test declares its own hand-crafted fixture. Tests do not log.
 
