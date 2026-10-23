@@ -111,9 +111,12 @@ interactive surface — `cs-format-bytes`, `cs-format-date`, `cs-format-number`,
 `cs-resize-observer` — where an axe run tests nothing. That exemption is a decision, not an omission.
 
 **Inspiration Screens.** After the site builds, every Screen state file in the Inspiration library is opened as
-a whole page and run through axe, once in light mode and once in dark, and any violation fails the build. Checked
-automatically means axe found no violations against WCAG 2.2 A and AA. axe catches only part of WCAG, and nobody
-has reviewed a Screen by hand or with assistive technology.
+a whole page and run through axe, once in light mode and once in dark. A Screen pinned to one colour scheme is
+run in that scheme only. Each run checks WCAG 2.2 A and AA, plus three best-practice rules a whole page should
+meet: one main landmark (`landmark-one-main`), a level-one heading (`page-has-heading-one`) and no content outside
+a landmark (`region`). A run also fails if a file the Screen asks for is missing or blocked, or if its script
+throws, and any failure fails the build. Checked automatically means none of that happened. axe catches only part
+of WCAG, and nobody has reviewed a Screen by hand or with assistive technology.
 
 **A green suite is a floor, not a conformance statement.** axe catches a minority of WCAG failures. It cannot
 tell you a keyboard path is sensible, that a focus indicator is visible against your page, or that an

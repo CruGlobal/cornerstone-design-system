@@ -18,7 +18,8 @@
  * from `homepage` (`build-tools/site-url.js`). This answers every request under that exact address from
  * `dist/`, so a Screen loads at the URL it will have in production and every relative or base-prefixed
  * asset reference resolves the way it will there. A path the build did not produce is a 404, as it would be
- * on Pages. Requests to any other origin go to the network untouched.
+ * on Pages, and so is any path on the same host outside the base path, such as `/dist/...` with the base left
+ * out. Requests to any other origin go to the network untouched.
  *
  * **Why only Chromium.** axe evaluates the DOM and computed styles, which do not differ by engine in ways
  * axe's rules depend on, and one engine keeps the docs CI job to a single browser download. Engine coverage
@@ -33,14 +34,21 @@
  * **Light and dark.** Each state file is run twice, once per mode, in separate browser contexts. The dark
  * run emulates `prefers-color-scheme: dark` **and** puts `cs-dark` on `<html>`, because Cornerstone's
  * themes switch on that class, not on the media query: emulation alone would rerun the light page and call
- * it dark. The class is how a Screen is shown dark on the site too, since `cs-zoomable-frame` copies the
- * page's `cs-dark` onto the framed document.
+ * it dark. The class is also how a team that copies a Screen into a dark app shows it dark.
+ *
+ * **The Screen as written, not as framed.** The check judges a Screen the way a team gets it when they copy
+ * it: its own `<html>` classes stand. `cs-zoomable-frame` with `with-theme-sync` would overwrite a
+ * `cs-light`, `cs-dark` or `cs-theme-*` there with the docs page's own, so a Screen framed that way could be
+ * shown in a scheme or theme this check never ran. How the site frames Screens is #148's to settle; if it
+ * uses theme sync, the sync is what should respect a Screen's own classes, not this check.
  *
  * **A pinned scheme is honoured.** Theme CSS applies `.cs-light` and `.cs-dark` on any element, so a class
  * lower in the tree beats the one on `<html>`: a Screen with `cs-light` on `<body>` would render light in the
- * dark run and pass it falsely. A Screen that pins a scheme on `<html>`, `<body>` or the one wrapper `<body>`
- * holds is run in that scheme only, and the report says so. Smaller pinned regions and any
- * `cs-theme-<name>` class are left as the author wrote them.
+ * dark run and pass it falsely. So after the switch the check reads the computed `color-scheme` of every
+ * visible line of text: when all of it renders the other scheme because of a `cs-light` or `cs-dark` class,
+ * the Screen is run in that scheme only, and the report says so. That holds wherever the class sits and
+ * whatever else `<body>` holds. Smaller pinned regions, a page `cs-invert` flips, and any `cs-theme-<name>`
+ * class are left as the author wrote them.
  *
  * **A state file fails** on any axe violation, on any response of 400 or above under the site's address (a
  * missing stylesheet or script still renders, just wrongly, and axe would judge the wrong page), and on any
@@ -48,12 +56,18 @@
  * so a file the dark switch asks for is checked even if it arrives after axe starts. axe's `incomplete` results are printed as "needs review" and never fail: they are
  * the checks axe could not decide, and only a person can.
  *
- * **Readiness.** axe is run only once every `cs-*` element is defined, the loader has removed `cs-cloak`
- * (which holds the page at opacity 0 and would skew `color-contrast`), and every Lit element has finished
- * its update. A Screen that never gets there fails: axe on a half-rendered page is not a result. **Known
+ * **Readiness.** axe is run only once every `cs-*` element is defined, no `cs-cloak` is still holding the
+ * page at opacity 0 (which would skew `color-contrast`), and every Lit element has finished its update. The
+ * cloak is judged by its effect, not by the class: it hides nothing once its contents are defined, and only
+ * the loader removes the class. A Screen that never gets there fails: axe on a half-rendered page is not a result. **Known
  * limit:** both waits look only at `cs-*` elements in the page's own DOM, not at ones a component renders
  * inside its shadow root, so a nested component can be judged before it defines or mid-update. A
  * component the Screen's own markup uses that never defines does fail, with a message saying so.
+ *
+ * **Known limit: iframes.** axe runs in the Screen's own document only, so a page framed inside a Screen is
+ * never audited. And navigations are not tracked, so an `<iframe>` whose `src` is missing is not reported
+ * either. The files a framed page loads are tracked, so a missing image or stylesheet inside it still fails
+ * the Screen. No Screen frames another page today.
  *
  * `--screens <dir>` reads the Screens from another directory, served at the same address. It exists so
  * `check-a11y.test.js` can prove the check fails for each reason without a broken Screen ever being built
@@ -62,11 +76,12 @@
  * Run after `npm run build`. Exits non-zero listing every failure by file, mode, rule, impact and selector.
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DOCS_URL } from '@cruglobal/cornerstone-build-tools/site-url.js';
+import { DOCS_BASE_PATH, DOCS_ORIGIN, DOCS_URL } from '@cruglobal/cornerstone-build-tools/site-url.js';
+import { globbySync } from 'globby';
 import { chromium } from 'playwright';
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -136,25 +151,24 @@ function label(path) {
   return fromSite.startsWith('..') ? path : fromSite;
 }
 
-function htmlFiles(dir) {
-  if (!existsSync(dir)) {
-    return [];
+const isDirectory = (path) => {
+  try {
+    return statSync(path).isDirectory();
+  } catch {
+    return false;
   }
+};
 
-  const out = [];
-
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name);
-
-    if (entry.isDirectory()) {
-      out.push(...htmlFiles(path));
-    } else if (extname(entry.name) === '.html') {
-      out.push(path);
-    }
-  }
-
-  return out.sort();
-}
+/**
+ * Every `.html` file under `dir`. `onlyFiles: false` keeps a link that points at nothing, which `globby` would
+ * otherwise drop without a word: listed, it fails as a Screen that does not load, rather than going unchecked.
+ */
+const htmlFiles = (dir) =>
+  existsSync(dir)
+    ? globbySync('**/*.html', { cwd: dir, absolute: true, onlyFiles: false })
+        .filter((path) => !isDirectory(path))
+        .sort()
+    : [];
 
 const screens = htmlFiles(screensDir);
 
@@ -163,17 +177,35 @@ if (screens.length === 0) {
   process.exit(0);
 }
 
-/** Answers a request under the site's address from disk, or with a 404 for a path the build did not make. */
+/**
+ * Answers a request to the docs host from disk, or with a 404 for a path the build did not make. A path outside
+ * the site's base path is a 404 too: on Pages it belongs to some other site, or to none.
+ */
 function fileFor(url) {
-  const path = decodeURIComponent(new URL(url).pathname.slice(new URL(DOCS_URL).pathname.length));
+  const { pathname } = new URL(url);
+
+  if (!pathname.startsWith(`${DOCS_BASE_PATH}/`)) {
+    return null;
+  }
+
+  let path;
+
+  // A stray `%` (`50%.png`) is not a valid escape, and a static host answers it with a 404, not an error.
+  try {
+    path = decodeURIComponent(pathname.slice(DOCS_BASE_PATH.length));
+  } catch {
+    return null;
+  }
+
   const screensUrlPath = `/${SCREENS_PATH.split(sep).join('/')}/`;
   const [root, rest] = path.startsWith(screensUrlPath)
     ? [screensDir, path.slice(screensUrlPath.length)]
     : [distDir, path];
   const file = join(root, rest, rest === '' || rest.endsWith('/') ? 'index.html' : '');
 
-  // A `..` that climbs out of the served directory is a 404 here, as it would be on any static host.
-  if (!file.startsWith(root) || !existsSync(file) || !statSync(file).isFile()) {
+  // A `..` that climbs out of the served directory is a 404 here, as it would be on any static host. The
+  // separator keeps a sibling folder whose name starts the same (`dist-old/` beside `dist/`) out too.
+  if (!file.startsWith(`${root}${sep}`) || !existsSync(file) || !statSync(file).isFile()) {
     return null;
   }
 
@@ -202,33 +234,68 @@ const targetsOf = (nodes) =>
 const QUIET_MS = 500;
 
 /**
- * Finds a colour scheme the Screen pins for its whole page: `cs-light` or `cs-dark` on `<html>`, on `<body>`,
- * or on the one element `<body>` wraps everything in. The innermost wins, as it does in the cascade. A
- * smaller region (a dark band, `cs-invert`) is part of the design and is left alone.
+ * Finds a colour scheme the Screen pins for its whole page, by what it rendered rather than by its markup's
+ * shape: if every visible line of text has the same computed `color-scheme`, that is not the mode being run,
+ * and the nearest `cs-light` or `cs-dark` above it sets it, the page is pinned. The themes set
+ * `color-scheme` on both classes, so this finds a pin at any depth and with any siblings.
+ *
+ * Mixed schemes are a smaller pinned region (a dark band) and part of the design, so they are left alone. So is
+ * a page `cs-invert` flips: it renders the other scheme in both modes, and both are what a reader sees.
  */
-function findPinnedScheme() {
-  const ignored = new Set(['script', 'style', 'template', 'noscript', 'link', 'meta']);
-  const wrappers = [...document.body.children].filter((el) => !ignored.has(el.localName));
-  const candidates = [document.documentElement, document.body, ...(wrappers.length === 1 ? wrappers : [])];
-  let pinned = null;
+function findPinnedScheme(modeName) {
+  const ignored = new Set(['script', 'style', 'template', 'noscript']);
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const holders = new Set();
 
-  for (const el of candidates) {
-    const scheme = el.classList.contains('cs-dark') ? 'dark' : el.classList.contains('cs-light') ? 'light' : null;
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const el = node.parentElement;
 
-    if (scheme) {
-      pinned = { scheme, by: `<${el.localName} class="${el.className}">` };
+    if (node.textContent.trim() && el && !ignored.has(el.localName) && el.checkVisibility()) {
+      holders.add(el);
     }
   }
 
-  return pinned;
+  const elements = holders.size > 0 ? [...holders] : [document.body];
+  const schemes = new Set(elements.map((el) => getComputedStyle(el).colorScheme));
+  const [scheme] = schemes;
+
+  if (schemes.size !== 1 || scheme === modeName || (scheme !== 'light' && scheme !== 'dark')) {
+    return null;
+  }
+
+  const pin = elements[0].closest('.cs-light, .cs-dark');
+
+  return pin?.classList.contains(`cs-${scheme}`) ? { scheme, by: `<${pin.localName} class="${pin.className}">` } : null;
+}
+
+/**
+ * Says why the page is not ready for axe yet, or returns null when it is. Runs in the page.
+ *
+ * `cs-cloak` is judged by what it does, not by whether it is still there: only the loader removes the class,
+ * and the cloak hides nothing once every element inside it is defined, so a Screen that loads its components
+ * another way and keeps the class renders normally. While it does hide the page it holds it at opacity 0,
+ * which would skew `color-contrast`.
+ */
+function whyNotReady() {
+  const undefinedEl = [...document.querySelectorAll('*')].find(
+    (el) => el.localName.startsWith('cs-') && !customElements.get(el.localName),
+  );
+
+  if (undefinedEl) {
+    return `its <${undefinedEl.localName}> did not define`;
+  }
+
+  const cloaked = [...document.querySelectorAll('.cs-cloak')].find((el) => getComputedStyle(el).opacity === '0');
+
+  return cloaked ? `cs-cloak still hid its <${cloaked.localName}>` : null;
 }
 
 /**
  * Loads one state file in one mode and runs axe on it.
  *
  * Returns what fails it (`problems`: violations, failed requests, page errors), what axe could not decide
- * (`reviews`), and the scheme the Screen pins, if any. A pinned Screen is judged only in that scheme, so a
- * run in the other one comes back `skipped`. Every item carries its mode.
+ * (`reviews`). A pinned Screen is judged only in the scheme it pins, so a run in the other one comes back
+ * `skipped`, carrying the pin it found. Every item carries its mode.
  */
 async function checkState(context, screen, mode) {
   const page = await context.newPage();
@@ -237,18 +304,17 @@ async function checkState(context, screen, mode) {
   const loadErrors = [];
   const tracked = new Set();
   const pending = new Set();
-  let recording = true;
   let lastRequestAt = Date.now();
   let pinned = null;
 
   // Requests are tracked by when they **start**, and their responses checked whenever they arrive, so a
   // font, a lazy image or a stylesheet the `cs-dark` switch asks for is checked even if it lands after
-  // axe starts. Tracking stops before axe is injected: axe preloads the page's stylesheets itself and
-  // resolves their relative `@import`s against the document rather than the sheet, so its requests 404 on
-  // every Screen that loads `cornerstone.css`. Those are axe's misses, not the Screen's. The Screen's own
+  // axe starts. Tracking stays on through axe because axe's CSSOM preload is off: that preload re-fetches
+  // the page's stylesheets and resolves their relative `@import`s against the document rather than the
+  // sheet, so its requests would 404 on every Screen that loads `cornerstone.css`. The Screen's own
   // navigation is reported by `goto` below.
   page.on('request', (request) => {
-    if (recording && request.url().startsWith(`${DOCS_URL}/`) && !request.isNavigationRequest()) {
+    if (new URL(request.url()).origin === DOCS_ORIGIN && !request.isNavigationRequest()) {
       tracked.add(request);
       pending.add(request);
       lastRequestAt = Date.now();
@@ -265,11 +331,15 @@ async function checkState(context, screen, mode) {
   });
   page.on('requestfinished', (request) => pending.delete(request));
   // Chromium also aborts a stylesheet that came back 404, so a failure after a response is already reported.
+  // A request the page cancels itself (`net::ERR_ABORTED`: a dropped stale fetch, a swapped image `src`) is
+  // the page working as written, not a missing file, so it does not fail the Screen.
   page.on('requestfailed', (request) => {
     pending.delete(request);
 
-    if (tracked.has(request) && !answered.has(request)) {
-      loadErrors.push(`${request.url()} failed: ${request.failure()?.errorText ?? 'no reason given'}`);
+    const reason = request.failure()?.errorText ?? 'no reason given';
+
+    if (tracked.has(request) && !answered.has(request) && reason !== 'net::ERR_ABORTED') {
+      loadErrors.push(`${request.url()} failed: ${reason}`);
     }
   });
   page.on('pageerror', (error) => loadErrors.push(`the page threw: ${error.message}`));
@@ -290,48 +360,48 @@ async function checkState(context, screen, mode) {
       throw new Error(`loading it returned ${response?.status() ?? 'no response'}`);
     }
 
-    await page
-      .waitForFunction(
-        () =>
-          document.querySelectorAll('.cs-cloak').length === 0 &&
-          [...document.querySelectorAll('*')].every(
-            (el) => !el.localName.startsWith('cs-') || customElements.get(el.localName),
-          ),
-        undefined,
-        { timeout: READY_TIMEOUT },
-      )
-      .catch(() => {
-        throw new Error(
-          `its components did not all define within ${READY_TIMEOUT / 1000}s, so axe would judge a half-rendered page`,
-        );
-      });
+    const readyBy = Date.now() + READY_TIMEOUT;
+    let notReady = await page.evaluate(whyNotReady);
 
-    pinned = await page.evaluate(findPinnedScheme);
+    while (notReady && Date.now() < readyBy) {
+      await page.waitForTimeout(100);
+      notReady = await page.evaluate(whyNotReady);
+    }
 
-    if (pinned && pinned.scheme !== mode.name) {
+    if (notReady) {
+      throw new Error(`${notReady} within ${READY_TIMEOUT / 1000}s, so axe would judge a half-rendered page`);
+    }
+
+    await page.evaluate(async (className) => {
+      const html = document.documentElement;
+
+      // A scheme the author put on `<html>` is kept, rather than set beside one it would override.
+      if (className && !html.classList.contains('cs-light') && !html.classList.contains('cs-dark')) {
+        html.classList.add(className);
+      }
+
+      await Promise.all(
+        [...document.querySelectorAll('*')]
+          .filter((el) => el.localName.startsWith('cs-'))
+          .map((el) => /** @type {any} */ (el).updateComplete),
+      );
+
+      // Two frames, so the styles a class change triggers are applied before axe reads them.
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }, mode.className);
+
+    // The quiet window starts over at the switch, so files it asks for get the full `QUIET_MS` to start,
+    // however long ago the load's own requests went quiet.
+    lastRequestAt = Date.now();
+    await settle();
+
+    // Judged on the page axe is about to see, so a pin a late stylesheet sets is found too.
+    pinned = await page.evaluate(findPinnedScheme, mode.name);
+
+    if (pinned) {
       return { problems: [], reviews: [], pinned, skipped: true };
     }
 
-    await page.evaluate(
-      async (className) => {
-        if (className) {
-          document.documentElement.classList.add(className);
-        }
-
-        await Promise.all(
-          [...document.querySelectorAll('*')]
-            .filter((el) => el.localName.startsWith('cs-'))
-            .map((el) => /** @type {any} */ (el).updateComplete),
-        );
-
-        // Two frames, so the styles a class change triggers are applied before axe reads them.
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      },
-      pinned ? null : mode.className,
-    );
-
-    await settle();
-    recording = false;
     await page.addScriptTag({ content: axeSource });
 
     const results = await page.evaluate(
@@ -339,6 +409,9 @@ async function checkState(context, screen, mode) {
         const { violations, incomplete } = await /** @type {any} */ (window).axe.run(document, {
           runOnly: { type: 'tag', values: tags },
           rules: Object.fromEntries(rules.map((id) => [id, { enabled: true }])),
+          // No CSSOM preload: none of the rules we run need it, and it re-fetches stylesheets in a way that
+          // 404s on relative `@import`s. See the request tracking above.
+          preload: { assets: ['media'] },
         });
         const plain = (result) => ({
           id: result.id,
@@ -363,12 +436,9 @@ async function checkState(context, screen, mode) {
       reviews.push({ mode: mode.name, id, help, targets: targetsOf(nodes) });
     }
 
-    // Anything the Screen started before the cutoff and is still loading gets the rest of the time budget.
+    // Anything the Screen started, before or during axe, and is still loading gets the rest of the time budget,
+    // so its response is checked. None can hang: every tracked request is answered at once, from disk or 404.
     await settle();
-
-    for (const request of pending) {
-      loadErrors.push(`${request.url()} never finished loading`);
-    }
   } catch (error) {
     problems.push({ mode: mode.name, id: 'check-a11y', impact: 'error', help: error.message, targets: [] });
   } finally {
@@ -384,14 +454,18 @@ async function checkState(context, screen, mode) {
 }
 
 const browser = await chromium.launch();
-const results = new Map(screens.map((screen) => [screen, { problems: [], reviews: [], pinned: null, runs: 0 }]));
+const results = new Map(
+  screens.map((screen) => [screen, { problems: [], reviews: [], pinned: null, runs: 0, skips: [] }]),
+);
 
 try {
   for (const mode of MODES) {
     const context = await browser.newContext({ colorScheme: mode.colorScheme, reducedMotion: 'reduce' });
 
     await context.route(
-      (url) => url.href.startsWith(`${DOCS_URL}/`),
+      // The whole docs host, not just the site, so a path that leaves out the base path is a 404 here too
+      // rather than a request to the live site that nothing checks.
+      (url) => url.origin === DOCS_ORIGIN,
       (route) => {
         const file = fileFor(route.request().url());
 
@@ -412,12 +486,31 @@ try {
       result.reviews.push(...reviews);
       result.pinned ??= pinned;
       result.runs += skipped ? 0 : 1;
+
+      if (skipped) {
+        result.skips.push({ mode: mode.name, pinned });
+      }
     }
 
     await context.close();
   }
 } finally {
   await browser.close();
+}
+
+// A Screen that looks pinned in every mode was never checked at all, and passing it would hide that.
+for (const result of results.values()) {
+  if (result.runs === 0) {
+    for (const { mode, pinned } of result.skips) {
+      result.problems.push({
+        mode,
+        id: 'check-a11y',
+        impact: 'error',
+        help: `skipped in every mode, so axe never ran on it: this run rendered ${pinned.scheme}, set by ${pinned.by}`,
+        targets: [],
+      });
+    }
+  }
 }
 
 const all = [...results.values()];
@@ -428,20 +521,20 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const problemCount = total('problems');
 const reviewCount = total('reviews');
 const runCount = all.reduce((sum, { runs }) => sum + runs, 0);
-const pinnedCount = all.filter(({ pinned }) => pinned).length;
+const pinnedCount = all.filter(({ pinned, runs }) => pinned && runs > 0).length;
 const failing = all.filter(({ problems }) => problems.length > 0).length;
 const out = problemCount === 0 ? console.log : console.error;
 
 out('');
 
-for (const [screen, { problems, reviews, pinned }] of results) {
+for (const [screen, { problems, reviews, pinned, runs }] of results) {
   if (problems.length === 0 && reviews.length === 0 && !pinned) {
     continue;
   }
 
   out(`  ${label(screen)}`);
 
-  if (pinned) {
+  if (pinned && runs > 0) {
     out(`      pinned to ${pinned.scheme} by ${pinned.by}, so only the ${pinned.scheme} run was made`);
   }
 
