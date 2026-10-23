@@ -453,6 +453,27 @@ describe('<cs-accordion>', () => {
           await expectEvent(el, 'cs-accordion-collapse', () => sendKeys({ press: 'Enter' }));
           expect(item.expanded).to.be.false;
         });
+
+        it('should keep every enabled header tabbable at once instead of using a roving tabindex', async () => {
+          const el = await fixture<CsAccordion>(html`
+            <cs-accordion>
+              <cs-accordion-item label="One">Content one</cs-accordion-item>
+              <cs-accordion-item label="Two">Content two</cs-accordion-item>
+            </cs-accordion>
+          `);
+          const [first, second] = el.querySelectorAll<CsAccordionItem>('cs-accordion-item');
+          const firstButton = first.shadowRoot!.querySelector<HTMLButtonElement>('[part~="button"]')!;
+          const secondButton = second.shadowRoot!.querySelector<HTMLButtonElement>('[part~="button"]')!;
+
+          expect(firstButton.getAttribute('tabindex')).to.equal('0');
+          expect(secondButton.getAttribute('tabindex')).to.equal('0');
+
+          secondButton.focus();
+          await el.updateComplete;
+
+          expect(firstButton.getAttribute('tabindex')).to.equal('0');
+          expect(secondButton.getAttribute('tabindex')).to.equal('0');
+        });
       });
 
       describe('nested accordions', () => {
