@@ -39,6 +39,8 @@ export default css`
     font-size: inherit;
     font-weight: var(--cs-font-weight-action);
     height: var(--cs-form-control-height);
+    /* A horizontal button group sets 100% so every button fills its row; see button-group.styles.ts. */
+    min-height: var(--_button-min-height, auto);
     width: 100%;
 
     background-color: var(--cs-color-fill-loud, var(--cs-color-neutral-fill-loud));
@@ -51,6 +53,11 @@ export default css`
     border-end-end-radius: var(--_button-end-end-radius, var(--cs-form-control-border-radius));
     border-style: var(--cs-form-control-border-style);
     border-width: var(--cs-form-control-border-width);
+  }
+
+  /* Not on icon buttons: the icon is wider than the square's content box, so anything but center shifts it. */
+  .button:not(.is-icon-button) {
+    justify-content: var(--cs-button-justify-content, center);
   }
 
   /* Hover and active transforms */
@@ -262,6 +269,27 @@ export default css`
   }
 
   /*
+   * Vertical orientation. An icon-only button has nothing to stack, so it keeps its square.
+   */
+
+  :host([orientation='vertical']) .button:not(.is-icon-button) {
+    flex-direction: column;
+    justify-content: center;
+    /* A host stretched by a row is definite, so a group of stacked buttons shares one height. Elsewhere it is auto. */
+    height: 100%;
+    min-height: var(--cs-form-control-height);
+    min-inline-size: var(--cs-form-control-height);
+    padding-block: var(--cs-button-stacked-padding-block, var(--cs-form-control-padding-block));
+    padding-inline: var(--cs-button-stacked-padding-inline, var(--cs-form-control-padding-inline));
+    /* Resolved once here, since both the start margin and the end and caret margins below read it. */
+    --_button-stacked-gap: var(--cs-button-stacked-gap, 0.25em);
+    line-height: var(--cs-form-control-value-line-height);
+    white-space: normal;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  /*
    * Label
    */
 
@@ -299,10 +327,12 @@ export default css`
       width: 0.875em;
       height: 0.875em;
     }
+  }
 
-    .button:has(&) .end {
-      display: none;
-    }
+  /* The caret takes the place of an end icon, so it hides what end holds; a badge isn't an icon, so it stays in its
+     corner. !important so a page's display on the element can't bring it back; see callout.styles.ts. */
+  .button.caret slot[name='end']::slotted(:not(cs-badge)) {
+    display: none !important;
   }
 
   /*
@@ -364,5 +394,18 @@ export default css`
   slot[name='end']::slotted(*),
   .button:not(.visually-hidden-label) [part='caret'] {
     margin-inline-start: 0.75em !important;
+  }
+
+  /* Stacked, the spacing turns to the block axis; an inline margin left behind pushes the icon off center. */
+  :host([orientation='vertical']) .button:not(.is-icon-button) slot[name='start']::slotted(*) {
+    margin-inline-end: 0 !important;
+    margin-block-end: var(--_button-stacked-gap) !important;
+  }
+
+  /* Not a badge: a block margin would move it down from the corner it pins to. */
+  :host([orientation='vertical']) .button:not(.is-icon-button) slot[name='end']::slotted(:not(cs-badge)),
+  :host([orientation='vertical']) .button:not(.is-icon-button) [part='caret'] {
+    margin-inline-start: 0 !important;
+    margin-block-start: var(--_button-stacked-gap) !important;
   }
 `;

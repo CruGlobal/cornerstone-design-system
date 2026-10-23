@@ -44,6 +44,15 @@ import styles from './button.styles.js';
  * @cssstate icon-button - Applied when the button contains only a `<cs-icon>` with no other content.
  * @cssstate link - Applied when the button is rendered as a link (i.e. `href` is set).
  * @cssstate loading - Applied when the button is in the loading state.
+ *
+ * @cssproperty [--cs-button-justify-content=center] - Where a one-row button places its content along the row, as a
+ *  `justify-content` value. Icon-only and vertical buttons ignore it.
+ * @cssproperty [--cs-button-stacked-gap=0.25em] - The space between `start`, the label, and `end` or the caret in a
+ *  stacked button. Applies only to a vertical button that isn't icon-only.
+ * @cssproperty [--cs-button-stacked-padding-block=var(--cs-form-control-padding-block)] - A stacked button's block
+ *  padding. Applies only to a vertical button that isn't icon-only.
+ * @cssproperty [--cs-button-stacked-padding-inline=var(--cs-form-control-padding-inline)] - A stacked button's inline
+ *  padding. Applies only to a vertical button that isn't icon-only.
  */
 @customElement('cs-button')
 export default class CsButton extends CornerstoneFormAssociatedElement {
@@ -59,6 +68,7 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
 
   @query('.button') button: HTMLButtonElement | HTMLLinkElement;
   @query('slot:not([name])') labelSlot: HTMLSlotElement;
+  @query('slot[name="end"]') private endSlot: HTMLSlotElement;
 
   @state() invalid = false;
   @state() isIconButton = false;
@@ -75,7 +85,16 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
   /** The button's size. */
   @property({ reflect: true }) size: 'xs' | 's' | 'm' | 'l' | 'xl' = 'm';
 
-  /** Draws the button with a caret. Used to indicate that the button triggers a dropdown menu or similar behavior. */
+  /**
+   * Lays the button's content out in a row, or stacks it in a column: `start` above the label, `end` and the caret
+   * below it. An icon-only button ignores it. When vertical, only a `<cs-badge>` belongs in `end`.
+   */
+  @property({ reflect: true }) orientation: 'horizontal' | 'vertical' = 'horizontal';
+
+  /**
+   * Draws the button with a caret. Used to indicate that the button triggers a dropdown menu or similar behavior. The
+   * caret hides anything in `end` except a `<cs-badge>`.
+   */
   @property({ attribute: 'with-caret', type: Boolean, reflect: true }) withCaret = false;
 
   /** Disables the button. */
@@ -238,6 +257,26 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
     }
   }
 
+  private handleEndSlotChange() {
+    this.warnOfStackedEnd();
+  }
+
+  // A badge escapes the stack by pinning to the corner; anything else in `end` lands under the label.
+  private warnOfStackedEnd() {
+    // A caret hides everything in `end` but a badge, so nothing lands under the label.
+    if (this.orientation !== 'vertical' || this.isIconButton || this.withCaret) {
+      return;
+    }
+
+    const elements = this.endSlot.assignedElements({ flatten: true });
+    if (elements.some((element) => element.localName !== 'cs-badge')) {
+      console.warn(
+        'Only a <cs-badge> belongs in the end slot of a vertical button, so move other elements out of it or set orientation="horizontal".',
+        this,
+      );
+    }
+  }
+
   private isButton() {
     return this.href ? false : true;
   }
@@ -260,6 +299,12 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
   @watch('loading', { waitUntilFirstUpdate: true })
   handleLoadingChange() {
     this.customStates.set('loading', this.loading);
+  }
+
+  // The first render is covered by the end slot's slotchange, so this only catches a later change.
+  @watch(['orientation', 'withCaret'], { waitUntilFirstUpdate: true })
+  handleEndLayoutChange() {
+    this.warnOfStackedEnd();
   }
 
   setValue(..._args: Parameters<CornerstoneFormAssociatedElement['setValue']>) {
@@ -313,7 +358,7 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
       >
         <slot name="start" part="start" class="start"></slot>
         <slot part="label" class="label" @slotchange=${this.handleLabelSlotChange}></slot>
-        <slot name="end" part="end" class="end"></slot>
+        <slot name="end" part="end" class="end" @slotchange=${this.handleEndSlotChange}></slot>
         ${
           this.withCaret
             ? html` <cs-icon part="caret" class="caret" library="system" name="keyboard_arrow_down"></cs-icon> `
