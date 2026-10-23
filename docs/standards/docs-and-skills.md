@@ -87,8 +87,9 @@ Twenty-six pages flag an anatomy example and `check-anatomy.js` validates the fl
 
 `npm run verify --workspace cornerstone-docs-site` runs Prettier, `astro check`, the build, then
 `check:assets`, `check:pages`, `check:tokens`, `check:components`, `check:anatomy`, `check:contrast` and
-`check:variants`. A page is not "working" until that ran. Each check asserts an invariant over the built output
-or the page source; a diff that narrows one to an allowlist is a finding.
+`check:variants`, then `check:a11y`, which runs axe on every Inspiration Screen state file in Chromium, light and
+dark, and `test:a11y`, its fixtures. A page is not "working" until that ran. Each check asserts an invariant over
+the built output or the page source; a diff that narrows one to an allowlist is a finding.
 
 **Storybook is roadmap** (UIUX-117, UIUX-91). Future tense.
 

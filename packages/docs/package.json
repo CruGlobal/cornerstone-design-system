@@ -7,6 +7,7 @@
   "scripts": {
     "build": "ASTRO_CACHE_DIR=node_modules/.astro-build astro build --force",
     "check": "npm run prettier && astro check",
+    "check:a11y": "node scripts/check-a11y.js",
     "check:anatomy": "node scripts/check-anatomy.js",
     "check:assets": "node scripts/check-asset-paths.js",
     "check:components": "node scripts/check-components.js",
@@ -22,7 +23,8 @@
     "predev": "node scripts/check-markdown-remark.js && node scripts/link-library.js",
     "prettier": "prettier --check --log-level=warn --ignore-path=\".prettierignore\" .",
     "preview": "astro preview",
-    "verify": "npm run check && npm run build && npm run check:assets && npm run check:pages && npm run check:tokens && npm run check:components && npm run check:anatomy && npm run check:contrast && npm run check:variants"
+    "test:a11y": "node --test scripts/check-a11y.test.js",
+    "verify": "npm run check && npm run build && npm run check:assets && npm run check:pages && npm run check:tokens && npm run check:components && npm run check:anatomy && npm run check:contrast && npm run check:variants && npm run check:a11y && npm run test:a11y"
   },
   "engines": {
     "node": ">=22.12.0"
@@ -35,7 +37,9 @@
     "@cruglobal/cornerstone-components": "*",
     "@types/node": "^24.13.3",
     "astro": "7.3.3",
+    "axe-core": "^4.13.0",
     "gray-matter": "^4.0.3",
+    "playwright": "1.52.0",
     "prettier": "^3.8.3",
     "prismjs": "^1.30.0",
     "remark-directive": "^4.0.0",

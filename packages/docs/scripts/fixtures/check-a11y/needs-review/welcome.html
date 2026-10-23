@@ -1,0 +1,23 @@
+<!doctype html>
+<!--
+  A test Screen for check-a11y.test.js with text over a gradient, which axe cannot measure for contrast and so
+  reports as incomplete. Never built into the site. It has no violations, so it passes while listing the item
+  as needing review.
+-->
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+  </head>
+  <body>
+    <main class="cs-stack">
+      <h1>Welcome</h1>
+      <p class="hero" style="background-image: linear-gradient(#ffffff, #f0f0f0); color: #222222">Glad you are here.</p>
+      <cs-button variant="brand">Get started</cs-button>
+    </main>
+  </body>
+</html>

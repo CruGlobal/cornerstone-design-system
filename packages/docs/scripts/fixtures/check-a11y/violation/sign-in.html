@@ -1,0 +1,27 @@
+<!doctype html>
+<!--
+  The clean sign-in test Screen with two known axe violations added, for check-a11y.test.js. Never built into
+  the site. The missing `lang` is a document-level rule an element-scoped axe run cannot see; the logo has no
+  text alternative.
+-->
+<html class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+  </head>
+  <body>
+    <main class="cs-stack">
+      <img class="logo" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" width="48" height="48" />
+      <h1>Sign in</h1>
+      <form class="cs-stack">
+        <cs-input label="Email" type="email" name="email"></cs-input>
+        <cs-input label="Password" type="password" name="password"></cs-input>
+        <cs-button type="submit" variant="brand">Sign in</cs-button>
+      </form>
+    </main>
+  </body>
+</html>
