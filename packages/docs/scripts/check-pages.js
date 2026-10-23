@@ -30,6 +30,7 @@ import { componentsDir } from '@cruglobal/cornerstone-build-tools/workspace.js';
 import { brandBlocks, brands as siteBrands } from '../src/brands.js';
 import { brandTheme, brandViews } from '../src/plugins/remark-theming.js';
 import { themeStylesheets, themes, tints } from '../src/themer.js';
+import { withoutCode } from './displayed-source.js';
 
 const siteDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const contentDir = join(siteDir, 'src', 'content', 'docs', 'components');
@@ -458,8 +459,8 @@ function checkVariantDefaults(failures) {
  * cards, the gate would fail on a bad minute at GitHub and the plugin's whole design would be undone one
  * step later.
  *
- * So what it asserts is that the plugin *ran*: `::roadmap` is gone, and the page carries one of the three
- * states the plugin can render. That catches the failure this script exists for — a plugin that stops
+ * So what it asserts is that the plugin *ran*: `::roadmap` is gone from outside code, and the page carries one of
+ * the three states the plugin can render. That catches the failure this script exists for — a plugin that stops
  * matching and ships a page with a hole in it — without coupling `npm run verify` to GitHub's uptime.
  *
  * The percentage check is a design constraint made enforceable. `Frameworks` is `open=0 closed=1`, so a
@@ -476,7 +477,7 @@ function checkRoadmap(failures) {
 
   const html = readFileSync(built, 'utf-8');
 
-  if (html.includes('::roadmap')) {
+  if (withoutCode(html).includes('::roadmap')) {
     failures.push('resources/roadmap: the `::roadmap` directive is still on the page, so the plugin did not run');
   }
 
@@ -546,7 +547,8 @@ function checkChangelog(failures) {
     }
   }
 
-  if (html.includes(':::')) {
+  // Changeset prose names directives in code, and that prose is this page.
+  if (withoutCode(html).includes(':::')) {
     failures.push('resources/changelog: a `:::` directive is on the page as text, so the plugin did not handle it');
   }
 
@@ -560,7 +562,8 @@ function checkChangelog(failures) {
  * `remark-markdown-features.js` renders `:::tip`, `:::note`, `:::caution` and `:::danger` as callouts instead,
  * and this holds it to that: two `:::note` blocks shipped unstyled before it existed (UIUX-267). It matches the
  * class on an element rather than the bare name, because Starlight's `print.css` names the selector too, and
- * that stylesheet inlined into a page would match on every page.
+ * that stylesheet inlined into a page would match on every page. Code is skipped, because inline code keeps its
+ * quotes, so a page showing `class="starlight-aside"` would match too.
  */
 function checkAsides(failures) {
   const pages = readdirSync(distDir, { encoding: 'utf8', recursive: true })
@@ -572,7 +575,7 @@ function checkAsides(failures) {
   }
 
   for (const page of pages) {
-    const asides = count(readFileSync(join(distDir, page), 'utf-8'), /class="[^"]*\bstarlight-aside\b/g);
+    const asides = count(withoutCode(readFileSync(join(distDir, page), 'utf-8')), /class="[^"]*\bstarlight-aside\b/g);
 
     if (asides > 0) {
       failures.push(
