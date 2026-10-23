@@ -62,3 +62,10 @@ _Avoid_: category on its own in prose, type, role
 The Goal of changing what an app knows about you and how it behaves for you: your profile details, your
 preferences. Excludes your sign-in identity.
 _Avoid_: settings (names the place in an app, not the goal), account on its own (reads as the sign-in identity)
+
+**Connections**:
+An Inspiration entry's links to the tiers on either side of it: what it is built from (its components and, on a
+Screen, its Patterns) and where it is used (the Screens that use a Pattern, the Flows that use a Screen). Read
+from the markup, never hand-written.
+_Avoid_: related (says nothing about which way the link points), composed of on its own (names only the
+built-from half)
