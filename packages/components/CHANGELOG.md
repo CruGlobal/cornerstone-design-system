@@ -1,5 +1,11 @@
 # @cruglobal/cornerstone-components
 
+## 0.10.1
+
+### Fixed
+
+- [#296](https://github.com/CruGlobal/cornerstone-design-system/pull/296) [`b800c64`](https://github.com/CruGlobal/cornerstone-design-system/commit/b800c64368891e7a3bd8167aad95ddc5be6a0331) Thanks [@rguinee](https://github.com/rguinee)! - the docs site's page check skips code, so a `:::` directive, `::roadmap` or Starlight aside markup shown in a code span or block no longer fails it. Docs tooling only; nothing that ships changes.
+
 ## 0.10.0
 
 ### Breaking
