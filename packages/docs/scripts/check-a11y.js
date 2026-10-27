@@ -32,10 +32,9 @@
  *
  * **One `region` workaround.** axe-core 4.13 cannot recognise a skip link that lives in a shadow root, so it
  * reports `cs-page`'s "Skip to content" link as content outside a landmark on every Screen that uses
- * `cs-page`. `findComposedSkipLinks` sets aside only a reported link that is in-page, lands on an element in
- * the document, and is the first link on the page in flat-tree order, and the report prints each one. The
- * rule stays on and nothing is matched by selector. It comes out when the gap-register entry in
- * `resources/accessibility.md` closes.
+ * `cs-page`. `findComposedSkipLinks` decides which reported results are that link and says what it requires;
+ * the report prints each one it sets aside. The rule stays on and nothing is matched by selector. It comes
+ * out when the gap-register entry in `resources/accessibility.md` closes.
  *
  * **Light and dark.** Each state file is run twice, once per mode, in separate browser contexts. The dark
  * run emulates `prefers-color-scheme: dark` **and** puts `cs-dark` on `<html>`, because Cornerstone's
@@ -553,7 +552,7 @@ for (const [screen, { problems, reviews, exemptions, pinned }] of results) {
   }
 
   for (const { mode, target, href } of exemptions) {
-    out(`      [${mode}] region exempted: a shadow-DOM skip link to ${href}, first link on the page`);
+    out(`      [${mode}] region set aside: a skip link to ${href} that axe cannot compare across shadow DOM`);
     out(`          ${target}`);
   }
 
@@ -568,7 +567,7 @@ const scope =
 const reviews =
   `${reviewCount} needs review (${byMode('reviews')}), which never fails the check` +
   (exemptionCount
-    ? `; ${plural(exemptionCount, 'region result')} exempted as a shadow-DOM skip link (${byMode('exemptions')})`
+    ? `; ${plural(exemptionCount, 'region result')} set aside as a skip link axe cannot compare across shadow DOM (${byMode('exemptions')})`
     : '');
 
 if (problemCount === 0) {
