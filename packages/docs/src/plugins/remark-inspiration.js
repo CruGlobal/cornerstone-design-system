@@ -2,7 +2,15 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadComponents } from '@cruglobal/cornerstone-build-tools/component-api.js';
 import { categoryHref, tiers } from '../inspiration-categories.js';
-import { defaultPaths, listOf, loadInspiration } from '../inspiration.js';
+import {
+  defaultPaths,
+  exampleFences,
+  isExampleFence,
+  isSectionHeading,
+  listOf,
+  loadInspiration,
+  textOf as text,
+} from '../inspiration.js';
 import { previews } from './inspiration-previews.js';
 
 /**
@@ -25,7 +33,9 @@ import { previews } from './inspiration-previews.js';
  * order #145 fixed. That is what lets `packages/components/scripts/agent-skill.js`, which reads the `.md`
  * files directly, get every section in full: nothing an author writes is tab markup. A heading this plugin
  * does not know fails the build rather than vanishing from the page, because a section the shell cannot
- * place is a section a reader would never see.
+ * place is a section a reader would never see. A required section that is missing fails it too, for the
+ * same reason in reverse: the tab row is the same on every entry of a tier (#148), so a missing section
+ * would otherwise take its tab with it and nothing would say so.
  *
  * **Why the in-panel headings are raw HTML.** Starlight builds the table of contents from the page's
  * markdown headings. Every section here now sits in a tab, so a contents link to one would scroll to a
@@ -43,7 +53,6 @@ const components = loadComponents();
 
 const escape = (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 const html = (value) => ({ type: 'html', value });
-const text = (node) => node.value ?? (node.children ?? []).map(text).join('');
 
 /** The sections #145 allows, by the heading an author writes. */
 const SECTIONS = {
@@ -55,6 +64,19 @@ const SECTIONS = {
   states: 'states',
   sources: 'sources',
 };
+
+/**
+ * The sections every entry must have (#145), by key. A Screen that lists `states:` must also have States,
+ * which `requiredSections` adds.
+ */
+const REQUIRED = ['when', 'whenNot', 'why', 'rules'];
+
+const hasStates = (entry) => Object.keys(entry.states).length > 0;
+const requiredSections = (entry) => [...REQUIRED, ...(hasStates(entry) ? ['states'] : [])];
+const headingFor = (key) =>
+  Object.keys(SECTIONS)
+    .find((name) => SECTIONS[name] === key)
+    .replace(/^./, (c) => c.toUpperCase());
 
 /**
  * The tabs, in the order #148 decided, and which sections fill each. A section with a `title` keeps its
@@ -74,15 +96,15 @@ const TABS = [
   },
   { name: 'why-it-works', label: 'Why it works', sections: [{ key: 'why' }, { key: 'sources', title: 'Sources' }] },
   { name: 'rules', label: 'Rules', sections: [{ key: 'rules' }] },
-  { name: 'states', label: 'States', sections: [{ key: 'states' }], tiers: ['screens'] },
+  { name: 'states', label: 'States', sections: [{ key: 'states' }], shown: hasStates },
   { name: 'connections', label: 'Connections' },
 ];
 
 /**
  * Read per page rather than once, so no page is built from a stale library. In dev that is not enough on its
  * own: the content cache is keyed on each page's own file, so a page whose Used in changed because a
- * *different* entry was edited keeps its old render until the store is cleared (see src/plugin-watcher.js).
- * `npm run build` passes `--force` and is always current.
+ * *different* entry or state file was edited keeps its old render until the store is cleared.
+ * `src/plugin-watcher.js` warns when that happens. `npm run build` passes `--force` and is always current.
  */
 const library = () => loadInspiration({ ...defaultPaths, components });
 
@@ -106,28 +128,33 @@ export function remarkInspiration() {
  * Exported so `scripts/inspiration.test.js` can check the shell against fixture entries.
  */
 export function buildShell(entry, children, { contentDir = defaultPaths.contentDir } = {}) {
-  const { lead, sections } = splitSections(entry, children);
+  const examples = exampleFences(children, entry.where);
+  const sections = splitSections(entry, children);
 
   if (!entry.draft && !existsSync(join(contentDir, 'inspiration', entry.tier, 'index.md'))) {
     // The Goal or Kind pill links to the tier's list. That list arrives with the filtering work, which is
     // outside the shell's scope, so this stops a published entry shipping a pill that links to a 404.
     throw new Error(
-      `${entry.where}: the ${tiers[entry.tier].axis} pill links to /inspiration/${entry.tier}, which has no page yet. ` +
-        'Write that list before publishing an entry in it.',
+      `${entry.where}: the ${tiers[entry.tier].axis} pill links to /inspiration/${
+        entry.tier
+      }, which has no page yet. ` + 'Write that list before publishing an entry in it.',
     );
   }
 
-  return [...headerNodes(entry), ...tabNodes(entry, sections), ...previews[entry.tier]({ entry, lead, html })];
+  return [...headerNodes(entry), ...tabNodes(entry, sections), ...previews[entry.tier]({ entry, examples, html })];
 }
 
-/** Cuts the page at its `##` headings into the lead and one node list per known section. */
+/**
+ * Cuts the page at its `##` headings into one node list per known section, and checks that the lead holds
+ * nothing but a Pattern's example (see `exampleFences`) and comments.
+ */
 function splitSections(entry, children) {
   const lead = [];
   const sections = {};
   let current = lead;
 
   for (const node of children) {
-    if (node.type === 'heading' && node.depth <= 2) {
+    if (isSectionHeading(node)) {
       const heading = text(node).trim();
       const key = SECTIONS[heading.toLowerCase()];
 
@@ -155,15 +182,29 @@ function splitSections(entry, children) {
     current.push(node);
   }
 
-  const stray = lead.filter((node) => node.type !== 'code' && !(node.type === 'html' && /^<!--/.test(node.value)));
+  const stray = lead.filter((node) => !isExampleFence(node) && !(node.type === 'html' && /^<!--/.test(node.value)));
 
   if (stray.length > 0 || (entry.tier !== 'patterns' && lead.length > 0)) {
     throw new Error(
-      `${entry.where}: everything goes under a section heading. Only a Pattern's example fences sit before the first one.`,
+      `${entry.where}: everything goes under a section heading. Only a Pattern's \`\`\`html {.example} fences sit before the first one.`,
     );
   }
 
-  return { lead, sections };
+  if (sections.states && !hasStates(entry)) {
+    throw new Error(`${entry.where}: a States section needs the States it describes listed in \`states:\`.`);
+  }
+
+  const missing = requiredSections(entry).filter((key) => !sections[key]);
+
+  if (missing.length > 0) {
+    throw new Error(
+      `${entry.where}: missing ${listOf(missing.map((key) => `"${headingFor(key)}"`))}. ` +
+        `Every entry has When to use, When not to use, Why it works and Rules, and a Screen with \`states:\` has States, ` +
+        'so the tab row is the same on every page.',
+    );
+  }
+
+  return sections;
 }
 
 /**
@@ -189,9 +230,9 @@ const connection = (item) =>
 const componentLink = (tag) => `<a href="/components/${tag.replace(/^cs-/, '')}"><code>${tag}</code></a>`;
 
 function tabNodes(entry, sections) {
-  const tabs = TABS.filter((tab) => !tab.tiers || tab.tiers.includes(entry.tier)).filter(
-    (tab) => !tab.sections || tab.sections.some(({ key }) => sections[key]),
-  );
+  // Which tabs show depends on the entry's tier and `states:`, never on which sections it happens to have:
+  // `splitSections` has already failed an entry that is missing one.
+  const tabs = TABS.filter((tab) => !tab.shown || tab.shown(entry));
 
   const nodes = [
     html(
@@ -316,7 +357,9 @@ export function headerNodes(entry) {
         '<cs-icon name="keyboard_arrow_down" slot="end" class="inspiration-status-caret"></cs-icon></cs-badge></button>',
     `<a class="inspiration-category" href="${categoryHref(entry.tier, entry.category)}">` +
       `<cs-badge variant="neutral" appearance="filled" pill><cs-icon name="${entry.category.icon}" slot="start"></cs-icon>` +
-      `${escape(entry.category.label)}<span class="cs-visually-hidden"> ${tier.plural.toLowerCase()}</span></cs-badge></a>`,
+      `${escape(
+        entry.category.label,
+      )}<span class="cs-visually-hidden"> ${tier.plural.toLowerCase()}</span></cs-badge></a>`,
   ];
 
   const reason =
@@ -330,7 +373,9 @@ export function headerNodes(entry) {
     // `cs-not-prose` for the reason the component header gives: this row is UI, and Starlight's prose rhythm
     // would otherwise push every pill after the first down by a line.
     html(
-      `<div class="inspiration-info cs-cluster cs-gap-xs cs-not-prose">${pills.join('')}${usedInHtml(entry)}</div>${reason}`,
+      `<div class="inspiration-info cs-cluster cs-gap-xs cs-not-prose">${pills.join('')}${usedInHtml(
+        entry,
+      )}</div>${reason}`,
     ),
   ];
 }

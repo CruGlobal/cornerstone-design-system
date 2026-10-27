@@ -10,6 +10,18 @@ states:
 
 - Fixture.
 
+## When not to use
+
+- Fixture.
+
+## Why it works
+
+Fixture.
+
+## Rules
+
+- Fixture.
+
 ## States
 
 ### Just saved

@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
+import { fromMarkdown } from 'mdast-util-from-markdown';
 import { categoryFor, tiers } from './inspiration-categories.js';
 
 /**
@@ -12,7 +13,7 @@ import { categoryFor, tiers } from './inspiration-categories.js';
  * and a raise-only `status: experimental`. The rest is derived:
  *
  *   - **Tier** is the folder: `inspiration/patterns/`, `inspiration/screens/`, `inspiration/flows/`.
- *   - **Components** are the `cs-*` tags in a Pattern's `{.example}` fences, in every one of a Screen's
+ *   - **Components** are the `cs-*` tags in a Pattern's example (see `exampleFences`), in every one of a Screen's
  *     state files, or across every Screen a Flow passes through. Sub-components fold under their parent
  *     using the `parent:` field the component pages already carry (`cs-tab` lists as `cs-tab-group`).
  *   - **Patterns** come from `<!-- pattern: name -->` markers in that same markup.
@@ -44,6 +45,29 @@ export const SCREENS_URL = '/assets/examples/inspiration/screens';
 
 const MARKER = /<!--\s*(\/?)pattern(?::\s*([a-z0-9-]+))?\s*-->/g;
 
+/** Anything that looks like a marker: a comment that opens with `pattern` or `/pattern` as a word. */
+const MARKER_LIKE = /<!--\s*\/?pattern\b[\s\S]*?-->/g;
+
+/** A well-formed marker: `<!-- pattern: name -->` with a slug for a name, or `<!-- /pattern -->`. */
+const VALID_MARKER = /^<!--\s*(?:pattern:\s*[a-z0-9-]+|\/pattern)\s*-->$/;
+
+/**
+ * Fails on a marker that `stripPatternMarkers` would remove but `patternMarkers` would not read, such as
+ * `<!-- pattern: Error_summary -->` or a bare `<!-- pattern -->`. Without this the comment vanished from the
+ * copied markup and from Connections, and nothing said so.
+ */
+export function checkPatternMarkers(html, where) {
+  const bad = (html.match(MARKER_LIKE) ?? []).filter((marker) => !VALID_MARKER.test(marker));
+
+  if (bad.length > 0) {
+    throw new Error(
+      `${where}: ${bad.map((marker) => `"${marker}"`).join(', ')} is not a pattern marker. ` +
+        "Write `<!-- pattern: name -->` with the Pattern's file name (lowercase letters, digits and hyphens), " +
+        'or `<!-- /pattern -->` to close one.',
+    );
+  }
+}
+
 /**
  * Removes every `<!-- pattern: name -->` and `<!-- /pattern -->` marker, with the line it sat on when it
  * had one to itself.
@@ -64,9 +88,48 @@ export const patternMarkers = (html) => [
 export const tagsIn = (html) =>
   new Set([...html.replace(/<!--[\s\S]*?-->/g, '').matchAll(/<(cs-[a-z0-9]+(?:-[a-z0-9]+)*)[\s/>]/g)].map((m) => m[1]));
 
-/** The live-example fences in a Pattern's markdown, as written. */
-export const exampleFences = (markdown) =>
-  [...markdown.matchAll(/^```html[ \t]+\{[^}\n]*\.example[^}\n]*\}[^\n]*\n([\s\S]*?)^```/gm)].map((m) => m[1]);
+/** The text of an mdast node and everything under it. */
+export const textOf = (node) => node.value ?? (node.children ?? []).map(textOf).join('');
+
+/** A live-example fence, by the same test `plugins/remark-examples.js` uses to render one. */
+export const isExampleFence = (node) =>
+  node.type === 'code' && node.lang === 'html' && Boolean(node.meta?.includes('.example'));
+
+/** A heading that opens an Inspiration section. Deeper headings sit inside one. */
+export const isSectionHeading = (node) => node.type === 'heading' && node.depth <= 2;
+
+const findExampleFence = (node) =>
+  isExampleFence(node) ? node : (node.children ?? []).map(findExampleFence).find(Boolean);
+
+/**
+ * **The Pattern's example**: the `{.example}` fences before the first `##`, as mdast nodes.
+ *
+ * The one definition, read by both the library (for a Pattern's components and markers) and the Pattern
+ * workbench (for what it shows), so the two cannot disagree about which markup the Pattern is. A
+ * `{.example}` fence under a section fails the build on any tier: it would render as a live example in a
+ * reasoning tab while counting toward nothing in Connections.
+ *
+ * @param {object[]} children The entry's top-level mdast nodes.
+ * @param {string} where The entry's path, for the error.
+ */
+export function exampleFences(children, where) {
+  const first = children.findIndex(isSectionHeading);
+  const lead = first === -1 ? children : children.slice(0, first);
+  let section = '';
+
+  for (const node of children.slice(lead.length)) {
+    if (isSectionHeading(node)) {
+      section = textOf(node).trim();
+    } else if (findExampleFence(node)) {
+      throw new Error(
+        `${where}: an \`\`\`html {.example} fence sits under "${section}". A Pattern's example goes before ` +
+          'the first section. To show markup inside a section, drop `{.example}` so it stays plain code.',
+      );
+    }
+  }
+
+  return lead.filter(isExampleFence);
+}
 
 /** `edit-profile` → `Edit profile`, for an entry that is named before it exists. */
 export const titleFromSlug = (slug) => slug.replace(/-/g, ' ').replace(/^./, (character) => character.toUpperCase());
@@ -157,8 +220,12 @@ export function loadInspiration({
       const states = data.states ?? {};
       let markup = [];
 
+      // Read on every tier, so a stray example fence on a Screen or a Flow fails too.
+      const examples = exampleFences(fromMarkdown(content).children, where).map((node) => node.value);
+
       if (tier === 'patterns') {
-        markup = exampleFences(content);
+        markup = examples;
+        markup.forEach((html) => checkPatternMarkers(html, where));
       } else if (tier === 'screens') {
         markup = [slug, ...Object.keys(states).map((state) => `${slug}.${state}`)].map((file) => {
           const path = join(screensDir, `${file}.html`);
@@ -167,7 +234,11 @@ export function loadInspiration({
             throw new Error(`${where}: no state file at public/assets/examples/inspiration/screens/${file}.html.`);
           }
 
-          return readFileSync(path, 'utf-8');
+          const html = readFileSync(path, 'utf-8');
+
+          checkPatternMarkers(html, `public/assets/examples/inspiration/screens/${file}.html`);
+
+          return html;
         });
       }
 

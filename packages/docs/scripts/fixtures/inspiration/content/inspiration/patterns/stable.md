@@ -12,3 +12,15 @@ category: Feedback
 ## When to use
 
 - Fixture.
+
+## When not to use
+
+- Fixture.
+
+## Why it works
+
+Fixture.
+
+## Rules
+
+- Fixture.

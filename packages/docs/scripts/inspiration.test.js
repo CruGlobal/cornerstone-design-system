@@ -5,20 +5,23 @@
  * should be made experimental to prove it works. The fixtures under `fixtures/inspiration/` cover each way an
  * entry can be experimental (a component the manifest marks experimental, a raised `status`, and both), plus
  * Used in past three names, sub-component folding, pattern markers in copied markup, and a Flow step whose
- * Screen is not written yet. They read the real Custom Elements Manifest, so "experimental" means what the
+ * Screen is not written yet. Each failure the build guards against gets a small throwaway library of its own
+ * (`tempLibrary`), so the shared fixtures stay valid entries. They read the real Custom Elements Manifest, so "experimental" means what the
  * library says today: `cs-time-input` and `cs-otp-input` are.
  *
  * Needs the component library built (for the manifest), not the site.
  */
 
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { after, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { loadComponents } from '@cruglobal/cornerstone-build-tools/component-api.js';
-import { loadInspiration, stripPatternMarkers } from '../src/inspiration.js';
+import matter from 'gray-matter';
+import { fromMarkdown } from 'mdast-util-from-markdown';
+import { defaultPaths, loadInspiration, stripPatternMarkers } from '../src/inspiration.js';
 import { buildShell, headerNodes } from '../src/plugins/remark-inspiration.js';
 
 const fixtures = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'inspiration');
@@ -34,6 +37,45 @@ const heading = (depth, value) => ({ type: 'heading', depth, children: [{ type: 
 const paragraph = (value) => ({ type: 'paragraph', children: [{ type: 'text', value }] });
 const fence = (value) => ({ type: 'code', lang: 'html', meta: '{.example}', value });
 const shell = (id, children) => buildShell(library.get(id), children, paths);
+
+/** The sections every entry must have, so a test can supply a valid body and vary one thing. */
+const required = () => [
+  heading(2, 'When to use'),
+  paragraph('Use.'),
+  heading(2, 'When not to use'),
+  paragraph('Not this.'),
+  heading(2, 'Why it works'),
+  paragraph('Because.'),
+  heading(2, 'Rules'),
+  paragraph('A rule.'),
+];
+
+const SECTIONS_MD =
+  '## When to use\n\nUse.\n\n## When not to use\n\nNot.\n\n## Why it works\n\nBecause.\n\n## Rules\n\nA rule.\n';
+
+/**
+ * A throwaway library: `files` maps a path under the content root (`inspiration/patterns/x.md`) or under
+ * `screens/` to its text. Returns the paths to load it with.
+ */
+function tempLibrary(files) {
+  const root = mkdtempSync(join(tmpdir(), 'inspiration-'));
+  after(() => rmSync(root, { recursive: true, force: true }));
+
+  for (const [path, text] of Object.entries(files)) {
+    mkdirSync(dirname(join(root, path)), { recursive: true });
+    writeFileSync(join(root, path), text);
+  }
+
+  return { contentDir: root, screensDir: join(root, 'screens') };
+}
+
+const load = (files) => loadInspiration({ ...tempLibrary(files), components });
+
+const patternMd = (fields, fence = '<cs-callout>Plain</cs-callout>') =>
+  `---\ncategory: Feedback\n${fields}\n---\n\n\`\`\`html {.example}\n${fence}\n\`\`\`\n\n${SECTIONS_MD}`;
+const screenMd = (fields) => `---\ncategory: Account management\n${fields}\n---\n\n${SECTIONS_MD}`;
+const flowMd = (fields) => `---\ncategory: Account management\n${fields}\n---\n\n${SECTIONS_MD}`;
+const stateFile = (body) => `<!doctype html>\n<html lang="en">\n  <body>\n${body}\n  </body>\n</html>\n`;
 
 describe('status', () => {
   it('a Pattern built only from stable components gets the Stable pill and no reason line', () => {
@@ -115,9 +157,7 @@ describe('Connections', () => {
   });
 
   it('the Connections tab lists Used in in full, and a Screen is built from its Patterns and components', () => {
-    const pattern = html(
-      shell('patterns/stable', [fence('<cs-callout>Plain</cs-callout>'), heading(2, 'When to use')]),
-    );
+    const pattern = html(shell('patterns/stable', [fence('<cs-callout>Plain</cs-callout>'), ...required()]));
 
     for (const name of ['Alpha', 'Bravo', 'Charlie', 'Delta']) {
       assert.match(
@@ -148,7 +188,7 @@ describe('Connections', () => {
 describe('Flow steps', () => {
   it('a draft Flow keeps a step whose Screen is not written yet, and marks it', () => {
     const flow = library.get('flows/draft-flow');
-    const out = html(shell('flows/draft-flow', [heading(2, 'When to use'), paragraph('Fixture.')]));
+    const out = html(shell('flows/draft-flow', required()));
 
     assert.deepEqual(
       flow.steps.map((step) => [step.title, step.stateLabel, step.href]),
@@ -246,14 +286,14 @@ describe('reasoning tabs', () => {
 describe('copied markup', () => {
   it('strips pattern markers, and the lines they sat on, from every fence the workbench shows', () => {
     const value = library.get('patterns/nested').markup[0];
-    const nodes = shell('patterns/nested', [fence(value), heading(2, 'When to use')]);
+    const nodes = shell('patterns/nested', [fence(value), ...required()]);
     const shown = nodes.find((node) => node.type === 'code');
 
     assert.match(value, /<!-- pattern: stable -->/);
     assert.doesNotMatch(shown.value, /<!--\s*\/?pattern/);
     assert.equal(
       shown.value,
-      '<cs-callout variant="danger">Plain</cs-callout>\n<cs-toast><cs-toast-item>Saved</cs-toast-item></cs-toast>\n',
+      '<cs-callout variant="danger">Plain</cs-callout>\n<cs-toast><cs-toast-item>Saved</cs-toast-item></cs-toast>',
     );
   });
 
@@ -264,5 +304,229 @@ describe('copied markup', () => {
       ),
       '<div>\n  <p>x</p>\n  <!-- keep -->\n</div>',
     );
+  });
+});
+
+describe('pattern markers', () => {
+  for (const marker of ['<!-- pattern: Error_summary -->', '<!-- pattern: error summary -->', '<!-- pattern -->']) {
+    it(`fails on a malformed marker in a Pattern's example: ${marker}`, () => {
+      assert.throws(
+        () => load({ 'inspiration/patterns/p.md': patternMd('title: P', `${marker}\n<cs-callout>x</cs-callout>`) }),
+        { message: new RegExp(`"${marker}" is not a pattern marker`) },
+      );
+    });
+  }
+
+  it("fails on a malformed marker in a Screen's state file, naming the file", () => {
+    assert.throws(
+      () =>
+        load({
+          'inspiration/screens/s.md': screenMd('title: S\ndraft: true'),
+          'screens/s.html': stateFile('<!-- pattern: Bad -->\n<cs-callout>x</cs-callout>\n<!-- /pattern -->'),
+        }),
+      /screens\/s\.html: "<!-- pattern: Bad -->" is not a pattern marker/,
+    );
+  });
+
+  it('accepts a well-formed opening and closing marker, and leaves comments that only start with the word alone', () => {
+    const entries = load({
+      'inspiration/patterns/p.md': patternMd('title: P\ndraft: true'),
+      'inspiration/screens/s.md': screenMd('title: S\ndraft: true'),
+      'screens/s.html': stateFile(
+        '<!--pattern:p-->\n<cs-callout>x</cs-callout>\n<!-- /pattern -->\n<!-- patterns below -->',
+      ),
+    });
+
+    assert.deepEqual(entries.get('screens/s').patternNames, ['p']);
+  });
+});
+
+describe('references between entries', () => {
+  it('a published Screen whose marker names a draft Pattern fails the build', () => {
+    assert.throws(
+      () =>
+        load({
+          'inspiration/patterns/p.md': patternMd('title: P\ndraft: true'),
+          'inspiration/screens/s.md': screenMd('title: S'),
+          'screens/s.html': stateFile('<!-- pattern: p --><cs-callout>x</cs-callout><!-- /pattern -->'),
+        }),
+      /screens\/s\.md: pattern marker "p" is still a draft/,
+    );
+  });
+
+  it('a published Screen whose marker names no Pattern fails the build', () => {
+    assert.throws(
+      () =>
+        load({
+          'inspiration/screens/s.md': screenMd('title: S'),
+          'screens/s.html': stateFile('<!-- pattern: nope --><cs-callout>x</cs-callout><!-- /pattern -->'),
+        }),
+      /screens\/s\.md: pattern marker "nope" names no Pattern at inspiration\/patterns\/nope\.md/,
+    );
+  });
+
+  it('a published Flow whose step names a draft Screen fails the build', () => {
+    assert.throws(
+      () =>
+        load({
+          'inspiration/screens/s.md': screenMd('title: S\ndraft: true'),
+          'screens/s.html': stateFile('<cs-callout>x</cs-callout>'),
+          'inspiration/flows/f.md': flowMd('title: F\nscreens:\n  - s'),
+        }),
+      /flows\/f\.md: step "s" is still a draft/,
+    );
+  });
+
+  it('a draft page lists the draft entries that use it', () => {
+    const entries = load({
+      'inspiration/patterns/p.md': patternMd('title: P\ndraft: true'),
+      'inspiration/screens/s.md': screenMd('title: S\ndraft: true'),
+      'screens/s.html': stateFile('<!-- pattern: p --><cs-callout>x</cs-callout><!-- /pattern -->'),
+    });
+
+    assert.deepEqual(
+      entries.get('patterns/p').usedIn.map((item) => [item.title, item.href]),
+      [['S', '/inspiration/screens/s']],
+    );
+  });
+});
+
+describe('required sections', () => {
+  it('fails when a Pattern is missing any of the four sections every entry has', () => {
+    assert.throws(
+      () => shell('patterns/stable', [fence('<cs-callout></cs-callout>'), heading(2, 'When to use')]),
+      /missing "When not to use", "Why it works" and "Rules"/,
+    );
+  });
+
+  it('fails when a Screen with `states:` has no States section', () => {
+    assert.throws(() => shell('screens/overview', required()), /missing "States"/);
+  });
+
+  it('fails when a Screen without `states:` has a States section, rather than showing a tab no other page has', () => {
+    assert.throws(
+      () => shell('screens/alpha', [...required(), heading(2, 'States'), paragraph('Orphan.')]),
+      /a States section needs the States it describes listed in `states:`/,
+    );
+  });
+
+  it('every fixture and every real entry builds from its own markdown', () => {
+    const roots = [
+      { ...paths, entries: library },
+      { ...defaultPaths, entries: loadInspiration({ ...defaultPaths, components }) },
+    ];
+
+    for (const { contentDir, entries } of roots) {
+      for (const entry of entries.values()) {
+        const { content } = matter(readFileSync(join(contentDir, entry.where), 'utf-8'));
+
+        assert.doesNotThrow(() => buildShell(entry, fromMarkdown(content).children, { contentDir }), entry.where);
+      }
+    }
+
+    assert.ok(roots[1].entries.size >= 3, 'the three seed entries are read');
+  });
+});
+
+describe("the Pattern's example", () => {
+  it('fails on an {.example} fence under a section, in the library and in the shell', () => {
+    const md = patternMd('title: P').replace(
+      'A rule.\n',
+      'A rule.\n\n```html {.example}\n<cs-callout>Late</cs-callout>\n```\n',
+    );
+
+    assert.throws(() => load({ 'inspiration/patterns/p.md': md }), /an ```html \{\.example\} fence sits under "Rules"/);
+    assert.throws(
+      () =>
+        shell('patterns/stable', [
+          fence('<cs-callout></cs-callout>'),
+          ...required(),
+          fence('<cs-callout></cs-callout>'),
+        ]),
+      /fence sits under "Rules"/,
+    );
+  });
+
+  it('fails on an {.example} fence under a section of a Screen too', () => {
+    assert.throws(
+      () =>
+        load({
+          'inspiration/screens/s.md': `${screenMd(
+            'title: S\ndraft: true',
+          )}\n\`\`\`html {.example}\n<cs-callout>x</cs-callout>\n\`\`\`\n`,
+          'screens/s.html': stateFile('<cs-callout>x</cs-callout>'),
+        }),
+      /fence sits under "Rules"/,
+    );
+  });
+
+  it('a plain fence under a section is code, not the example, and counts toward nothing', () => {
+    const md = patternMd('title: P').replace('A rule.\n', 'A rule.\n\n```html\n<cs-time-input></cs-time-input>\n```\n');
+    const entry = load({ 'inspiration/patterns/p.md': md }).get('patterns/p');
+
+    assert.deepEqual(entry.components, ['cs-callout']);
+  });
+
+  it('the library and the workbench read the same fences', () => {
+    const entry = library.get('patterns/nested');
+    const { content } = matter(readFileSync(join(paths.contentDir, entry.where), 'utf-8'));
+    const shown = buildShell(entry, fromMarkdown(content).children, paths).filter((node) => node.type === 'code');
+
+    assert.deepEqual(
+      shown.map((node) => node.value),
+      entry.markup.map(stripPatternMarkers),
+    );
+  });
+
+  it('a fence before the first section that is not an {.example} fails the shell, rather than showing as the example', () => {
+    assert.throws(
+      () => shell('patterns/stable', [{ type: 'code', lang: 'css', meta: null, value: 'a {}' }, ...required()]),
+      /everything goes under a section heading/,
+    );
+  });
+});
+
+describe('publishing guard', () => {
+  it("a published entry fails until its tier's list page exists; a draft does not", () => {
+    const files = {
+      'inspiration/patterns/p.md': patternMd('title: P'),
+      'inspiration/patterns/d.md': patternMd('title: D\ndraft: true'),
+    };
+    const root = tempLibrary(files);
+    const entries = loadInspiration({ ...root, components });
+    const children = () => [fence('<cs-callout></cs-callout>'), ...required()];
+
+    assert.throws(
+      () => buildShell(entries.get('patterns/p'), children(), root),
+      /the Kind pill links to \/inspiration\/patterns, which has no page yet/,
+    );
+    assert.doesNotThrow(() => buildShell(entries.get('patterns/d'), children(), root));
+
+    writeFileSync(join(root.contentDir, 'inspiration', 'patterns', 'index.md'), '---\ntitle: Patterns\n---\n');
+    assert.doesNotThrow(() => buildShell(entries.get('patterns/p'), children(), root));
+  });
+});
+
+describe('escaping', () => {
+  it('escapes a title, description and heading that contain < or "', () => {
+    const entries = load({
+      'inspiration/patterns/p.md': patternMd(`title: 'P <b> "q"'\ndescription: 'Fish & <chips> "now"'\ndraft: true`),
+      'inspiration/screens/s.md': screenMd(`title: 'S <i> "s"'\ndraft: true`),
+      'screens/s.html': stateFile('<!-- pattern: p --><cs-callout>x</cs-callout><!-- /pattern -->'),
+    });
+    const pattern = html(buildShell(entries.get('patterns/p'), [fence('<cs-callout></cs-callout>'), ...required()]));
+    const screen = html(
+      buildShell(entries.get('screens/s'), [
+        ...required().slice(0, -1),
+        heading(3, 'A <b> "rule"'),
+        paragraph('A rule.'),
+      ]),
+    );
+
+    assert.match(pattern, /<p class="inspiration-summary">Fish &amp; &lt;chips> &quot;now&quot;<\/p>/);
+    assert.match(pattern, /Used in <a href="\/inspiration\/screens\/s">S &lt;i> &quot;s&quot;<\/a>/);
+    assert.match(screen, /<li><a href="\/inspiration\/patterns\/p">P &lt;b> &quot;q&quot;<\/a><\/li>/);
+    assert.match(screen, /<h2>A &lt;b> &quot;rule&quot;<\/h2>/);
+    assert.doesNotMatch(pattern + screen, /<chips>|<b> "|<i> "/);
   });
 });

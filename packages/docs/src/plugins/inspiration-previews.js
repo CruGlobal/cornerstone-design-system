@@ -9,7 +9,8 @@ import { SCREENS_URL, stripPatternMarkers } from '../inspiration.js';
  * touching the shell:
  *
  *   - `entry`, the derived record from `src/inspiration.js`;
- *   - `lead`, the nodes the author wrote before the first `##` heading (a Pattern's example fences);
+ *   - `examples`, the Pattern's example: its `{.example}` fence nodes, by the one definition in
+ *     `exampleFences` (empty on the other tiers);
  *   - `html`, which wraps a string as a raw HTML node.
  *
  * **These are placeholders on purpose.** Each tier's real preview is its own task, decided in #148 and
@@ -33,9 +34,7 @@ const open = (tier) =>
  * into the site's usual live example with its code panel and copy button. A Pattern with no fence fails the
  * build, since it would be the only tier with nothing to show.
  */
-function patterns({ entry, lead, html }) {
-  const fences = lead.filter((node) => node.type === 'code');
-
+function patterns({ entry, examples: fences, html }) {
   if (fences.length === 0) {
     throw new Error(
       `${entry.where}: a Pattern needs at least one \`\`\`html {.example} fence before its first section.`,
@@ -49,7 +48,13 @@ function patterns({ entry, lead, html }) {
   return [html(open('patterns')), ...fences, html('</section>')];
 }
 
-/** Each of a Screen's state files, opened on its own. The framed, switchable preview is UIUX-273. */
+/**
+ * Each of a Screen's state files, opened on its own. The framed, switchable preview is UIUX-273.
+ *
+ * These links serve the raw files, which still carry their pattern markers: nothing between here and the
+ * reader runs `stripPatternMarkers` yet. UIUX-273 replaces the links with a preview that shows the markup,
+ * and has to strip them there.
+ */
 function screens({ entry, html }) {
   const states = [['', 'Default'], ...Object.entries(entry.states)];
   const items = states
