@@ -965,8 +965,12 @@ html:not([data-has-toc]) cs-page > [slot='aside'] {
 }
 
 /* A real button around the pill, so it takes the pill's shape and nothing of a button's own chrome. The
-   focus ring is left to `cs-native`, which draws it for every button. */
+   focus ring is left to `cs-native`, which draws it for every button. `cs-native` also gives every button
+   `height: var(--cs-form-control-height)`, which made the Experimental row taller than the Stable one, so the
+   block size goes back to the pill's own. */
 .inspiration-status {
+  block-size: auto;
+  min-block-size: 0;
   padding: 0;
   border: 0;
   border-radius: var(--cs-border-radius-pill);
