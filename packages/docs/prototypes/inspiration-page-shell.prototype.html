@@ -61,6 +61,7 @@ p{margin:0}
 .code pre{margin:0;padding:16px;white-space:pre}
 .code .copy{position:absolute;top:8px;right:8px;font:inherit;font-size:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:6px;padding:2px 8px;cursor:pointer}
 .small{font-size:13px;color:var(--muted)}
+.whyorder{font:inherit;font-weight:600;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 .list-links{display:flex;flex-wrap:wrap;gap:6px}
 .list-links a{font-family:var(--mono);font-size:13px;background:var(--sunken);padding:2px 8px;border-radius:6px;text-decoration:none;color:var(--fg)}
 .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
@@ -328,7 +329,7 @@ const openNew=()=>`<a class="btnlink" href="#">Open in a new window ↗</a>`;
 function thumb(st,big){
   const [id,state,label,why]=st;
   // A div, not a link: the mock screen has links of its own, and a link inside a link breaks the page.
-  return `<div class="thumb"><div class="win${big?' big':''}" inert><div>${screenHTML(id,state)}</div></div>${big?'':`<div class="cap"><a href="#">${label}</a><small>${why}</small></div>`}</div>`;
+  return `<div class="thumb"><div class="win${big?' big':''}" inert><div>${screenHTML(id,state)}</div></div>${big?'':`<div class="cap"><a href="#">${label}</a></div>`}</div>`;
 }
 
 /* ---------- Variant A: the sketch, top to bottom ---------- */
@@ -391,7 +392,7 @@ function C(top){
       ${S.tab==='preview'?frame(editScreen(S.state),w,z):codeBlock(r.code)}
       ${S.state!=='default'?`<p class="small"><b>${STATES[S.state]}:</b> ${STATE_LINES[S.state]}</p>`:''}`;
   }else{
-    canvas=`<div class="stepper">${r.steps.map((s,i)=>`<div class="row">${thumb(s,true)}<div style="display:grid;gap:6px"><div class="small">Step ${i+1} of ${r.steps.length}</div><a href="#" style="font-weight:700">${s[2]}</a><p>${s[3]}</p></div></div>`).join('')}</div>`;
+    canvas=`<p style="margin-bottom:14px"><button type="button" class="whyorder" data-rtab="why" data-focus-tab>Why this order</button></p><div class="stepper">${r.steps.map((s,i)=>`<div class="row">${thumb(s,true)}<div style="display:grid;gap:6px"><div class="small">Step ${i+1} of ${r.steps.length}</div><a href="#" style="font-weight:700">${s[2]}</a></div></div>`).join('')}</div>`;
   }
   const rtabs=[['when','When to use'],['why','Why it works'],['rules','Rules']].concat(top&&S.tier==='screen'?[['states','States']]:[],[['about',top?'Connections':'Composed of']]);
   if(!rtabs.some(x=>x[0]===S.rtab))S.rtab='when';
@@ -456,6 +457,7 @@ document.addEventListener('click',ev=>{
   if(t.dataset.vp)S.vp=t.dataset.vp;
   if(t.dataset.ptab)S.tab=t.dataset.ptab;
   if(t.dataset.rtab)S.rtab=t.dataset.rtab;
+  if(t.hasAttribute('data-focus-tab')){render();document.querySelector(`[role=tab][data-rtab="${S.rtab}"]`)?.focus();return;}
   if(t.dataset.copy!==undefined){const txt=t.nextElementSibling.textContent;
     Promise.resolve().then(()=>navigator.clipboard.writeText(txt)).then(()=>{t.textContent='Copied'},()=>{t.textContent='Select and copy'});return;}
   render();
