@@ -2,8 +2,19 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const SITE_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
+
 /** The content root, so a watcher event can be turned into a collection-relative slug. */
-const CONTENT_DIR = join(dirname(dirname(fileURLToPath(import.meta.url))), 'src', 'content', 'docs');
+const CONTENT_DIR = join(SITE_DIR, 'src', 'content', 'docs');
+
+/**
+ * Everything `src/inspiration.js` reads to derive the library: the entries, and the Screens' state files.
+ * The state files are under `public/`, which is not content at all, so no edit to one re-renders anything.
+ */
+const INSPIRATION_SOURCES = [
+  join(CONTENT_DIR, 'inspiration'),
+  join(SITE_DIR, 'public', 'assets', 'examples', 'inspiration'),
+];
 
 /**
  * Warns when a remark or rehype plugin changes, because the dev server will not pick it up.
@@ -86,9 +97,21 @@ const CONTENT_DIR = join(dirname(dirname(fileURLToPath(import.meta.url))), 'src'
  * The remedy is the same stop / delete / start above. **Editing the page does not help** — which is the
  * trap, because that is exactly the advice the third case gives, and following it here just produces more
  * unserved edits and more confidence that the bug is somewhere else.
+ *
+ * **A fifth case, which this file warns about: an Inspiration entry staling the entries it connects to.**
+ * Each entry's pill row, Connections tab and status are derived from the whole library (`src/inspiration.js`):
+ * a Pattern's Used in comes from the markers in other Screens' state files, a Screen's from the Flows that
+ * step through it. Editing one entry re-renders that entry only, and editing a state file re-renders nothing,
+ * since it lives under `public/`. The sidebar's flask is read once, when the config loads. So the warning
+ * names the file and gives the same stop / delete / start, which also reloads the sidebar.
  */
 export function pluginWatcher() {
-  const isPluginFile = (path) => /src[/\\](plugins[/\\]|component-categories\.js$|theme-sync\.js$)/.test(path);
+  // `inspiration.js` and `inspiration-categories.js` are read by `remark-inspiration.js` as if they were part of it.
+  const isPluginFile = (path) =>
+    /src[/\\](plugins[/\\]|component-categories\.js$|theme-sync\.js$|inspiration(-categories)?\.js$)/.test(path);
+
+  const isInspirationSource = (path) =>
+    INSPIRATION_SOURCES.some((dir) => path.startsWith(dir)) && /\.(md|html)$/.test(path) && !path.endsWith('index.md');
 
   /**
    * Every page whose body is a listing of `dir`, so a warning can name it.
@@ -147,6 +170,24 @@ export function pluginWatcher() {
             logger.warn('Run: npx astro dev stop && rm -f .astro/data-store.json && npx astro dev --background');
           }
         });
+
+        // An Inspiration entry or state file changed, so other entries' connections may be stale — the fifth case.
+        for (const event of ['change', 'add', 'unlink']) {
+          server.watcher.on(event, (path) => {
+            if (!isInspirationSource(path)) {
+              return;
+            }
+
+            const verb = { change: 'changed', add: 'was added', unlink: 'was deleted' }[event];
+
+            logger.warn(`${relative(SITE_DIR, path)} ${verb}. Inspiration pages read each other's markup for their`);
+            logger.warn('pill row, Connections and status, but only an edited page re-renders, so the entries it');
+            logger.warn(
+              'connects to (and the sidebar) keep their old render. Delete the store to bring them up to date:',
+            );
+            logger.warn('npx astro dev stop && rm -f .astro/data-store.json && npx astro dev --background');
+          });
+        }
 
         // Adding or deleting a page silently staler its directory's index — the third case above.
         for (const event of ['add', 'unlink']) {
