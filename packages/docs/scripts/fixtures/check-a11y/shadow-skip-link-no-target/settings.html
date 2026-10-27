@@ -1,0 +1,38 @@
+<!doctype html>
+<!--
+  A shadow-hosted skip link whose fragment matches nothing in the document, for check-a11y.test.js. Never
+  built into the site. It is first on the page and in-page, so only the missing target keeps it from being
+  exempted: region must still fail it. The element is defined here rather than taken from the library so
+  the target can be wrong on purpose, since cs-page adds a #main-content when the page has none. Like
+  cs-page, it slots <main> after the link, so axe reports the link itself rather than its host.
+-->
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+  </head>
+  <body>
+    <skip-host>
+      <main class="cs-stack">
+        <h1>Settings</h1>
+        <p><a href="edit-profile.html">Edit profile</a></p>
+      </main>
+    </skip-host>
+    <script>
+      customElements.define(
+        'skip-host',
+        class extends HTMLElement {
+          constructor() {
+            super();
+            this.attachShadow({ mode: 'open' }).innerHTML =
+              '<a class="skip" href="#nowhere">Skip to content</a><slot></slot>';
+          }
+        },
+      );
+    </script>
+  </body>
+</html>

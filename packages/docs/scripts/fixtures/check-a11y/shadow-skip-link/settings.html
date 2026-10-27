@@ -1,0 +1,29 @@
+<!doctype html>
+<!--
+  A test Screen for check-a11y.test.js, never built into the site. cs-page renders its "Skip to content" link
+  in its shadow root, ahead of every other link, pointing at #main-content in the document. axe-core 4.13's
+  region rule reports that link as content outside a landmark, because its skip-link test compares document
+  positions across the shadow boundary and gets a disconnected answer. check-a11y exempts it and says so.
+  The link inside <main> matters: with no other link on the page, axe treats any link as a skip link.
+-->
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+  </head>
+  <body>
+    <cs-page>
+      <header slot="header" class="cs-split">
+        <span class="cs-heading-m">Mission Hub</span>
+      </header>
+      <main id="main-content" class="cs-stack">
+        <h1>Settings</h1>
+        <p><a href="edit-profile.html">Edit profile</a></p>
+      </main>
+    </cs-page>
+  </body>
+</html>

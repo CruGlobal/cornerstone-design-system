@@ -149,6 +149,51 @@ describe('check-a11y', () => {
     assert.match(output, /no violations; \d+ needs review \(\d+ light, \d+ dark\), which never fails the check/);
   });
 
+  // Without the exemption, axe 4.13 fails this fixture on region at `cs-page >>> .cs-visually-hidden`.
+  it("passes cs-page's shadow-DOM skip link that axe reports under region, and prints the exemption", () => {
+    const { status, output } = check(join(fixtures, 'shadow-skip-link'));
+
+    assert.equal(status, 0, output);
+    assert.doesNotMatch(output, /region \(moderate\)/);
+
+    for (const mode of ['light', 'dark']) {
+      assert.match(
+        output,
+        new RegExp(
+          `\\[${mode}\\] region exempted: a shadow-DOM skip link to #main-content.*\\n\\s+cs-page >>> \\.cs-visually-hidden\\n`,
+        ),
+      );
+    }
+
+    assert.match(output, /no violations; .*2 region results exempted as a shadow-DOM skip link \(1 light, 1 dark\)/);
+  });
+
+  it('still fails stray text, a link to another page and a late in-page link outside every landmark', () => {
+    const { status, output } = check(join(fixtures, 'shadow-skip-link-stray'));
+
+    assert.equal(status, 1, output);
+    assert.match(output, /2 failures \(1 light, 1 dark\)/);
+
+    for (const mode of ['light', 'dark']) {
+      assert.match(
+        output,
+        new RegExp(
+          `\\[${mode}\\] region \\(moderate\\): .*\\n\\s+\\.stray-text\\n.*\\n\\s+\\.stray-page-link\\n.*\\n\\s+\\.stray-fragment-link\\n`,
+        ),
+      );
+      assert.match(output, new RegExp(`\\[${mode}\\] region exempted: .*\\n\\s+cs-page >>> \\.cs-visually-hidden\\n`));
+    }
+  });
+
+  it('still fails a first, in-page shadow link whose fragment matches nothing in the document', () => {
+    const { status, output } = check(join(fixtures, 'shadow-skip-link-no-target'));
+
+    assert.equal(status, 1, output);
+    assert.match(output, /\[light\] region \(moderate\): .*\n\s+skip-host >>> \.skip\n/);
+    assert.match(output, /\[dark\] region \(moderate\): .*\n\s+skip-host >>> \.skip\n/);
+    assert.doesNotMatch(output, /region exempted/);
+  });
+
   it('fails without a value for --screens rather than checking the site', () => {
     const { status, stderr } = spawnSync(process.execPath, [join(scriptsDir, 'check-a11y.js'), '--screens'], {
       encoding: 'utf-8',

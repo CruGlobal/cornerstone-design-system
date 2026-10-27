@@ -30,6 +30,13 @@
  * They are named by id rather than by adding the `best-practice` tag, which would bring in dozens of rules
  * nobody has decided a Screen must meet.
  *
+ * **One `region` workaround.** axe-core 4.13 cannot recognise a skip link that lives in a shadow root, so it
+ * reports `cs-page`'s "Skip to content" link as content outside a landmark on every Screen that uses
+ * `cs-page`. `findComposedSkipLinks` sets aside only a reported link that is in-page, lands on an element in
+ * the document, and is the first link on the page in flat-tree order, and the report prints each one. The
+ * rule stays on and nothing is matched by selector. It comes out when the gap-register entry in
+ * `resources/accessibility.md` closes.
+ *
  * **Light and dark.** Each state file is run twice, once per mode, in separate browser contexts. The dark
  * run emulates `prefers-color-scheme: dark` **and** puts `cs-dark` on `<html>`, because Cornerstone's
  * themes switch on that class, not on the media query: emulation alone would rerun the light page and call
@@ -224,16 +231,85 @@ function findPinnedScheme() {
 }
 
 /**
+ * Finds the `region` results that are a skip link axe misjudged because it sits in a shadow root, as the one
+ * `cs-page` renders does. Runs in the page, on the elements axe reported, and returns `{ [index]: href }`.
+ *
+ * axe-core exempts a skip link from `region`, but decides "skip link" by asking whether the page's first
+ * other link follows it in document position. Across a shadow boundary that comparison answers
+ * "disconnected", so a skip link in a shadow root is never one, however it behaves. This makes the same
+ * judgement in flat-tree order, the order the page renders and tabs in, and exempts a result only when all
+ * of these hold:
+ *
+ *   - the reported element is itself an `<a>` whose `href` is an in-page `#fragment`;
+ *   - that fragment names an element in the document, where fragment navigation looks;
+ *   - it comes before every other link on the page, counting links in every open shadow root.
+ *
+ * Anything else axe reported stays a failure, including a wrapper that holds a skip link and more. The
+ * report prints each exemption, and the gap register in `resources/accessibility.md` says when this goes.
+ */
+function findComposedSkipLinks() {
+  const elements = /** @type {any} */ (window).__regionElements ?? [];
+  const links = [];
+
+  // A host's shadow tree stands in place of its children, and a slot's assigned nodes in place of its
+  // fallback, so links come out in the order the page renders them.
+  const walk = (node) => {
+    if (node.nodeType !== Node.ELEMENT_NODE && node.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) {
+      return;
+    }
+
+    if ((node.localName === 'a' || node.localName === 'area') && node.hasAttribute('href')) {
+      links.push(node);
+    }
+
+    const assigned = node.localName === 'slot' ? node.assignedNodes() : [];
+    const children = node.shadowRoot?.childNodes ?? (assigned.length > 0 ? assigned : node.childNodes);
+
+    for (const child of children) {
+      walk(child);
+    }
+  };
+
+  walk(document.documentElement);
+
+  const exempt = {};
+
+  elements.forEach((element, index) => {
+    const href = element?.localName === 'a' ? element.getAttribute('href') : null;
+
+    if (!href?.startsWith('#') || href.length < 2) {
+      return;
+    }
+
+    let id;
+
+    try {
+      id = decodeURIComponent(href.slice(1));
+    } catch {
+      return;
+    }
+
+    if (document.getElementById(id) && links[0] === element) {
+      exempt[index] = href;
+    }
+  });
+
+  return exempt;
+}
+
+/**
  * Loads one state file in one mode and runs axe on it.
  *
  * Returns what fails it (`problems`: violations, failed requests, page errors), what axe could not decide
- * (`reviews`), and the scheme the Screen pins, if any. A pinned Screen is judged only in that scheme, so a
- * run in the other one comes back `skipped`. Every item carries its mode.
+ * (`reviews`), the `region` results set aside as shadow-DOM skip links (`exemptions`, see
+ * `findComposedSkipLinks`), and the scheme the Screen pins, if any. A pinned Screen is judged only in that
+ * scheme, so a run in the other one comes back `skipped`. Every item carries its mode.
  */
 async function checkState(context, screen, mode) {
   const page = await context.newPage();
   const problems = [];
   const reviews = [];
+  const exemptions = [];
   const loadErrors = [];
   const tracked = new Set();
   const pending = new Set();
@@ -309,7 +385,7 @@ async function checkState(context, screen, mode) {
     pinned = await page.evaluate(findPinnedScheme);
 
     if (pinned && pinned.scheme !== mode.name) {
-      return { problems: [], reviews: [], pinned, skipped: true };
+      return { problems: [], reviews: [], exemptions: [], pinned, skipped: true };
     }
 
     await page.evaluate(
@@ -339,7 +415,12 @@ async function checkState(context, screen, mode) {
         const { violations, incomplete } = await /** @type {any} */ (window).axe.run(document, {
           runOnly: { type: 'tag', values: tags },
           rules: Object.fromEntries(rules.map((id) => [id, { enabled: true }])),
+          elementRef: true,
         });
+
+        // Kept on the page for `findComposedSkipLinks`, which judges the elements themselves.
+        /** @type {any} */ (window).__regionElements =
+          violations.find((result) => result.id === 'region')?.nodes.map((node) => node.element) ?? [];
         const plain = (result) => ({
           id: result.id,
           impact: result.impact,
@@ -355,8 +436,20 @@ async function checkState(context, screen, mode) {
       { tags: WCAG_TAGS, rules: DOCUMENT_RULES },
     );
 
+    const skipLinks = await page.evaluate(findComposedSkipLinks);
+
     for (const { id, impact, help, nodes } of results.violations) {
-      problems.push({ mode: mode.name, id, impact, help, targets: targetsOf(nodes) });
+      const kept = id === 'region' ? nodes.filter((_, index) => !(index in skipLinks)) : nodes;
+
+      if (kept.length > 0) {
+        problems.push({ mode: mode.name, id, impact, help, targets: targetsOf(kept) });
+      }
+
+      if (id === 'region') {
+        for (const [index, href] of Object.entries(skipLinks)) {
+          exemptions.push({ mode: mode.name, target: targetsOf([{ ...nodes[index], message: null }])[0], href });
+        }
+      }
     }
 
     for (const { id, help, nodes } of results.incomplete) {
@@ -380,11 +473,13 @@ async function checkState(context, screen, mode) {
     problems.push({ mode: mode.name, id: 'check-a11y', impact: 'error', help: message, targets: [] });
   }
 
-  return { problems, reviews, pinned, skipped: false };
+  return { problems, reviews, exemptions, pinned, skipped: false };
 }
 
 const browser = await chromium.launch();
-const results = new Map(screens.map((screen) => [screen, { problems: [], reviews: [], pinned: null, runs: 0 }]));
+const results = new Map(
+  screens.map((screen) => [screen, { problems: [], reviews: [], exemptions: [], pinned: null, runs: 0 }]),
+);
 
 try {
   for (const mode of MODES) {
@@ -405,11 +500,12 @@ try {
     );
 
     for (const screen of screens) {
-      const { problems, reviews, pinned, skipped } = await checkState(context, screen, mode);
+      const { problems, reviews, exemptions, pinned, skipped } = await checkState(context, screen, mode);
       const result = results.get(screen);
 
       result.problems.push(...problems);
       result.reviews.push(...reviews);
+      result.exemptions.push(...exemptions);
       result.pinned ??= pinned;
       result.runs += skipped ? 0 : 1;
     }
@@ -427,6 +523,7 @@ const byMode = (key) => MODES.map(({ name }) => `${total(key, name)} ${name}`).j
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const problemCount = total('problems');
 const reviewCount = total('reviews');
+const exemptionCount = total('exemptions');
 const runCount = all.reduce((sum, { runs }) => sum + runs, 0);
 const pinnedCount = all.filter(({ pinned }) => pinned).length;
 const failing = all.filter(({ problems }) => problems.length > 0).length;
@@ -434,8 +531,8 @@ const out = problemCount === 0 ? console.log : console.error;
 
 out('');
 
-for (const [screen, { problems, reviews, pinned }] of results) {
-  if (problems.length === 0 && reviews.length === 0 && !pinned) {
+for (const [screen, { problems, reviews, exemptions, pinned }] of results) {
+  if (problems.length === 0 && reviews.length === 0 && exemptions.length === 0 && !pinned) {
     continue;
   }
 
@@ -455,6 +552,11 @@ for (const [screen, { problems, reviews, pinned }] of results) {
     targets.forEach((target) => out(`          ${target}`));
   }
 
+  for (const { mode, target, href } of exemptions) {
+    out(`      [${mode}] region exempted: a shadow-DOM skip link to ${href}, first link on the page`);
+    out(`          ${target}`);
+  }
+
   out('');
 }
 
@@ -463,7 +565,11 @@ const scope =
   `${MODES.map(({ name }) => name).join(' and ')}, ${plural(runCount, 'run')}` +
   `${pinnedCount ? ` (${pinnedCount} pinned to one scheme)` : ''} ` +
   `(${WCAG_TAGS.join(', ')}, plus ${DOCUMENT_RULES.join(', ')})`;
-const reviews = `${reviewCount} needs review (${byMode('reviews')}), which never fails the check`;
+const reviews =
+  `${reviewCount} needs review (${byMode('reviews')}), which never fails the check` +
+  (exemptionCount
+    ? `; ${plural(exemptionCount, 'region result')} exempted as a shadow-DOM skip link (${byMode('exemptions')})`
+    : '');
 
 if (problemCount === 0) {
   out(`${scope}: no violations; ${reviews}.\n`);
