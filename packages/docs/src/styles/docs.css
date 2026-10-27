@@ -951,6 +951,65 @@ html:not([data-has-toc]) cs-page > [slot='aside'] {
 }
 
 /**
+ * An Inspiration entry's page shell: the description, the pill row, the line the Experimental pill opens,
+ * the reasoning tabs and the workbench. Built by src/plugins/remark-inspiration.js; the row reads like the
+ * component header above, so it takes the same summary treatment.
+ */
+.inspiration-summary {
+  font-size: var(--cs-font-size-l);
+  font-weight: var(--cs-font-weight-semibold);
+}
+
+.inspiration-info {
+  margin-block-end: var(--cs-content-spacing);
+}
+
+/* A real button around the pill, so it takes the pill's shape and nothing of a button's own chrome. The
+   focus ring is left to `cs-native`, which draws it for every button. */
+.inspiration-status {
+  padding: 0;
+  border: 0;
+  border-radius: var(--cs-border-radius-pill);
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.inspiration-status[aria-expanded='true'] .inspiration-status-caret {
+  rotate: 180deg;
+}
+
+/* `:not([hidden])` so the closed line stays closed: a `display` here would otherwise beat `hidden`. */
+.inspiration-status-reason:not([hidden]) {
+  display: flex;
+  gap: var(--cs-space-xs);
+  align-items: baseline;
+}
+
+.inspiration-status-reason cs-icon {
+  flex: none;
+  color: var(--cs-color-warning-on-quiet);
+}
+
+.inspiration-used-in {
+  color: var(--cs-color-text-quiet);
+  font-size: var(--cs-font-size-s);
+}
+
+/* The panels' headings are a level inside the page, not sections of it, so they read smaller. */
+.inspiration-reasoning cs-tab-panel h2 {
+  font-size: var(--cs-font-size-l);
+}
+
+.inspiration-reasoning cs-tab-panel h3 {
+  font-size: var(--cs-font-size-m);
+}
+
+.inspiration-workbench {
+  margin-block-start: var(--cs-space-2xl);
+}
+
+/**
  * The live-example card is styled entirely by code-examples.css, ported from the Eleventy site. The
  * interim rules that used to live here — a border, radius and padding on `.code-example-content` —
  * are gone: that element is the demo's own container and must be unstyled, or it renders as a second

@@ -1,0 +1,77 @@
+<!doctype html>
+<!--
+  Inspiration Screen: Settings overview, Just saved State: the default State plus the toast
+  that confirms the save. Shown when someone returns here from Edit profile after saving. Its reasoning is
+  src/content/docs/inspiration/screens/settings-overview.md. The pattern markers below are read by the
+  docs build and are taken out of any markup the site offers to copy.
+-->
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+  </head>
+  <body>
+    <cs-page>
+      <header slot="header" class="cs-split">
+        <span class="cs-heading-m">Mission Hub</span>
+      </header>
+      <main id="main-content" class="cs-stack">
+        <h1>Settings</h1>
+
+        <!-- pattern: summary-list -->
+        <cs-card>
+          <div slot="header" class="cs-split">
+            <h2 class="cs-heading-s">Profile</h2>
+            <a href="edit-profile.html">Edit<span class="cs-visually-hidden"> profile</span></a>
+          </div>
+          <dl class="cs-stack cs-gap-s">
+            <div class="cs-split">
+              <dt>Display name</dt>
+              <dd>Jo Catanus</dd>
+            </div>
+            <div class="cs-split">
+              <dt>Phone</dt>
+              <dd>555-555-0142</dd>
+            </div>
+            <div class="cs-split">
+              <dt>Time zone</dt>
+              <dd>Eastern Time</dd>
+            </div>
+          </dl>
+        </cs-card>
+        <!-- /pattern -->
+
+        <!-- pattern: summary-list -->
+        <cs-card>
+          <div slot="header">
+            <h2 class="cs-heading-s">Cru account</h2>
+          </div>
+          <dl class="cs-stack cs-gap-s">
+            <div class="cs-split">
+              <dt>Name</dt>
+              <dd>Joanna Catanus</dd>
+            </div>
+            <div class="cs-split">
+              <dt>Email</dt>
+              <dd>joanna@example.org</dd>
+            </div>
+          </dl>
+          <p slot="footer" class="cs-body-s cs-color-text-quiet">
+            Your name and email come from your Cru account, so they are changed there, not here.
+          </p>
+        </cs-card>
+        <!-- /pattern -->
+        <cs-toast>
+          <cs-toast-item variant="success" duration="0">
+            <cs-icon slot="icon" name="check_circle"></cs-icon>
+            Profile saved
+          </cs-toast-item>
+        </cs-toast>
+      </main>
+    </cs-page>
+  </body>
+</html>

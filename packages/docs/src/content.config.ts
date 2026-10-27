@@ -36,6 +36,20 @@ export const collections = {
          * column means; the site renders nothing from it.
          */
         contrast: z.string().optional(),
+        /**
+         * Inspiration entries only (#144). Their remaining rules (which tier may carry which field, a Goal or
+         * Kind from the right list, a state file per State, every Flow step resolving) need the entry's folder
+         * and the files beside it, which Starlight's single `docsSchema` cannot see. `src/inspiration.js`
+         * checks them and fails the build; these lines only fix each field's shape.
+         *
+         * `status` may only raise an entry to experimental. Its derived status comes from the components it
+         * uses, and nothing can lower that.
+         */
+        status: z.literal('experimental').optional(),
+        /** A Screen's named States, `key: label`, each backed by `<screen>.<key>.html`. */
+        states: z.record(z.string(), z.string()).optional(),
+        /** A Flow's steps in order, each a Screen slug or `screen.state`. */
+        screens: z.array(z.string()).optional(),
       }),
     }),
   }),
