@@ -230,14 +230,14 @@ function findPinnedScheme() {
 }
 
 /**
- * Finds the `region` results that are a skip link axe misjudged because it sits in a shadow root, as the one
- * `cs-page` renders does. Runs in the page, on the elements axe reported, and returns `{ [index]: href }`.
+ * Finds the `region` results that are a skip link axe misjudged because shadow DOM separates it from the
+ * page's first link to another page, as with the one `cs-page` renders. Runs in the page, on the elements
+ * axe reported, and returns `{ [index]: href }`.
  *
  * axe-core exempts a skip link from `region`, but decides "skip link" by asking whether the page's first
- * other link follows it in document position. Across a shadow boundary that comparison answers
- * "disconnected", so a skip link in a shadow root is never one, however it behaves. This makes the same
- * judgement in flat-tree order, the order the page renders and tabs in, and exempts a result only when all
- * of these hold:
+ * link to another page follows it in document position. Across a shadow boundary that comparison answers
+ * "disconnected", so the link is never a skip link, however it behaves. This makes a stricter judgement in
+ * flat-tree order, the order the page renders and tabs in, and exempts a result only when all of these hold:
  *
  *   - the reported element is itself an `<a>` whose `href` is an in-page `#fragment`;
  *   - that fragment names an element in the document, where fragment navigation looks;
