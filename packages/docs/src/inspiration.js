@@ -16,9 +16,11 @@ import { categoryFor, tiers } from './inspiration-categories.js';
  *   - **Components** are the `cs-*` tags in a Pattern's example (see `exampleFences`), in every one of a Screen's
  *     state files, or across every Screen a Flow passes through. Sub-components fold under their parent
  *     using the `parent:` field the component pages already carry (`cs-tab` lists as `cs-tab-group`).
- *   - **Patterns** come from `<!-- pattern: name -->` markers in that same markup.
+ *   - **Patterns** come from `<!-- pattern: name -->` markers in that same markup; a Flow lists every Pattern
+ *     its Screens mark.
  *   - **Status** is experimental when any tag the entry uses is `experimental` in the Custom Elements
- *     Manifest, or when the entry raises it. It can never be lowered.
+ *     Manifest, when the entry raises it, or when anything it is built from (a Pattern, or a Flow's Screen)
+ *     is raised, however deep. It can never be lowered.
  *   - **Used in** is the reverse of the above: the Screens whose markers name a Pattern, and the Flows
  *     whose steps name a Screen.
  *
@@ -157,6 +159,24 @@ export function readComponentParents(contentDir) {
 }
 
 /** A Flow step is a Screen slug or `screen.state`. */
+/**
+ * Fails a published Screen whose State file links to another page file that is not there, such as a
+ * Settings overview linking to an Edit profile not written yet. Only relative `.html` links are checked:
+ * those are the State files beside it, and nothing else checks links inside them. A draft may link ahead,
+ * the same rule as Flow steps and pattern markers.
+ */
+function checkScreenLinks(html, screensDir, where) {
+  for (const [, target] of html.matchAll(/<a\b[^>]*\bhref="([^"#?:]+\.html)(?:[#?][^"]*)?"/g)) {
+    if (target.startsWith('/') || existsSync(join(screensDir, target))) {
+      continue;
+    }
+
+    throw new Error(
+      `${where}: links to ${target}, which does not exist. Write that State file first, or keep the Screen a draft.`,
+    );
+  }
+}
+
 function parseStep(step, where) {
   if (typeof step !== 'string' || !/^[a-z0-9-]+(\.[a-z0-9-]+)?$/.test(step)) {
     throw new Error(`${where}: step "${step}" is not a Screen slug or a "screen.state".`);
@@ -218,6 +238,17 @@ export function loadInspiration({
       }
 
       const states = data.states ?? {};
+
+      // A State's name is a file name and the target of a Flow step, so it follows the slug pattern Flow
+      // steps use. Checked here, so the error lands on the Screen rather than on a Flow that points at it.
+      for (const state of Object.keys(states)) {
+        if (!/^[a-z0-9-]+$/.test(state)) {
+          throw new Error(
+            `${where}: State "${state}" may only use lowercase letters, numbers and hyphens, ` +
+              'since it names a file and Flow steps point at it.',
+          );
+        }
+      }
       let markup = [];
 
       // Read on every tier, so a stray example fence on a Screen or a Flow fails too.
@@ -238,6 +269,10 @@ export function loadInspiration({
 
           checkPatternMarkers(html, `public/assets/examples/inspiration/screens/${file}.html`);
 
+          if (data.draft !== true) {
+            checkScreenLinks(html, screensDir, `public/assets/examples/inspiration/screens/${file}.html`);
+          }
+
           return html;
         });
       }
@@ -247,6 +282,8 @@ export function loadInspiration({
         tier,
         slug,
         where,
+        // Without the base path: the sidebar hands this to Starlight, which adds it. Anything that writes it
+        // into HTML adds the base itself (`sitePath` in the shell and the previews).
         href: `/inspiration/${id}`,
         title: data.title ?? slug,
         description: data.description ?? '',
@@ -288,7 +325,7 @@ export function loadInspiration({
       entry.steps = entry.steps.map((step) => {
         const screen = resolve(entry, 'screens', step.screen, 'step');
 
-        if (step.state && screen.entry && !(step.state in screen.entry.states)) {
+        if (step.state && screen.entry && !Object.hasOwn(screen.entry.states, step.state)) {
           throw new Error(`${entry.where}: step "${step.screen}.${step.state}" names no State of ${screen.title}.`);
         }
 
@@ -301,12 +338,37 @@ export function loadInspiration({
 
       // A Flow is built from its Screens, and from whatever they are built from.
       entry.tags = new Set(entry.steps.flatMap((step) => [...(step.entry?.tags ?? [])]));
+      entry.patternNames = [...new Set(entry.steps.flatMap((step) => step.entry?.patternNames ?? []))];
     }
 
     entry.patterns = entry.patternNames.map((name) => resolve(entry, 'patterns', name, 'pattern marker')).sort(byTitle);
     entry.components = [...new Set([...entry.tags].map(fold))].sort();
     entry.experimental = [...entry.tags].filter((tag) => status.get(tag) === 'experimental').sort();
-    entry.status = entry.experimental.length > 0 || entry.raised ? 'experimental' : 'stable';
+  }
+
+  // A raised status carries up to everything built from the raised entry: through a Screen's Patterns, a
+  // Pattern's nested Patterns and a Flow's Screens. Worked out only now, once every entry has resolved what it
+  // is built from, so the order entries load in never changes the answer.
+  // A Flow names its Screens only: the Patterns it lists come from those Screens, so naming both would say
+  // the same thing twice, and a reader follows the chain down from the Screen.
+  const parts = (entry) =>
+    [
+      ...new Set((entry.tier === 'flows' ? entry.steps : entry.patterns).map((part) => part.entry).filter(Boolean)),
+    ].sort(byTitle);
+  const unsettled = new Map();
+  const isUnsettled = (entry) => {
+    if (!unsettled.has(entry)) {
+      unsettled.set(entry, false); // a loop of Patterns ends here rather than recursing forever
+      unsettled.set(entry, entry.raised || parts(entry).some(isUnsettled));
+    }
+
+    return unsettled.get(entry);
+  };
+
+  for (const entry of entries.values()) {
+    entry.unsettled = parts(entry).filter(isUnsettled);
+    entry.status =
+      entry.experimental.length > 0 || entry.raised || entry.unsettled.length > 0 ? 'experimental' : 'stable';
   }
 
   for (const entry of entries.values()) {

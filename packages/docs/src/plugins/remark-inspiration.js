@@ -1,6 +1,9 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadComponents } from '@cruglobal/cornerstone-build-tools/component-api.js';
+import matter from 'gray-matter';
+// `asset` prefixes any root-absolute path with the base the site is served under, not only `public/` files.
+import { asset as sitePath } from '@cruglobal/cornerstone-build-tools/site-url.js';
 import { categoryHref, tiers } from '../inspiration-categories.js';
 import {
   defaultPaths,
@@ -131,13 +134,22 @@ export function buildShell(entry, children, { contentDir = defaultPaths.contentD
   const examples = exampleFences(children, entry.where);
   const sections = splitSections(entry, children);
 
-  if (!entry.draft && !existsSync(join(contentDir, 'inspiration', entry.tier, 'index.md'))) {
-    // The Goal or Kind pill links to the tier's list. That list arrives with the filtering work, which is
-    // outside the shell's scope, so this stops a published entry shipping a pill that links to a 404.
+  // The Goal or Kind pill links to the tier's list. That list arrives with the filtering work, which is
+  // outside the shell's scope, so this stops a published entry shipping a pill that links to a 404. A draft
+  // list is not built for the live site either, so it counts as missing.
+  const list = join(contentDir, 'inspiration', entry.tier, 'index.md');
+  const listState = !existsSync(list)
+    ? 'missing'
+    : matter(readFileSync(list, 'utf-8')).data.draft === true
+      ? 'draft'
+      : 'published';
+
+  if (!entry.draft && listState !== 'published') {
     throw new Error(
-      `${entry.where}: the ${tiers[entry.tier].axis} pill links to /inspiration/${
-        entry.tier
-      }, which has no page yet. ` + 'Write that list before publishing an entry in it.',
+      `${entry.where}: the ${tiers[entry.tier].axis} pill links to /inspiration/${entry.tier}, ` +
+        (listState === 'draft'
+          ? 'which is still a draft. Publish that list before publishing an entry in it.'
+          : 'which has no page yet. Write that list before publishing an entry in it.'),
     );
   }
 
@@ -225,9 +237,12 @@ function panelContent(nodes, titled) {
 
 /** Links one connection, or names it and says it is not written yet. */
 const connection = (item) =>
-  item.href ? `<a href="${item.href}">${escape(item.title)}</a>` : `${escape(item.title)} <em>(not written yet)</em>`;
+  item.href
+    ? `<a href="${sitePath(item.href)}">${escape(item.title)}</a>`
+    : `${escape(item.title)} <em>(not written yet)</em>`;
 
-const componentLink = (tag) => `<a href="/components/${tag.replace(/^cs-/, '')}"><code>${tag}</code></a>`;
+const componentLink = (tag) =>
+  `<a href="${sitePath(`/components/${tag.replace(/^cs-/, '')}`)}"><code>${tag}</code></a>`;
 
 function tabNodes(entry, sections) {
   // Which tabs show depends on the entry's tier and `states:`, never on which sections it happens to have:
@@ -314,7 +329,8 @@ function usedInHtml(entry) {
 
 /**
  * The reason behind the Experimental pill, as one line: every experimental component first, linked, then
- * the layout note if the entry raised its own status (#148, decision 2).
+ * every entry it is built from whose layout is still being settled, then the layout note if the entry raised
+ * its own status (#148, decision 2).
  */
 export function statusReason(entry) {
   const parts = [];
@@ -329,9 +345,18 @@ export function statusReason(entry) {
     );
   }
 
+  if (entry.unsettled.length > 0) {
+    const one = entry.unsettled.length === 1;
+
+    parts.push(
+      `${entry.experimental.length > 0 ? 'It also uses' : 'Uses'} ${listOf(entry.unsettled.map(connection))}, ` +
+        `which ${one ? 'is' : 'are'} still being settled, so the arrangement may change.`,
+    );
+  }
+
   if (entry.raised) {
     parts.push(
-      entry.experimental.length > 0
+      parts.length > 0
         ? 'This layout is still being settled, too, so the arrangement may change.'
         : 'This layout is still being settled. The components in it are stable, but the arrangement may change.',
     );
@@ -355,7 +380,7 @@ export function headerNodes(entry) {
       : '<button type="button" class="inspiration-status" aria-expanded="false" aria-controls="inspiration-status-reason">' +
         '<cs-badge variant="warning" appearance="filled" pill><cs-icon name="science" slot="start"></cs-icon>Experimental' +
         '<cs-icon name="keyboard_arrow_down" slot="end" class="inspiration-status-caret"></cs-icon></cs-badge></button>',
-    `<a class="inspiration-category" href="${categoryHref(entry.tier, entry.category)}">` +
+    `<a class="inspiration-category" href="${sitePath(categoryHref(entry.tier, entry.category))}">` +
       `<cs-badge variant="neutral" appearance="filled" pill><cs-icon name="${entry.category.icon}" slot="start"></cs-icon>` +
       `${escape(
         entry.category.label,

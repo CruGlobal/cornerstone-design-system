@@ -19,10 +19,17 @@ import { dirname, join } from 'node:path';
 import { after, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { loadComponents } from '@cruglobal/cornerstone-build-tools/component-api.js';
+import { DOCS_BASE_PATH } from '@cruglobal/cornerstone-build-tools/site-url.js';
 import matter from 'gray-matter';
 import { fromMarkdown } from 'mdast-util-from-markdown';
 import { defaultPaths, loadInspiration, stripPatternMarkers } from '../src/inspiration.js';
 import { buildShell, headerNodes } from '../src/plugins/remark-inspiration.js';
+
+// Every link the shell writes into HTML carries the base the site is served under (docs-and-skills.md).
+const BASE_PATH = DOCS_BASE_PATH;
+const BASE = BASE_PATH.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+/** A regex from its raw source, with `${BASE}` standing for the escaped base path. */
+const based = (strings, ...values) => new RegExp(String.raw(strings, ...values));
 
 const fixtures = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'inspiration');
 const paths = { contentDir: join(fixtures, 'content'), screensDir: join(fixtures, 'screens') };
@@ -103,7 +110,7 @@ describe('status', () => {
     assert.match(out, /<p id="inspiration-status-reason" class="inspiration-status-reason" hidden>/);
     assert.match(
       out,
-      /Uses <a href="\/components\/otp-input"><code>cs-otp-input<\/code><\/a> and <a href="\/components\/time-input"><code>cs-time-input<\/code><\/a>, which are experimental\./,
+      based`Uses <a href="${BASE}\/components\/otp-input"><code>cs-otp-input<\/code><\/a> and <a href="${BASE}\/components\/time-input"><code>cs-time-input<\/code><\/a>, which are experimental\.`,
     );
     assert.doesNotMatch(out, /still being settled/);
   });
@@ -125,9 +132,85 @@ describe('status', () => {
     assert.equal(out.match(/class="inspiration-status"/g).length, 1);
     assert.match(
       out,
-      /Uses <a href="\/components\/time-input"><code>cs-time-input<\/code><\/a>, which is experimental\. Its attributes/,
+      based`Uses <a href="${BASE}\/components\/time-input"><code>cs-time-input<\/code><\/a>, which is experimental\. Its attributes`,
     );
     assert.ok(out.indexOf('Uses ') < out.indexOf('This layout is still being settled'));
+  });
+
+  describe('a raised status carries up to what is built from it', () => {
+    // settled (Pattern) → nested (Pattern, contains settled) → home (Screen, marks nested) → journey (Flow).
+    const chain = (raise) =>
+      load({
+        'inspiration/patterns/settled.md': patternMd(
+          `title: Settled${raise === 'settled' ? '\nstatus: experimental' : ''}`,
+        ),
+        'inspiration/patterns/nested.md': patternMd(
+          `title: Nested${raise === 'nested' ? '\nstatus: experimental' : ''}`,
+          '<!-- pattern: settled -->\n<cs-callout>Plain</cs-callout>\n<!-- /pattern -->',
+        ),
+        'inspiration/screens/home.md': screenMd(`title: Home${raise === 'home' ? '\nstatus: experimental' : ''}`),
+        'screens/home.html': stateFile('<!-- pattern: nested -->\n<cs-callout>Plain</cs-callout>\n<!-- /pattern -->'),
+        'inspiration/flows/journey.md': flowMd('title: Journey\nscreens:\n  - home\n  - home'),
+        'inspiration/patterns/index.md': '---\ntitle: Patterns\n---\n',
+        'inspiration/screens/index.md': '---\ntitle: Screens\n---\n',
+        'inspiration/flows/index.md': '---\ntitle: Flows\n---\n',
+      });
+    const statuses = (lib) =>
+      ['patterns/settled', 'patterns/nested', 'screens/home', 'flows/journey'].map((id) => lib.get(id).status);
+
+    it("a Flow lists its Screens' Patterns in Connections, once each, and a Pattern's Used in stays Screens only", () => {
+      const lib = chain(null);
+      const flow = lib.get('flows/journey');
+      const out = html(buildShell(flow, required(), paths));
+
+      assert.deepEqual(
+        flow.patterns.map((part) => part.title),
+        ['Nested'],
+      );
+      assert.equal(out.match(/>Nested<\/a>/g).length, 1);
+      assert.match(out, /<h3>Screens<\/h3>.*<h3>Patterns<\/h3>.*<h3>Components<\/h3>/s);
+      assert.deepEqual(
+        lib.get('patterns/nested').usedIn.map((user) => user.title),
+        ['Home'],
+      );
+    });
+
+    it('nothing raised: the whole chain stays Stable', () => {
+      assert.deepEqual(statuses(chain(null)), ['stable', 'stable', 'stable', 'stable']);
+    });
+
+    it('a raised Screen makes its Flow Experimental and names the Screen once in the reason line', () => {
+      const lib = chain('home');
+      const out = html(headerNodes(lib.get('flows/journey')));
+
+      assert.deepEqual(statuses(lib), ['stable', 'stable', 'experimental', 'experimental']);
+      assert.equal(out.match(/Home<\/a>/g).length, 1);
+      assert.match(
+        out,
+        based`Uses <a href="${BASE}\/inspiration\/screens\/home">Home<\/a>, which is still being settled, so the arrangement may change\.`,
+      );
+      assert.doesNotMatch(out, /This layout is still being settled/);
+    });
+
+    it('a raised Pattern carries through a nested Pattern and a Screen up to the Flow', () => {
+      const lib = chain('settled');
+
+      assert.deepEqual(statuses(lib), ['experimental', 'experimental', 'experimental', 'experimental']);
+      // Each entry names only the part it uses directly, so the reader can follow the chain down.
+      assert.deepEqual(
+        lib.get('screens/home').unsettled.map((part) => part.slug),
+        ['nested'],
+      );
+      assert.deepEqual(
+        lib.get('flows/journey').unsettled.map((part) => part.slug),
+        ['home'],
+      );
+    });
+
+    it('does not depend on load order: a raised entry that loads after its user still carries up', () => {
+      // Patterns load alphabetically, so "nested" is read before the "settled" Pattern it contains.
+      assert.equal(chain('settled').get('patterns/nested').status, 'experimental');
+    });
   });
 
   it('`status` can only raise: any other value fails the build', () => {
@@ -152,7 +235,7 @@ describe('Connections', () => {
 
     assert.match(
       out,
-      /Used in <a href="\/inspiration\/screens\/alpha">Alpha screen<\/a>, <a href="\/inspiration\/screens\/bravo">Bravo screen<\/a>, <a href="\/inspiration\/screens\/charlie">Charlie screen<\/a> and <a href="#connections" data-inspiration-tab="connections">1 more<\/a>/,
+      based`Used in <a href="${BASE}\/inspiration\/screens\/alpha">Alpha screen<\/a>, <a href="${BASE}\/inspiration\/screens\/bravo">Bravo screen<\/a>, <a href="${BASE}\/inspiration\/screens\/charlie">Charlie screen<\/a> and <a href="#connections" data-inspiration-tab="connections">1 more<\/a>`,
     );
   });
 
@@ -162,7 +245,7 @@ describe('Connections', () => {
     for (const name of ['Alpha', 'Bravo', 'Charlie', 'Delta']) {
       assert.match(
         pattern,
-        new RegExp(`<li><a href="/inspiration/screens/${name.toLowerCase()}">${name} screen</a></li>`),
+        new RegExp(`<li><a href="${BASE_PATH}/inspiration/screens/${name.toLowerCase()}">${name} screen</a></li>`),
       );
     }
 
@@ -199,7 +282,35 @@ describe('Flow steps', () => {
       ],
     );
     assert.match(out, /Step 2 of 3<\/span> Not written <em>\(not written yet\)<\/em>/);
-    assert.match(out, /Step 3 of 3<\/span> <a href="\/inspiration\/screens\/overview">Overview: Just saved<\/a>/);
+    assert.match(
+      out,
+      based`Step 3 of 3<\/span> <a href="${BASE}\/inspiration\/screens\/overview">Overview: Just saved<\/a>`,
+    );
+  });
+
+  it('a step naming a built-in object key, not a State the author wrote, fails the build', () => {
+    assert.throws(
+      () =>
+        load({
+          'inspiration/screens/home.md': screenMd('title: Home\nstates:\n  saved: Saved'),
+          'screens/home.html': stateFile('<cs-callout>Plain</cs-callout>'),
+          'screens/home.saved.html': stateFile('<cs-callout>Plain</cs-callout>'),
+          'inspiration/flows/journey.md': flowMd('title: Journey\ndraft: true\nscreens:\n  - home.constructor'),
+        }),
+      /step "home\.constructor" names no State of Home/,
+    );
+  });
+
+  it('a State name outside the slug pattern fails on the Screen, not on a Flow that points at it', () => {
+    assert.throws(
+      () =>
+        load({
+          'inspiration/screens/home.md': screenMd('title: Home\ndraft: true\nstates:\n  just_saved: Just saved'),
+          'screens/home.html': stateFile('<cs-callout>Plain</cs-callout>'),
+          'screens/home.just_saved.html': stateFile('<cs-callout>Plain</cs-callout>'),
+        }),
+      /home\.md: State "just_saved" may only use lowercase letters, numbers and hyphens/,
+    );
   });
 
   it('a published Flow with a step that names no Screen fails the build', () => {
@@ -487,7 +598,7 @@ describe("the Pattern's example", () => {
 });
 
 describe('publishing guard', () => {
-  it("a published entry fails until its tier's list page exists; a draft does not", () => {
+  it("a published entry fails until its tier's list page exists and is published; a draft entry does not", () => {
     const files = {
       'inspiration/patterns/p.md': patternMd('title: P'),
       'inspiration/patterns/d.md': patternMd('title: D\ndraft: true'),
@@ -502,8 +613,61 @@ describe('publishing guard', () => {
     );
     assert.doesNotThrow(() => buildShell(entries.get('patterns/d'), children(), root));
 
-    writeFileSync(join(root.contentDir, 'inspiration', 'patterns', 'index.md'), '---\ntitle: Patterns\n---\n');
+    const list = join(root.contentDir, 'inspiration', 'patterns', 'index.md');
+    writeFileSync(list, '---\ntitle: Patterns\ndraft: true\n---\n');
+    assert.throws(
+      () => buildShell(entries.get('patterns/p'), children(), root),
+      /the Kind pill links to \/inspiration\/patterns, which is still a draft/,
+    );
+
+    writeFileSync(list, '---\ntitle: Patterns\n---\n');
     assert.doesNotThrow(() => buildShell(entries.get('patterns/p'), children(), root));
+  });
+});
+
+describe('links inside State files', () => {
+  const screen = (draft) => ({
+    'inspiration/screens/home.md': screenMd(`title: Home${draft ? '\ndraft: true' : ''}`),
+    'screens/home.html': stateFile('<a href="edit.html#top">Edit</a> <a href="https://example.com/x.html">Out</a>'),
+  });
+
+  it('a published Screen fails when a State file links to a page file that is not there', () => {
+    assert.throws(() => load(screen(false)), /screens\/home\.html: links to edit\.html, which does not exist/);
+  });
+
+  it('a draft Screen may link ahead to a page not written yet', () => {
+    assert.doesNotThrow(() => load(screen(true)));
+  });
+
+  it('passes once the linked State file exists, and leaves links off the site alone', () => {
+    assert.doesNotThrow(() => load({ ...screen(false), 'screens/edit.html': stateFile('<p>Edit</p>') }));
+  });
+});
+
+describe('links', () => {
+  it('every link the shell writes carries the base path once, so none 404s under GitHub Pages', () => {
+    assert.ok(BASE_PATH, 'the site is served under a base path, so this test proves something');
+
+    for (const id of ['patterns/both', 'screens/overview', 'screens/alpha', 'flows/draft-flow']) {
+      const body =
+        id === 'patterns/both'
+          ? [fence('<cs-time-input></cs-time-input>'), ...required()]
+          : id === 'screens/overview'
+            ? [...required(), heading(2, 'States'), heading(3, 'Just saved'), paragraph('Saved.')]
+            : required();
+      const out = html([...headerNodes(library.get(id)), ...shell(id, body)]);
+      const hrefs = [...out.matchAll(/href="([^"]*)"/g)].map((match) => match[1]);
+
+      assert.ok(hrefs.length > 0, `${id} writes links`);
+      for (const href of hrefs.filter((h) => !h.startsWith('#'))) {
+        assert.ok(href.startsWith(`${BASE_PATH}/`), `${id}: ${href} has no base path`);
+        assert.ok(!href.startsWith(`${BASE_PATH}${BASE_PATH}/`), `${id}: ${href} has the base path twice`);
+      }
+    }
+  });
+
+  it('an entry keeps its own link without the base, because Starlight adds it to sidebar links', () => {
+    assert.equal(library.get('screens/overview').href, '/inspiration/screens/overview');
   });
 });
 
@@ -524,8 +688,8 @@ describe('escaping', () => {
     );
 
     assert.match(pattern, /<p class="inspiration-summary">Fish &amp; &lt;chips> &quot;now&quot;<\/p>/);
-    assert.match(pattern, /Used in <a href="\/inspiration\/screens\/s">S &lt;i> &quot;s&quot;<\/a>/);
-    assert.match(screen, /<li><a href="\/inspiration\/patterns\/p">P &lt;b> &quot;q&quot;<\/a><\/li>/);
+    assert.match(pattern, based`Used in <a href="${BASE}\/inspiration\/screens\/s">S &lt;i> &quot;s&quot;<\/a>`);
+    assert.match(screen, based`<li><a href="${BASE}\/inspiration\/patterns\/p">P &lt;b> &quot;q&quot;<\/a><\/li>`);
     assert.match(screen, /<h2>A &lt;b> &quot;rule&quot;<\/h2>/);
     assert.doesNotMatch(pattern + screen, /<chips>|<b> "|<i> "/);
   });

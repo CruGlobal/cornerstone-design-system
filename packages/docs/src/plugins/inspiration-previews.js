@@ -1,3 +1,5 @@
+// `asset` prefixes any root-absolute path with the base the site is served under, not only `public/` files.
+import { asset as sitePath } from '@cruglobal/cornerstone-build-tools/site-url.js';
 import { SCREENS_URL, stripPatternMarkers } from '../inspiration.js';
 
 /**
@@ -60,7 +62,7 @@ function screens({ entry, html }) {
   const items = states
     .map(
       ([state, label]) =>
-        `<li><a href="${SCREENS_URL}/${entry.slug}${state ? `.${state}` : ''}.html" target="_blank">` +
+        `<li><a href="${sitePath(`${SCREENS_URL}/${entry.slug}${state ? `.${state}` : ''}.html`)}" target="_blank">` +
         `${escape(label)}<span class="cs-visually-hidden"> (opens in a new window)</span></a></li>`,
     )
     .join('');
@@ -77,7 +79,7 @@ function flows({ entry, html }) {
   const items = entry.steps
     .map((step, index) => {
       const name = escape(step.stateLabel ? `${step.title}: ${step.stateLabel}` : step.title);
-      const target = step.href ? `<a href="${step.href}">${name}</a>` : `${name} <em>(not written yet)</em>`;
+      const target = step.href ? `<a href="${sitePath(step.href)}">${name}</a>` : `${name} <em>(not written yet)</em>`;
 
       return `<li><span class="cs-color-text-quiet">Step ${index + 1} of ${total}</span> ${target}</li>`;
     })
