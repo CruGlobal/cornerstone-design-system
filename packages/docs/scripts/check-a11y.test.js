@@ -149,6 +149,75 @@ describe('check-a11y', () => {
     assert.match(output, /no violations; \d+ needs review \(\d+ light, \d+ dark\), which never fails the check/);
   });
 
+  // Without the exemption, axe 4.13 fails this fixture on region at cs-page's skip link.
+  //
+  // If this fails because nothing was set aside, axe is fixed: delete `findComposedSkipLinks` and what calls
+  // it from check-a11y.js, delete the shadow-skip-link fixtures and these tests, and close the "axe misreads
+  // cs-page's skip link" row in resources/accessibility.md in the same change.
+  it("passes cs-page's shadow-DOM skip link that axe reports under region, and prints that it was set aside", () => {
+    const { status, output } = check(join(fixtures, 'shadow-skip-link'));
+
+    assert.equal(status, 0, output);
+    assert.doesNotMatch(output, /region \(moderate\)/);
+
+    for (const mode of ['light', 'dark']) {
+      assert.match(
+        output,
+        new RegExp(
+          `\\[${mode}\\] region set aside: a skip link to #main-content that axe cannot compare across shadow DOM\\n\\s+cs-page >>> \\S+\\n`,
+        ),
+      );
+    }
+
+    assert.match(
+      output,
+      /no violations; .*2 region results set aside as a skip link axe cannot compare across shadow DOM \(1 light, 1 dark\)/,
+    );
+  });
+
+  it('still fails stray text, a link to another page and a late in-page link outside every landmark', () => {
+    const { status, output } = check(join(fixtures, 'shadow-skip-link-stray'));
+
+    assert.equal(status, 1, output);
+    assert.match(output, /2 failures \(1 light, 1 dark\)/);
+
+    for (const mode of ['light', 'dark']) {
+      assert.match(
+        output,
+        new RegExp(
+          `\\[${mode}\\] region \\(moderate\\): .*\\n\\s+\\.stray-text\\n.*\\n\\s+\\.stray-page-link\\n.*\\n\\s+\\.stray-fragment-link\\n`,
+        ),
+      );
+      assert.match(
+        output,
+        new RegExp(`\\[${mode}\\] region set aside: a skip link to #main-content .*\\n\\s+cs-page >>> \\S+\\n`),
+      );
+    }
+  });
+
+  // One state file per way a first shadow link can fail to be a skip link: a fragment that names nothing in
+  // the document (settings.html), a bare "#" (settings.hash-only.html) and a fragment that is not valid
+  // percent-encoding (settings.undecodable.html).
+  it('still fails a first shadow link whose fragment is missing, empty or undecodable', () => {
+    const { status, output } = check(join(fixtures, 'shadow-skip-link-no-target'));
+
+    assert.equal(status, 1, output);
+    assert.match(output, /6 failures \(3 light, 3 dark\) in 3 of 3 files/);
+
+    for (const file of ['settings', 'settings\\.hash-only', 'settings\\.undecodable']) {
+      assert.match(
+        output,
+        new RegExp(
+          `${file}\\.html\\n` +
+            `\\s+\\[light\\] region \\(moderate\\): .*\\n\\s+skip-host >>> \\.skip\\n.*\\n` +
+            `\\s+\\[dark\\] region \\(moderate\\): .*\\n\\s+skip-host >>> \\.skip\\n`,
+        ),
+      );
+    }
+
+    assert.doesNotMatch(output, /region set aside/);
+  });
+
   it('fails without a value for --screens rather than checking the site', () => {
     const { status, stderr } = spawnSync(process.execPath, [join(scriptsDir, 'check-a11y.js'), '--screens'], {
       encoding: 'utf-8',
