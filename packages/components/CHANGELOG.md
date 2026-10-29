@@ -1,5 +1,13 @@
 # @cruglobal/cornerstone-components
 
+## 0.10.1
+
+### Fixed
+
+- [#304](https://github.com/CruGlobal/cornerstone-design-system/pull/304) [`4f85178`](https://github.com/CruGlobal/cornerstone-design-system/commit/4f85178867b9199ff9224fea0c66e1ad4d65ddfe) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - the docs site's Inspiration Screens axe check sets aside `cs-page`'s skip link under `region`, an axe-core shadow DOM bug now in the accessibility gap register. Docs tooling only; nothing that ships changes.
+
+- [#296](https://github.com/CruGlobal/cornerstone-design-system/pull/296) [`b800c64`](https://github.com/CruGlobal/cornerstone-design-system/commit/b800c64368891e7a3bd8167aad95ddc5be6a0331) Thanks [@rguinee](https://github.com/rguinee)! - the docs site's page check skips code, so a `:::` directive, `::roadmap` or Starlight aside markup shown in a code span or block no longer fails it. Docs tooling only; nothing that ships changes.
+
 ## 0.10.0
 
 ### Breaking
