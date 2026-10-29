@@ -45,6 +45,17 @@ An ordered journey across more than one Screen: signing in, onboarding, subscrib
 the sequence, never application logic.
 _Avoid_: wizard (one implementation of a flow, not the concept)
 
+**Reasoning**:
+The hand-written part of an Inspiration entry that justifies it: when to use it, when not to, why it works, and
+its Rules. Written by a person, never derived from markup. It is what makes the library prescriptive rather than
+a set of snippets.
+_Avoid_: rationale (same thing, two words), description (already a frontmatter field), guidance
+
+**Rule**:
+One must or must-not in an Inspiration entry's Reasoning. Either checked by a tool and linked to that check, or
+checked by hand with a short how-to.
+_Avoid_: guideline (sounds optional), requirement (blurs with a required field or section)
+
 ### Browsing
 
 **Goal**:
