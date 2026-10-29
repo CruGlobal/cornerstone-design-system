@@ -24,11 +24,14 @@
  */
 import SidebarList from './SidebarList.astro';
 import { SECTION_SYMBOLS, componentCategories } from '../component-categories.js';
+import { tiers } from '../inspiration-categories.js';
 
 const { sidebar } = Astro.locals.starlightRoute;
 
 const symbolFor = (label) =>
-  SECTION_SYMBOLS[label] ?? componentCategories.find((category) => category.label === label)?.icon;
+  SECTION_SYMBOLS[label] ??
+  componentCategories.find((category) => category.label === label)?.icon ??
+  Object.values(tiers).find((tier) => tier.plural === label)?.icon;
 
 /** Rebuilds the parent/child nesting the config had to flatten. */
 function nest(entries) {

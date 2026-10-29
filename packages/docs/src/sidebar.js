@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { loadComponents } from '@cruglobal/cornerstone-build-tools/component-api.js';
 import matter from 'gray-matter';
 import { componentCategories } from './component-categories.js';
+import { tiers } from './inspiration-categories.js';
+import { loadInspiration } from './inspiration.js';
 import { siteSections } from './site-sections.js';
 
 /**
@@ -177,6 +179,36 @@ function componentGroups() {
 }
 
 /**
+ * The Inspiration library, one section per tier: Patterns, Screens, Flows.
+ *
+ * Read from `src/inspiration.js` rather than from front matter alone, because whether an entry is
+ * experimental is derived from the components its markup uses, and the page's own pill reads the same
+ * record. An experimental entry is marked with the flask only, exactly as an experimental component is;
+ * a stable one carries nothing.
+ *
+ * Drafts are skipped as everywhere else, so while the settings slice is in progress (UIUX-209) every
+ * section here is empty and dropped, and the navigation is unchanged.
+ */
+function inspirationGroups(components) {
+  const library = loadInspiration({ components });
+
+  return Object.entries(tiers)
+    .map(([tier, { plural }]) => {
+      const items = [...library.values()]
+        .filter((entry) => entry.tier === tier && !entry.draft)
+        .sort(byName)
+        .map((entry) => ({
+          label: entry.title,
+          link: entry.href,
+          attrs: entry.status === 'experimental' ? { 'data-experimental': 'true' } : {},
+        }));
+
+      return items.length ? { label: plural, collapsed: false, items } : null;
+    })
+    .filter(Boolean);
+}
+
+/**
  * Component pages with no category, so a new page cannot go missing from the navigation silently.
  *
  * `components/index` is exempt, and deliberately absent from the tree: the tree already lists every
@@ -242,4 +274,5 @@ export const sidebar = [
   // component is two levels from the top rather than three.
   ...componentGroups(),
   uncategorized(),
+  ...inspirationGroups(loadComponents()),
 ].filter(Boolean);
