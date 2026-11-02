@@ -48,12 +48,12 @@ read. Everything below comes from the repo and GitHub.
 | --- | --- | --- |
 | Native `ul`/`ol`/`li`/`dl`/`menu` styles | `packages/components/src/styles/native.css:166-210` | Disc bullets, indents, marker colors at 40% / 60% of `currentColor`, bold `dt`, `menu` reset. `git blame`: every line is `2b8c67e`. |
 | `cs-list-plain` utility class | `packages/components/src/styles/utilities/text.css:252-261` | Only works on `ol`/`ul`. Removes markers, padding and `li` indent. Nothing else. |
-| Docs for native lists | `packages/docs/src/content/docs/utilities/native.md:174-240` | "Lists", `<menu>`, and `<dl>` sections. |
+| Docs for native lists | `packages/docs/src/content/docs/utilities/native.md:174-252` | "Lists", `<menu>`, and `<dl>` sections. |
 | Docs for `cs-list-plain` | `packages/docs/src/content/docs/utilities/text.md:120-126` | "Lists" section with one example. |
 | Truncation inside list items | `packages/docs/src/content/docs/utilities/text.md:266` | Added in `a36076d`. Says to wrap clamped text in a child of the `li`. |
 
 None of these is a list *row*: there is no leading slot, title/description pair, trailing slot, divider rule,
-or selected/interactive state. The Patterns page lists no list pattern (`packages/docs/src/content/docs/resources/patterns.md:38-48`
+or selected/interactive state. The Patterns page lists no list pattern (`packages/docs/src/content/docs/resources/patterns.md:38-51`
 says patterns are not published yet).
 
 ## 2. Does `cs-avatar` cover the icon tile (40px square, icon on a tinted background)?
