@@ -52,8 +52,9 @@
   "scripts": {
     "lint": "eslint build.mjs scripts/",
     "format": "prettier --write build.mjs scripts/",
-    "validate": "node scripts/validate-tokens.mjs",
+    "validate": "node scripts/validate-tokens.mjs && node scripts/daisyui.mjs --check",
     "build": "node build.mjs",
+    "build:daisyui": "node scripts/daisyui.mjs",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
