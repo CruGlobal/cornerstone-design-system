@@ -299,6 +299,30 @@ describe('<cs-tooltip>', () => {
           expect(body.hidden).to.be.true;
         });
 
+        it('should stay open when cs-hide is cancelled', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip for="cs-button" open>This is a tooltip</cs-tooltip>
+              <cs-button id="cs-button">Hover Me</cs-button>
+            </div>
+          `);
+          const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
+          const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
+          await tooltip.updateComplete;
+
+          tooltip.addEventListener('cs-hide', (event) => event.preventDefault(), { once: true });
+          tooltip.open = false;
+          await tooltip.updateComplete;
+
+          expect(tooltip.open).to.be.true;
+          expect(body.hidden).to.be.false;
+
+          // The next close is not cancelled, so it has to close the tooltip.
+          await tooltip.hide();
+          expect(tooltip.open).to.be.false;
+          expect(body.hidden).to.be.true;
+        });
+
         it('should not fire cs-after-show when cs-show is prevented', async () => {
           const el = await fixture<HTMLDivElement>(html`
             <div>

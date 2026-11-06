@@ -306,7 +306,7 @@ export default class CsTooltip extends CornerstoneElement {
       const csHideEvent = new CsHideEvent();
       this.dispatchEvent(csHideEvent);
       if (csHideEvent.defaultPrevented) {
-        this.open = false;
+        this.open = true;
         return;
       }
 
