@@ -6,7 +6,6 @@ import { customElement } from '../../internal/custom-element.js';
 import getText from '../../internal/get-text.js';
 import { LocalizeController } from '../../utilities/localize.js';
 import '../icon/icon.js';
-import type CsSelect from '../select/select.js';
 import styles from './option.styles.js';
 
 /**
@@ -125,15 +124,6 @@ export default class CsOption extends CornerstoneElement {
           controller.handleDefaultSlotChange?.();
         }
       });
-
-      // When the label changes, tell the parent <cs-combobox> to update
-      customElements.whenDefined('cs-combobox').then(() => {
-        // We cast to <cs-select> because it shares the same API as combobox
-        const controller = this.closest<CsSelect>('cs-combobox');
-        if (controller) {
-          controller.handleDefaultSlotChange?.();
-        }
-      });
     } else {
       this.isInitialized = true;
     }
@@ -159,10 +149,9 @@ export default class CsOption extends CornerstoneElement {
   }
 
   syncDefaultSelected() {
-    // We cast to <cs-select> because it shares the same API as combobox
     if ('closest' in this) {
       // SSR guard.
-      if (!this.closest<CsSelect>('cs-combobox, cs-select')?.hasInteracted) {
+      if (!this.closest('cs-select')?.hasInteracted) {
         // Only sync if defaultSelected is becoming true
         // This prevents overwriting `selected` when it was set directly by frameworks like Vue
         if (this.defaultSelected) {
@@ -217,7 +206,7 @@ export default class CsOption extends CornerstoneElement {
     // Vue binds to the `selected` property instead of the `defaultSelected` property
     // when using `:selected="true"` syntax.
     if (this.selected && !this.defaultSelected) {
-      const parent = this.closest<CsSelect>('cs-select, cs-combobox');
+      const parent = this.closest('cs-select');
 
       if (parent && !parent.hasInteracted) {
         await customElements.whenDefined(parent.localName);

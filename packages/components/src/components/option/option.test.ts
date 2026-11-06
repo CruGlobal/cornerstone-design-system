@@ -1,5 +1,6 @@
 import { aTimeout, expect } from '@open-wc/testing';
 import { html } from 'lit';
+import sinon from 'sinon';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsSelect from '../select/select.js';
 import type CsOption from './option.js';
@@ -214,6 +215,28 @@ describe('<cs-option>', () => {
           const options = select.querySelectorAll<CsOption>('cs-option');
           expect(options[1].selected).to.be.true;
           expect(options[0].selected).to.be.false;
+        });
+
+        it('should tell the parent cs-select, and no other element, when its label changes', async () => {
+          const select = await fixture<CsSelect>(html`
+            <cs-select label="Test">
+              <cs-option value="1">One</cs-option>
+            </cs-select>
+          `);
+          const option = select.querySelector<CsOption>('cs-option')!;
+          const whenDefined = sinon.spy(customElements, 'whenDefined');
+
+          try {
+            option.value = 'uno';
+            await option.updateComplete;
+
+            // A `whenDefined()` on a tag that is never registered returns a promise that never settles, so every
+            // option would hold its callback for the life of the document. Only the one registered parent is asked.
+            expect(whenDefined.calledWith('cs-select')).to.be.true;
+            expect(whenDefined.args.map(([tagName]) => tagName)).to.deep.equal(['cs-select']);
+          } finally {
+            whenDefined.restore();
+          }
         });
 
         it('should support the disabled state inside a cs-select', async () => {
