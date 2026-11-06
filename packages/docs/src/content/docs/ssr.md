@@ -138,8 +138,10 @@ To solve this, components that rely on slot detection provide `with-*` attribute
 Not every component has `with-*` attributes—only those that conditionally render parts based on slot content. Check a component's documentation to see which `with-*` attributes it supports.
 
 ```html
-<!-- Without ssr-footer, the footer won't appear in the server-rendered HTML -->
-<cs-dialog ssr-footer>
+<!-- Without ssr-footer, the footer won't appear in the server-rendered HTML; without ssr-label, a slotted label
+     won't name the dialog until it hydrates -->
+<cs-dialog ssr-footer ssr-label>
+  <span slot="label">Settings</span>
   <p>Dialog content</p>
   <div slot="footer">
     <cs-button>Close</cs-button>

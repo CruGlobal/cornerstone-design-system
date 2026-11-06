@@ -40,6 +40,49 @@ describe('<cs-dialog>', () => {
 
           expect(document.activeElement).to.equal(input);
         });
+
+        it('should name the dialog from its label', async () => {
+          const el = await fixture<CsDialog>(html`<cs-dialog label="Settings" open>Content</cs-dialog>`);
+          const dialog = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+          const title = el.shadowRoot!.getElementById('title')!;
+
+          expect(dialog.getAttribute('aria-labelledby')).to.equal(title.id);
+          expect(title.textContent.trim()).to.equal('Settings');
+        });
+
+        it('should name the dialog from a slotted label', async () => {
+          const el = await fixture<CsDialog>(
+            html`<cs-dialog open><span slot="label">Settings</span>Content</cs-dialog>`,
+          );
+          const dialog = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(dialog.getAttribute('aria-labelledby')).to.equal('title');
+        });
+
+        it('should name the dialog from a slotted label before hydration when ssr-label is set', async () => {
+          const el = await fixture<CsDialog>(
+            html`<cs-dialog open ssr-label><span slot="label">Settings</span>Content</cs-dialog>`,
+          );
+          const dialog = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(dialog.getAttribute('aria-labelledby')).to.equal('title');
+        });
+
+        it('should leave the dialog unnamed when it has no label', async () => {
+          const el = await fixture<CsDialog>(html`<cs-dialog open>Content</cs-dialog>`);
+          const dialog = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(dialog.hasAttribute('aria-labelledby')).to.be.false;
+          expect(dialog.hasAttribute('aria-label')).to.be.false;
+        });
+
+        it('should name the dialog from its label when the header is hidden', async () => {
+          const el = await fixture<CsDialog>(html`<cs-dialog label="Settings" without-header open>Content</cs-dialog>`);
+          const dialog = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(dialog.getAttribute('aria-label')).to.equal('Settings');
+          expect(dialog.hasAttribute('aria-labelledby')).to.be.false;
+        });
       });
 
       describe('properties', () => {
