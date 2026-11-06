@@ -139,17 +139,21 @@ what they catch to them.
 
 ## Who approves and merges
 
-Who did the work decides who approves the pull request. Agents and Ryan both open pull requests as `rguinee`,
-so GitHub cannot tell them apart; the `needs-human-approval` label is the marker.
+Who did the work decides who approves the pull request. An agent opens pull requests under the GitHub account of
+the person running it, so GitHub cannot tell an agent's pull request from that person's own; the
+`needs-human-approval` label is the marker. agent-review's approve action (`approval.cjs` in
+CruGlobal/agent-review, called by `agent-review-approve.yml`) will not approve while a person's copy of that label
+is on the pull request, takes back any approval it gave, and never removes the label.
 
-- **An agent's pull request**, alone or paired with Ryan: the agent runs `/agent-review:review` and posts the
-  report. Once `agent-review-approve.yml` approves it, the agent merges it: `gh pr merge --auto --merge`, which
-  waits for `CI gate`, or a plain `--merge` once `CI gate` has passed when the repo has auto-merge off.
-- **Ryan's own pull request**: add `needs-human-approval` when opening it. agent-review still reviews it, but
-  the bot will not approve it, and Ryan merges it.
-- **Any pull request carrying `needs-human-approval`**, whoever added it (Ryan, an agent, or agent-review for
-  the `human_approval` paths in `.claude/review/config.yml`): no auto-merge; a maintainer approves and merges.
-  Adding the label does not re-run the approve workflow, so add it before turning on auto-merge, and if
-  auto-merge is already on, also run `gh pr merge --disable-auto`.
-- **The release pull request** is the deploy (Release Flow). An agent never approves its CI run, approves it, or
-  merges it.
+- **An agent's pull request**, alone or paired with a contributor: the agent runs `/agent-review:review` and
+  posts the report. Once `agent-review-approve.yml` approves it, the agent merges it: `gh pr merge --auto --merge`,
+  which waits for `CI gate`, or a plain `--merge` once `CI gate` has passed when the repo has auto-merge off.
+- **A contributor's own pull request**, with no agent: add `needs-human-approval` when opening it. agent-review
+  still reviews it, but the bot will not approve it. A maintainer other than the author approves it, or the
+  author merges it with maintainer rights, since GitHub never lets an author approve their own pull request.
+- **Any pull request carrying `needs-human-approval`**, whoever added it (a contributor, an agent, or
+  agent-review for the `human_approval` paths in `.claude/review/config.yml`): no auto-merge; a maintainer
+  approves and merges. Adding the label does not re-run the approve workflow, so add it before turning on
+  auto-merge, and if auto-merge is already on, also run `gh pr merge --disable-auto`.
+- **The release pull request** is the deploy (Release Flow). A maintainer approves its CI run, approves it and
+  merges it; an agent never does.
