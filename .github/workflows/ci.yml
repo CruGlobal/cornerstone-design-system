@@ -233,3 +233,28 @@ jobs:
         run: |
           git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
           npx changeset status --since="origin/$BASE_REF"
+
+  # The one check `main`'s branch protection names (cru-terraform, github/CruGlobal/repos/
+  # cornerstone-design-system). Requiring this job instead of each job above means a renamed job or
+  # a different shard count never blocks `main` until Terraform catches up. A skipped job passes the
+  # gate on purpose: the path filters skip suites a change cannot affect, and GitHub counts a skipped
+  # required check as passed anyway.
+  gate:
+    name: CI gate
+    needs:
+      - validate-tokens
+      - build
+      - changes
+      - verify-components-static
+      - verify-components-test
+      - verify-docs
+      - changeset
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any job failed or was cancelled
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          echo "$RESULTS" | jq -e '[.[] | .result] | all(. == "success" or . == "skipped")' > /dev/null
