@@ -2,6 +2,8 @@
 
 A generic baseline, followed by this repo's test conventions; keep both.
 
+Applies to every diff.
+
 **Prefer pure-function unit tests**
 
 - Business and domain logic should be extracted out of UI/handler code into plain functions and
@@ -89,6 +91,17 @@ and running only the group has tested the previous build.
   `src/internal/event.js`, which resolves on a 5 s timeout and so cannot fail on a missing event.
 - A fixture that is the same markup as its expectation.
 
+**Wait for the event, not the clock**
+
+`src/internal/test/` holds the deterministic replacements for a fixed wait. `finishAnimations` and
+`settleAnimations` (`finish-animations.ts`) jump every finite animation, shadow roots included, to its end;
+`useFakeFrameClock` (`fake-frame-clock.ts`) fakes `requestAnimationFrame` and `performance.now()` for a frame
+loop such as `cs-toast-item`'s countdown; `expectAnimationDuration` and `expectNoMotion`
+(`expect-animation-duration.ts`) assert a duration and a reduced-motion path; `expectEvent`
+(`expect-event.ts`) asserts that an action fires an event. Look for: a new `aTimeout(n)` or `setTimeout`
+that waits for an animation, a frame or an event when one of these fits. A "should not close" assertion
+after a fixed sleep cannot fail (#235).
+
 **Reading a run**
 
 - A mass failure concentrated in one heavy component on one engine is load, not a regression; confirm with
@@ -98,11 +111,19 @@ and running only the group has tested the previous build.
 
 **The check scripts are tests too**
 
-`test:parts` (`check-css-parts.js`), `test:base-path`, `test:docs-url` and `verify:skills` in
-`packages/components`, and `check:assets`, `check:pages` (with `test:displayed-source`, for the code it skips),
-`check:tokens`, `check:components`, `check:anatomy`, `check:contrast`, `check:variants` and `check:a11y` (with
-`test:a11y`, which proves it can fail) in `packages/docs`, are the repo's deterministic gates. A change to what
-one guards updates the script in the same PR; a narrowed regex or an added exemption is a finding until justified.
+`test:parts` (`check-css-parts.js`), `test:properties` (`check-css-properties.js`), `test:base-path`,
+`test:docs-url`, `verify:skills` and `lint:ast-grep` (whose `ast-grep test` runs `ast-grep/rule-tests/`
+first) in `packages/components`; `check:assets`, `check:pages` (with `test:displayed-source`, for the code
+it skips), `check:tokens`, `check:components`, `check:anatomy`, `check:contrast`, `check:variants`,
+`check:a11y` (with `test:a11y`, which proves it can fail), `test:inspiration` and `check:markdown-remark`
+(run before every build) in `packages/docs`; and `npm test` in `packages/build-tools` are the repo's
+deterministic gates. A change to what one guards updates the script in the same PR; a narrowed regex or an
+added exemption is a finding until justified.
+
+The scripts' own tests use `node:test` and `node:assert/strict` under `node --test`, not the browser
+runner. A check that guards a new failure gets a fixture and a case proving it fails, as
+`check-a11y.test.js` runs `check-a11y.js --screens` against `scripts/fixtures/check-a11y/` and
+`inspiration.test.js` builds a throwaway library with `tempLibrary`. Fixtures are never built into the site.
 
 **Hygiene.** Each test declares its own hand-crafted fixture. Tests do not log.
 
@@ -110,7 +131,8 @@ one guards updates the script in the same PR; a narrowed regex or an added exemp
 
 ## Mined from merged PR history
 
-Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from.
+Rules derived from 96 merged PRs: #49–#169 (October 2026) and #228–#329 (November 2026). Each carries
+the PRs it came from.
 
 - **A change to test infrastructure or an internal helper ships with a test.** `src/internal/*.ts` helpers
   and the selection logic in `web-test-runner.config.js` have a dozen call sites each; `waitForEvent` gained
@@ -125,3 +147,28 @@ Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from
   under the base path. Reject a diff that narrows such a regex to named paths, and require the script's
   PASSED line to name what it actually checked.
   <!-- evidence: PR #97, #98, #100 -->
+
+- **A new test or check is shown failing first.** A fix, a new test or a new check shows in its PR body the
+  new case failing on `main` (or with the fix reverted, or on the rejected alternative) and passing on the
+  branch, with per-engine counts for component tests. A guard shown only green may be unable to fail, and
+  this repo has shipped several that were.
+  <!-- evidence: PR #247, #250, #251, #253, #256, #257, #260, #261, #262, #274, #277, #279, #280, #296, #304, #324 -->
+- **One axe pass per `it()`.** Inside the `fixtures` loop, generate one `it()` per variant for
+  `to.be.accessible()`, the shape `button.test.ts` and `badge.test.ts` use. A single `it()` that renders,
+  hydrates and runs axe for every variant shares one 5000 ms timeout: #275 passed CI once with seven
+  variants in one test, then timed out on all three engines on an unrelated PR. Raising the timeout in
+  `web-test-runner.config.js` is not the fix.
+  <!-- evidence: PR #275, #280 -->
+- **A check script cannot exit 0 while its claim is false.** In `packages/docs/scripts/check-*.js`, a scan for
+  leftover markup runs over `withoutCode()` or `withoutDisplayedSource()`, never `html.includes()` over the
+  whole page (a changeset naming `:::` in backticks broke `main`, #296). A missing input fails rather than
+  warns, and the script sets `process.exitCode = 1` under CI. Every failure branch the header promises has a
+  fixture under `scripts/fixtures/<check>/`; an unreachable branch is deleted. Look for: guessing from
+  markup shape instead of the rendered result, a timer not reset after a scheme switch, a number matched
+  anywhere on the page instead of in its row.
+  <!-- evidence: PR #257, #260, #277, #296 -->
+- **Test value lists follow the component's union.** When a diff adds a value to a public union (variant,
+  size, appearance) or to the shared colour roles in `variants.styles.ts`, every consuming component's
+  `*.test.ts` value array names it, in the union's order. `check:variants` covers docs examples only, so
+  nothing else catches a test that still walks five of seven roles.
+  <!-- evidence: PR #274, #275 -->

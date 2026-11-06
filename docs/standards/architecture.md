@@ -2,6 +2,8 @@
 
 A generic baseline, followed by Cornerstone's own concerns; keep both.
 
+Applies to every diff.
+
 **Layering & boundaries**
 
 - Business logic lives in testable modules, not inline in entry points (route/page/controller/CLI
@@ -92,9 +94,13 @@ that belongs in `src/internal/` (not exported).
   `bubbles` and `composed: true`, augmenting `GlobalEventHandlersEventMap`. There is no `emit()` helper.
 - Shared styles live in `src/styles/component/` (`size`, `variants`, `form-control`, `host`,
   `visually-hidden`). A component imports them into `static css`; it does not copy their declarations.
-- The docs site reads the library's Custom Elements Manifest and copies its bundled build; it never reaches
-  into `src/`. `packages/build-tools/` is what both share, and `build-tools/site-url.js` is the one source
-  of the site's address.
+- The docs site reads the library through its Custom Elements Manifest (`loadComponents()` in
+  `packages/build-tools/component-api.js`) and a copy of its bundled build (`scripts/link-library.js`).
+  Where it reads source, it is checking or printing a fact about what ships: the stylesheets and
+  `tools/palette.mjs` (`check-contrast.js`, `check-pages.js`, `remark-theming.js`, `src/brands.js`),
+  component sources for their variants (`check-variants.js`), and `CHANGELOG.md`. Each path comes from
+  `componentsDir()` in `build-tools/workspace.js`. `packages/build-tools/` is what both share, and
+  `build-tools/site-url.js` is the one source of the site's address.
 
 **SSR is a first-class render path**
 
@@ -130,10 +136,22 @@ surface, and see `api-surface.md` for what counts as one.
 
 ## Mined from merged PR history
 
-Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from.
+Rules derived from 96 merged PRs: #49–#169 (October 2026) and #228–#329 (November 2026). Each carries
+the PRs it came from.
 
 - **A package declares what it uses.** Every binary a package's scripts run and every workspace package its
   source imports appears in that package's own `package.json`; "it ran locally" is not evidence, because
   npm hoisting decides which copy resolves. `packages/docs` resolved the root's Prettier 2 in CI after never
   declaring Prettier, and read the component manifest with no declared dependency on the library.
   <!-- evidence: PR #94, #98 -->
+
+- **A change to a shared control checks every component that embeds it.** A change to `cs-button`'s base
+  styles, a removed `:host` default, or another shared control lists the load-bearing values it touches and
+  measures each embedder: `cs-tag`'s 1em remove button, `cs-color-picker`'s internal group, dropdown and
+  split-button triggers, `cs-popup` inside select, tooltip and time-input, and `native.css` buttons. Each
+  hand-off a removed default carried is now set at the boundary.
+  <!-- evidence: PR #261, #262 -->
+- **Tests and fixtures stay out of shipped directories.** `scripts/build.js` copies
+  `packages/components/src/styles/**` into `dist/` whole, and `packages/docs/public/**` is served as is. CSS
+  utility tests go in `src/internal/`, and docs check fixtures in `packages/docs/scripts/fixtures/`.
+  <!-- evidence: PR #256, #257 -->

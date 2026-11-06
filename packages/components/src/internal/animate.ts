@@ -7,7 +7,12 @@ export async function animate(el: Element, keyframes: Keyframe[], options?: Keyf
 
 /**
  * Applies a class to the specified element to animate it. The class is removed after the animation finishes and then
- * the promise resolves. If a timeout is provided, the class will be removed and the animation will
+ * the promise resolves. If the class starts no animation on the element, such as under reduced motion, it is removed
+ * on the next frame instead.
+ *
+ * Only an animation on the element itself counts. Animation events bubble, so one that ends or is cancelled on
+ * anything inside it, whether slotted content or its own shadow children, reaches its listeners too, and so does one
+ * on its pseudo-elements, with the element itself as the target. All of them are ignored.
  */
 export function animateWithClass(el: Element, className: string) {
   return new Promise<void>((resolve) => {
@@ -31,10 +36,19 @@ export function animateWithClass(el: Element, className: string) {
       controller.abort();
     };
 
-    el.addEventListener('animationend', onEnd, { once: true, signal });
-    el.addEventListener('animationcancel', onEnd, { once: true, signal });
+    const handleAnimationEnd = (event: Event) => {
+      if (event.target === el && !(event as AnimationEvent).pseudoElement) {
+        onEnd();
+      }
+    };
 
-    // if there are no animations or animation is set to 0ms, end immediately
+    // Not `once`: that removes a listener after any event, including one ignored above, and the element's own end
+    // would never be heard. Aborting the signal in `onEnd()` removes both.
+    el.addEventListener('animationend', handleAnimationEnd, { signal });
+    el.addEventListener('animationcancel', handleAnimationEnd, { signal });
+
+    // if there are no animations or animation is set to 0ms, end immediately. `getAnimations()` without `subtree`
+    // counts the same animations the listener does: the element's own, not its pseudo-elements' or descendants'.
     requestAnimationFrame(() => {
       if (!resolved && el.getAnimations().length === 0) {
         onEnd();
