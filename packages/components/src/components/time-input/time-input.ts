@@ -383,9 +383,13 @@ export default class CsTimeInput extends CornerstoneFormAssociatedElement {
     }
   }
 
+  private get isOpenAndEnabled() {
+    return this.open && !this.disabled;
+  }
+
   @watch('open', { waitUntilFirstUpdate: true })
   async handleOpenChange() {
-    if (this.open && !this.disabled) {
+    if (this.isOpenAndEnabled) {
       const showEvent = new CsShowEvent();
       this.dispatchEvent(showEvent);
       if (showEvent.defaultPrevented) {
@@ -396,6 +400,12 @@ export default class CsTimeInput extends CornerstoneFormAssociatedElement {
       this.popup.active = true;
       await this.updateComplete;
       await animateWithClass(this.popup.popup, 'show');
+      // Closed during the show animation: the hide that closed it owns the final state. The pending focus move
+      // belongs to this open, so drop it, or the next pointer open would move focus into the columns.
+      if (!this.isOpenAndEnabled) {
+        this.moveFocusToColumnOnShow = false;
+        return;
+      }
       // Center each column on its current value.
       this.scrollColumnsToCurrent();
       if (this.moveFocusToColumnOnShow) {
@@ -412,6 +422,10 @@ export default class CsTimeInput extends CornerstoneFormAssociatedElement {
       }
       this.removeOpenListeners();
       await animateWithClass(this.popup.popup, 'hide');
+      // Reopened during the hide animation: the show branch has already made the popup active.
+      if (this.isOpenAndEnabled) {
+        return;
+      }
       this.popup.active = false;
       this.dispatchEvent(new CsAfterHideEvent());
       // If focus is in the popup, return it to the active segment.
