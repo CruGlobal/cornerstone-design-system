@@ -1,0 +1,23 @@
+diff --git a/.changeset/badge-prefix-part.md b/.changeset/badge-prefix-part.md
+new file mode 100644
+--- /dev/null
++++ b/.changeset/badge-prefix-part.md
+@@ -0,0 +1,5 @@
++---
++'@cruglobal/cornerstone-components': patch
++---
++
++Changed: `cs-badge` names its leading container part `prefix`.
+diff --git a/packages/components/src/components/badge/badge.ts b/packages/components/src/components/badge/badge.ts
+--- a/packages/components/src/components/badge/badge.ts
++++ b/packages/components/src/components/badge/badge.ts
+@@ -19,3 +19,3 @@
+  * @csspart badge - The component's outer wrapper.
+- * @csspart start - The container that wraps the `start` slot.
++ * @csspart prefix - The container that wraps the `start` slot.
+  * @csspart end - The container that wraps the `end` slot.
+@@ -44,3 +44,3 @@
+     return html`
+-      <span part="start">
++      <span part="prefix">
+         <slot name="start"></slot>
