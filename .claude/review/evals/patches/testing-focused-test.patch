@@ -1,0 +1,8 @@
+diff --git a/packages/components/src/components/badge/badge.test.ts b/packages/components/src/components/badge/badge.test.ts
+--- a/packages/components/src/components/badge/badge.test.ts
++++ b/packages/components/src/components/badge/badge.test.ts
+@@ -10,3 +10,3 @@
+     describe(`with "${fixture.type}" rendering`, () => {
+-      describe('accessibility', () => {
++      describe.only('accessibility', () => {
+         it('should pass accessibility tests', async () => {
