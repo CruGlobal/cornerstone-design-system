@@ -141,20 +141,23 @@ what they catch to them.
 
 Paths in this section are relative to the repo root. A maintainer is anyone with write access.
 
-Who did the work decides who approves the pull request. An agent opens pull requests under the GitHub account of
-the person running it, so GitHub cannot tell an agent's pull request from that person's own; the
+Who did the work decides who approves the pull request. Each work item in Jira (`UIUX`) carries one tier label,
+set by a person during planning: `agent-alone` (an agent runs it end to end), `agent-builds` (an agent builds it
+while a named person shapes it) or `human-leads` (only a person takes it). An agent opens pull requests under the
+GitHub account of the person running it, so GitHub cannot tell an agent's pull request from that person's own; the
 `needs-human-approval` label is the marker. agent-review's approve action (`approval.cjs` in
 CruGlobal/agent-review, called by `.github/workflows/agent-review-approve.yml`) will not approve while a person's
 copy of that label is on the pull request, and never removes it.
 
-- **An agent's pull request**, alone (`ready-for-agent`) or paired with a contributor (`agent-paired`): the agent
-  runs `/agent-review:review` and posts the report. Once the bot approves, the agent waits for `CI gate` to pass
-  (`gh pr checks <n> --watch`), checks that `needs-human-approval` is still absent, and merges with
-  `gh pr merge <n> --merge`. Never `--admin` or any other bypass.
-- **A contributor's own pull request**, with no agent (`ready-for-human`): add `needs-human-approval` when opening
-  it. agent-review still reviews it, but the bot will not approve it. Another maintainer approves it before it
-  merges, since GitHub never lets an author approve their own pull request; only a maintainer with bypass
-  rights may merge without that.
+- **An agent's pull request**, for `agent-alone` or `agent-builds` work: the agent runs `/agent-review:review`
+  and posts the report. Once `CI gate` has passed (`gh pr checks <n> --watch`), the report is clean and the bot
+  has approved, and `needs-human-approval` is still absent, the agent turns on auto-merge with
+  `gh pr merge <n> --auto --merge`. If the repo refuses auto-merge, it leaves the merge to a maintainer. Never
+  `--admin` or any other bypass.
+- **A contributor's own pull request**, with no agent (`human-leads` work): add `needs-human-approval` when
+  opening it. agent-review still reviews it, but the bot will not approve it. Another maintainer approves it
+  before it merges, since GitHub never lets an author approve their own pull request; only a maintainer with
+  bypass rights may merge without that.
 - **Any pull request carrying `needs-human-approval`**, whoever added it (a contributor, an agent, or agent-review
   for the paths `human_approval` lists in `.claude/review/config.yml`, which keep an agent from changing its own
   instructions or guardrails and merging the change): a maintainer approves and merges it; an agent never does.

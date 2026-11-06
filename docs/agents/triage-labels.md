@@ -10,10 +10,6 @@ The skills speak in terms of five canonical triage roles. This file maps those r
 | `ready-for-human` | `ready-for-human`    | Requires human implementation            |
 | `wontfix`         | `wontfix`            | Will not be actioned                     |
 
-`agent-paired` is this repo's addition, outside the skills' five roles: an agent and a person work the issue
-together. Its pull request is approved and merged like `ready-for-agent` work, and `ready-for-human` work gets
-`needs-human-approval` on its pull request (root `CLAUDE.md`, Who approves and merges).
-
 When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the corresponding label string from this table.
 
 Edit the right-hand column to match whatever vocabulary you actually use.
