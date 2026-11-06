@@ -187,12 +187,14 @@ the PRs it came from.
   (`@web/test-runner-playwright` 1.x next to `@web/test-runner` 0.19) is read against the lockfile for a
   nested second copy. #241's bump ran under a stale 1.52 override until #282.
   <!-- evidence: PR #241, #264, #282 -->
-- **The release PR runs no CI.** changesets' "chore: version packages" PR is opened with `GITHUB_TOKEN`,
-  which starts no workflows: #231, #236 and #263 were approved and published with an empty status rollup,
-  and #232's changelog sorter first ran for real inside #231. Before approving one, read its CHANGELOG and
-  lockfile diff and run `npm run verify` on the branch. Flag a `release.yml` or branch-protection change
-  that leaves it this way; with `CI gate` required (#329), that PR cannot report the check at all.
-  <!-- evidence: PR #231, #232, #236, #263 -->
+- **The release PR's CI waits for a person.** changesets' "chore: version packages" PR is pushed with
+  `GITHUB_TOKEN`, so GitHub holds its `pull_request` CI run for approval instead of starting it: #231, #236
+  and #263 were approved and published with that run never started, and #232's changelog sorter first ran
+  for real inside #231. Merging that PR is the deploy, so the held run is approved by hand (CLAUDE.md,
+  Release Flow), and `CI gate` reports only after that. A dispatched run does not count: #300's checks did
+  not show one (#334, reverted in #335). Flag a `release.yml` or branch-protection change that would merge
+  or publish a release without that run, or that automates approving it.
+  <!-- evidence: PR #231, #232, #236, #263, #300, #334 -->
 - **A Dependabot PR gets a written review.** For a major bump or a new-releaser maintainer change, the
   review notes the maintainer change, the new `engines` against `.tool-versions`, any ESM-only switch in
   release tooling (which only `release.yml` exercises), and the lockfile's new `node_modules/*` entries and

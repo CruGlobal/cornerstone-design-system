@@ -92,8 +92,8 @@ Merging to `main` triggers `release.yml`. `changesets/action` will:
 2. When that PR is merged → publish to npm with provenance via npm Trusted Publishing (no `NPM_TOKEN` needed; `id-token: write` permission is already configured)
 
 Merging the release PR is Cornerstone's deploy, and a maintainer does it by hand. The bot's pushes leave
-that PR's CI run waiting for approval, so: approve the run ("Approve and run workflows"), wait for
-`CI gate`, approve the PR, merge. Every merge to `main` re-pushes the PR, which holds a new run and
+that PR's CI run waiting for approval, so: approve the run for the PR's current head commit ("Approve and
+run workflows" on the PR), wait for `CI gate`, approve the PR, merge. Every merge to `main` re-pushes the PR, which holds a new run and
 dismisses the earlier approval, so do all four steps right before publishing. Never automate them.
 
 Why a first publish is done by hand, where provenance is declared (and why not in a root `.npmrc`), and why
