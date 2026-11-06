@@ -578,8 +578,11 @@ reviews_run: local
 # cannot remove the rule for itself.
 # Nor does it approve a release: only the changesets "chore: version packages" PR
 # writes the CHANGELOGs, and merging it publishes to npm, which is a maintainer's call.
-# Nor a change to a CLAUDE.md: the root one holds the rules for who approves and merges,
-# so an agent's PR must not be able to rewrite those rules and then merge itself.
+# Nor a change to what steers or guards agents: any CLAUDE.md or AGENTS.md (the root
+# CLAUDE.md holds the rules for who approves and merges), docs/agents/, the plugins and
+# marketplace shipped to consumers, or the workflows (CI, release, the approver itself).
+# Agents merge their own approved PRs, so one must not be able to rewrite its own
+# instructions or guardrails and merge the change.
 human_approval:
   paths:
     - '.claude/**'
@@ -587,8 +590,13 @@ human_approval:
     - 'packages/components/ast-grep/**'
     - 'packages/components/sgconfig.yml'
     - 'packages/*/CHANGELOG.md'
-    - 'CLAUDE.md'
-    - 'packages/*/CLAUDE.md'
+    - '**/CLAUDE.md'
+    - '**/CLAUDE.local.md'
+    - '**/AGENTS.md'
+    - '.github/**'
+    - 'docs/agents/**'
+    - 'plugins/**'
+    - '.claude-plugin/**'
 
 # ── Index layer: file-level import graph for impact analysis ──────────────────
 # The resolver tries `<spec>` then `<spec> + ext`, so a NodeNext specifier like
