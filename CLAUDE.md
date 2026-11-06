@@ -152,7 +152,8 @@ is on the pull request, takes back any approval it gave, and never removes the l
   still reviews it, but the bot will not approve it. A maintainer other than the author approves it, or the
   author merges it with maintainer rights, since GitHub never lets an author approve their own pull request.
 - **Any pull request carrying `needs-human-approval`**, whoever added it (a contributor, an agent, or
-  agent-review for the `human_approval` paths in `.claude/review/config.yml`): no auto-merge; a maintainer
+  agent-review for the `human_approval` paths in `.claude/review/config.yml`, which include every `CLAUDE.md`,
+  so an agent cannot change these rules and merge the change itself): no auto-merge; a maintainer
   approves and merges. Adding the label does not re-run the approve workflow, so add it before turning on
   auto-merge, and if auto-merge is already on, also run `gh pr merge --disable-auto`.
 - **The release pull request** is the deploy (Release Flow). A maintainer approves its CI run, approves it and
