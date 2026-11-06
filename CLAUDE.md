@@ -136,3 +136,20 @@ Review a branch with the `code-review` skill against a fixed point such as `main
 against live in `docs/standards/`, one file per area, each saying which paths it applies to. The ast-grep rules
 in `packages/components/ast-grep/` run in that package's `npm run lint`, locally and in CI, so a review leaves
 what they catch to them.
+
+## Who approves and merges
+
+Who did the work decides who approves the pull request. Agents and Ryan both open pull requests as `rguinee`,
+so GitHub cannot tell them apart; the `needs-human-approval` label is the marker.
+
+- **An agent's pull request**, alone or paired with Ryan: the agent runs `/agent-review:review` and posts the
+  report. Once `agent-review-approve.yml` approves it, the agent merges it: `gh pr merge --auto --merge`, which
+  waits for `CI gate`, or a plain `--merge` once `CI gate` has passed when the repo has auto-merge off.
+- **Ryan's own pull request**: add `needs-human-approval` when opening it. agent-review still reviews it, but
+  the bot will not approve it, and Ryan merges it.
+- **Any pull request carrying `needs-human-approval`**, whoever added it (Ryan, an agent, or agent-review for
+  the `human_approval` paths in `.claude/review/config.yml`): no auto-merge; a maintainer approves and merges.
+  Adding the label does not re-run the approve workflow, so add it before turning on auto-merge, and if
+  auto-merge is already on, also run `gh pr merge --disable-auto`.
+- **The release pull request** is the deploy (Release Flow). An agent never approves its CI run, approves it, or
+  merges it.
