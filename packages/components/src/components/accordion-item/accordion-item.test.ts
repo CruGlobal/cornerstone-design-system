@@ -53,6 +53,12 @@ describe('<cs-accordion-item>', () => {
           const button = el.shadowRoot!.querySelector('[part~="button"]')!;
           expect(button.getAttribute('tabindex')).to.equal('-1');
         });
+
+        it('should set tabindex to 0 on the button when not disabled', async () => {
+          const el = await fixture<CsAccordionItem>(html`<cs-accordion-item label="Test">Content</cs-accordion-item>`);
+          const button = el.shadowRoot!.querySelector('[part~="button"]')!;
+          expect(button.getAttribute('tabindex')).to.equal('0');
+        });
       });
 
       describe('properties', () => {

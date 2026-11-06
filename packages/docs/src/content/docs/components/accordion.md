@@ -335,3 +335,7 @@ Listen for the `cs-accordion-expand` or `cs-accordion-collapse` events and call 
   });
 </script>
 ```
+
+## Accessibility Considerations
+
+Every enabled header is part of the page's normal tab sequence. `Tab` and `Shift + Tab` move through each header along with the rest of the page, per the [W3C accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/). When a header has focus, the arrow keys are a shortcut for moving between headers: Up and Down move to the previous and next header, and Home and End jump to the first and last.
