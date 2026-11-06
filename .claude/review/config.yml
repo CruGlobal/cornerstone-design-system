@@ -576,12 +576,15 @@ reviews_run: local
 # the settings that load the plugin. Without this a PR could loosen the standard that
 # reviews it and still be approved by the bot. Read from the base branch, so a PR
 # cannot remove the rule for itself.
+# Nor does it approve a release: only the changesets "chore: version packages" PR
+# writes the CHANGELOGs, and merging it publishes to npm, which is a maintainer's call.
 human_approval:
   paths:
     - '.claude/**'
     - 'docs/standards/**'
     - 'packages/components/ast-grep/**'
     - 'packages/components/sgconfig.yml'
+    - 'packages/*/CHANGELOG.md'
 
 # ── Index layer: file-level import graph for impact analysis ──────────────────
 # The resolver tries `<spec>` then `<spec> + ext`, so a NodeNext specifier like
