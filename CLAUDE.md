@@ -147,17 +147,17 @@ the person running it, so GitHub cannot tell an agent's pull request from that p
 CruGlobal/agent-review, called by `.github/workflows/agent-review-approve.yml`) will not approve while a person's
 copy of that label is on the pull request, and never removes it.
 
-- **An agent's pull request**, alone or paired with a contributor: the agent runs `/agent-review:review` and
-  posts the report. Once the bot approves, the agent waits for `CI gate` to pass (`gh pr checks <n> --watch`),
-  checks that `needs-human-approval` is still absent, and merges with `gh pr merge <n> --merge`. Never
-  `--admin` or any other bypass.
-- **A contributor's own pull request**, with no agent: add `needs-human-approval` when opening it. agent-review
-  still reviews it, but the bot will not approve it. Another maintainer approves it, or the author merges it,
-  since GitHub never lets an author approve their own pull request.
-- **Any pull request carrying `needs-human-approval`**, whoever added it (a contributor, an agent, or
-  agent-review for the paths `human_approval` lists in `.claude/review/config.yml`, which keep an agent from
-  changing its own instructions or guardrails and merging the change): a maintainer approves and merges it; an
-  agent never does. Adding the label does not withdraw an approval the bot already gave, so if auto-merge is
-  on, also run `gh pr merge --disable-auto`.
+- **An agent's pull request**, alone (`ready-for-agent`) or paired with a contributor (`agent-paired`): the agent
+  runs `/agent-review:review` and posts the report. Once the bot approves, the agent waits for `CI gate` to pass
+  (`gh pr checks <n> --watch`), checks that `needs-human-approval` is still absent, and merges with
+  `gh pr merge <n> --merge`. Never `--admin` or any other bypass.
+- **A contributor's own pull request**, with no agent (`ready-for-human`): add `needs-human-approval` when opening
+  it. agent-review still reviews it, but the bot will not approve it. Another maintainer approves it, or the
+  author merges it, since GitHub never lets an author approve their own pull request.
+- **Any pull request carrying `needs-human-approval`**, whoever added it (a contributor, an agent, or agent-review
+  for the paths `human_approval` lists in `.claude/review/config.yml`, which keep an agent from changing its own
+  instructions or guardrails and merging the change): a maintainer approves and merges it; an agent never does.
+  Adding the label does not withdraw an approval the bot already gave, so if auto-merge is on, also run
+  `gh pr merge --disable-auto`.
 - **The release pull request** is the deploy (Release Flow). A maintainer approves its CI run, approves it and
   merges it; an agent never does.
