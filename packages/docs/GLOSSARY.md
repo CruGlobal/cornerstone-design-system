@@ -45,6 +45,17 @@ An ordered journey across more than one Screen: signing in, onboarding, subscrib
 the sequence, never application logic.
 _Avoid_: wizard (one implementation of a flow, not the concept)
 
+**Reasoning**:
+The hand-written part of an Inspiration entry that justifies it: when to use it, when not to, why it works, and
+its Rules. Written by a person, never derived from markup. It is what makes the library prescriptive rather than
+a set of snippets.
+_Avoid_: rationale (same thing, two words), description (already a frontmatter field), guidance
+
+**Rule**:
+One must or must-not in an Inspiration entry's Reasoning. Either checked by a tool and linked to that check, or
+checked by hand with a short how-to.
+_Avoid_: guideline (sounds optional), requirement (blurs with a required field or section)
+
 ### Browsing
 
 **Goal**:
@@ -57,6 +68,13 @@ used, not what it is for), role (already an ARIA role and a semantic role)
 What sort of interface piece a Pattern is, such as Forms or Feedback. The category axis for Patterns, written in
 their `category` field. A Kind that shares a label with a component category shares its meaning.
 _Avoid_: category on its own in prose, type, role
+
+**Connections**:
+An Inspiration entry's links to the entries and components it is made from and the entries that use it. Built
+from: its components, the Patterns it contains (a Pattern can contain another Pattern), and on a Flow, its
+Screens. Used in: the Screens that use a Pattern, the Flows that use a Screen. Derived, never hand-written.
+_Avoid_: related (says nothing about which way the link points), composed of on its own (names only the
+built-from half)
 
 **Account management**:
 The Goal of changing what an app knows about you and how it behaves for you: your profile details, your

@@ -1,0 +1,29 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 9096d76..2128976 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -234,6 +234,14 @@ jobs:
+           git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
+           npx changeset status --since="origin/$BASE_REF"
+ 
++  verify-plugins:
++    name: Verify plugins
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++      - name: Every plugin manifest parses
++        run: for f in plugins/*/.claude-plugin/plugin.json .claude-plugin/marketplace.json; do jq empty "$f"; done
++
+   # The one check `main`'s branch protection names (cru-terraform, github/CruGlobal/repos/
+   # cornerstone-design-system). Requiring this job instead of each job above means a renamed job or
+   # a different shard count never blocks `main` until Terraform catches up. A skipped job passes the
+diff --git a/.changeset/verify-plugins-job.md b/.changeset/verify-plugins-job.md
+new file mode 100644
+--- /dev/null
++++ b/.changeset/verify-plugins-job.md
+@@ -0,0 +1,5 @@
++---
++'@cruglobal/cornerstone-components': patch
++---
++
++Changed: CI checks that every plugin manifest parses.

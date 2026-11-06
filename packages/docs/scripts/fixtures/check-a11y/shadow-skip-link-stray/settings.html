@@ -1,0 +1,31 @@
+<!doctype html>
+<!--
+  The shadow skip-link test Screen with three things added outside every landmark, for check-a11y.test.js.
+  Never built into the site. The cs-page skip link is still exempted, and each addition must still fail
+  region: a paragraph of text, a link to another page, and an in-page link that comes after other links.
+  Each sits beside <main> rather than in one wrapper, so axe reports each one as its own node.
+-->
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+  </head>
+  <body>
+    <cs-page>
+      <header slot="header" class="cs-split">
+        <span class="cs-heading-m">Mission Hub</span>
+      </header>
+      <main id="main-content" class="cs-stack">
+        <h1>Settings</h1>
+        <p><a href="edit-profile.html">Edit profile</a></p>
+      </main>
+      <p class="stray-text">Last saved a minute ago.</p>
+      <a class="stray-page-link" href="help.html">Help</a>
+      <a class="stray-fragment-link" href="#main-content">Back to settings</a>
+    </cs-page>
+  </body>
+</html>
