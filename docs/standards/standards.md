@@ -102,7 +102,9 @@ relative import missing its `.js` extension.
 
 ### **Changesets**
 
-- [ ] Present, with a real bump; never `--empty` and never an empty frontmatter
+- [ ] Present, with a real bump; never `--empty` and never an empty frontmatter. Dependabot and lockfile-only
+      PRs take none, unless they move a published package's `dependencies` or `peerDependencies` (root
+      `CLAUDE.md`, Changeset Rules)
 - [ ] First word is `Fixed:`, `Added:`, `Changed:`, `Removed:`, `Breaking:` or `Deprecated:`; one category
       per file
 - [ ] Body is the change, in one or two lines or a short bullet list; the reasoning is in the PR description
