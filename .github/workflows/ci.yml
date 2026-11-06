@@ -239,21 +239,6 @@ jobs:
           git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
           npx changeset status --since="origin/$BASE_REF"
 
-  # TEMPORARY, removed before merge: proves a GITHUB_TOKEN dispatch starts a run that reports
-  # CI gate on this pull request's head commit, as release.yml's will.
-  prove-dispatch:
-    name: Prove dispatch (temporary)
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-    steps:
-      - env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          HEAD_REF: ${{ github.head_ref }}
-        run: gh workflow run ci.yml --ref "$HEAD_REF"
-
   # The one check `main`'s branch protection names (cru-terraform, github/CruGlobal/repos/
   # cornerstone-design-system). Requiring this job instead of each job above means a renamed job or
   # a different shard count never blocks `main` until Terraform catches up. A skipped job passes the
