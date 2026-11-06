@@ -37,6 +37,7 @@ ships, and those places do not share a framework.
 | React | Custom elements natively on 19, generated wrappers on 18 and below | Shipped |
 | Rails | Custom elements through the asset pipeline | Testing |
 | WordPress | Custom elements in a theme or a plugin | Testing |
+| Go | Custom elements in `html/template` or templ, with the bundled build compiled into the binary | Testing in a sample app only. No real Go app runs it yet; a FamilyLife app being built in Go will be the first |
 | Salesforce | Lightning Web Components is itself a custom-elements framework; third-party elements mount with `lwc:external`, which is Beta and requires Lightning Web Security | Salesforce controls CSS tightly, so brand standards are applied here rather than tokens ingested |
 | Angular | Sets properties and hears native events already; needs `CUSTOM_ELEMENTS_SCHEMA` on the modules using `cs-*` | Unsupported. Themes go straight into the app's own CSS; importing a theme file is worth a try where it fits |
 | Native mobile | Tokens only — no custom element runs here | MPDX is being rebuilt in Kotlin Multiplatform against Material Design 3 |

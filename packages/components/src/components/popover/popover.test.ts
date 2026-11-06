@@ -2,6 +2,11 @@ import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
+import {
+  descendantAnimationStops,
+  frames,
+  startDescendantAnimation,
+} from '../../internal/test/descendant-animation.js';
 import { expectAnimationDuration } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
@@ -151,6 +156,73 @@ describe('<cs-popover>', () => {
           popover.open = false;
           await expectAnimationDuration(panel, '--cs-transition-fast');
           await settleAnimations(popover);
+        });
+
+        // Animation events bubble. Slotted content that stopped animating mid-show used to end the popover's own
+        // animation, snapping the panel into place and firing the after event early.
+        describe('when slotted content stops animating first', () => {
+          for (const { name, animation, stop } of descendantAnimationStops) {
+            it(`should wait for its own show animation when a child's animation ${name}`, async () => {
+              const el = await fixture<HTMLDivElement>(html`
+                <div>
+                  <cs-button id="anchor">Anchor</cs-button>
+                  <cs-popover for="anchor" style="--cs-show-duration: 60s"><div class="child">Loading</div></cs-popover>
+                </div>
+              `);
+              const popover = el.querySelector<CsPopover>('cs-popover')!;
+              const panel = popover.popup.popup;
+              const child = popover.querySelector<HTMLElement>('.child')!;
+              const afterShow = sinon.spy();
+              popover.addEventListener('cs-after-show', afterShow);
+
+              popover.open = true;
+              await popover.updateComplete;
+              await startDescendantAnimation(child, animation);
+              stop(child);
+              await frames(2);
+
+              expect(afterShow.called, 'cs-after-show fired before the popover finished showing').to.be.false;
+              expect(panel.classList.contains('show-with-scale')).to.be.true;
+
+              await settleAnimations(popover);
+
+              expect(afterShow.calledOnce).to.be.true;
+              expect(panel.classList.contains('show-with-scale')).to.be.false;
+            });
+
+            it(`should wait for its own hide animation when a child's animation ${name}`, async () => {
+              const el = await fixture<HTMLDivElement>(html`
+                <div>
+                  <cs-button id="anchor">Anchor</cs-button>
+                  <cs-popover for="anchor" style="--cs-hide-duration: 60s"><div class="child">Loading</div></cs-popover>
+                </div>
+              `);
+              const popover = el.querySelector<CsPopover>('cs-popover')!;
+              const panel = popover.popup.popup;
+              const child = popover.querySelector<HTMLElement>('.child')!;
+              // Opened here rather than with the `open` attribute: a server-rendered open popover hydrates with its
+              // panel hidden, so it would have no hide animation to wait for.
+              popover.open = true;
+              await popover.updateComplete;
+              await settleAnimations(popover);
+              const afterHide = sinon.spy();
+              popover.addEventListener('cs-after-hide', afterHide);
+
+              popover.open = false;
+              await popover.updateComplete;
+              await startDescendantAnimation(child, animation);
+              stop(child);
+              await frames(2);
+
+              expect(afterHide.called, 'cs-after-hide fired before the popover finished hiding').to.be.false;
+              expect(panel.classList.contains('hide-with-scale')).to.be.true;
+
+              await settleAnimations(popover);
+
+              expect(afterHide.calledOnce).to.be.true;
+              expect(panel.classList.contains('hide-with-scale')).to.be.false;
+            });
+          }
         });
       });
 
