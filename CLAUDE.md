@@ -81,7 +81,8 @@ takes a bump like any other.
 
 Merging to `main` triggers `release.yml`. `changesets/action` will:
 
-1. While changesets are pending → open/update a **"chore: version packages"** PR
+1. While changesets are pending → open/update a **"chore: version packages"** PR, then dispatch CI on its
+   branch, because nothing `GITHUB_TOKEN` pushes starts a workflow
 2. When that PR is merged → publish to npm with provenance via npm Trusted Publishing (no `NPM_TOKEN` needed; `id-token: write` permission is already configured)
 
 Why a first publish is done by hand, where provenance is declared (and why not in a root `.npmrc`), and why
