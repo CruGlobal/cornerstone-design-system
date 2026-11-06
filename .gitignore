@@ -21,3 +21,5 @@ storybook-static/
 **/.claude/settings.local.json
 **/.claude/scheduled_tasks.lock
 .claude/worktrees/
+/.claude/review/metrics/
+/.claude/review/index/

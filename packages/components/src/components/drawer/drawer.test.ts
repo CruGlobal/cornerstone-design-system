@@ -1,6 +1,12 @@
 import { expect, nextFrame, waitUntil } from '@open-wc/testing';
 import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
+import sinon from 'sinon';
+import {
+  descendantAnimationStops,
+  frames,
+  startDescendantAnimation,
+} from '../../internal/test/descendant-animation.js';
 import { expectAnimationDuration, expectNoMotion } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
@@ -178,6 +184,60 @@ describe('<cs-drawer>', () => {
             await settleAnimations(el);
           } finally {
             await emulateMedia({ reducedMotion: 'no-preference' });
+          }
+        });
+
+        // Animation events bubble. A loading placeholder that stopped pulsing mid-slide used to end the drawer's own
+        // animation, snapping the panel into place and firing the after event early.
+        describe('when slotted content stops animating first', () => {
+          for (const { name, animation, stop } of descendantAnimationStops) {
+            it(`should wait for its own show animation when a child's animation ${name}`, async () => {
+              const el = await fixture<CsDrawer>(
+                html`<cs-drawer style="--cs-show-duration: 60s"><div class="child">Loading</div></cs-drawer>`,
+              );
+              const panel = el.shadowRoot!.querySelector('.drawer')!;
+              const child = el.querySelector<HTMLElement>('.child')!;
+              const afterShow = sinon.spy();
+              el.addEventListener('cs-after-show', afterShow);
+
+              el.open = true;
+              await el.updateComplete;
+              await startDescendantAnimation(child, animation);
+              stop(child);
+              await frames(2);
+
+              expect(afterShow.called, 'cs-after-show fired before the drawer finished showing').to.be.false;
+              expect(panel.classList.contains('show')).to.be.true;
+
+              await settleAnimations(el);
+
+              expect(afterShow.calledOnce).to.be.true;
+              expect(panel.classList.contains('show')).to.be.false;
+            });
+
+            it(`should wait for its own hide animation when a child's animation ${name}`, async () => {
+              const el = await fixture<CsDrawer>(
+                html`<cs-drawer open style="--cs-hide-duration: 60s"><div class="child">Loading</div></cs-drawer>`,
+              );
+              const panel = el.shadowRoot!.querySelector('.drawer')!;
+              const child = el.querySelector<HTMLElement>('.child')!;
+              const afterHide = sinon.spy();
+              el.addEventListener('cs-after-hide', afterHide);
+
+              el.open = false;
+              await el.updateComplete;
+              await startDescendantAnimation(child, animation);
+              stop(child);
+              await frames(2);
+
+              expect(afterHide.called, 'cs-after-hide fired before the drawer finished hiding').to.be.false;
+              expect(panel.classList.contains('hide')).to.be.true;
+
+              await settleAnimations(el);
+
+              expect(afterHide.calledOnce).to.be.true;
+              expect(el.open).to.be.false;
+            });
           }
         });
       });

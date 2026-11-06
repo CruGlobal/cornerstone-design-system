@@ -8,6 +8,10 @@ on:
   # running it and failing. Push stays filtered to main so a branch with an
   # open PR doesn't build twice.
   pull_request:
+  # release.yml starts this for the changesets release pull request, whose own events start nothing:
+  # GitHub runs no workflow for a push or pull request made with GITHUB_TOKEN, and a dispatch is the
+  # one exception. Its checks land on the branch's head commit, which is the pull request's.
+  workflow_dispatch:
 
 # One run per ref. A second push used to leave the first still going, and the component gate holds
 # four runners for about ten minutes each — two of them competing for the same runners is how a suite
@@ -207,10 +211,11 @@ jobs:
     name: Changeset present
     # Skip the changeset gate for automated maintenance PRs (e.g. Dependabot)
     # and the Changesets release PR — none of these touch the token API.
+    # A dispatch runs it too, so dispatching CI on an ordinary branch cannot pass the gate without one.
     if: >-
-      github.event_name == 'pull_request' &&
-      github.head_ref != 'changeset-release/main' &&
-      !startsWith(github.head_ref, 'dependabot/')
+      (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch') &&
+      (github.head_ref || github.ref_name) != 'changeset-release/main' &&
+      !startsWith(github.head_ref || github.ref_name, 'dependabot/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -229,7 +234,32 @@ jobs:
       # surface.
       - name: Require a changeset for this PR's own diff
         env:
-          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          BASE_REF: ${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}
         run: |
           git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
           npx changeset status --since="origin/$BASE_REF"
+
+  # The one check `main`'s branch protection names (cru-terraform, github/CruGlobal/repos/
+  # cornerstone-design-system). Requiring this job instead of each job above means a renamed job or
+  # a different shard count never blocks `main` until Terraform catches up. A skipped job passes the
+  # gate on purpose: the path filters skip suites a change cannot affect, and GitHub counts a skipped
+  # required check as passed anyway.
+  gate:
+    name: CI gate
+    needs:
+      - validate-tokens
+      - build
+      - changes
+      - verify-components-static
+      - verify-components-test
+      - verify-docs
+      - changeset
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any job failed or was cancelled
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          echo "$RESULTS" | jq -e '[.[] | .result] | all(. == "success" or . == "skipped")' > /dev/null

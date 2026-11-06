@@ -1,0 +1,36 @@
+<!doctype html>
+<!--
+  The no-target skip-link Screen with a fragment that is not valid percent-encoding, for check-a11y.test.js.
+  Never built into the site. decodeURIComponent throws on "%E0%A4%A", so the link is not exempted even
+  though it is first on the page: region must still fail it.
+-->
+<html lang="en" class="cs-cloak">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="../../../../dist/styles/themes/default.css" />
+    <link rel="stylesheet" href="../../../../dist/styles/cornerstone.css" />
+    <script type="module" src="../../../../dist/cornerstone.loader.js"></script>
+  </head>
+  <body>
+    <skip-host>
+      <main class="cs-stack">
+        <h1>Settings</h1>
+        <p><a href="edit-profile.html">Edit profile</a></p>
+      </main>
+    </skip-host>
+    <script>
+      customElements.define(
+        'skip-host',
+        class extends HTMLElement {
+          constructor() {
+            super();
+            this.attachShadow({ mode: 'open' }).innerHTML =
+              '<a class="skip" href="#%E0%A4%A">Skip to content</a><slot></slot>';
+          }
+        },
+      );
+    </script>
+  </body>
+</html>

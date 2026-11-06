@@ -796,6 +796,7 @@ const SKILL_PAGES = [
   ['customizing.md', '', 'customizing.md'],
   ['localization.md', '', 'localization.md'],
   ['theming-overview.md', '', 'theming-overview.md'],
+  ['frameworks/go.md', 'frameworks', 'go.md'],
   ['frameworks/react.md', 'frameworks', 'react.md'],
   ['frameworks/rails.md', 'frameworks', 'rails.md'],
   ['frameworks/tailwind.md', 'frameworks', 'tailwind.md'],

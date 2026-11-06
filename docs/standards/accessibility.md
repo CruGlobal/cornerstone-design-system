@@ -7,9 +7,11 @@ Be a gate on the defect, not on the person: every blocking finding arrives with 
 
 **Applies when the diff touches** `packages/components/src/components/**`,
 `packages/components/src/styles/**`, `packages/components/src/internal/**`, `packages/tokens/tokens/sys/**`,
-`packages/tokens/tokens/cmp/**`, or any line carrying `aria-`, `role=`, `tabindex`, `:focus`,
-`delegatesFocus`, `prefers-reduced-motion`, `live-announcer`, `to.be.accessible`, `ssr-client-hydrated`,
-`outline`, `disabled` or a colour value.
+`packages/tokens/tokens/cmp/**`, `packages/docs/src/content/docs/resources/accessibility.md`,
+`packages/docs/public/assets/examples/inspiration/screens/**`, `packages/docs/scripts/check-a11y*.js`,
+`packages/docs/scripts/fixtures/check-a11y/**`, or any line carrying `aria-`, `role=`, `tabindex`, `tabIndex`,
+`:focus`, `focus-visible`, `delegatesFocus`, `prefers-reduced-motion`, `live-announcer`, `announce(`,
+`to.be.accessible`, `ignoredRules`, `ssr-client-hydrated`, `outline`, `disabled`, `contrast` or a colour value.
 
 ---
 
@@ -48,7 +50,7 @@ overlay that does not register with `dismissible-stack`, so Escape closes every 
 **Contrast is a resolved pair on a named surface**
 
 A ratio is a property of two resolved values on one surface, never of a token, and the same name resolves
-differently per brand (Cru, FamilyLife) and per scheme (`.cs-light`, `.cs-dark`). Composite
+differently per theme (`cru`, `fl` and the opt-in `default`) and per scheme (`.cs-light`, `.cs-dark`). Composite
 alpha before computing. Text in a disabled control is excused by 1.4.3, and disabled must still not rest on
 colour alone. For a fix, prefer a narrow new token over retargeting a widely aliased one, and scope it to
 the criterion that motivated it: a value that clears the 3:1 non-text floor does not clear 4.5:1 for text.
@@ -56,12 +58,18 @@ Look for: a PR body that states one ratio for a token; a change to a `_sys` colo
 ratios per mode; a status, outline or indicator token whose value resolves to the same `_ref` as the
 surface it sits on.
 
+A ratio or colour printed on a docs page, the accessibility page's known-gaps table included, is declared in
+that page's `contrast` front matter and recomputed by `check:contrast` (`docs-and-skills.md`), so a theme
+change that moves one fails the docs gate. A ratio stated only in a PR body is checked by nothing.
+
 **State, motion, announcements**
 
 Every colour-signalled state (selected, invalid, active tab, checked) also has a non-colour signal.
 Animated show and hide respects `prefers-reduced-motion` (the animation registry does; a bespoke keyframe
 may not). Changes the user did not cause are announced through `live-announcer` at a moment that is
 useful. Never change a control's label and its state signal in the same moment.
+A reduced-motion path is asserted with `expectNoMotion` from `src/internal/test/expect-animation-duration.ts`,
+as the dialog, drawer, dropdown and popup tests do.
 
 **What the tests prove, and what they do not**
 
@@ -74,6 +82,17 @@ useful. Never change a control's label and its state signal in the same moment.
   suite is a floor, not a conformance statement; say which half a finding rests on (established from code
   and computation, or needing a human at real assistive technology), and never word a finding so it reads
   as a screen-reader or disabled-user test having been run.
+- Inspiration Screens are checked by `check:a11y` in `packages/docs`, after the build: axe on each State file
+  as a whole document, in Chromium, light and dark, against WCAG 2.2 A and AA plus `landmark-one-main`,
+  `page-has-heading-one` and `region`. A Screen fails on a violation, a 400-or-above response for its own
+  assets, or a page error, so it needs `lang`, a `<title>`, a `<main>` and an `<h1>`. axe's `incomplete`
+  results print as "needs review" and never fail; `cs-button` text contrast is one (UIUX-252), so a green
+  run is not a contrast pass there.
+- The one exemption is `findComposedSkipLinks`, which sets aside `cs-page`'s shadow-root skip link under
+  `region` and comes out with its known-gaps row (#304). Look for: a rule turned off, an exemption matched by
+  selector, or a Screen that pins `cs-light` or `cs-dark` on `<html>` or `<body>`, which the check then runs
+  in that scheme only. `test:a11y` proves each failure against `scripts/fixtures/check-a11y/`; a new failure
+  mode adds a fixture there.
 
 **Target size**
 
@@ -91,13 +110,15 @@ so.
 - Contrast stated as resolved pairs per brand × scheme, alpha composited: Yes/No/N/A
 - Reduced motion respected; announcements timed usefully: Yes/No/N/A
 - axe assertion present per fixture type and per variant, with no SSR early return: Yes/No/N/A
+- A changed Inspiration Screen passes `check:a11y` in light and dark with no new exemption: Yes/No/N/A
 - The accessibility page's floor and known-gaps table still true after this change: Yes/No/N/A
 
 ---
 
 ## Mined from merged PR history
 
-Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from.
+Rules derived from 96 merged PRs: #49–#169 (October 2026) and #228–#329 (November 2026). Each carries
+the PRs it came from.
 
 - **State-bearing tokens ship with their ratios.** A `_cmp` or `_sys` token named `indicator`, `border*`,
   `outline*` or `*-outline` that marks active, selected, checked or disabled ships with its computed
@@ -106,3 +127,28 @@ Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from
   travels with the token and lapses visibly when a selected state is added. The tabs active indicator
   shipped at 1.46:1 behind "0 errors, 0 warnings"; a designer caught it in review.
   <!-- evidence: PR #50, #53, #54 -->
+
+- **Coverage claims move with the tests.** A diff that changes axe coverage (adds or removes an SSR early
+  return, gates axe to client-only, changes a fixture loop) or finds a component that animates without a
+  reduced-motion branch updates, in the same PR, `resources/accessibility.md` (Known gaps and "How it is
+  verified"), this file, `testing.md` and `plugins/cornerstone-dev/agents/esther.md`, with a ticket per gap.
+  A keyboard or focus claim names the test that proves it in each engine.
+  <!-- evidence: PR #234, #235, #262, #275, #276, #304 -->
+- **Contrast evidence covers every theme and scheme, text and non-text.** A new colour role on a component,
+  a new brand, or a directive mapped to a `cs-callout` variant ships measured ratios for Cru and FamilyLife
+  (and Default where it applies) in light and dark: 4.5:1 for text, 3:1 for icons, focus rings, loud fills
+  and edges against `surface-default` and `surface-raised`. Dark is switched with the `cs-dark` class, since
+  emulating `prefers-color-scheme` alone re-runs the light page. A passing axe test is not this evidence:
+  the suite runs axe on the default light theme only. #239 reported text pairs only and missed a 2.94:1
+  focus ring.
+  <!-- evidence: PR #239, #253, #257, #260, #262, #274, #275, #279 -->
+- **Reduced motion is asserted, and the guard has to match.** Every new reader of `--cs-show-duration`,
+  `--cs-hide-duration` or a bespoke animation has a `prefers-reduced-motion` path and an `expectNoMotion`
+  test. A selector like `::part(popup).show` is invalid (no class after `::part()`), so the guard is dropped
+  and never applies.
+  <!-- evidence: PR #235, #262 -->
+- **A name has to reach the inner control.** A `cs-*` control named only by `cs-tooltip`, or by ARIA set on
+  the host (`aria-current`), has no accessible name: neither reaches the inner control (#230). #260 found 12
+  tooltip-only buttons. When slot content changes what is visible, pin the resulting name with
+  `a11ySnapshot` in both fixture types, not with axe alone.
+  <!-- evidence: PR #260, #261 -->
