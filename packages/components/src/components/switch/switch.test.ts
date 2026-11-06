@@ -129,6 +129,21 @@ describe('<cs-switch>', () => {
           expect(el.checked).to.be.true;
         });
 
+        it('should draw the focus ring around the track, not the thumb', async () => {
+          const el = await fixture<CsSwitch>(html`<cs-switch></cs-switch>`);
+          const track = el.shadowRoot!.querySelector<HTMLElement>('[part~="control"]')!;
+          const thumb = el.shadowRoot!.querySelector<HTMLElement>('[part~="thumb"]')!;
+
+          // Not Tab: WebKit skips checkboxes when tabbing unless full keyboard access is on
+          el.focus();
+          await waitUntil(
+            () => getComputedStyle(track).outlineStyle !== 'none',
+            'the track never showed its focus ring',
+          );
+
+          expect(getComputedStyle(thumb).outlineStyle).to.equal('none');
+        });
+
         it('should emit change and input when toggled with the right arrow', async () => {
           const el = await fixture<CsSwitch>(html`<cs-switch></cs-switch>`);
 
