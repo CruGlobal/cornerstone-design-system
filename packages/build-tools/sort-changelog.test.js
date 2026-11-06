@@ -43,23 +43,23 @@ describe("sortChangelog", () => {
         "",
         "### Breaking",
         "",
-        `- ${by(5)}a removal.`,
+        `- ${by(5)}A removal.`,
         "",
         "### Added",
         "",
-        `- ${by(1)}a thing.`,
+        `- ${by(1)}A thing.`,
         "",
-        `- ${by(6)}another thing.`,
+        `- ${by(6)}Another thing.`,
         "",
         "### Changed",
         "",
-        `- ${by(4)}a tidy-up.`,
+        `- ${by(4)}A tidy-up.`,
         "",
         "### Fixed",
         "",
-        `- ${by(2)}a bug.`,
+        `- ${by(2)}A bug.`,
         "",
-        `- ${by(3)}another bug.`,
+        `- ${by(3)}Another bug.`,
         ""
       )
     );
@@ -95,12 +95,12 @@ describe("sortChangelog", () => {
         "",
         "### Added",
         "",
-        `- ${by(7)}a roadmap page.`,
+        `- ${by(7)}A roadmap page.`,
         ...entry.slice(1),
         "",
         "### Fixed",
         "",
-        `- ${by(8)}a bug.`,
+        `- ${by(8)}A bug.`,
         ""
       )
     );
@@ -131,7 +131,7 @@ describe("sortChangelog", () => {
         "",
         "### Fixed",
         "",
-        `- ${by(11)}a declared fix.`,
+        `- ${by(11)}A declared fix.`,
         "",
         "### Other changes",
         "",
@@ -159,7 +159,7 @@ describe("sortChangelog", () => {
 
     assert.equal(
       sorted,
-      lines("## 0.6.2", "", "### Fixed", "", "- one.", "", "- two.", "")
+      lines("## 0.6.2", "", "### Fixed", "", "- One.", "", "- Two.", "")
     );
   });
 
@@ -207,12 +207,63 @@ describe("sortChangelog", () => {
         lines(
           "### Added",
           "",
-          `- ${by(12)}new.`,
+          `- ${by(12)}New.`,
           "",
           "### Fixed",
           "",
-          `- ${by(13)}old.`
+          `- ${by(13)}Old.`
         )
+      )
+    );
+  });
+
+  it("capitalises a plain first word left after the prefix, and leaves code and names alone", () => {
+    const sorted = sortChangelog(
+      lines(
+        "## 0.11.0",
+        "",
+        "### Patch Changes",
+        "",
+        `- ${by(1)}Fixed: the docs, now right.`,
+        "",
+        "- Added: `cs-tag` gains a size.",
+        "",
+        "- Changed: cs-button reads a new property.",
+        "",
+        "- Fixed: llms.txt lists every page.",
+        "",
+        "- Added: FamilyLife's theme.",
+        "",
+        "- a thing with no category.",
+        ""
+      )
+    );
+
+    assert.equal(
+      sorted,
+      lines(
+        "## 0.11.0",
+        "",
+        "### Added",
+        "",
+        "- `cs-tag` gains a size.",
+        "",
+        "- FamilyLife's theme.",
+        "",
+        "### Changed",
+        "",
+        "- cs-button reads a new property.",
+        "",
+        "### Fixed",
+        "",
+        `- ${by(1)}The docs, now right.`,
+        "",
+        "- llms.txt lists every page.",
+        "",
+        "### Other changes",
+        "",
+        "- a thing with no category.",
+        ""
       )
     );
   });

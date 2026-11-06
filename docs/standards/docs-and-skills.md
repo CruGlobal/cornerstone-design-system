@@ -7,11 +7,13 @@ ships. **A page is finished when nothing on it can drift**: it is generated from
 or a check fails when it stops being true.
 
 **Applies when the diff touches** `packages/docs/**`, the skill generators
-(`scripts/agent-skill*`, `scripts/design-skill*`, `scripts/llms.js`), `check-docs-url.js`,
-`build-tools/site-url.js`, the stylesheets and colour maths `check:contrast` reads
-(`packages/components/src/styles/**`, `packages/components/tools/palette.mjs`), or any line carrying
-`SKILL_PAGES`, `{.example`, `:::`, `hasAnatomy`, `contrast:`, `remark`, `homepage`, `cruglobal.github.io`,
-`llms.txt` or `@documentation`.
+(`packages/components/scripts/agent-skill*`, `packages/components/scripts/design-skill*`,
+`packages/components/scripts/llms.js`, `packages/components/scripts/verify-skills.js`),
+`packages/components/scripts/check-docs-url.js`, `packages/build-tools/**`, `plugins/cornerstone/skills/**`,
+the stylesheets and colour maths `check:contrast` reads (`packages/components/src/styles/**`,
+`packages/components/tools/palette.mjs`), or any line carrying `SKILL_PAGES`, `{.example`, `:::`,
+`hasAnatomy`, `contrast:`, `<!-- pattern`, `remark`, `homepage`, `cruglobal.github.io`, `llms.txt` or
+`@documentation`.
 
 ---
 
@@ -56,7 +58,8 @@ diff.
 Every URL derives from `packages/components/package.json`'s `homepage` through `build-tools/site-url.js`;
 `check-docs-url.js` checks only what its rules and `globbySync` call name, so treat a typed address as
 unchecked. Every site path (`href`, `src`, `value`, redirect, sidebar link) is built with `path()` from
-`src/site-sections.js` in Astro code or `DOCS_BASE_PATH` in remark plugins; a bare `/components` is a 404
+`src/site-sections.js` in Astro code, or `asset()` or `DOCS_BASE_PATH` from `build-tools/site-url.js` in remark
+plugins and the modules they share (`src/brands.js`); a bare `/components` is a 404
 under the Pages base path and renders fine on a developer's machine. Repository links derive from
 `package.json`'s `repository`, as `remark-roadmap.js` does.
 
@@ -83,13 +86,48 @@ disagree.
 Twenty-six pages flag an anatomy example and `check-anatomy.js` validates the flag, but nothing renders it
 (UIUX-118). Describe it in the future tense; do not add a page that depends on it.
 
+**The Inspiration library is read from its markup**
+
+Entries live in `src/content/docs/inspiration/{patterns,screens,flows}/`, and `src/inspiration.js` derives
+everything the markup can say (#144): the tier from the folder, components from the `cs-*` tags, Patterns
+from `<!-- pattern: name -->` markers, status from the manifest, and Connections. Front matter carries only
+the title, description, category, a Screen's `states:` labels, a Flow's steps and a raise-only
+`status: experimental`. One plugin, `src/plugins/remark-inspiration.js`, builds the shell for all three
+tiers from plain `##` sections in the order #145 fixed; an unknown section or a missing required one fails
+the build.
+
+- Look for: a component list, pattern list, status or Used in written by hand; a status lowered; tab markup
+  or a new `##` name in an entry without the plugin change.
+- A marker is `<!-- pattern: name -->` or `<!-- /pattern -->`. `checkPatternMarkers` fails the build on
+  anything else shaped like one, and every path that hands markup to a reader goes through
+  `stripPatternMarkers`; a new copy or display path that skips it ships the markers.
+- A Screen is one HTML file per State under `public/assets/examples/inspiration/screens/` (`<name>.html`,
+  `<name>.<state>.html`). Each is a whole document, run through `check:a11y` (see `accessibility.md`).
+- Each Rule in an entry's `## Rules` either links the tool that checks it or says how to check it by hand
+  (`packages/docs/GLOSSARY.md`, **Rule**).
+- A `draft: true` entry may name an entry not written yet. A published entry that does fails the build, and
+  a draft never appears in a published entry's Used in.
+- A change to what the build guards adds a case to `scripts/inspiration.test.js`, which runs against
+  `scripts/fixtures/inspiration/` rather than the real entries.
+- Inspiration pages are not in `SKILL_PAGES` and do not ship; the changeset says so in its first line, as
+  `.changeset/inspiration-page-shell.md` does.
+
+**The plugin's skills point at the package's**
+
+`plugins/cornerstone/skills/cornerstone/SKILL.md` and `.../cornerstone-design/SKILL.md` are pointers. They name
+the installed copy (`node_modules/@cruglobal/cornerstone-components/dist/unbundled/skills/<name>/SKILL.md`) and
+the site's (`/dist/skills/<name>/SKILL.md` and `/dist/llms.txt`, which `scripts/link-library.js` copies from
+the bundled build). `check-docs-url.js` keeps their address current; nothing checks their paths. A change to
+where `packages/components/scripts/build.js` writes a skill, to a skill's name, or to what `link-library.js`
+copies updates both pointers in the same diff.
+
 **The checks are the gate**
 
 `npm run verify --workspace cornerstone-docs-site` runs Prettier, `astro check`, the build, then
 `check:assets`, `check:pages`, `check:tokens`, `check:components`, `check:anatomy`, `check:contrast` and
 `check:variants`, then `check:a11y`, which runs axe on every Inspiration Screen state file in Chromium, light and
-dark, `test:a11y`, its fixtures, and `test:displayed-source`, the cases for the code that `check:pages` skips. A
-page is not "working" until that ran. Each check asserts an invariant over the built output or the page source; a
+dark, `test:a11y`, its fixtures, `test:displayed-source`, the cases for the code that `check:pages` skips, and
+`test:inspiration`, the Inspiration page shell against a fixture library. A page is not "working" until that ran. Each check asserts an invariant over the built output or the page source; a
 diff that narrows one to an allowlist is a finding.
 
 **Storybook is roadmap** (UIUX-117, UIUX-91). Future tense.
@@ -105,32 +143,71 @@ diff that narrows one to an allowlist is a finding.
 - No literal address or bare root path: Yes/No/N/A
 - Every contrast ratio or colour a page prints is declared under its row's label in that page's `contrast`
   front matter, or declared `not measured` with a reason: Yes/No/N/A
+- Inspiration entries keep derived facts out of front matter, and their markers and sections build: Yes/No/N/A
+- A moved or renamed skill output updates `plugins/cornerstone/skills/*/SKILL.md`: Yes/No/N/A
 - `npm run verify` for the docs site ran: Yes/No/N/A
 
 ---
 
 ## Mined from merged PR history
 
-Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from.
+Rules derived from 96 merged PRs: #49–#169 (October 2026) and #228–#329 (November 2026). Each carries
+the PRs it came from.
 
 - **The base path flows through one helper for every path, not only assets.** `href`, `src`, `poster`,
   `cs-dropdown-item` values, redirects and sidebar links all 404'd on the first Pages deploy; #97 needed a
   second commit for the `value=` case the first missed; #100 was a third shape of the same bug. Any
   `/`-leading literal under `packages/docs/public/**` or `packages/docs/src/**` derives from `path()` or
   `DOCS_BASE_PATH`. `check-asset-paths.js`'s regex enumerates section slugs by hand while
-  `site-sections.js` owns that list; derive one from the other.
-  <!-- evidence: PR #94, #97, #98, #100 -->
+  `site-sections.js` owns that list; derive one from the other. Neither lists `inspiration` yet, so a
+  `value=` or script-string path into the Inspiration library goes unchecked until both do.
+  The same bug came back in `src/plugins/**` (#305) and as `new URL(DOCS_URL).pathname` in a check
+  script (#257); "`remarkBaseAssets` rewrites it later" does not hold for tests or callers outside Astro.
+  <!-- evidence: PR #94, #97, #98, #100, #257, #305 -->
 - **A directive or example is shipped output; check that it rendered, not that it built.** `:::added` and
   its siblings shipped as unlabelled `<div><ul>` through three releases before anyone looked; an
   `{.example}` fence with an invalid shadow declaration shipped into the skill. A new `:::name` needs a
   handler in `src/plugins/` and a `check-pages.js` assertion in the same diff; a changed example is loaded
   in a browser.
-  <!-- evidence: PR #138, #162, #169 -->
+  A `:::name` that `remark-markdown-features.js` does not rename ships as a bare `starlight-aside` (#262),
+  and the skill build strips every `::directive` line, so content an agent needs stays plain markdown.
+  <!-- evidence: PR #138, #162, #169, #262, #274, #279 -->
 - **Literal links and stale paths outside the check's reach.** `check-docs-url.js` covers
-  `packages/components` only, so `.github/ISSUE_TEMPLATE/config.yml`, `support.md` and `usage.md` carried
+  `packages/components` and `plugins/**/*.md` only, so `.github/ISSUE_TEMPLATE/config.yml`, `support.md` and `usage.md` carried
   hard-coded repository URLs that were fixed by hand; `contributing.md`, which ships in the skill, still
   named `docs-site/` after the move to `packages/docs`; a dependency's major version in `CLAUDE.md` went
   stale on the next bump. A move or rename greps `packages/docs/src/content/docs/**` and both `CLAUDE.md`
   files for the old path; repository links derive from `package.json`; `CLAUDE.md`'s claim that the check
   catches a literal "anywhere" is narrowed to what it globs.
   <!-- evidence: PR #81, #94, #110, #137, #161, #162, #165 -->
+
+- **A corrected claim is fixed in every copy.** When a PR corrects a claim, renames a heading or adds a
+  theme, grep the old wording across `packages/docs/src/content/docs/**`, component JSDoc,
+  `scripts/agent-skill.js`, `scripts/design-skill/references/`, the built `skills/**` and `llms.txt`,
+  `plugins/*/agents/`, `docs/standards/` and both `CLAUDE.md` files, and show before and after counts in the
+  body. One false theming claim from #239 took #245, #247, #249, #251 and #254 to clear, each fixing one
+  surface and deferring the rest.
+  <!-- evidence: PR #236, #239, #245, #247, #249, #251, #254, #260 -->
+- **No hand-typed counts or lists in shipped text.** In `agent-skill.js`, `SKILL_PAGES` pages and code
+  comments, flag a number or list another source owns: hue counts (Cru has 19, not 18 or 10), theme lists,
+  role defaults, CI durations, "every interactive component", literal package versions in install snippets.
+  Read it from `src/styles`, `tools/brands/` or `src/themer.js`, or guard it in `check-pages.js` or
+  `verify:skills`. `agent-skill.js` still says Angular works out of the box while `frameworks.md` marks it
+  unsupported.
+  <!-- evidence: PR #247, #250, #251, #260, #264, #274, #276, #278, #323 -->
+- **Check the built skill, not the page.** For an edit under `packages/docs/src/content/docs/`, check the page
+  against `SKILL_PAGES`: a new guide meant for agents adds its line there in the same diff, and a changed
+  page shows its new text in the built `skills/**/references/` file (and `llms.txt` or
+  `custom-elements.json` where they apply). A new utility class also updates
+  `scripts/design-skill/references/composition.md`. Flag a changeset that credits a page outside
+  `SKILL_PAGES` with a skill change, or says nothing ships when a `SKILL_PAGES` page changed.
+  <!-- evidence: PR #245, #246, #247, #250, #253, #254, #256, #261, #301, #303, #304, #323 -->
+- **No Web Awesome or Font Awesome leftovers.** Flag upstream theme and palette names (Awesome, Shoelace,
+  Base, Bright), Font Awesome icon names in `{.example}` fences (they draw nothing; Cornerstone uses Material
+  Symbols names such as `lightbulb`), asset paths to files removed at the fork, and CSS scoped to selectors
+  no built page has.
+  <!-- evidence: PR #247, #251, #262, #274 -->
+- **An unknown name fails the build.** A remark directive, generator or data table keyed by a theme, palette
+  or file name throws on an unknown or missing name instead of falling back to Cru. A wrong name that
+  builds clean and leaves the frame on Cru (#250) is a finding.
+  <!-- evidence: PR #247, #250, #251 -->
