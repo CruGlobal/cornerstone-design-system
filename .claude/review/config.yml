@@ -578,6 +578,14 @@ reviews_run: local
 # cannot remove the rule for itself.
 # Nor does it approve a release: only the changesets "chore: version packages" PR
 # writes the CHANGELOGs, and merging it publishes to npm, which is a maintainer's call.
+# Nor a change to what steers or guards agents: any CLAUDE.md or AGENTS.md (the root
+# CLAUDE.md holds the rules for who approves and merges), docs/agents/, the plugins and
+# marketplace shipped to consumers, or the workflows (CI, release, the approver itself).
+# Agents merge their own approved PRs, so one must not be able to rewrite its own
+# instructions or guardrails and merge the change.
+# Nor the supply chain: dependencies, npm and changesets config, the Node version, and
+# build-tools, which all run inside release.yml with publish rights. These get a person,
+# as Dependabot PRs do.
 human_approval:
   paths:
     - '.claude/**'
@@ -585,6 +593,19 @@ human_approval:
     - 'packages/components/ast-grep/**'
     - 'packages/components/sgconfig.yml'
     - 'packages/*/CHANGELOG.md'
+    - '**/CLAUDE.md'
+    - '**/CLAUDE.local.md'
+    - '**/AGENTS.md'
+    - '.github/**'
+    - 'docs/agents/**'
+    - 'plugins/**'
+    - '.claude-plugin/**'
+    - '**/package.json'
+    - 'package-lock.json'
+    - '**/.npmrc'
+    - '.changeset/config.json'
+    - '.tool-versions'
+    - 'packages/build-tools/**'
 
 # ── Index layer: file-level import graph for impact analysis ──────────────────
 # The resolver tries `<spec>` then `<spec> + ext`, so a NodeNext specifier like
