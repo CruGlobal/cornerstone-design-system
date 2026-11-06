@@ -8,11 +8,12 @@ library's themes live in `packages/components/src/styles/` as three cascade tier
 destination is one generator deriving both from a brand's knobs; until then, every change is measured
 against "adding a brand means adding a knob file and nothing else".
 
-**Applies when the diff touches** `packages/tokens/**`,
-`packages/components/src/styles/color/**`, `packages/components/src/styles/themes/**`, `layers.css`,
-`size.styles.ts`, `variants.styles.ts`, `packages/components/tools/**`, or any line carrying `_ref`, `_sys`,
-`_cmp`, `$value`, `--cs-color-`, `--cs-font-size`, `--cs-border-radius`, `--cs-form-control-height`,
-`@layer cs-`, `.cs-theme-`, `.cs-light` or `.cs-dark`.
+**Applies when the diff touches** `packages/tokens/**`, `packages/components/src/styles/color/**`,
+`packages/components/src/styles/themes/**`, `packages/components/src/styles/layers.css`,
+`packages/components/src/styles/cornerstone.css`, `packages/components/src/styles/component/size.styles.ts`,
+`packages/components/src/styles/component/variants.styles.ts`, `packages/components/tools/**`, or any line
+carrying `_ref`, `_sys`, `_cmp`, `$value`, `--cs-color-`, `--cs-font-size`, `--cs-border-radius`,
+`--cs-form-control-height`, `@layer cs-`, `.cs-theme-`, `.cs-light`, `.cs-dark` or `palette.mjs`.
 
 ---
 
@@ -76,7 +77,8 @@ without the script that emits them is a hand-copy (see the mined rules).
 
 ## Mined from merged PR history
 
-Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from.
+Rules derived from 96 merged PRs: #49–#169 (October 2026) and #228–#329 (November 2026). Each carries
+the PRs it came from.
 
 - **Fix one context with a scoped role, never by retuning the shared role.** When `primary.default` or
   `<status>.default` fails in one mode or on one surface, add a scoped role in all four `sys/*.json`
@@ -101,3 +103,16 @@ Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from
   old values, including a 1.82:1 danger pair with `contrastText` set so MUI's own fallback cannot rescue it.
   A PR adding to `libraries/` ships the generator and a check that the committed output matches it.
   <!-- evidence: PR #49, #50 -->
+
+- **Fix a brand in its knob, and trace every value.** `src/styles/themes/*.css` and
+  `src/styles/color/{palettes,variants}/*.css` are generated; a fix goes in `tools/brands/<brand>.json` or
+  `tools/palette.mjs`, with proof that `node tools/palette.mjs <brand>` reproduces it and other brands'
+  output is byte-identical. Every hex in a knob file appears in that brand's `_ref.color.<brand>` layer of
+  `packages/tokens/tokens/ref.json`, or is labelled borrowed or synthesized with its source. #239's knob
+  file claimed its values matched the ref layer while one blue appeared nowhere in the repo.
+  <!-- evidence: PR #239, #246 -->
+- **Follow the whole `@import` chain before saying what a stylesheet loads.** A claim that a theme does or
+  does not load something traces `themes/<x>` to `color/palettes/<x>` to `palettes/base` to
+  `color/variants`, or measures computed values in a browser. #247 reported that Default skips the variant
+  colours from direct imports only, and #251 disproved it.
+  <!-- evidence: PR #247, #251 -->
