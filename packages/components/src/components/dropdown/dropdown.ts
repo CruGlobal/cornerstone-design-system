@@ -241,6 +241,7 @@ export default class CsDropdown extends CornerstoneElement {
       return;
     }
 
+    const focused = [...activeElements()].pop();
     const showEvent = new CsShowEvent();
     this.dispatchEvent(showEvent);
     if (showEvent.defaultPrevented) {
@@ -267,14 +268,39 @@ export default class CsDropdown extends CornerstoneElement {
 
     // In case its still trying to hide, remove the class to cancel the hide animation.
     this.menu.classList.remove('hide');
-    await animateWithClass(this.menu, 'show'); // Animate the menu div
-
-    const items = this.getItems();
-    if (items.length > 0) {
-      items.forEach((item, index) => (item.active = index === 0));
-      items[0].focus({ preventScroll: true });
+    const animation = animateWithClass(this.menu, 'show'); // Animate the menu div
+    await this.popup.updateComplete;
+    // Initial anchor slot changes can restart the popup on the next frame.
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    if (!this.open || !this.isConnected) {
+      return;
     }
 
+    const submenu = this.getCurrentSubmenuItem();
+    const items = submenu ? this.getSubmenuItems(submenu) : this.getItems();
+    const content = this.defaultSlot.assignedElements({ flatten: true });
+    const activeEls = [...activeElements()];
+    const focusedContent = activeEls.find(
+      (element) =>
+        element instanceof HTMLElement &&
+        element.closest('cs-dropdown') === this &&
+        !element.matches(':disabled, [disabled]') &&
+        content.some((root) => root.contains(element)),
+    );
+
+    // Input received while the popup becomes usable takes precedence over initial focus.
+    if (focusedContent || activeEls.pop() === focused) {
+      const initialItem = focusedContent ?? items[0];
+      items.forEach((item) => (item.active = item === initialItem));
+      if (!focusedContent) {
+        items[0]?.focus({ preventScroll: true });
+      }
+    }
+
+    await animation;
+    if (!this.open || !this.isConnected) {
+      return;
+    }
     this.dispatchEvent(new CsAfterShowEvent());
   }
 
@@ -327,19 +353,9 @@ export default class CsDropdown extends CornerstoneElement {
     const currentSubmenuItem = this.getCurrentSubmenuItem();
     const isInSubmenu = !!currentSubmenuItem;
 
-    let items: CsDropdownItem[];
-    let activeItem: CsDropdownItem | undefined;
-    let activeItemIndex: number;
-
-    if (isInSubmenu) {
-      items = this.getSubmenuItems(currentSubmenuItem);
-      activeItem = items.find((item) => item.active || item === activeElement);
-      activeItemIndex = activeItem ? items.indexOf(activeItem) : -1;
-    } else {
-      items = this.getItems();
-      activeItem = items.find((item) => item.active || item === activeElement);
-      activeItemIndex = activeItem ? items.indexOf(activeItem) : -1;
-    }
+    const items = isInSubmenu ? this.getSubmenuItems(currentSubmenuItem) : this.getItems();
+    const activeItem = items.find((item) => item === activeElement) ?? items.find((item) => item.active);
+    const activeItemIndex = activeItem ? items.indexOf(activeItem) : -1;
 
     let itemToSelect: CsDropdownItem | undefined;
 
