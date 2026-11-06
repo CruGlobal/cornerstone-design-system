@@ -40,6 +40,23 @@ describe('<cs-random-content>', () => {
           `);
           await expect(el).to.be.accessible();
         });
+
+        it('should anchor the live region so it cannot overflow the host', async () => {
+          // An absolutely positioned box with no top or left keeps its static position, which can sit past the
+          // host's bottom edge and give it a 1px scrollbar; anchored at 0, 0 it cannot.
+          const el = await fixture<CsRandomContent>(html`
+            <cs-random-content>
+              <span>A</span>
+              <span>B</span>
+            </cs-random-content>
+          `);
+          const liveRegion = el.shadowRoot!.querySelector<HTMLElement>('[role="status"]')!;
+          const style = getComputedStyle(liveRegion);
+
+          expect(style.position).to.equal('absolute');
+          expect(style.top).to.equal('0px');
+          expect(style.left).to.equal('0px');
+        });
       });
 
       describe('default behavior', () => {
