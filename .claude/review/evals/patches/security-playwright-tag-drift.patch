@@ -1,0 +1,36 @@
+diff --git a/.changeset/playwright-1-56.md b/.changeset/playwright-1-56.md
+new file mode 100644
+--- /dev/null
++++ b/.changeset/playwright-1-56.md
+@@ -0,0 +1,5 @@
++---
++'@cruglobal/cornerstone-components': patch
++---
++
++Changed: Run the component tests on Playwright 1.56.0.
+diff --git a/packages/components/package.json b/packages/components/package.json
+index 7a5bf55..d42a22e 100644
+--- a/packages/components/package.json
++++ b/packages/components/package.json
+@@ -152,7 +152,7 @@
+     "open": "^11.0.0",
+     "ora": "^8.1.1",
+     "pascal-case": "^3.1.2",
+-    "playwright": "1.55.1",
++    "playwright": "1.56.0",
+     "plop": "^4.0.1",
+     "prettier": "^3.8.3",
+     "prismjs": "^1.29.0",
+diff --git a/packages/docs/package.json b/packages/docs/package.json
+index 136b266..565168b 100644
+--- a/packages/docs/package.json
++++ b/packages/docs/package.json
+@@ -42,7 +42,7 @@
+     "axe-core": "^4.13.0",
+     "gray-matter": "^4.0.3",
+     "mdast-util-from-markdown": "^2.0.3",
+-    "playwright": "1.55.1",
++    "playwright": "1.56.0",
+     "prettier": "^3.8.3",
+     "prismjs": "^1.30.0",
+     "remark-directive": "^4.0.0",

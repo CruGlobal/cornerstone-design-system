@@ -72,6 +72,16 @@ function bumpLevelEntries(body) {
   return bumpLevel ? entries.map(withoutTrailingBlankLines) : null;
 }
 
+/**
+ * The summary with its first word capitalised, since the prefix that started the sentence is gone. Only a
+ * plain lowercase word changes; code in backticks and names such as `cs-button` or `llms.txt` stay as written.
+ */
+function capitalised(summary) {
+  const word = /^[a-z]+(?=[\s,;:!?]|\.(?:\s|$)|$)/.exec(summary);
+
+  return word ? summary[0].toUpperCase() + summary.slice(1) : summary;
+}
+
 /** An entry with its category prefix removed, and the category it declared (`null` for none). */
 function categorise([first, ...rest]) {
   const attribution = ATTRIBUTION.exec(first);
@@ -81,7 +91,7 @@ function categorise([first, ...rest]) {
   return declared
     ? {
         name: declared.name,
-        lines: [(head + declared.rest).trimEnd(), ...rest],
+        lines: [(head + capitalised(declared.rest)).trimEnd(), ...rest],
       }
     : { name: null, lines: [first, ...rest] };
 }

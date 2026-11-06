@@ -11,6 +11,7 @@ import { remarkChangelog } from './src/plugins/remark-changelog.js';
 import { remarkComponentApi } from './src/plugins/remark-component-api.js';
 import { remarkComponentBrowser } from './src/plugins/remark-component-browser.js';
 import { remarkExamples } from './src/plugins/remark-examples.js';
+import { remarkInspiration } from './src/plugins/remark-inspiration.js';
 import { remarkMarkdownFeatures } from './src/plugins/remark-markdown-features.js';
 import { remarkPageIndex } from './src/plugins/remark-page-index.js';
 import { remarkRoadmap } from './src/plugins/remark-roadmap.js';
@@ -94,6 +95,9 @@ export default defineConfig({
       remarkPlugins: [
         remarkDirective,
         remarkComponentApi,
+        // Before remarkMarkdownFeatures and remarkExamples for the same reason as the API plugin: it moves a
+        // Pattern's example fences into the workbench, and those two must still find them there.
+        remarkInspiration,
         remarkComponentBrowser,
         remarkPageIndex,
         remarkChangelog,
@@ -264,6 +268,12 @@ export default defineConfig({
             type: 'module',
             src: asset('/scripts/component-browser.js'),
           },
+        },
+        // The Experimental pill and the "and N more" link on Inspiration pages. Self-guarding like the
+        // browse page's script. See src/plugins/remark-inspiration.js.
+        {
+          tag: 'script',
+          attrs: { type: 'module', src: asset('/scripts/inspiration.js') },
         },
         // Carries the navigation's scroll position across a route change. Full page loads mean the sidebar
         // rebuilds every click, and without this a tree scrolled halfway down snapped back to the top.

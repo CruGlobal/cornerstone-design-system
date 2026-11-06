@@ -2,6 +2,8 @@
 
 A generic baseline, followed by where Cornerstone's existing helpers live; keep both.
 
+Applies to every diff.
+
 This is advisory. Its job is to make this diff smaller and simpler — not to restyle the
 codebase, and not to propose generalizations. Report only cleanups the author can act on inside
 this PR.
@@ -20,6 +22,8 @@ this PR.
   substantial reimplementation of an existing, tested helper, or a demonstrable algorithmic problem on a
   data path that grows with users or records
 - A real bug noticed while reading is still reported as a bug
+- On agent-review's 1-10 scale, where 7 blocks: a pure cleanup is 1-4, the two exceptions above are 5-6,
+  and only a real bug is rated 7 or higher
 
 **Proof requirements** — every finding cites evidence the author can check:
 
@@ -79,6 +83,18 @@ Grep these before accepting a new helper, and cite the hit at file:line:
 - Dependencies already carried: Lit's `classMap`, `ifDefined` and `live` directives; `@floating-ui/dom`;
   `@shoelace-style/animations` and `@shoelace-style/localize`; `nanoid`; `composed-offset-position`;
   `@ctrl/tinycolor`; `colorjs.io`.
+- `packages/build-tools/component-api.js`: `loadComponents()`, `getComponent()` and `getApiSections()`,
+  the manifest reader the docs plugins, the docs checks and `agent-skill.js` share; and
+  `changelog-categories.js` for the changelog's category prefixes. `check-tokens.js` and `make-react.js`
+  still parse `custom-elements.json` themselves; do not add another.
+- `packages/docs/src/`: `path()` and `stripBase()` (`site-sections.js`) and the Inspiration model
+  (`inspiration.js`: `loadInspiration`, `patternMarkers`, `stripPatternMarkers`, `tagsIn`, `defaultPaths`,
+  `SCREENS_URL`). `packages/docs/scripts/displayed-source.js`: `withoutDisplayedSource` and `withoutCode`,
+  for reading a built page without the source it displays. `check-a11y.js` re-derives the Screens path and
+  `check-asset-paths.js` keeps its own `stripCodeBlocks`; flag a third copy of either.
+- `packages/components/src/internal/test/`: the test helpers (`fixtures`, `runFormControlBaseTests`,
+  `expectEvent`, `finishAnimations`, `settleAnimations`, `useFakeFrameClock`, `expectAnimationDuration`,
+  `expectNoMotion`, `loadStylesheet`). A new test utility checks here first.
 
 The library is a fork whose reasons are unwritten, so an inherited mechanism and a new one doing the same
 job will coexist unnoticed. Prefer extending the inherited one.
@@ -87,7 +103,8 @@ job will coexist unnoticed. Prefer extending the inherited one.
 
 ## Mined from merged PR history
 
-Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from.
+Rules derived from 96 merged PRs: #49–#169 (October 2026) and #228–#329 (November 2026). Each carries
+the PRs it came from.
 
 - **AI failure mode: the same paragraph in five places.** When a diff carries one explanatory story in the
   changeset, a 20-line workflow comment, a JSDoc block, `CLAUDE.md` and the PR body, keep it in the PR
@@ -95,8 +112,9 @@ Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from
   never a CI run number, a minute count, or an ordering note the code already shows.
   <!-- evidence: PR #100, #103, #110, #112, #113, #114 -->
 - **Duplicated resolution, dead options, and churn riding along.**
-  `dirname(dirname(fileURLToPath(import.meta.url)))` appears in seven files under `packages/docs` after
-  `build-tools/workspace.js` became the single seam. Flag another copy, an option threaded into a function
+  `dirname(dirname(fileURLToPath(import.meta.url)))` is still repeated across `packages/docs`,
+  including in files written after this rule (`check-a11y.js`, `check-contrast.js`, `src/inspiration.js`),
+  although `build-tools/workspace.js` exports `docsDir()` for it. Flag another copy, an option threaded into a function
   that ignores it, and formatting-only churn or an unrelated fix mixed into a CI or import change; split
   those into their own commits.
   <!-- evidence: PR #94, #98 -->
@@ -105,3 +123,9 @@ Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from
   ticket that will wire it. The alert, toast, chip and tabs tokens are read by no file in
   `packages/components/src`, `packages/docs` or `packages/build-tools`.
   <!-- evidence: PR #51, #52, #53, #54 -->
+
+- **One escape helper, one file walker.** Flag a new local `escape()` in `packages/docs/src/plugins/**` or
+  `packages/docs/src/*.js` (six copies exist and none escapes `'`; UIUX-279), and a new `readdirSync`
+  walker or copied `filesWithExtension` in a check script. Reuse `globbySync`, as `check-asset-paths.js`
+  does, and `scripts/displayed-source.js`.
+  <!-- evidence: PR #257, #260, #305 -->

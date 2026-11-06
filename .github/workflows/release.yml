@@ -10,6 +10,7 @@ permissions:
   contents: write
   pull-requests: write
   id-token: write
+  actions: write # to start CI on the release pull request
 
 jobs:
   release:
@@ -29,6 +30,7 @@ jobs:
       - run: npm run validate
       - run: npm run build
       - uses: changesets/action@v1
+        id: changesets
         with:
           publish: npm run release
           version: npm run version
@@ -36,3 +38,11 @@ jobs:
           title: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # The release pull request is opened and pushed with GITHUB_TOKEN, which starts no workflow, so it
+      # would never report `CI gate`. A dispatch is the one event that token can start.
+      - name: Run CI on the release pull request
+        if: steps.changesets.outputs.pullRequestNumber != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run ci.yml --ref changeset-release/main
