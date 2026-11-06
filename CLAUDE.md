@@ -93,8 +93,9 @@ Merging to `main` triggers `release.yml`. `changesets/action` will:
 
 Merging the release PR is Cornerstone's deploy, and a maintainer does it by hand. The bot's pushes leave
 that PR's CI run waiting for approval, so: approve the run for the PR's current head commit ("Approve and
-run workflows" on the PR), wait for `CI gate`, approve the PR, merge. Every merge to `main` re-pushes the PR, which holds a new run and
-dismisses the earlier approval, so do all four steps right before publishing. Never automate them.
+run workflows" on the PR), wait for `CI gate`, approve the PR, merge. Every merge to `main` re-pushes the
+PR, which holds a new run and dismisses the earlier approval, so do all four steps right before
+publishing. Never automate them.
 
 Why a first publish is done by hand, where provenance is declared (and why not in a root `.npmrc`), and why
 `prepublishOnly` only builds: `.claude/rules/release-publishing.md`, which loads when release config is touched.
