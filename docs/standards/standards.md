@@ -4,6 +4,8 @@ A generic baseline, followed by Cornerstone's own checklist; both apply. Every i
 repo's own conventions override it. Check each **bold group** below and raise anything non-compliant as a
 finding.
 
+Applies to every diff.
+
 **Exports & Naming**
 
 - [ ] Export style matches the repo's convention (named vs default) — don't introduce a second style
@@ -63,16 +65,17 @@ repository unless a diff genuinely introduces one of those concerns.
 
 ### Commands (quote these exactly; don't invent equivalents)
 
-| Purpose                                                                   | Command                                                              |
-| ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Lint the token tree                                                       | `npm run validate --workspace @cruglobal/cornerstone-design-system`  |
-| Library static gate (prettier, build, eslint, cspell, tsc, five checks)   | `npm run verify:static --workspace @cruglobal/cornerstone-components` |
-| Library browser suite                                                     | `npm test --workspace @cruglobal/cornerstone-components`             |
-| Library full gate                                                         | `npm run verify --workspace @cruglobal/cornerstone-components`       |
-| Docs site gate                                                            | `npm run verify --workspace cornerstone-docs-site`                   |
-| One component, watching                                                   | `npm run test:component -- --watch --group <name>`                   |
-| New component                                                             | `npm run create`                                                     |
-| Add a changeset                                                           | `npx changeset`                                                      |
+| Purpose                                                                              | Command                                                               |
+| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| Lint the token tree                                                                  | `npm run validate --workspace @cruglobal/cornerstone-design-system`   |
+| Library static gate (prettier, build, eslint and ast-grep, cspell, tsc, five checks) | `npm run verify:static --workspace @cruglobal/cornerstone-components` |
+| Library browser suite                                                                | `npm test --workspace @cruglobal/cornerstone-components`              |
+| Library full gate                                                                    | `npm run verify --workspace @cruglobal/cornerstone-components`        |
+| Docs site gate                                                                       | `npm run verify --workspace cornerstone-docs-site`                    |
+| Build tools' tests                                                                   | `npm run verify --workspace @cruglobal/cornerstone-build-tools`       |
+| One component, watching                                                              | `npm run test:component -- --watch --group <name>`                    |
+| New component                                                                        | `npm run create`                                                      |
+| Add a changeset                                                                      | `npx changeset`                                                       |
 
 **What lint already enforces** (do not re-flag): Prettier; ESLint `import-x/order` with no blank lines
 between groups; `no-console` (warn and error allowed); `eqeqeq` with `null: ignore`, a recorded exception
@@ -80,6 +83,14 @@ between groups; `no-console` (warn and error allowed); `eqeqeq` with `null: igno
 `@typescript-eslint/no-explicit-any` as an error in `src` and off in tests; `curly`, `no-var`,
 `prefer-const`; cspell over `src` and `scripts`; `tsc --noEmit` under NodeNext, which also rejects a
 relative import missing its `.js` extension.
+
+`npm run lint` in `packages/components` also runs the six ast-grep rules in `ast-grep/rules/`
+(`sgconfig.yml`), after `ast-grep test` checks each against `ast-grep/rule-tests/`. Three are errors that
+fail the run, so do not re-flag them: `no-direct-litelement`, `no-focused-tests` and
+`no-foreign-token-vocabulary`. Three only print, so a hit on an added line is still a finding:
+`no-static-styles` (warning), `handler-naming` and `no-raw-hex-in-component-styles` (info). The CSS rules
+see only a `css` template with no `${}` or escape in it, so they skip `icon.styles.ts` and
+`spinner.styles.ts`.
 
 ### **Components**
 
@@ -117,6 +128,9 @@ relative import missing its `.js` extension.
 - [ ] Uses `packages/components/GLOSSARY.md` terms: *Cornerstone Components* for the library and *Cornerstone*
       only for the whole; *ministry* and *sub-brand*, not tenant; *palette* and *theme* as separate axes;
       *brand* for the variant and *primary* only for the action colour
+- [ ] Inspiration library prose uses `packages/docs/GLOSSARY.md` terms: *Pattern*, *Screen* and *Flow*
+      (the three *tiers*), a Screen's *States* (never *variant*), *Goal* for Screens and Flows and *Kind*
+      for Patterns (never *category* on its own), *Reasoning* and *Rule*, and *Connections*
 - [ ] Comments carry the non-obvious *why* in one line; a comment restating the next line is deleted
 
 ### **Pull request**
@@ -128,7 +142,8 @@ relative import missing its `.js` extension.
 
 ## Mined from merged PR history
 
-Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from. The first two are the most
+Rules derived from 96 merged PRs: #49–#169 (October 2026) and #228–#329 (November 2026). Each carries
+the PRs it came from. The first two are the most
 repeated defect in this repository's history.
 
 - **AI failure mode: the changeset essay.** A `.changeset/*.md` body is one or two lines or a short bullet
@@ -147,14 +162,16 @@ repeated defect in this repository's history.
   agreement in the thread, and `CLAUDE.md` still says major. Docs pages reach the package only through
   `SKILL_PAGES` and `components/*.md`; a docs-only changeset says in its first line whether package output
   changes.
-  <!-- evidence: PR #50, #55, #76, #83, #84, #85, #86, #88, #89, #90, #91, #97, #98, #100, #103, #109, #110, #137, #140, #161 -->
+  <!-- evidence: PR #50, #55, #76, #83, #84, #85, #86, #88, #89, #90, #91, #97, #98, #100, #103, #109, #110, #137, #140, #161, #228, #234, #235, #237, #239, #245, #246, #247, #250, #262, #263 -->
 - **One concern per PR, and the diff is the one the body describes.** A fix found while doing something
   else gets its own PR and changeset. Reject a body with an "Also in this PR" section, a changeset that
   needs two prefixes, a `CLAUDE.md` policy edit riding on a feature, or a diff whose
   `gh pr diff --name-only` lists files the body never mentions. Never push to a branch after its PR merges;
   a follow-up is a new branch off `origin/main`. Base every PR on `main`: a stack retargeted onto a
   reviewed branch carried eight PRs under one two-file review.
-  <!-- evidence: PR #55, #83, #84, #85, #137, #138, #153, #162, #165, #169 -->
+  When a PR breaks a written rule on purpose, the body names the rule and who approved the exception, and
+  each extra concern still gets its own changeset.
+  <!-- evidence: PR #55, #83, #84, #85, #137, #138, #153, #162, #165, #169, #260, #261, #262, #274, #276, #279 -->
 - **AI failure mode: "verified" by a command that does not exercise the change.** A verification section
   names the command that runs the changed path, and cites a tool only for what it measures:
   `npm run validate` proves aliasing legality, `scripts/token-hash.mjs` proves Figma parity, `npm pack`
@@ -166,10 +183,16 @@ repeated defect in this repository's history.
   under "follow-up commits coming" or defers with "tracked separately", or a thread that ends on "latent
   risk" or "possibly worth its own fix", gets a `#NNN` or `UIUX-NNN` per item, or the fix lands in the
   diff. Of the items deferred this way across eleven PRs, one landed.
-  <!-- evidence: PR #49, #50, #51, #52, #53, #88, #89, #90, #91, #92, #94 -->
+  <!-- evidence: PR #49, #50, #51, #52, #53, #88, #89, #90, #91, #92, #94, #257, #261, #282, #296, #305, #323 -->
 - **Prose next to changed behaviour is part of the diff.** A PR that changes how releases, the changelog
   or a directory layout works updates the instructions describing the old way in the same diff.
   `packages/components/CLAUDE.md` kept telling agents to hand-edit an Unreleased changelog section after
   `::changelog` replaced it; `contributing.md`, which ships inside the agent skill, still names `docs-site/`;
   a dependency's major version written into prose went stale on the next bump.
-  <!-- evidence: PR #81, #94, #138, #163 -->
+  This includes `docs/standards/*.md` and `plugins/*/agents/*.md`: #247 saw a wrong theming rule in
+  `tokens-and-theming.md` and left it, so review enforced it until #249.
+  <!-- evidence: PR #81, #94, #138, #163, #247, #249, #257, #260, #282, #296, #305 -->
+- **The Evidence section says what did not run.** It names the gates it skipped (the full browser suite, a
+  screen reader, forced colours, stable Safari) and limits its claims to what ran. Flag "tests pass" after
+  only a `--group` run.
+  <!-- evidence: PR #256, #260, #261 -->
