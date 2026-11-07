@@ -134,7 +134,9 @@ describe('<cs-switch>', () => {
           const track = el.shadowRoot!.querySelector<HTMLElement>('[part~="control"]')!;
           const thumb = el.shadowRoot!.querySelector<HTMLElement>('[part~="thumb"]')!;
 
+          // A key press puts the page in keyboard mode so :focus-visible matches, whatever ran before.
           // Not Tab: WebKit skips checkboxes when tabbing unless full keyboard access is on
+          await sendKeys({ press: 'Shift' });
           el.focus();
           await waitUntil(
             () => getComputedStyle(track).outlineStyle !== 'none',
