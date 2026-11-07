@@ -29,7 +29,8 @@ import styles from './dialog.styles.js';
  * @dependency cs-button
  *
  * @slot - The dialog's main content.
- * @slot label - The dialog's label. Alternatively, you can use the `label` attribute.
+ * @slot label - The dialog's label. Alternatively, you can use the `label` attribute. When `without-header` is set, a slotted label
+ *  does not name the dialog; use the attribute.
  * @slot header-actions - Optional actions to add to the header. Works best with `<cs-button>`.
  * @slot footer - The dialog's footer, usually one or more buttons representing various options.
  *
@@ -263,7 +264,8 @@ export default class CsDialog extends CornerstoneElement {
   render() {
     const hasHeader = !this.withoutHeader;
     const hasFooter = this.hasSlotController.test('footer', 'ssrFooter');
-    const hasLabel = this.label.length > 0 || this.hasSlotController.test('label', 'ssrLabel');
+    // `Boolean`, not `.length`: a framework binding can pass `undefined` for the label.
+    const hasLabel = Boolean(this.label) || this.hasSlotController.test('label', 'ssrLabel');
 
     return html`
       <dialog
