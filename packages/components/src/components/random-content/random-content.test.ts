@@ -41,9 +41,9 @@ describe('<cs-random-content>', () => {
           await expect(el).to.be.accessible();
         });
 
-        it('should anchor the live region so it cannot overflow the host', async () => {
+        it('should anchor the live region at the top-left of its containing block', async () => {
           // An absolutely positioned box with no top or left keeps its static position, which can sit past the
-          // host's bottom edge and give it a 1px scrollbar; anchored at 0, 0 it cannot.
+          // bottom edge of whatever contains it and give that box a 1px scrollbar; anchored at 0, 0 it cannot.
           const el = await fixture<CsRandomContent>(html`
             <cs-random-content>
               <span>A</span>
