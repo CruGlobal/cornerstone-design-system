@@ -1,3 +1,14 @@
 {
-  "agent": "cornerstone:daniel"
+  "agent": "cornerstone:daniel",
+  "extraKnownMarketplaces": {
+    "cruglobal": {
+      "source": {
+        "source": "github",
+        "repo": "CruGlobal/agent-review"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "agent-review@cruglobal": true
+  }
 }

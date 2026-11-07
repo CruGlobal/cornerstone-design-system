@@ -1,4 +1,4 @@
-import { aTimeout, expect, nextFrame, waitUntil } from '@open-wc/testing';
+import { aTimeout, expect, nextFrame, oneEvent, waitUntil } from '@open-wc/testing';
 import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
@@ -358,6 +358,37 @@ describe('<cs-dropdown>', () => {
           await aTimeout(100);
 
           expect(item.checked).to.be.true;
+        });
+      });
+
+      describe('rapid toggling', () => {
+        it('should keep its document listeners when reopened during the hide animation', async () => {
+          const el = await fixture<CsDropdown>(html`
+            <cs-dropdown>
+              <cs-button slot="trigger">Dropdown</cs-button>
+              <cs-dropdown-item>One</cs-dropdown-item>
+            </cs-dropdown>
+          `);
+          const afterHideSpy = sinon.spy();
+          el.open = true;
+          await el.updateComplete;
+          await settleAnimations(el);
+          el.addEventListener('cs-after-hide', afterHideSpy);
+
+          // Start closing, then reopen before the hide animation ends.
+          el.open = false;
+          await el.updateComplete;
+          const afterShow = oneEvent(el, 'cs-after-show');
+          el.open = true;
+          await afterShow;
+
+          expect(el.open).to.be.true;
+          expect(afterHideSpy.callCount).to.equal(0);
+
+          // Escape only closes the menu through the document listener the reopen has to put back.
+          await sendKeys({ press: 'Escape' });
+          await el.updateComplete;
+          expect(el.open).to.be.false;
         });
       });
 
@@ -738,6 +769,45 @@ describe('<cs-dropdown>', () => {
       expect(hidePopover.callCount).to.equal(1);
       expect(submenu.hidden).to.be.true;
       expect(parent.submenuOpen).to.be.false;
+    });
+
+    // Client-only, as above. The close hid the submenu once its animation ended even when the submenu had reopened
+    // in the meantime, leaving `submenuOpen` true with nothing on screen.
+    it('should keep the submenu open when it is reopened during the close animation', async () => {
+      const el = await fixtures[0]<HTMLDivElement>(html`
+        <div style="padding: 50px; --cs-hide-duration: 60ms;">
+          <cs-dropdown id="dropdown">
+            <cs-button slot="trigger">Dropdown</cs-button>
+            <cs-dropdown-item id="parent">
+              Parent
+              <cs-dropdown-item slot="submenu">Child</cs-dropdown-item>
+            </cs-dropdown-item>
+          </cs-dropdown>
+        </div>
+      `);
+      const dropdown = el.querySelector<CsDropdown>('#dropdown')!;
+      const parent = el.querySelector<CsDropdownItem>('#parent')!;
+      dropdown.open = true;
+      await dropdown.updateComplete;
+      await settleAnimations(dropdown);
+
+      const submenu = parent.submenuElement;
+      const hidePopover = sinon.spy(submenu, 'hidePopover');
+
+      await parent.openSubmenu();
+      await nextFrame();
+
+      const closed = parent.closeSubmenu();
+      await expectAnimationDuration(submenu, '--cs-hide-duration');
+      const reopened = parent.openSubmenu();
+      await closed;
+      await reopened;
+
+      expect(parent.submenuOpen).to.be.true;
+      expect(submenu.hidden).to.be.false;
+      expect(submenu.hasAttribute('data-visible')).to.be.true;
+      expect(parent.getAttribute('aria-expanded')).to.equal('true');
+      expect(hidePopover.callCount).to.equal(0);
     });
 
     // Client-only, as above.
