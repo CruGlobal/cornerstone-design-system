@@ -97,7 +97,7 @@ export default class CsAccordion extends CornerstoneElement {
     const closestItem = path.find(
       (el): el is CsAccordionItem => el instanceof Element && el.tagName.toLowerCase() === 'cs-accordion-item',
     );
-    if (!closestItem || !this.ownsItem(closestItem)) {
+    if (!closestItem || !this.ownsItem(closestItem) || closestItem.disabled) {
       return;
     }
 
