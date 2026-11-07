@@ -248,9 +248,10 @@ export default class CsDropdown extends CornerstoneElement {
       return;
     }
 
-    // if this dropdown is already open, do nothing
-    // (this can happen when cs-hide was cancelled)
-    if (this.popup.active) {
+    // Already open, as after a cancelled cs-hide: nothing to do. Mid-hide the popup is still active but the hide has
+    // already dropped this entry, along with the document listeners and the dismissible entry, so a reopen must put
+    // them all back.
+    if (openDropdowns.has(this)) {
       return;
     }
 
@@ -302,8 +303,12 @@ export default class CsDropdown extends CornerstoneElement {
     this.menu.classList.remove('show');
     await animateWithClass(this.menu, 'hide'); // Animate before hiding
 
-    // Sometimes this ends up out of sync. So make sure it aligns with `open`
-    this.popup.active = this.open; // Hide using cs-popup
+    // Reopened during the hide animation: the show branch owns the final state.
+    if (this.open) {
+      return;
+    }
+
+    this.popup.active = false; // Hide using cs-popup
     this.dispatchEvent(new CsAfterHideEvent());
   }
 

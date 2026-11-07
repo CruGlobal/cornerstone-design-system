@@ -1,4 +1,4 @@
-import { aTimeout, expect, nextFrame, waitUntil } from '@open-wc/testing';
+import { aTimeout, expect, nextFrame, oneEvent, waitUntil } from '@open-wc/testing';
 import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
@@ -358,6 +358,37 @@ describe('<cs-dropdown>', () => {
           await aTimeout(100);
 
           expect(item.checked).to.be.true;
+        });
+      });
+
+      describe('rapid toggling', () => {
+        it('should keep its document listeners when reopened during the hide animation', async () => {
+          const el = await fixture<CsDropdown>(html`
+            <cs-dropdown>
+              <cs-button slot="trigger">Dropdown</cs-button>
+              <cs-dropdown-item>One</cs-dropdown-item>
+            </cs-dropdown>
+          `);
+          const afterHideSpy = sinon.spy();
+          el.open = true;
+          await el.updateComplete;
+          await settleAnimations(el);
+          el.addEventListener('cs-after-hide', afterHideSpy);
+
+          // Start closing, then reopen before the hide animation ends.
+          el.open = false;
+          await el.updateComplete;
+          const afterShow = oneEvent(el, 'cs-after-show');
+          el.open = true;
+          await afterShow;
+
+          expect(el.open).to.be.true;
+          expect(afterHideSpy.callCount).to.equal(0);
+
+          // Escape only closes the menu through the document listener the reopen has to put back.
+          await sendKeys({ press: 'Escape' });
+          await el.updateComplete;
+          expect(el.open).to.be.false;
         });
       });
 
