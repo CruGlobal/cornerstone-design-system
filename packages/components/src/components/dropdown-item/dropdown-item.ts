@@ -255,6 +255,12 @@ export default class CsDropdownItem extends CornerstoneElement {
 
     if (!submenu.hidden) {
       await animateWithClass(submenu, 'hide');
+
+      // Reopened during the hide animation: the show owns the final state.
+      if (this.submenuOpen) {
+        return;
+      }
+
       if (submenu.isConnected) {
         submenu.hidden = true;
         submenu.removeAttribute('data-visible');
