@@ -200,7 +200,7 @@ export default css`
     align-self: stretch;
     align-items: center;
     justify-content: center;
-    inline-size: 1.5em;
+    min-inline-size: 1.5em;
     font-size: inherit;
     color: var(--cs-color-neutral-on-quiet);
     border: none;
@@ -226,6 +226,11 @@ export default css`
     &:active {
       color: color-mix(in oklab, currentColor, var(--cs-color-mix-active));
     }
+  }
+
+  /* Tags pad the combobox on the block axis; reach over that padding so the column still clears edge to edge. */
+  :host([multiple]) .combobox:has(.tags cs-tag) [part~='clear-button'] {
+    margin-block: calc(-1 * var(--_padding-with-tags));
   }
 
   /* Expand icon */
