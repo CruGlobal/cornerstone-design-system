@@ -1,5 +1,53 @@
 # @cruglobal/cornerstone-components
 
+## 0.10.1
+
+### Added
+
+- [#330](https://github.com/CruGlobal/cornerstone-design-system/pull/330) [`bccb567`](https://github.com/CruGlobal/cornerstone-design-system/commit/bccb5675e212b9eff70478ba90b40b79d0e4c1e8) Thanks [@rguinee](https://github.com/rguinee)! - agent-review's review config, with the review standards brought up to date. Repository tooling only; nothing that ships changes.
+
+- [#323](https://github.com/CruGlobal/cornerstone-design-system/pull/323) [`c958306`](https://github.com/CruGlobal/cornerstone-design-system/commit/c958306c2fe1d402e4583f3be7e7e6aec3df4bb8) Thanks [@rguinee](https://github.com/rguinee)! - A Go guide under Frameworks, and the `cornerstone` skill now ships it as `references/frameworks/go.md`.
+
+- [#303](https://github.com/CruGlobal/cornerstone-design-system/pull/303) [`2ac7017`](https://github.com/CruGlobal/cornerstone-design-system/commit/2ac70170f2055ced5937980839dafb53af3c050a) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - Connections to the documentation site's Inspiration library glossary. Docs only; nothing that ships changes.
+
+- [#305](https://github.com/CruGlobal/cornerstone-design-system/pull/305) [`cc3b0b3`](https://github.com/CruGlobal/cornerstone-design-system/commit/cc3b0b37d3bfcf1ef7c407c51c1c3818406ec3f5) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - The docs site's Inspiration page shell, with three draft entries. Docs site only; nothing that ships changes.
+
+- [#301](https://github.com/CruGlobal/cornerstone-design-system/pull/301) [`2565e66`](https://github.com/CruGlobal/cornerstone-design-system/commit/2565e66c4456c29e7350cb773ed12651305f3c91) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - Reasoning and Rule to the documentation site's Inspiration library glossary. Docs only; nothing that ships changes.
+
+### Changed
+
+- [#331](https://github.com/CruGlobal/cornerstone-design-system/pull/331) [`3742de3`](https://github.com/CruGlobal/cornerstone-design-system/commit/3742de3e6350fcfdf0b95bd0bdd8c1402546f3be) Thanks [@rguinee](https://github.com/rguinee)! - Dependabot and lockfile-only pull requests need no changeset unless they move a published package's dependency range. Repository process only; nothing that ships changes.
+
+- [#335](https://github.com/CruGlobal/cornerstone-design-system/pull/335) [`dd8df5c`](https://github.com/CruGlobal/cornerstone-design-system/commit/dd8df5cd7d2b2ccc583207fa4bf91bad17cdff8b) Thanks [@rguinee](https://github.com/rguinee)! - CLAUDE.md lists the manual steps for releasing. Repository process only; nothing that ships changes.
+
+- [#336](https://github.com/CruGlobal/cornerstone-design-system/pull/336) [`32c4de3`](https://github.com/CruGlobal/cornerstone-design-system/commit/32c4de35d025463bc699e205bdda4598a198a200) Thanks [@rguinee](https://github.com/rguinee)! - agent-review never approves the release pull request; a maintainer does. Repository tooling only; nothing that ships changes.
+
+- [#338](https://github.com/CruGlobal/cornerstone-design-system/pull/338) [`754e44f`](https://github.com/CruGlobal/cornerstone-design-system/commit/754e44f227a429d16f8d86ffedba214eab96d78e) Thanks [@rguinee](https://github.com/rguinee)! - The root `CLAUDE.md` says who approves and merges each kind of pull request. Repository process only; nothing that ships changes.
+
+### Removed
+
+- [#333](https://github.com/CruGlobal/cornerstone-design-system/pull/333) [`4315f54`](https://github.com/CruGlobal/cornerstone-design-system/commit/4315f54f40f6aa18074027a98476211977e889a8) Thanks [@rguinee](https://github.com/rguinee)! - The docs site's unused nginx image files. Docs tooling only; nothing that ships changes.
+
+### Fixed
+
+- [#304](https://github.com/CruGlobal/cornerstone-design-system/pull/304) [`4f85178`](https://github.com/CruGlobal/cornerstone-design-system/commit/4f85178867b9199ff9224fea0c66e1ad4d65ddfe) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - The docs site's Inspiration Screens axe check sets aside `cs-page`'s skip link under `region`, an axe-core shadow DOM bug now in the accessibility gap register. Docs tooling only; nothing that ships changes.
+
+- [#324](https://github.com/CruGlobal/cornerstone-design-system/pull/324) [`4f77305`](https://github.com/CruGlobal/cornerstone-design-system/commit/4f77305f51f23ce095d358626076fedcf95b90fb) Thanks [@rguinee](https://github.com/rguinee)! - A component's show or hide animation, and the `cs-after-show` or `cs-after-hide` that follows it, no longer ends early when an animation on content inside the component ends or is cancelled.
+
+- [#332](https://github.com/CruGlobal/cornerstone-design-system/pull/332) [`fdfdad4`](https://github.com/CruGlobal/cornerstone-design-system/commit/fdfdad43bd68a7885c68a358d370ccf31975a678) Thanks [@rguinee](https://github.com/rguinee)! - A changelog entry starts with a capital letter once the version step removes its category prefix.
+
+- [#296](https://github.com/CruGlobal/cornerstone-design-system/pull/296) [`b800c64`](https://github.com/CruGlobal/cornerstone-design-system/commit/b800c64368891e7a3bd8167aad95ddc5be6a0331) Thanks [@rguinee](https://github.com/rguinee)! - The docs site's page check skips code, so a `:::` directive, `::roadmap` or Starlight aside markup shown in a code span or block no longer fails it. Docs tooling only; nothing that ships changes.
+
+- [#342](https://github.com/CruGlobal/cornerstone-design-system/pull/342) [`fe7927d`](https://github.com/CruGlobal/cornerstone-design-system/commit/fe7927d9be425254682acf52ecb3beba6cdd32f6) Thanks [@rguinee](https://github.com/rguinee)! - A `cs-dropdown-item` submenu reopened during its close animation stays on screen instead of being hidden when the animation ends.
+
+- [#341](https://github.com/CruGlobal/cornerstone-design-system/pull/341) [`e639778`](https://github.com/CruGlobal/cornerstone-design-system/commit/e639778188d4ede44bd1e6e2326d0063024558c4) Thanks [@rguinee](https://github.com/rguinee)! - A `cs-dropdown` reopened during its hide animation listens for Escape and clicks outside again, and fires `cs-after-show` rather than `cs-after-hide`.
+
+- [#340](https://github.com/CruGlobal/cornerstone-design-system/pull/340) [`bb4200d`](https://github.com/CruGlobal/cornerstone-design-system/commit/bb4200de9d3f58134a570fccf954171c91e3e894) Thanks [@rguinee](https://github.com/rguinee)! - `cs-option` no longer waits on a `cs-combobox` element that is never registered, a promise that held a callback per option for the life of the page. Its parent lookups now name `cs-select` alone.
+
+- [#288](https://github.com/CruGlobal/cornerstone-design-system/pull/288) [`bcda2b4`](https://github.com/CruGlobal/cornerstone-design-system/commit/bcda2b40c5345c28836a65e06d74346eecbddd51) Thanks [@rguinee](https://github.com/rguinee)! - A loading `cs-button` keeps its label in the accessibility tree and sets `aria-busy`; the label is hidden with `opacity` rather than `visibility`, so slotted content is no longer hidden from assistive technology.
+
+- [#289](https://github.com/CruGlobal/cornerstone-design-system/pull/289) [`7ddd8bb`](https://github.com/CruGlobal/cornerstone-design-system/commit/7ddd8bb389f1bd715f0904f14d56a2765bbdd14f) Thanks [@rguinee](https://github.com/rguinee)! - `cs-input`'s password toggle is reachable from the keyboard and shows its own focus ring; the field's ring now appears only when the text input itself has focus, not when its inner buttons do. The clear and password-toggle buttons are square, with a pointer target the full height of the field.
+
 ## 0.10.0
 
 ### Breaking
