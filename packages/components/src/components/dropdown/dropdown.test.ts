@@ -605,7 +605,9 @@ describe('<cs-dropdown>', () => {
     });
   }
 
-  describe('opening focus', () => {
+  // Client-only: these tests pause the show animation a click starts and watch where focus lands while it runs.
+  // Hydration plays no part in that.
+  describe('opening focus (client-only)', () => {
     async function createDropdown() {
       return clientFixture<HTMLDivElement>(html`
         <div>
@@ -613,6 +615,7 @@ describe('<cs-dropdown>', () => {
             <button slot="trigger">Menu</button>
             <cs-dropdown-item value="one">One</cs-dropdown-item>
             <cs-dropdown-item value="two">Two</cs-dropdown-item>
+            <cs-dropdown-item value="three">Three</cs-dropdown-item>
             <input aria-label="Search" />
           </cs-dropdown>
           <button id="outside">Outside</button>
@@ -676,6 +679,69 @@ describe('<cs-dropdown>', () => {
         }
       });
     }
+
+    it('should keep the row active when a control inside it has focus', async () => {
+      const dropdown = await clientFixture<CsDropdown>(html`
+        <cs-dropdown style="--cs-show-duration: 1s">
+          <button slot="trigger">Menu</button>
+          <cs-dropdown-item>One</cs-dropdown-item>
+          <cs-dropdown-item>Two <input aria-label="Amount" /></cs-dropdown-item>
+        </cs-dropdown>
+      `);
+      const items = dropdown.querySelectorAll('cs-dropdown-item');
+      const input = dropdown.querySelector('input')!;
+      const animation = await startOpening(dropdown, input);
+      try {
+        expect(document.activeElement === input).to.be.true;
+        expect(items[0].active).to.be.false;
+        expect(items[1].active).to.be.true;
+      } finally {
+        animation.cancel();
+      }
+    });
+
+    it('should not fire cs-after-show or move focus when closed before it finishes opening', async () => {
+      const host = await createDropdown();
+      const dropdown = host.querySelector('cs-dropdown')!;
+      const outside = host.querySelector<HTMLElement>('#outside')!;
+      const afterShow = sinon.spy();
+      dropdown.addEventListener('cs-after-show', afterShow);
+      outside.focus();
+      dropdown.querySelector<HTMLButtonElement>('[slot="trigger"]')!.click();
+      await dropdown.updateComplete;
+      dropdown.open = false;
+      await oneEvent(dropdown, 'cs-after-hide');
+      await nextFrame();
+      expect(afterShow.called).to.be.false;
+      expect(document.activeElement === outside).to.be.true;
+    });
+
+    it('should not keep a row active from the last open when focus moved outside', async () => {
+      const host = await createDropdown();
+      const dropdown = host.querySelector('cs-dropdown')!;
+      const menu = dropdown.shadowRoot!.querySelector<HTMLElement>('[part="menu"]')!;
+      const items = dropdown.querySelectorAll('cs-dropdown-item');
+      const outside = host.querySelector<HTMLElement>('#outside')!;
+      let animation = await startOpening(dropdown);
+      await sendKeys({ press: 'ArrowDown' });
+      expect(items[1].active).to.be.true;
+      animation.finish();
+      await oneEvent(dropdown, 'cs-after-show');
+      menu.style.animationPlayState = '';
+      dropdown.open = false;
+      await oneEvent(dropdown, 'cs-after-hide');
+
+      dropdown.addEventListener('cs-show', () => outside.focus(), { once: true });
+      animation = await startOpening(dropdown);
+      try {
+        expect(document.activeElement === outside).to.be.true;
+        expect([...items].some((item) => item.active)).to.be.false;
+        await sendKeys({ press: 'ArrowDown' });
+        expect(document.activeElement === items[0]).to.be.true;
+      } finally {
+        animation.cancel();
+      }
+    });
 
     it('should preserve native autofocus on an input in grouped content', async () => {
       const dropdown = await clientFixture<CsDropdown>(html`

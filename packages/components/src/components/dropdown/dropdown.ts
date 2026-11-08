@@ -8,7 +8,7 @@ import { CsAfterShowEvent } from '../../events/after-show.js';
 import { CsHideEvent } from '../../events/hide.js';
 import { CsSelectEvent } from '../../events/select.js';
 import { CsShowEvent } from '../../events/show.js';
-import { activeElements } from '../../internal/active-elements.js';
+import { activeElements, getDeepestActiveElement } from '../../internal/active-elements.js';
 import { animateWithClass } from '../../internal/animate.js';
 import CornerstoneElement from '../../internal/cornerstone-element.js';
 import { customElement } from '../../internal/custom-element.js';
@@ -36,7 +36,8 @@ const openDropdowns = new Set<CsDropdown>();
  * @dependency cs-popup
  *
  * @event cs-show - Emitted when the dropdown is about to show.
- * @event cs-after-show - Emitted after the dropdown has been shown.
+ * @event cs-after-show - Emitted after the dropdown has been shown. Not emitted when the dropdown closes before it
+ *   finishes opening.
  * @event cs-hide - Emitted when the dropdown is about to hide.
  * @event cs-after-hide - Emitted after the dropdown has been hidden.
  * @event cs-select - Emitted when an item in the dropdown is selected.
@@ -241,7 +242,7 @@ export default class CsDropdown extends CornerstoneElement {
       return;
     }
 
-    const focused = [...activeElements()].pop();
+    const focused = getDeepestActiveElement();
     const showEvent = new CsShowEvent();
     this.dispatchEvent(showEvent);
     if (showEvent.defaultPrevented) {
@@ -290,11 +291,15 @@ export default class CsDropdown extends CornerstoneElement {
 
     // Input received while the popup becomes usable takes precedence over initial focus.
     if (focusedContent || activeEls.pop() === focused) {
-      const initialItem = focusedContent ?? items[0];
+      // A focused control inside a row keeps that row active.
+      const initialItem = focusedContent ? items.find((item) => item.contains(focusedContent)) : items[0];
       items.forEach((item) => (item.active = item === initialItem));
       if (!focusedContent) {
         items[0]?.focus({ preventScroll: true });
       }
+    } else {
+      // Focus moved outside the menu, so no row stays active from the last time it was open.
+      items.forEach((item) => (item.active = false));
     }
 
     await animation;
