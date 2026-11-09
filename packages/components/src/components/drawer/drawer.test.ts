@@ -1,5 +1,5 @@
 import { expect, nextFrame, waitUntil } from '@open-wc/testing';
-import { emulateMedia, sendKeys } from '@web/test-runner-commands';
+import { a11ySnapshot, emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import {
@@ -13,6 +13,24 @@ import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { clickOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsDrawer from './drawer.js';
+
+interface AccessibilityNode {
+  role: string;
+  name?: string;
+}
+
+/** The accessibility tree node of the inner `<dialog>`, where the name has to land. */
+async function dialogNode() {
+  return (await a11ySnapshot({ selector: 'cs-drawer dialog' })) as unknown as AccessibilityNode;
+}
+
+/**
+ * Chromium and Firefox report no name. WebKit names a dialog from its content, so the zero-width space the header
+ * holds to keep from collapsing comes back as the name; a screen reader reads it as nothing.
+ */
+function expectNoName(node: AccessibilityNode) {
+  expect((node.name ?? '').replace(/\u200b/g, '').trim()).to.equal('');
+}
 
 describe('<cs-drawer>', () => {
   for (const fixture of fixtures) {
@@ -45,6 +63,83 @@ describe('<cs-drawer>', () => {
           await nextFrame();
 
           expect(document.activeElement).to.equal(input);
+        });
+
+        it('should name the drawer from its label', async () => {
+          const el = await fixture<CsDrawer>(html`<cs-drawer label="Settings" open>Content</cs-drawer>`);
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+          const title = el.shadowRoot!.getElementById('title')!;
+
+          expect(drawer.getAttribute('aria-labelledby')).to.equal(title.id);
+          expect(title.textContent.trim()).to.equal('Settings');
+          expect(await dialogNode()).to.include({ role: 'dialog', name: 'Settings' });
+        });
+
+        it('should name the drawer from a slotted label', async () => {
+          const el = await fixture<CsDrawer>(
+            html`<cs-drawer open><span slot="label">Settings</span>Content</cs-drawer>`,
+          );
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(drawer.getAttribute('aria-labelledby')).to.equal('title');
+          expect(await dialogNode()).to.include({ role: 'dialog', name: 'Settings' });
+        });
+
+        it('should name the drawer from a slotted label before hydration when ssr-label is set', async () => {
+          const el = await fixture<CsDrawer>(
+            html`<cs-drawer open ssr-label><span slot="label">Settings</span>Content</cs-drawer>`,
+          );
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(drawer.getAttribute('aria-labelledby')).to.equal('title');
+        });
+
+        it('should leave the drawer unnamed when it has no label', async () => {
+          const el = await fixture<CsDrawer>(html`<cs-drawer open>Content</cs-drawer>`);
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(drawer.hasAttribute('aria-labelledby')).to.be.false;
+          expect(drawer.hasAttribute('aria-label')).to.be.false;
+          expectNoName(await dialogNode());
+        });
+
+        it('should name the drawer from its label when the header is hidden', async () => {
+          const el = await fixture<CsDrawer>(html`<cs-drawer label="Settings" without-header open>Content</cs-drawer>`);
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          expect(drawer.getAttribute('aria-label')).to.equal('Settings');
+          expect(drawer.hasAttribute('aria-labelledby')).to.be.false;
+          expect(await dialogNode()).to.include({ role: 'dialog', name: 'Settings' });
+        });
+
+        it('should stay unnamed, not throw, when a framework sets the label to undefined with the header hidden', async () => {
+          const el = await fixture<CsDrawer>(html`<cs-drawer without-header open>Content</cs-drawer>`);
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+
+          // A binding such as `.label=${maybeUndefined}` lands here; the type says string, the runtime does not.
+          Object.assign(el, { label: undefined });
+          await el.updateComplete;
+
+          expect(drawer.hasAttribute('aria-label')).to.be.false;
+          expect(drawer.hasAttribute('aria-labelledby')).to.be.false;
+        });
+
+        it('should name and unname the drawer as a slotted label is added and removed', async () => {
+          const el = await fixture<CsDrawer>(html`<cs-drawer open>Content</cs-drawer>`);
+          const drawer = el.shadowRoot!.querySelector('[part~="dialog"]')!;
+          expect(drawer.hasAttribute('aria-labelledby')).to.be.false;
+
+          const label = document.createElement('span');
+          label.slot = 'label';
+          label.textContent = 'Settings';
+          el.append(label);
+          // slotchange fires on its own microtask, so wait for the re-render rather than for updateComplete.
+          await waitUntil(() => drawer.getAttribute('aria-labelledby') === 'title');
+          expect(await dialogNode()).to.include({ role: 'dialog', name: 'Settings' });
+
+          label.remove();
+          await waitUntil(() => !drawer.hasAttribute('aria-labelledby'));
+          expectNoName(await dialogNode());
         });
       });
 

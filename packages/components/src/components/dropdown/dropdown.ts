@@ -8,7 +8,7 @@ import { CsAfterShowEvent } from '../../events/after-show.js';
 import { CsHideEvent } from '../../events/hide.js';
 import { CsSelectEvent } from '../../events/select.js';
 import { CsShowEvent } from '../../events/show.js';
-import { activeElements } from '../../internal/active-elements.js';
+import { activeElements, getDeepestActiveElement } from '../../internal/active-elements.js';
 import { animateWithClass } from '../../internal/animate.js';
 import CornerstoneElement from '../../internal/cornerstone-element.js';
 import { customElement } from '../../internal/custom-element.js';
@@ -36,7 +36,8 @@ const openDropdowns = new Set<CsDropdown>();
  * @dependency cs-popup
  *
  * @event cs-show - Emitted when the dropdown is about to show.
- * @event cs-after-show - Emitted after the dropdown has been shown.
+ * @event cs-after-show - Emitted after the dropdown has been shown. Not emitted when the dropdown closes before it
+ *   finishes opening.
  * @event cs-hide - Emitted when the dropdown is about to hide.
  * @event cs-after-hide - Emitted after the dropdown has been hidden.
  * @event cs-select - Emitted when an item in the dropdown is selected.
@@ -241,6 +242,7 @@ export default class CsDropdown extends CornerstoneElement {
       return;
     }
 
+    const focused = getDeepestActiveElement();
     const showEvent = new CsShowEvent();
     this.dispatchEvent(showEvent);
     if (showEvent.defaultPrevented) {
@@ -248,9 +250,10 @@ export default class CsDropdown extends CornerstoneElement {
       return;
     }
 
-    // if this dropdown is already open, do nothing
-    // (this can happen when cs-hide was cancelled)
-    if (this.popup.active) {
+    // Already open, as after a cancelled cs-hide: nothing to do. Mid-hide the popup is still active but the hide has
+    // already dropped this entry, along with the document listeners and the dismissible entry, so a reopen must put
+    // them all back.
+    if (openDropdowns.has(this)) {
       return;
     }
 
@@ -267,14 +270,43 @@ export default class CsDropdown extends CornerstoneElement {
 
     // In case its still trying to hide, remove the class to cancel the hide animation.
     this.menu.classList.remove('hide');
-    await animateWithClass(this.menu, 'show'); // Animate the menu div
-
-    const items = this.getItems();
-    if (items.length > 0) {
-      items.forEach((item, index) => (item.active = index === 0));
-      items[0].focus({ preventScroll: true });
+    const animation = animateWithClass(this.menu, 'show'); // Animate the menu div
+    await this.popup.updateComplete;
+    // Initial anchor slot changes can restart the popup on the next frame.
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    if (!this.open || !this.isConnected) {
+      return;
     }
 
+    const submenu = this.getCurrentSubmenuItem();
+    const items = submenu ? this.getSubmenuItems(submenu) : this.getItems();
+    const content = this.defaultSlot.assignedElements({ flatten: true });
+    const activeEls = [...activeElements()];
+    const focusedContent = activeEls.find(
+      (element) =>
+        element instanceof HTMLElement &&
+        element.closest('cs-dropdown') === this &&
+        !element.matches(':disabled, [disabled]') &&
+        content.some((root) => root.contains(element)),
+    );
+
+    // Input received while the popup becomes usable takes precedence over initial focus.
+    if (focusedContent || activeEls.pop() === focused) {
+      // A focused control inside a row keeps that row active.
+      const initialItem = focusedContent ? items.find((item) => item.contains(focusedContent)) : items[0];
+      items.forEach((item) => (item.active = item === initialItem));
+      if (!focusedContent) {
+        items[0]?.focus({ preventScroll: true });
+      }
+    } else {
+      // Focus moved outside the menu, so no row stays active from the last time it was open.
+      items.forEach((item) => (item.active = false));
+    }
+
+    await animation;
+    if (!this.open || !this.isConnected) {
+      return;
+    }
     this.dispatchEvent(new CsAfterShowEvent());
   }
 
@@ -302,8 +334,12 @@ export default class CsDropdown extends CornerstoneElement {
     this.menu.classList.remove('show');
     await animateWithClass(this.menu, 'hide'); // Animate before hiding
 
-    // Sometimes this ends up out of sync. So make sure it aligns with `open`
-    this.popup.active = this.open; // Hide using cs-popup
+    // Reopened during the hide animation: the show branch owns the final state.
+    if (this.open) {
+      return;
+    }
+
+    this.popup.active = false; // Hide using cs-popup
     this.dispatchEvent(new CsAfterHideEvent());
   }
 
@@ -327,19 +363,9 @@ export default class CsDropdown extends CornerstoneElement {
     const currentSubmenuItem = this.getCurrentSubmenuItem();
     const isInSubmenu = !!currentSubmenuItem;
 
-    let items: CsDropdownItem[];
-    let activeItem: CsDropdownItem | undefined;
-    let activeItemIndex: number;
-
-    if (isInSubmenu) {
-      items = this.getSubmenuItems(currentSubmenuItem);
-      activeItem = items.find((item) => item.active || item === activeElement);
-      activeItemIndex = activeItem ? items.indexOf(activeItem) : -1;
-    } else {
-      items = this.getItems();
-      activeItem = items.find((item) => item.active || item === activeElement);
-      activeItemIndex = activeItem ? items.indexOf(activeItem) : -1;
-    }
+    const items = isInSubmenu ? this.getSubmenuItems(currentSubmenuItem) : this.getItems();
+    const activeItem = items.find((item) => item === activeElement) ?? items.find((item) => item.active);
+    const activeItemIndex = activeItem ? items.indexOf(activeItem) : -1;
 
     let itemToSelect: CsDropdownItem | undefined;
 

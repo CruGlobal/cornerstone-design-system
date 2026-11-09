@@ -1,5 +1,5 @@
 import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
-import { resetMouse, sendKeys } from '@web/test-runner-commands';
+import { resetMouse, sendKeys, sendMouse } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { expectEvent } from '../../internal/test/expect-event.js';
@@ -10,6 +10,31 @@ import { serialize } from '../../utilities/form.js';
 import type CsOption from '../option/option.js';
 import type CsTooltip from '../tooltip/tooltip.js';
 import type CsSelect from './select.js';
+
+/**
+ * Asserts the clear button spans the combobox's padding box, then clicks just inside the combobox's top
+ * border at the button's center. The click is measured from the field, not the button, so it misses a button
+ * that only runs through the middle of the field.
+ */
+async function clickInsideTopEdge(el: CsSelect) {
+  const combobox = el.shadowRoot!.querySelector<HTMLElement>('[part~="combobox"]')!;
+  const clearButton = el.shadowRoot!.querySelector<HTMLElement>('[part~="clear-button"]')!;
+  const box = combobox.getBoundingClientRect();
+  const button = clearButton.getBoundingClientRect();
+  const borderTop = combobox.clientTop;
+
+  // The button spans the field, so the whole column clears, not just a band through the middle
+  expect(button.top).to.be.at.most(box.top + borderTop + 1);
+  expect(button.bottom).to.be.at.least(box.bottom - borderTop - 1);
+
+  await sendMouse({
+    type: 'click',
+    position: [
+      Math.floor(button.left + window.pageXOffset + button.width / 2),
+      Math.floor(box.top + window.pageYOffset + borderTop + 1),
+    ],
+  });
+}
 
 describe('<cs-select>', () => {
   runFormControlBaseTests({
@@ -520,6 +545,34 @@ describe('<cs-select>', () => {
 
           await expectEvent(el, 'cs-clear', async () => {
             await clickOnElement(clearButton);
+            await el.updateComplete;
+          });
+        });
+
+        it('should clear from a click near the top edge of the field', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select value="option-1" with-clear>
+              <cs-option value="option-1">Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+            </cs-select>
+          `);
+
+          await expectEvent(el, 'cs-clear', async () => {
+            await clickInsideTopEdge(el);
+            await el.updateComplete;
+          });
+        });
+
+        it('should clear from a click near the top edge of the field when tags are shown', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select multiple with-clear>
+              <cs-option value="option-1" selected>Option 1</cs-option>
+              <cs-option value="option-2">Option 2</cs-option>
+            </cs-select>
+          `);
+
+          await expectEvent(el, 'cs-clear', async () => {
+            await clickInsideTopEdge(el);
             await el.updateComplete;
           });
         });
@@ -1349,8 +1402,12 @@ describe('<cs-select>', () => {
         iconCenterFromRight(input, '[part~="clear-button"]') - iconCenterFromRight(select, '[part~="clear-button"]'),
       );
 
+      // The clear buttons share a right edge, but <cs-input>'s is a square focus-ring target
+      // (aspect-ratio: 1 against its 1.5em height), so it pads the icon by 2px on each side and
+      // its center sits 2px inboard of the select's. That offset is intentional; anything beyond
+      // it means the shared trailing edge itself has drifted.
       expect(trailingDelta, 'input end-slot icon is off the select trailing axis').to.be.lessThan(2);
-      expect(clearDelta, 'input clear button is off the select clear axis').to.be.lessThan(2);
+      expect(clearDelta, 'input clear button is off the select clear axis').to.be.at.most(2);
     });
   });
 });

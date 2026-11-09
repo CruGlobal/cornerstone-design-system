@@ -352,6 +352,7 @@ export default class CsButton extends CornerstoneFormAssociatedElement {
         rel=${ifDefined(isLink && this.rel ? this.rel : undefined)}
         role=${ifDefined(isLink ? undefined : 'button')}
         aria-disabled=${ifDefined(isLink && this.disabled ? 'true' : undefined)}
+        aria-busy=${this.loading ? 'true' : 'false'}
         tabindex=${this.disabled ? '-1' : '0'}
         @invalid=${this.isButton() ? this.handleInvalid : null}
         @click=${this.handleClick}

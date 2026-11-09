@@ -38,7 +38,8 @@ export default css`
     outline: var(--cs-focus-ring-style) var(--cs-focus-ring-width) transparent;
     outline-offset: var(--cs-focus-ring-offset);
 
-    &:focus-within {
+    /* Only ring the field when the text input has focus, not inner buttons */
+    &:has(input:focus, textarea:focus) {
       outline-color: var(--cs-color-focus);
     }
 
@@ -191,17 +192,30 @@ export default css`
 
   .clear,
   .password-toggle {
+    position: relative;
     display: inline-flex;
+    align-self: center;
     align-items: center;
     justify-content: center;
+    aspect-ratio: 1;
+    height: 1.5em;
     font-size: inherit;
     color: var(--cs-color-neutral-on-quiet);
     border: none;
+    border-radius: var(--cs-border-radius-s);
     background: none;
     padding: 0;
     transition: var(--cs-transition-normal) color;
     cursor: pointer;
     margin-inline-start: var(--cs-form-control-padding-inline);
+
+    /* Extends the pointer target to the full height of the field */
+    &::after {
+      content: '';
+      position: absolute;
+      inset-inline: 0;
+      height: var(--cs-form-control-height);
+    }
 
     @media (hover: hover) {
       &:hover {
@@ -215,6 +229,11 @@ export default css`
 
     &:focus {
       outline: none;
+    }
+
+    &:focus-visible {
+      outline: var(--cs-focus-ring);
+      outline-offset: var(--cs-focus-ring-offset);
     }
   }
 

@@ -29,7 +29,8 @@ import styles from './dialog.styles.js';
  * @dependency cs-button
  *
  * @slot - The dialog's main content.
- * @slot label - The dialog's label. Alternatively, you can use the `label` attribute.
+ * @slot label - The dialog's label. Alternatively, you can use the `label` attribute. When `without-header` is set, a slotted label
+ *  does not name the dialog; use the attribute.
  * @slot header-actions - Optional actions to add to the header. Works best with `<cs-button>`.
  * @slot footer - The dialog's footer, usually one or more buttons representing various options.
  *
@@ -62,7 +63,7 @@ export default class CsDialog extends CornerstoneElement {
   static css = styles;
 
   private readonly localize = new LocalizeController(this);
-  private readonly hasSlotController = new HasSlotController(this, 'footer');
+  private readonly hasSlotController = new HasSlotController(this, 'footer', 'label');
   private readonly renderedWatcher = new RenderedWatcher(this, (isRendered) => this.handleRenderedChange(isRendered));
   private originalTrigger: HTMLElement | null;
 
@@ -73,7 +74,8 @@ export default class CsDialog extends CornerstoneElement {
 
   /**
    * The dialog's label as displayed in the header. You should always include a relevant label, as it is required for
-   * proper accessibility. If you need to display HTML, use the `label` slot instead.
+   * proper accessibility. If you need to display HTML, use the `label` slot instead. When `without-header` is set,
+   * only the attribute provides the dialog's accessible name.
    */
   @property({ reflect: true }) label = '';
 
@@ -88,6 +90,12 @@ export default class CsDialog extends CornerstoneElement {
    * includes the footer before the component hydrates on the client.
    */
   @property({ attribute: 'ssr-footer', type: Boolean }) ssrFooter = false;
+
+  /**
+   * Only required for SSR. Set to `true` if you're slotting in a `label` element so the server-rendered markup names
+   * the dialog before the component hydrates on the client.
+   */
+  @property({ attribute: 'ssr-label', type: Boolean }) ssrLabel = false;
 
   firstUpdated(changedProperties: PropertyValues<typeof this>) {
     super.firstUpdated(changedProperties);
@@ -255,15 +263,15 @@ export default class CsDialog extends CornerstoneElement {
 
   render() {
     const hasHeader = !this.withoutHeader;
-    // The header's `<h2 id="title">` is the only accessible name available, and it exists only when
-    // there is a header. Without this the element has no name at all, `label` attribute or not.
-    const labelledBy = hasHeader ? 'title' : undefined;
     const hasFooter = this.hasSlotController.test('footer', 'ssrFooter');
+    // `Boolean`, not `.length`: a framework binding can pass `undefined` for the label.
+    const hasLabel = Boolean(this.label) || this.hasSlotController.test('label', 'ssrLabel');
 
     return html`
       <dialog
         part="dialog"
-        aria-labelledby=${ifDefined(labelledBy)}
+        aria-labelledby=${ifDefined(hasHeader && hasLabel ? 'title' : undefined)}
+        aria-label=${ifDefined(!hasHeader && this.label ? this.label : undefined)}
         class=${classMap({
           dialog: true,
           open: this.open,
