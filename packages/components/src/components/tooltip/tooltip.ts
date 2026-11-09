@@ -25,9 +25,9 @@ import styles from './tooltip.styles.js';
  *
  * @slot - The tooltip's default slot where any content should live. Interactive content should be avoided.
  *
- * @event cs-show - Emitted when the tooltip begins to show.
+ * @event cs-show - Emitted when the tooltip begins to show. Canceling this event will stop the tooltip from showing.
  * @event cs-after-show - Emitted after the tooltip has shown and all animations are complete.
- * @event cs-hide - Emitted when the tooltip begins to hide.
+ * @event cs-hide - Emitted when the tooltip begins to hide. Canceling this event will stop the tooltip from hiding and keep it open.
  * @event cs-after-hide - Emitted after the tooltip has hidden and all animations are complete.
  *
  * @csspart tooltip - The component's outer wrapper.
@@ -112,9 +112,10 @@ export default class CsTooltip extends CornerstoneElement {
   private eventController = new AbortController();
 
   /**
-   * Whether the show branch holds the document Escape listener and a dismissible-stack entry. The reconnect path
-   * restores only what was held, so an open that is still pending when the tooltip moves registers once, from the
-   * show branch, and a disabled open tooltip stays off the stack.
+   * Whether the show branch has claimed the document Escape listener and a dismissible-stack entry. The reconnect
+   * path restores only what was claimed, so an open that is still pending when the tooltip moves registers once,
+   * from the show branch, and an open tooltip that never showed because it was disabled stays off the stack. A
+   * tooltip that showed and whose later hide was cancelled keeps its claim and is restored on a move.
    */
   private holdsDismissible = false;
 
@@ -136,8 +137,7 @@ export default class CsTooltip extends CornerstoneElement {
           // Moved in the DOM while shown: disconnectedCallback dropped the Escape listener and the
           // dismissible entry, so put them back without replaying the show or its events.
           if (this.holdsDismissible) {
-            document.addEventListener('keydown', this.handleDocumentKeyDown, { signal: this.eventController.signal });
-            registerDismissible(this);
+            this.addOpenListeners();
           }
         } else {
           // First connect with `open` set: the watcher skips the first update, so trip it.
@@ -168,8 +168,7 @@ export default class CsTooltip extends CornerstoneElement {
     super.disconnectedCallback();
 
     // Cleanup this event in case the tooltip is removed while open
-    document.removeEventListener('keydown', this.handleDocumentKeyDown);
-    unregisterDismissible(this);
+    this.removeOpenListeners();
     this.eventController.abort();
 
     if (this.anchor) {
@@ -287,6 +286,16 @@ export default class CsTooltip extends CornerstoneElement {
     return this.open && !this.disabled;
   }
 
+  private addOpenListeners() {
+    document.addEventListener('keydown', this.handleDocumentKeyDown, { signal: this.eventController.signal });
+    registerDismissible(this);
+  }
+
+  private removeOpenListeners() {
+    document.removeEventListener('keydown', this.handleDocumentKeyDown);
+    unregisterDismissible(this);
+  }
+
   @watch('open', { waitUntilFirstUpdate: true })
   async handleOpenChange() {
     if (this.open) {
@@ -302,9 +311,12 @@ export default class CsTooltip extends CornerstoneElement {
         return;
       }
 
-      document.addEventListener('keydown', this.handleDocumentKeyDown, { signal: this.eventController.signal });
-      registerDismissible(this);
+      // A detached tooltip can still show (a hover timer that fires after removal). Claim the listener and stack
+      // entry but add them only while connected; connectedCallback restores the claim on the next connect.
       this.holdsDismissible = true;
+      if (this.isConnected) {
+        this.addOpenListeners();
+      }
 
       this.body.hidden = false;
       this.popup.active = true;
@@ -327,8 +339,7 @@ export default class CsTooltip extends CornerstoneElement {
         return;
       }
 
-      document.removeEventListener('keydown', this.handleDocumentKeyDown);
-      unregisterDismissible(this);
+      this.removeOpenListeners();
       this.holdsDismissible = false;
 
       await animateWithClass(this.popup.popup, 'hide-with-scale');

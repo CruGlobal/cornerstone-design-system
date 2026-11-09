@@ -354,6 +354,9 @@ describe('<cs-tooltip>', () => {
           tooltip.addEventListener('cs-show', showSpy);
           el.appendChild(tooltip);
           await tooltip.updateComplete;
+          // A replayed show would be queued behind the first update, so wait out a second one before checking.
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
 
           expect(tooltip.open).to.be.true;
           expect(hideSpy.called).to.be.false;
@@ -361,6 +364,37 @@ describe('<cs-tooltip>', () => {
 
           await sendKeys({ press: 'Escape' });
           await waitUntil(() => !tooltip.open);
+        });
+
+        it('should register once when shown while detached and then reconnected', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip id="under" for="under-anchor" open>Underneath</cs-tooltip>
+              <cs-button id="under-anchor">Under</cs-button>
+              <cs-tooltip id="moved" for="moved-anchor">Moved</cs-tooltip>
+              <cs-button id="moved-anchor">Moved</cs-button>
+            </div>
+          `);
+          const under = el.querySelector<CsTooltip>('#under')!;
+          const moved = el.querySelector<CsTooltip>('#moved')!;
+          await under.updateComplete;
+          await moved.updateComplete;
+          await settleAnimations(under);
+
+          // Showing while detached claims the stack entry; only the reconnect may add it.
+          moved.remove();
+          moved.open = true;
+          await moved.updateComplete;
+          el.appendChild(moved);
+          await moved.updateComplete;
+          await settleAnimations(moved);
+
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !moved.open);
+          expect(under.open).to.be.true;
+
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !under.open);
         });
 
         it('should leave the dismissible beneath it reachable after being opened and moved in the same tick', async () => {
