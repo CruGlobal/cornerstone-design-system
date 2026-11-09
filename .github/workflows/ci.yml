@@ -48,6 +48,8 @@ jobs:
       # Tokens only. The component build runs inside `verify-components`, and running the
       # root build here would do it twice per PR.
       - run: npm run build --workspace @cruglobal/cornerstone-design-system
+      # Loads the built `./mui` export under plain Node ESM, the way a non-TypeScript consumer would.
+      - run: npm test --workspace @cruglobal/cornerstone-design-system
 
   # What changed decides what runs. The component suite drives three real browsers on four runners for
   # about ten minutes each; a change to a documentation page has no way to affect it, and paying for it anyway is
