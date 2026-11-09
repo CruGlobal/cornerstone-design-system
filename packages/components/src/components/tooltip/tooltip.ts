@@ -124,12 +124,19 @@ export default class CsTooltip extends CornerstoneElement {
 
       this.addEventListener('mouseout', this.handleMouseOut);
 
-      // TODO: This is a hack that I need to revisit [Konnor]
       if (this.open) {
-        this.open = false;
-        this.updateComplete.then(() => {
-          this.open = true;
-        });
+        if (this.hasUpdated) {
+          // Moved in the DOM while open: disconnectedCallback dropped the Escape listener and the
+          // dismissible entry, so put them back without replaying the show or its events.
+          document.addEventListener('keydown', this.handleDocumentKeyDown, { signal: this.eventController.signal });
+          registerDismissible(this);
+        } else {
+          // First connect with `open` set: the watcher skips the first update, so trip it.
+          this.open = false;
+          this.updateComplete.then(() => {
+            this.open = true;
+          });
+        }
       }
 
       // If the user doesn't give us an id, generate one.

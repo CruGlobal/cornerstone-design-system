@@ -309,18 +309,58 @@ describe('<cs-tooltip>', () => {
           const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
           const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
           await tooltip.updateComplete;
+          await settleAnimations(tooltip);
+
+          const showSpy = sinon.spy();
+          const afterHideSpy = sinon.spy();
+          tooltip.addEventListener('cs-show', showSpy);
+          tooltip.addEventListener('cs-after-hide', afterHideSpy);
 
           tooltip.addEventListener('cs-hide', (event) => event.preventDefault(), { once: true });
           tooltip.open = false;
           await tooltip.updateComplete;
+          await settleAnimations(tooltip);
+
+          // Restoring `open` folds into the same update, so it neither replays the show nor finishes the hide.
+          expect(tooltip.open).to.be.true;
+          expect(tooltip.hasAttribute('open')).to.be.true;
+          expect(body.hidden).to.be.false;
+          expect(showSpy.called).to.be.false;
+          expect(afterHideSpy.called).to.be.false;
+
+          // The cancelled hide left the Escape listener in place, and this close is not cancelled.
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !tooltip.open);
+          await settleAnimations(tooltip);
+          expect(body.hidden).to.be.true;
+          expect(afterHideSpy.calledOnce).to.be.true;
+        });
+
+        it('should keep closing on Escape after being moved in the DOM while open', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip for="cs-button" open>This is a tooltip</cs-tooltip>
+              <cs-button id="cs-button">Hover Me</cs-button>
+            </div>
+          `);
+          const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
+
+          // Moving an open tooltip re-registers its listeners without replaying the hide and show.
+          const hideSpy = sinon.spy();
+          const showSpy = sinon.spy();
+          tooltip.addEventListener('cs-hide', hideSpy);
+          tooltip.addEventListener('cs-show', showSpy);
+          el.appendChild(tooltip);
+          await tooltip.updateComplete;
 
           expect(tooltip.open).to.be.true;
-          expect(body.hidden).to.be.false;
+          expect(hideSpy.called).to.be.false;
+          expect(showSpy.called).to.be.false;
 
-          // The next close is not cancelled, so it has to close the tooltip.
-          await tooltip.hide();
-          expect(tooltip.open).to.be.false;
-          expect(body.hidden).to.be.true;
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !tooltip.open);
         });
 
         it('should not fire cs-after-show when cs-show is prevented', async () => {
