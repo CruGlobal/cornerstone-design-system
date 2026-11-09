@@ -111,6 +111,13 @@ export default class CsTooltip extends CornerstoneElement {
 
   private eventController = new AbortController();
 
+  /**
+   * Whether the show branch holds the document Escape listener and a dismissible-stack entry. The reconnect path
+   * restores only what was held, so an open that is still pending when the tooltip moves registers once, from the
+   * show branch, and a disabled open tooltip stays off the stack.
+   */
+  private holdsDismissible = false;
+
   connectedCallback() {
     super.connectedCallback();
 
@@ -126,10 +133,12 @@ export default class CsTooltip extends CornerstoneElement {
 
       if (this.open) {
         if (this.hasUpdated) {
-          // Moved in the DOM while open: disconnectedCallback dropped the Escape listener and the
+          // Moved in the DOM while shown: disconnectedCallback dropped the Escape listener and the
           // dismissible entry, so put them back without replaying the show or its events.
-          document.addEventListener('keydown', this.handleDocumentKeyDown, { signal: this.eventController.signal });
-          registerDismissible(this);
+          if (this.holdsDismissible) {
+            document.addEventListener('keydown', this.handleDocumentKeyDown, { signal: this.eventController.signal });
+            registerDismissible(this);
+          }
         } else {
           // First connect with `open` set: the watcher skips the first update, so trip it.
           this.open = false;
@@ -295,6 +304,7 @@ export default class CsTooltip extends CornerstoneElement {
 
       document.addEventListener('keydown', this.handleDocumentKeyDown, { signal: this.eventController.signal });
       registerDismissible(this);
+      this.holdsDismissible = true;
 
       this.body.hidden = false;
       this.popup.active = true;
@@ -319,6 +329,7 @@ export default class CsTooltip extends CornerstoneElement {
 
       document.removeEventListener('keydown', this.handleDocumentKeyDown);
       unregisterDismissible(this);
+      this.holdsDismissible = false;
 
       await animateWithClass(this.popup.popup, 'hide-with-scale');
 
