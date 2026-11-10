@@ -188,21 +188,28 @@ jobs:
           cache: npm
       - run: npm ci
       # `check:a11y` opens each Inspiration Screen in Chromium to run axe on it, and needs no other engine.
-      # The cache is keyed on the Playwright version, because that alone decides which Chromium build is
-      # downloaded. It was keyed on the whole lockfile, so every dependency bump missed it and spent three
-      # minutes downloading a browser that had not changed.
+      # The cache is keyed on what decides which Chromium build is downloaded: the Playwright version, and
+      # the runner's image and architecture. It was keyed on the whole lockfile, so every dependency bump
+      # missed it and spent three minutes downloading a browser that had not changed.
       #
       # Not the Playwright image the shards run in. That was tried, locally, and `test:a11y` failed in it on
-      # each of three runs: axe flagged two more elements in the needs-review fixture than it does here.
-      - name: Read the Playwright version the lockfile resolved
+      # each of three runs: axe flagged two more elements in the needs-review fixture than it does here
+      # (UIUX-330). The runner pin above comes off with a Playwright bump (UIUX-329).
+      - name: Read what decides the Chromium build
         id: playwright
-        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/playwright'].version")" >> "$GITHUB_OUTPUT"
+        # The version is assigned on its own line so that a failed read fails the step. Inside the `echo`
+        # it would not, and an empty version would make the cache key the same for every Playwright.
+        run: |
+          version=$(node -p "require('./package-lock.json').packages['node_modules/playwright'].version")
+          [ -n "$version" ]
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "image=${ImageOS:-unknown}" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright Chromium
         id: playwright-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+          key: playwright-chromium-${{ steps.playwright.outputs.image }}-${{ runner.arch }}-${{ steps.playwright.outputs.version }}
       - name: Install Playwright Chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium

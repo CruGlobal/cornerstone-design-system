@@ -116,7 +116,13 @@ npm run build
 npm run test:durations
 ```
 
-That runs the whole suite and rewrites `test-durations.json` with the seconds each file took, averaged over the three engines. Commit the result. Run it on a quiet machine, since a busy one inflates whichever files were running at the time.
+That runs the whole suite and rewrites `test-durations.json` with the seconds each file took, averaged over the three engines. Commit the result. Run it on a quiet machine, since a busy one inflates whichever files were running at the time. If the run warns that some files did not pass, run those again before committing.
+
+To refresh one component's files and leave the rest as they are, call the runner itself. `npm run test:durations -- --group button` does not work: npm keeps `--group` for itself and the whole suite runs.
+
+```bash
+WTR_RECORD_DURATIONS=true npx web-test-runner --group button
+```
 
 ### Creating New Components
 
