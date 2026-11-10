@@ -8,6 +8,10 @@
  *
  * The numbers are relative. A developer machine and a CI runner disagree about how many seconds a file
  * takes and agree about which files are heavy, and the deal only needs the second.
+ *
+ * Two things the numbers carry that are not the file's own cost. Each engine's first files also wait for
+ * that browser to launch. And a test that times out, then passes on its retry, adds the timeout to its
+ * file without the run reporting a failure.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { relative, sep } from 'node:path';
@@ -44,17 +48,24 @@ export function mergeDurations(samples, previous = {}) {
  * @param {string} options.path Where `test-durations.json` lives.
  * @param {(message: string) => void} [options.warn] Told when a run's numbers should not be trusted.
  */
-export function durationsReporter({ path, warn = console.warn }) {
+export function durationsReporter({ path, warn = (message) => console.warn(message) }) {
+  // `console.warn` is looked up when the warning is made, not when the config loads: the runner swaps
+  // `console` for one that draws above its progress bar, and a line written past it is erased on redraw.
   const started = new Map();
   const samples = [];
+  let rootDir = '';
+  /** The path `test-durations.json` keys a test file by. */
+  const key = (testFile) => relative(rootDir, testFile).split(sep).join('/');
   const isRunning = (session) =>
     session.status !== SESSION_STATUS.SCHEDULED && session.status !== SESSION_STATUS.FINISHED;
 
   return {
     start({ sessions, config }) {
+      rootDir = config.rootDir;
       // The runner starts its first batch of sessions before it starts the reporters, so those pages are
       // already opening and their status change has been missed. Their clock starts now, or their files
-      // would be timed without the page load every other file is charged for.
+      // would be timed without the page load every other file is charged for. The browser is still
+      // launching at this point, so these files are charged for that too.
       for (const session of sessions.all()) {
         if (isRunning(session)) {
           started.set(session.id, Date.now());
@@ -67,8 +78,7 @@ export function durationsReporter({ path, warn = console.warn }) {
         }
         // A session that failed still took its time, and a shard has to budget for it either way.
         if (session.status === SESSION_STATUS.FINISHED && started.has(session.id)) {
-          const file = relative(config.rootDir, session.testFile).split(sep).join('/');
-          samples.push({ file, ms: Date.now() - started.get(session.id) });
+          samples.push({ file: key(session.testFile), ms: Date.now() - started.get(session.id) });
           started.delete(session.id);
         }
       });
@@ -76,8 +86,11 @@ export function durationsReporter({ path, warn = console.warn }) {
 
     onTestRunFinished({ sessions = [] } = {}) {
       // A timeout or a browser that would not start inflates a file's number. The time is still written,
-      // since a shard has to budget for a file that fails, but it is not one to commit.
-      const failed = [...new Set(sessions.filter((session) => !session.passed).map((session) => session.testFile))];
+      // since a shard has to budget for a file that fails, but it is not one to commit. A test that timed
+      // out and passed on its retry is not caught here: the runner reports that session as passed.
+      const failed = [
+        ...new Set(sessions.filter((session) => !session.passed).map((session) => key(session.testFile))),
+      ];
       if (failed.length > 0) {
         warn(
           `test-durations: ${failed.length} file(s) did not pass, so their timings may be inflated. ` +

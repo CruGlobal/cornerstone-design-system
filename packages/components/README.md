@@ -124,6 +124,10 @@ To refresh one component's files and leave the rest as they are, call the runner
 WTR_RECORD_DURATIONS=true npx web-test-runner --group button
 ```
 
+Those numbers are rougher than a full run's. The files run with nothing else loading the machine, and they also wait for the three browsers to launch, which a full run spreads thin. Use it to get a new file onto the list, and do a full run before trusting the balance.
+
+One thing no warning covers: a test that times out and then passes on its retry adds the timeout to its file's number. If a file's number jumps for no reason, run it again.
+
 ### Creating New Components
 
 To scaffold a new component, run the following command. It prompts for the tag name, which must start with
