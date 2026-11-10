@@ -117,7 +117,7 @@ concern. What this document protects here is the **release**, the **CI**, the **
 **Dependencies**
 
 - `playwright` is pinned exactly in both `packages/components` and `packages/docs`, and `ci.yml`'s test
-  shards and docs job run in the `mcr.microsoft.com/playwright:v<version>-noble` image. The three move together;
+  shards run in the `mcr.microsoft.com/playwright:v<version>-noble` image. The three move together;
   Dependabot moves only the two manifests, so its PR also needs the image tag (#282). A bump to `lit`,
   `esbuild`, `playwright`, `@web/test-runner*`, `style-dictionary`, `astro`, `@astrojs/starlight`,
   `typescript`, `axe-core` or `@ast-grep/cli` deserves a read of its changelog, not a rubber stamp.

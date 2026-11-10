@@ -3,9 +3,8 @@
 # it, the same dependency gets a pull request per package it appears in.
 #
 # A Playwright bump needs one more edit than Dependabot makes: the container image tag in
-# `.github/workflows/ci.yml` has to move to the same version, or the jobs that run in it launch browsers
-# that do not match the package. The tag is written twice there, on `verify-components-test` and on
-# `verify-docs`.
+# `.github/workflows/ci.yml` has to move to the same version, or the test shards launch browsers that do
+# not match the package.
 version: 2
 updates:
   - package-ecosystem: npm
