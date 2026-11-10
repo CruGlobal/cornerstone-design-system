@@ -33,18 +33,21 @@ const RUNTIME_FIELDS = ["dependencies", "peerDependencies"];
 // Changesets also accepts "none". It releases nothing, which is an empty changeset by another name.
 const BUMPS = ["patch", "minor", "major"];
 
-// The package is CommonJS with a `default` export, which Node hands to an ES module one level down.
-const parse = parseChangeset.default ?? parseChangeset;
-
 /** What is wrong with one added changeset file, or `null` when it records a real bump. */
 function changesetProblem({ path, content }, packages) {
   let changeset;
   try {
-    changeset = parse(content);
+    changeset = parseChangeset(content);
   } catch (error) {
-    return `${path} is not a changeset that changesets can read. ${
-      error.message.split("\n")[0]
-    }`;
+    // The first line says what kind of problem, and the YAML line says where. The rest repeats the file.
+    const lines = error.message.split("\n");
+    const said = [
+      lines[0],
+      ...lines.filter((line) => /^YAML error:/.test(line)),
+    ];
+    return `${path} is not a changeset that changesets can read. ${said.join(
+      " "
+    )}`;
   }
   const { releases, summary } = changeset;
   if (releases.length === 0) {
@@ -142,6 +145,8 @@ export function changesetVerdict({ diff, changesets, branch, packages }) {
  * changeset files it adds. `-z` gives status and path as separate NUL-ended fields, with the path unquoted.
  *
  * Only an added changeset counts. One the pull request edits or deletes was owed by an earlier change.
+ * Which files in `.changeset/` are changesets is `@changesets/read`'s rule: a `.md` file whose name does
+ * not start with a dot and is not `README.md` in any case.
  *
  * @param {string} nameStatus
  * @returns {{ files: string[], addedChangesets: string[] }}
@@ -158,8 +163,8 @@ export function readDiff(nameStatus) {
       .filter(
         ({ status, path }) =>
           status === "A" &&
-          /^\.changeset\/[^/]+\.md$/.test(path) &&
-          path !== ".changeset/README.md"
+          /^\.changeset\/[^/.][^/]*\.md$/.test(path) &&
+          !/^\.changeset\/README\.md$/i.test(path)
       )
       .map(({ path }) => path),
   };

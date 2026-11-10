@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createRequire } from "node:module";
 import { describe, it } from "node:test";
 import { changesetVerdict, readDiff } from "./changeset-gate.js";
 
@@ -18,7 +19,7 @@ const verdict = (files, more = {}) =>
     diff: { files, manifests: {}, ...more.diff },
     changesets: more.changesets ?? [],
     branch: more.branch ?? "feature",
-    packages,
+    packages: more.packages ?? packages,
   });
 
 const manifest = (before, after) => ({ before, after });
@@ -67,10 +68,8 @@ describe("changesetVerdict", () => {
         "cornerstone-docs-site:patch",
       ]) {
         const content = `---\n${line}\n---\n\nFixed: a thing.\n`;
-        const result = changesetVerdict({
-          diff: { files: [".changeset/a.md"], manifests: {} },
+        const result = verdict([".changeset/a.md"], {
           changesets: [{ path: ".changeset/a.md", content }],
-          branch: "feature",
           packages: [...packages, "cornerstone-docs-site"],
         });
         assert.equal(result.ok, false, line);
@@ -89,6 +88,7 @@ describe("changesetVerdict", () => {
       });
       assert.equal(result.ok, false);
       assert.match(result.reason, /not a changeset that changesets can read/);
+      assert.match(result.reason, /YAML error: duplicated mapping key/);
     });
 
     it("fails when the text comes before the frontmatter, which changesets reads as no description", () => {
@@ -123,10 +123,8 @@ describe("changesetVerdict", () => {
 
     it("passes an unquoted name that has no scope, which is plain YAML", () => {
       const content = `---\ncornerstone-docs-site: patch\n---\n\nFixed: a thing.\n`;
-      const result = changesetVerdict({
-        diff: { files: [".changeset/a.md"], manifests: {} },
+      const result = verdict([".changeset/a.md"], {
         changesets: [{ path: ".changeset/a.md", content }],
-        branch: "feature",
         packages: [...packages, "cornerstone-docs-site"],
       });
       assert.equal(result.ok, true);
@@ -410,6 +408,8 @@ describe("readDiff", () => {
     const { addedChangesets } = readDiff(
       nameStatus(
         ["A", ".changeset/README.md"],
+        ["A", ".changeset/readme.md"],
+        ["A", ".changeset/.hidden.md"],
         ["A", ".changeset/config.json"],
         ["A", ".changeset/drafts/later.md"]
       )
@@ -420,6 +420,18 @@ describe("readDiff", () => {
   it("keeps a path with a space or a non-ASCII character whole", () => {
     const { files } = readDiff(nameStatus(["A", "docs/a note é.md"]));
     assert.deepEqual(files, ["docs/a note é.md"]);
+  });
+
+  // The release reads changesets through @changesets/cli. A second copy of the parser at another version
+  // could read a file differently from the one this gate asked.
+  it("is judged by the same copy of the parser the changesets CLI loads", () => {
+    const here = createRequire(import.meta.url);
+    const cli = createRequire(here.resolve("@changesets/cli"));
+    const read = createRequire(cli.resolve("@changesets/read"));
+    assert.equal(
+      read.resolve("@changesets/parse"),
+      here.resolve("@changesets/parse")
+    );
   });
 
   it("reads an empty diff as no files", () => {

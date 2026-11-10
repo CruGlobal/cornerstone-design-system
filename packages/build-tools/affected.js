@@ -55,17 +55,17 @@ const KNOWN_PACKAGES = new Set(
 );
 
 /**
- * The manifest of a package no list above names: one added after this file was written. Every job starts
- * with one `npm ci` across all the workspaces, so a new workspace changes every job's install, and until it
- * has a list of its own nothing else would open a gate for it.
+ * A file in a package no list above names: one added after this file was written. Every job starts with one
+ * `npm ci` across all the workspaces, so a new workspace changes every job's install. And until the package
+ * has a list of its own, nothing here knows what its files reach, so they reach everything.
  */
-const isNewWorkspaceManifest = (file) => {
-  const manifest = /^(packages\/[^/]+\/)package\.json$/.exec(file);
-  return manifest !== null && !KNOWN_PACKAGES.has(manifest[1]);
+const isInUnknownPackage = (file) => {
+  const inPackage = /^(packages\/[^/]+\/)./.exec(file);
+  return inPackage !== null && !KNOWN_PACKAGES.has(inPackage[1]);
 };
 
 const reaches = (file, paths) =>
-  isNewWorkspaceManifest(file) ||
+  isInUnknownPackage(file) ||
   paths.some((path) =>
     path.endsWith("/") ? file.startsWith(path) : file === path
   );

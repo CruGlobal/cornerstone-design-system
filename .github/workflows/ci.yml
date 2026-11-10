@@ -44,8 +44,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .tool-versions
-      # No `npm ci`: the module imports nothing outside Node. If git cannot produce the diff, it opens
-      # every gate instead of failing.
+      # No `npm ci`: the module and its tests import nothing outside Node.
+      #
+      # The rules' own tests run here, before the rules are used. Their other home is `verify-docs`, a job
+      # these rules can skip, so a rule broken toward "skip" would have skipped the test that catches it.
+      - name: Test the rules
+        run: node --test packages/build-tools/affected.test.js
+      # If git cannot produce the diff, this opens every gate instead of failing.
       - name: Decide which gates this change reaches
         id: affected
         # Named, because the default shell runs without `pipefail` and `tee` would hide a failure.

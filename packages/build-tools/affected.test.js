@@ -129,6 +129,7 @@ describe("affected", () => {
       "packages/build-tools/site-url.js",
       // A workspace no rule names yet. One `npm ci` installs every workspace, so it changes every job.
       "packages/a-new-package/package.json",
+      "packages/a-new-package/src/index.js",
     ]) {
       it(`${file} opens every path gate`, () => {
         const { tokens, components, browser, docs } = gatesFor(file);
@@ -141,7 +142,7 @@ describe("affected", () => {
 
     it("matches whole path segments, not prefixes", () => {
       const { tokens, components, browser, docs } = gatesFor(
-        "packages/components-archive/x.ts",
+        "plugins-old/x.ts",
         "packages/docs/package.json.bak",
         "package.json.orig"
       );
@@ -267,6 +268,29 @@ describe("ci.yml", () => {
 
   it("reads each gate affected() returns exactly once, and no other", () => {
     assert.deepEqual([...read].sort(), [...gates].sort());
+  });
+
+  // A job reading another job's gate is skipped and run on the wrong changes, and `CI gate` passes a skip.
+  it("has each job read its own gate", () => {
+    const jobsBlock = workflow.slice(workflow.indexOf("\njobs:\n"));
+    const starts = [...jobsBlock.matchAll(JOB_ID)];
+    const gateOf = Object.fromEntries(
+      starts.flatMap((start, i) => {
+        const body = jobsBlock.slice(start.index, starts[i + 1]?.index);
+        const gate =
+          /^    if: fromJSON\(needs\.changes\.outputs\.gates\)\.(\S+)$/m.exec(
+            body
+          );
+        return gate ? [[start[1], gate[1]]] : [];
+      })
+    );
+    assert.deepEqual(gateOf, {
+      "verify-tokens": "tokens",
+      "verify-components-static": "components",
+      "verify-components-test": "browser",
+      "verify-docs": "docs",
+      changeset: "changeset",
+    });
   });
 
   it("gives every job but the first and the last a gate", () => {

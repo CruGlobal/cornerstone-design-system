@@ -180,7 +180,7 @@ the PRs it came from.
   `run:` step through `env:`, never inline, since ref names may carry `$` and `;`; and a job behind a
   job-level `if:` must not be one a required status check names, because a skipped job satisfies the rule.
   Since #329 the required check is `CI gate`, which counts a skipped job as passed, so the same hole now
-  opens through a path filter that misses a file.
+  opens through a rule in `packages/build-tools/affected.js` that misses a path.
   <!-- evidence: PR #84, #86, #89, #94, #98 -->
 
 - **Playwright moves in two places.** Both packages' exact pin, as Dependencies above says; `ci.yml`'s
