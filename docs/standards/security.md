@@ -99,14 +99,13 @@ concern. What this document protects here is the **release**, the **CI**, the **
   `if: always()`, needs every other job, and passes when each succeeded or was skipped. A job left out of
   its `needs:` is not gated, and a `gate` without `if: always()` is skipped when a job fails, which a
   required check counts as a pass.
-- What is skipped is decided by the `changes` job's `dorny/paths-filter` filters, so a filter that misses
-  a path is a gate that passes without running. A new path the library or the site reads (a workspace
-  package, a root config) joins the `components` and `docs` filters and the `code` filter's brace group in
-  the same diff. The `code` filter keeps Markdown out of the browser suite; a diff that makes a `.md` file
-  an input to a component's runtime breaks that.
-- Actions are pinned by tag, not commit SHA. Two are third-party: `changesets/action@v1` in `release.yml`,
-  which holds `contents: write`, `pull-requests: write` and `id-token: write`, and `dorny/paths-filter@v3`
-  in `ci.yml`. The test image is pulled by tag too, and `release.yml` installs `npm@latest`. A new
+- What is skipped is decided by `packages/build-tools/affected.js`, which the `changes` job runs, so a
+  rule there that misses a path is a gate that passes without running. A new path the library or the site
+  reads (a workspace package, a root config) joins its path lists in the same diff, with a test. Its
+  `browser` gate keeps Markdown out of the browser suite; a diff that makes a `.md` file an input to a
+  component's runtime breaks that.
+- Actions are pinned by tag, not commit SHA. One is third-party: `changesets/action@v1` in `release.yml`,
+  which holds `contents: write`, `pull-requests: write` and `id-token: write`. The test image is pulled by tag too, and `release.yml` installs `npm@latest`. A new
   third-party action or image, or a moved tag, is reviewed like a new dependency.
 - `agent-review-approve.yml` calls `CruGlobal/agent-review`'s reusable `approve.yml` and `withdraw.yml`, which
   run with `pull-requests: write` and call that repo's actions at `@main`. The caller is pinned to a commit
@@ -117,8 +116,9 @@ concern. What this document protects here is the **release**, the **CI**, the **
 **Dependencies**
 
 - `playwright` is pinned exactly in both `packages/components` and `packages/docs`, and `ci.yml`'s test
-  shards run in the `mcr.microsoft.com/playwright:v<version>-noble` image. The three move together;
-  Dependabot moves only the two manifests, so its PR also needs the image tag (#282). A bump to `lit`,
+  shards run in the `mcr.microsoft.com/playwright:v<version>-noble` image. The image tag is
+  read from the lockfile by `packages/build-tools/affected.js`, so it follows the two manifests; a
+  version written into `ci.yml` by hand is a finding (#282 is what a stale one cost). A bump to `lit`,
   `esbuild`, `playwright`, `@web/test-runner*`, `style-dictionary`, `astro`, `@astrojs/starlight`,
   `typescript`, `axe-core` or `@ast-grep/cli` deserves a read of its changelog, not a rubber stamp.
 - A `package-lock.json` diff with no `package.json` diff is resolution drift or a hand edit.
@@ -182,8 +182,8 @@ the PRs it came from.
   opens through a path filter that misses a file.
   <!-- evidence: PR #84, #86, #89, #94, #98 -->
 
-- **Playwright moves in three places.** See Dependencies above: both packages' exact pin and `ci.yml`'s
-  container tag. A root `overrides` entry for it does not come back, and a major bump in a package family
+- **Playwright moves in two places.** See Dependencies above: both packages' exact pin. `ci.yml`'s
+  container tag follows the lockfile. A root `overrides` entry for it does not come back, and a major bump in a package family
   (`@web/test-runner-playwright` 1.x next to `@web/test-runner` 0.19) is read against the lockfile for a
   nested second copy. #241's bump ran under a stale 1.52 override until #282.
   <!-- evidence: PR #241, #264, #282 -->

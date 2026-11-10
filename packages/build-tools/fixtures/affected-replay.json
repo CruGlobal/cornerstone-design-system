@@ -1,0 +1,544 @@
+[
+  {
+    "pr": 342,
+    "branch": "uiux-161-submenu-reopen-during-hide",
+    "files": [
+      ".changeset/dropdown-item-submenu-reopen-mid-hide.md",
+      "packages/components/src/components/dropdown-item/dropdown-item.ts",
+      "packages/components/src/components/dropdown/dropdown.test.ts"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 341,
+    "branch": "uiux-160-dropdown-reopen-mid-hide",
+    "files": [
+      ".changeset/dropdown-reopen-mid-hide.md",
+      "packages/components/src/components/dropdown/dropdown.test.ts",
+      "packages/components/src/components/dropdown/dropdown.ts"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 340,
+    "branch": "uiux-128-dead-combobox-refs",
+    "files": [
+      ".changeset/option-dead-combobox-refs.md",
+      "packages/components/src/components/option/option.test.ts",
+      "packages/components/src/components/option/option.ts"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 339,
+    "branch": "uiux-127-mui-export-compiled",
+    "files": [
+      ".changeset/mui-export-compiled.md",
+      ".github/workflows/ci.yml",
+      "package-lock.json",
+      "packages/tokens/README.md",
+      "packages/tokens/libraries/mui/index.ts",
+      "packages/tokens/libraries/mui/tsconfig.json",
+      "packages/tokens/package.json",
+      "packages/tokens/scripts/check-mui-export.mjs"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 338,
+    "branch": "docs/who-approves-and-merges",
+    "files": [
+      ".changeset/who-approves-and-merges.md",
+      ".claude/review/config.yml",
+      "CLAUDE.md"
+    ],
+    "ran": {
+      "components": false,
+      "browser": false,
+      "docs": false,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 337,
+    "branch": "uiux-158-time-input-animation-race",
+    "files": [
+      ".changeset/time-input-toggle-during-animation.md",
+      "packages/components/src/components/time-input/time-input.test.ts",
+      "packages/components/src/components/time-input/time-input.ts"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 336,
+    "branch": "review-guard-release-changelog",
+    "files": [
+      ".changeset/review-guard-release.md",
+      ".claude/review/config.yml"
+    ],
+    "ran": {
+      "components": false,
+      "browser": false,
+      "docs": false,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 335,
+    "branch": "revert-release-pr-dispatch",
+    "files": [
+      ".changeset/release-pr-ci.md",
+      ".changeset/revert-release-pr-dispatch.md",
+      ".github/workflows/ci.yml",
+      ".github/workflows/release.yml",
+      "CLAUDE.md",
+      "docs/standards/security.md"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 334,
+    "branch": "ci/release-pr-dispatch",
+    "files": [
+      ".changeset/release-pr-ci.md",
+      ".github/workflows/ci.yml",
+      ".github/workflows/release.yml",
+      "CLAUDE.md"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 333,
+    "branch": "remove-docs-docker-image",
+    "files": [
+      ".changeset/remove-docs-docker-image.md",
+      "packages/docs/Dockerfile",
+      "packages/docs/nginx.conf.template"
+    ],
+    "ran": {
+      "components": false,
+      "browser": false,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 332,
+    "branch": "fix/changelog-capitalize",
+    "files": [
+      ".changeset/changelog-capitalize.md",
+      "packages/build-tools/sort-changelog.js",
+      "packages/build-tools/sort-changelog.test.js"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 331,
+    "branch": "changeset-bot-exemption",
+    "files": [
+      ".changeset/changeset-bot-exemption.md",
+      "CLAUDE.md",
+      "docs/standards/standards.md"
+    ],
+    "ran": {
+      "components": false,
+      "browser": false,
+      "docs": false,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 330,
+    "branch": "agent-review-bootstrap-v2",
+    "files": [
+      ".changeset/agent-review-bootstrap.md",
+      ".claude/review/config.yml",
+      ".claude/review/evals/patches/a11y-ssr-axe-early-return.patch",
+      ".claude/review/evals/patches/api-csspart-rename-under-patch.patch",
+      ".claude/review/evals/patches/clean-extract-helper.patch",
+      ".claude/review/evals/patches/clean-rename-local.patch",
+      ".claude/review/evals/patches/docs-hand-written-api-table.patch",
+      ".claude/review/evals/patches/security-gate-missing-job.patch",
+      ".claude/review/evals/patches/security-playwright-tag-drift.patch",
+      ".claude/review/evals/patches/standards-extends-litelement.patch",
+      ".claude/review/evals/patches/styles-foreign-token-vocabulary.patch",
+      ".claude/review/evals/patches/testing-focused-test.patch",
+      ".claude/review/evals/patches/theming-load-bearing-literal.patch",
+      ".claude/review/evals/patches/tokens-global-retune.patch",
+      ".claude/review/evals/results/.gitkeep",
+      ".claude/review/evals/suite.yml",
+      ".claude/review/learnings/feedback.jsonl",
+      ".claude/review/learnings/learnings.yml",
+      ".claude/review/rules/accessibility.md",
+      ".claude/review/rules/agent-prompts.md",
+      ".claude/review/rules/api-surface.md",
+      ".claude/review/rules/architecture.md",
+      ".claude/review/rules/docs-and-skills.md",
+      ".claude/review/rules/security.md",
+      ".claude/review/rules/simplification.md",
+      ".claude/review/rules/standards.md",
+      ".claude/review/rules/testing.md",
+      ".claude/review/rules/tokens-and-theming.md",
+      ".claude/settings.json",
+      ".gitattributes",
+      ".github/workflows/agent-review-approve.yml",
+      ".gitignore",
+      "docs/standards/accessibility.md",
+      "docs/standards/agent-prompts.md",
+      "docs/standards/api-surface.md",
+      "docs/standards/architecture.md",
+      "docs/standards/docs-and-skills.md",
+      "docs/standards/security.md",
+      "docs/standards/simplification.md",
+      "docs/standards/standards.md",
+      "docs/standards/testing.md",
+      "docs/standards/tokens-and-theming.md"
+    ],
+    "ran": {
+      "components": false,
+      "browser": false,
+      "docs": false,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 329,
+    "branch": "ci-gate-job",
+    "files": [
+      ".github/workflows/ci.yml"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 328,
+    "branch": "uiux-157-cancelled-hide-keeps-open",
+    "files": [
+      ".changeset/tooltip-cancelled-hide.md",
+      ".claude/review/learnings/feedback.jsonl",
+      "packages/components/src/components/tooltip/tooltip.test.ts",
+      "packages/components/src/components/tooltip/tooltip.ts"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 327,
+    "branch": "dependabot/npm_and_yarn/postcss-selector-parser-6.1.5",
+    "files": [
+      "package-lock.json"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": false
+    }
+  },
+  {
+    "pr": 326,
+    "branch": "dependabot/npm_and_yarn/qs-6.17.1",
+    "files": [
+      "package-lock.json"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": false
+    }
+  },
+  {
+    "pr": 325,
+    "branch": "dependabot/npm_and_yarn/follow-redirects-1.16.2",
+    "files": [
+      "package-lock.json"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": false
+    }
+  },
+  {
+    "pr": 324,
+    "branch": "fix/uiux-296-animate-own-end",
+    "files": [
+      ".changeset/animate-own-end.md",
+      "packages/components/src/components/drawer/drawer.test.ts",
+      "packages/components/src/components/popover/popover.test.ts",
+      "packages/components/src/internal/animate.test.ts",
+      "packages/components/src/internal/animate.ts",
+      "packages/components/src/internal/test/descendant-animation.ts"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 323,
+    "branch": "docs/go-guide",
+    "files": [
+      ".changeset/docs-go-guide.md",
+      "packages/components/scripts/agent-skill.js",
+      "packages/docs/src/content/docs/frameworks.md",
+      "packages/docs/src/content/docs/frameworks/go.md"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 313,
+    "branch": "dependabot/npm_and_yarn/fast-uri-3.1.9",
+    "files": [
+      "package-lock.json"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": false
+    }
+  },
+  {
+    "pr": 312,
+    "branch": "dependabot/npm_and_yarn/undici-8.12.3",
+    "files": [
+      "package-lock.json"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": false
+    }
+  },
+  {
+    "pr": 305,
+    "branch": "feat/inspiration-page-shell",
+    "files": [
+      ".changeset/inspiration-page-shell.md",
+      "docs/standards/docs-and-skills.md",
+      "package-lock.json",
+      "packages/docs/astro.config.mjs",
+      "packages/docs/package.json",
+      "packages/docs/public/assets/examples/inspiration/screens/settings-overview.html",
+      "packages/docs/public/assets/examples/inspiration/screens/settings-overview.saved.html",
+      "packages/docs/public/scripts/inspiration.js",
+      "packages/docs/scripts/fixtures/inspiration/README.md",
+      "packages/docs/scripts/fixtures/inspiration/content/components/toast-item.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/flows/draft-flow.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/flows/index.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/patterns/both.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/patterns/derived.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/patterns/index.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/patterns/nested.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/patterns/raised.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/patterns/stable.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/screens/alpha.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/screens/bravo.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/screens/charlie.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/screens/delta.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/screens/index.md",
+      "packages/docs/scripts/fixtures/inspiration/content/inspiration/screens/overview.md",
+      "packages/docs/scripts/fixtures/inspiration/screens/alpha.html",
+      "packages/docs/scripts/fixtures/inspiration/screens/bravo.html",
+      "packages/docs/scripts/fixtures/inspiration/screens/charlie.html",
+      "packages/docs/scripts/fixtures/inspiration/screens/delta.html",
+      "packages/docs/scripts/fixtures/inspiration/screens/overview.html",
+      "packages/docs/scripts/fixtures/inspiration/screens/overview.saved.html",
+      "packages/docs/scripts/inspiration.test.js",
+      "packages/docs/src/components/Sidebar.astro",
+      "packages/docs/src/content.config.ts",
+      "packages/docs/src/content/docs/inspiration/flows/update-your-profile.md",
+      "packages/docs/src/content/docs/inspiration/patterns/error-summary.md",
+      "packages/docs/src/content/docs/inspiration/screens/settings-overview.md",
+      "packages/docs/src/inspiration-categories.js",
+      "packages/docs/src/inspiration.js",
+      "packages/docs/src/plugin-watcher.js",
+      "packages/docs/src/plugins/inspiration-previews.js",
+      "packages/docs/src/plugins/remark-inspiration.js",
+      "packages/docs/src/sidebar.js",
+      "packages/docs/src/styles/docs.css"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 304,
+    "branch": "fix/a11y-shadow-skip-link",
+    "files": [
+      ".changeset/a11y-shadow-skip-link.md",
+      "packages/docs/scripts/check-a11y.js",
+      "packages/docs/scripts/check-a11y.test.js",
+      "packages/docs/scripts/fixtures/check-a11y/shadow-skip-link-no-target/settings.hash-only.html",
+      "packages/docs/scripts/fixtures/check-a11y/shadow-skip-link-no-target/settings.html",
+      "packages/docs/scripts/fixtures/check-a11y/shadow-skip-link-no-target/settings.undecodable.html",
+      "packages/docs/scripts/fixtures/check-a11y/shadow-skip-link-stray/settings.html",
+      "packages/docs/scripts/fixtures/check-a11y/shadow-skip-link/settings.html",
+      "packages/docs/src/content/docs/resources/accessibility.md"
+    ],
+    "ran": {
+      "components": false,
+      "browser": false,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 303,
+    "branch": "docs/inspiration-connections-glossary",
+    "files": [
+      ".changeset/inspiration-connections-glossary.md",
+      "packages/docs/GLOSSARY.md"
+    ],
+    "ran": {
+      "components": false,
+      "browser": false,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 301,
+    "branch": "docs/inspiration-reasoning-glossary",
+    "files": [
+      ".changeset/inspiration-reasoning-glossary.md",
+      "packages/docs/GLOSSARY.md"
+    ],
+    "ran": {
+      "components": false,
+      "browser": false,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 299,
+    "branch": "port/wa-2886-dropdown-preserve-focus",
+    "files": [
+      ".changeset/port-wa-2886-dropdown-preserve-focus.md",
+      "packages/components/src/components/dropdown/dropdown.test.ts",
+      "packages/components/src/components/dropdown/dropdown.ts"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 298,
+    "branch": "port/wa-2846-dialog-accessible-name",
+    "files": [
+      ".changeset/port-wa-2846-dialog-accessible-name.md",
+      ".changeset/port-wa-2846-ssr-label.md",
+      "packages/components/src/components/dialog/dialog.test.ts",
+      "packages/components/src/components/dialog/dialog.ts",
+      "packages/components/src/components/drawer/drawer.test.ts",
+      "packages/components/src/components/drawer/drawer.ts",
+      "packages/docs/src/content/docs/ssr.md"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 297,
+    "branch": "port/wa-2836-visually-hidden-components",
+    "files": [
+      ".changeset/port-wa-2836-visually-hidden-components.md",
+      "packages/components/src/components/random-content/random-content.test.ts",
+      "packages/components/src/styles/component/visually-hidden.styles.ts"
+    ],
+    "ran": {
+      "components": true,
+      "browser": true,
+      "docs": true,
+      "changeset": true
+    }
+  },
+  {
+    "pr": 296,
+    "branch": "fix/changelog-directive-check",
+    "files": [
+      ".changeset/check-pages-skips-code.md",
+      "docs/standards/docs-and-skills.md",
+      "docs/standards/testing.md",
+      "packages/docs/package.json",
+      "packages/docs/scripts/check-pages.js",
+      "packages/docs/scripts/displayed-source.js",
+      "packages/docs/scripts/displayed-source.test.js"
+    ],
+    "ran": {
+      "components": false,
+      "browser": false,
+      "docs": true,
+      "changeset": true
+    }
+  }
+]

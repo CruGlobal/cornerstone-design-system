@@ -1,0 +1,252 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { describe, it } from "node:test";
+import { affected, playwrightVersion } from "./affected.js";
+
+/** The gates for a pull request from an ordinary branch that changed `files`. */
+const gatesFor = (...files) =>
+  affected({ changedFiles: files, event: "pull_request", branch: "feature" })
+    .gates;
+
+describe("affected", () => {
+  describe("tokens", () => {
+    it("opens for a token source change", () => {
+      assert.equal(
+        gatesFor("packages/tokens/tokens/sys/color.json").tokens,
+        true
+      );
+    });
+
+    it("stays shut for a component change", () => {
+      assert.equal(
+        gatesFor("packages/components/src/components/button/button.ts").tokens,
+        false
+      );
+    });
+  });
+
+  describe("components", () => {
+    it("opens for anything in the component package, Markdown included", () => {
+      assert.equal(
+        gatesFor("packages/components/GLOSSARY.md").components,
+        true
+      );
+    });
+
+    it("stays shut for a docs page", () => {
+      assert.equal(
+        gatesFor("packages/docs/src/content/docs/components/button.mdx")
+          .components,
+        false
+      );
+    });
+  });
+
+  describe("browser", () => {
+    it("opens for component code", () => {
+      assert.equal(
+        gatesFor("packages/components/src/components/button/button.ts").browser,
+        true
+      );
+    });
+
+    it("stays shut when every component change is Markdown", () => {
+      assert.equal(
+        gatesFor(
+          "packages/components/GLOSSARY.md",
+          "packages/components/CLAUDE.md"
+        ).browser,
+        false
+      );
+    });
+
+    it("opens when code changed alongside Markdown", () => {
+      assert.equal(
+        gatesFor(
+          "packages/components/GLOSSARY.md",
+          "packages/components/src/internal/watch.ts"
+        ).browser,
+        true
+      );
+    });
+
+    it("stays shut for code outside what the suite loads", () => {
+      assert.equal(
+        gatesFor("packages/docs/scripts/check-a11y.js").browser,
+        false
+      );
+      assert.equal(gatesFor("packages/tokens/build.mjs").browser, false);
+    });
+  });
+
+  describe("docs", () => {
+    it("opens for a docs page", () => {
+      assert.equal(
+        gatesFor("packages/docs/src/content/docs/components/button.mdx").docs,
+        true
+      );
+    });
+
+    it("opens for a component change, because the site renders the library", () => {
+      assert.equal(
+        gatesFor("packages/components/src/components/button/button.ts").docs,
+        true
+      );
+    });
+
+    it("stays shut for a token change", () => {
+      assert.equal(
+        gatesFor("packages/tokens/tokens/sys/color.json").docs,
+        false
+      );
+    });
+  });
+
+  describe("files every package depends on", () => {
+    for (const file of [
+      "package.json",
+      "package-lock.json",
+      ".tool-versions",
+      ".github/workflows/ci.yml",
+      "packages/build-tools/site-url.js",
+    ]) {
+      it(`${file} opens every path gate`, () => {
+        const { tokens, components, browser, docs } = gatesFor(file);
+        assert.deepEqual(
+          { tokens, components, browser, docs },
+          { tokens: true, components: true, browser: true, docs: true }
+        );
+      });
+    }
+
+    it("matches whole path segments, not prefixes", () => {
+      const { tokens, components, browser, docs } = gatesFor(
+        "packages/components-archive/x.ts",
+        "packages/docs/package.json.bak",
+        "package.json.orig"
+      );
+      assert.deepEqual(
+        { tokens, components, browser, docs },
+        { tokens: false, components: false, browser: false, docs: true }
+      );
+    });
+  });
+
+  describe("a change no gate covers", () => {
+    it("opens no path gate", () => {
+      const { tokens, components, browser, docs } = gatesFor(
+        "CLAUDE.md",
+        ".changeset/x.md",
+        "docs/standards/testing.md",
+        ".github/workflows/release.yml"
+      );
+      assert.deepEqual(
+        { tokens, components, browser, docs },
+        { tokens: false, components: false, browser: false, docs: false }
+      );
+    });
+
+    it("opens no path gate for an empty diff", () => {
+      const { tokens, components, browser, docs } = gatesFor();
+      assert.deepEqual(
+        { tokens, components, browser, docs },
+        { tokens: false, components: false, browser: false, docs: false }
+      );
+    });
+  });
+
+  describe("when the diff could not be read", () => {
+    it("opens every path gate, so an unknown change is a tested one", () => {
+      const { gates } = affected({
+        changedFiles: null,
+        event: "push",
+        branch: "main",
+      });
+      assert.deepEqual(gates, {
+        tokens: true,
+        components: true,
+        browser: true,
+        docs: true,
+        changeset: false,
+      });
+    });
+  });
+
+  describe("changeset", () => {
+    const changeset = (event, branch) =>
+      affected({ changedFiles: [], event, branch }).gates.changeset;
+
+    it("opens for a pull request", () => {
+      assert.equal(changeset("pull_request", "feature"), true);
+    });
+
+    it("stays shut on a push, which has no pull request to hold one", () => {
+      assert.equal(changeset("push", "main"), false);
+    });
+
+    it("stays shut for the release pull request, which exists to consume them", () => {
+      assert.equal(changeset("pull_request", "changeset-release/main"), false);
+    });
+
+    it("opens for Dependabot, whose pull requests can owe one", () => {
+      assert.equal(
+        changeset("pull_request", "dependabot/npm_and_yarn/qs-6.17.1"),
+        true
+      );
+    });
+  });
+
+  // What CI actually ran on the last 30 pull requests merged before this module replaced the path
+  // filters in `ci.yml`: each one's changed files and which jobs were not skipped. The module has to
+  // reach the verdicts the workflow reached. The changeset job is left out: it used to skip Dependabot
+  // outright and now runs to judge it, which `changeset-gate.test.js` covers.
+  describe("replays the 30 pull requests merged before it existed", () => {
+    const replay = JSON.parse(
+      readFileSync(
+        new URL("./fixtures/affected-replay.json", import.meta.url),
+        "utf8"
+      )
+    );
+
+    it("has all 30", () => {
+      assert.equal(replay.length, 30);
+    });
+
+    for (const { pr, branch, files, ran } of replay) {
+      it(`#${pr} (${branch})`, () => {
+        const { components, browser, docs } = affected({
+          changedFiles: files,
+          event: "pull_request",
+          branch,
+        }).gates;
+        assert.deepEqual(
+          { components, browser, docs },
+          { components: ran.components, browser: ran.browser, docs: ran.docs }
+        );
+      });
+    }
+  });
+});
+
+describe("playwrightVersion", () => {
+  it("reads the version the lockfile resolved", () => {
+    const lockfile = {
+      packages: { "node_modules/playwright": { version: "1.55.1" } },
+    };
+    assert.equal(playwrightVersion(lockfile), "1.55.1");
+  });
+
+  it("refuses a lockfile with no Playwright in it, which would name an image that does not exist", () => {
+    assert.throws(
+      () => playwrightVersion({ packages: {} }),
+      /no `playwright` entry/
+    );
+  });
+
+  it("refuses a version that is not a plain release, since it becomes part of an image tag", () => {
+    const lockfile = {
+      packages: { "node_modules/playwright": { version: "1.55.1\nx=y" } },
+    };
+    assert.throws(() => playwrightVersion(lockfile), /not a release version/);
+  });
+});

@@ -19,11 +19,49 @@ concurrency:
 
 permissions:
   contents: read
-  pull-requests: read
 
 jobs:
-  validate-tokens:
-    name: Validate tokens
+  # What changed decides what runs. The component suite drives three real browsers on six runners for
+  # several minutes each; a change to a documentation page has no way to affect it, and paying for it anyway
+  # is how a gate stops being run.
+  #
+  # The rules are not in this file. `packages/build-tools/affected.js` holds them, with a test for each, and
+  # every job below reads one field of what it prints: `if: fromJSON(needs.changes.outputs.gates).docs`. A
+  # new rule about what a change reaches is a line and a test there, not an edit here.
+  changes:
+    name: What changed
+    runs-on: ubuntu-latest
+    outputs:
+      gates: ${{ steps.affected.outputs.gates }}
+      playwright: ${{ steps.affected.outputs.playwright }}
+    steps:
+      # Two commits deep, for the diff. A pull request's checkout is GitHub's merge commit, whose first
+      # parent is the base branch, so `HEAD^1` is exactly what this change is measured against. On a push
+      # it is the commit `main` pointed at before.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+      # No `npm ci`: the module imports nothing outside Node. If git cannot produce the diff, it opens
+      # every gate instead of failing.
+      - name: Decide which gates this change reaches
+        id: affected
+        # Named, because the default shell runs without `pipefail` and `tee` would hide a failure.
+        shell: bash
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && 'HEAD^1' || github.event.before }}
+        run: node packages/build-tools/affected.js --base "$BASE" | tee -a "$GITHUB_OUTPUT"
+
+  # One job for the token package: lint the tree, build it, then load the built `./mui` export under
+  # plain Node ESM, the way a non-TypeScript consumer would. These are the three commands the package's
+  # README gives a developer, in the same order. They used to be two jobs with an install each, on every
+  # pull request; 1 of the 30 merged before this change touched a token.
+  verify-tokens:
+    name: Verify tokens
+    needs: changes
+    if: fromJSON(needs.changes.outputs.gates).tokens
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,68 +71,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run validate --workspace @cruglobal/cornerstone-design-system
-
-  build:
-    name: Build tokens
-    needs: validate-tokens
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .tool-versions
-          cache: npm
-      - run: npm ci
-      # Tokens only. The component build runs inside `verify-components`, and running the
-      # root build here would do it twice per PR.
+      # Tokens only. The component build runs inside `verify-components-static`, and running the root
+      # build here would do it twice per PR.
       - run: npm run build --workspace @cruglobal/cornerstone-design-system
-      # Loads the built `./mui` export under plain Node ESM, the way a non-TypeScript consumer would.
       - run: npm test --workspace @cruglobal/cornerstone-design-system
-
-  # What changed decides what runs. The component suite drives three real browsers on six runners for
-  # several minutes each; a change to a documentation page has no way to affect it, and paying for it anyway is
-  # how a gate stops being run.
-  #
-  # The dependency is one-directional and the filters mirror it: the documentation site consumes the
-  # library, so a components change runs both gates — but a docs-only change runs only its own.
-  changes:
-    name: What changed
-    runs-on: ubuntu-latest
-    outputs:
-      components: ${{ steps.filter.outputs.components }}
-      component-code: ${{ steps.code.outputs.components }}
-      docs: ${{ steps.filter.outputs.docs }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            components:
-              - 'packages/components/**'
-              - 'packages/build-tools/**'
-              - 'package.json'
-              - 'package-lock.json'
-              - '.github/workflows/ci.yml'
-            docs:
-              - 'packages/docs/**'
-              - 'packages/components/**'
-              - 'packages/build-tools/**'
-              - 'package.json'
-              - 'package-lock.json'
-              - '.github/workflows/ci.yml'
-      # The same paths minus Markdown, for the browser suite alone. A glossary, a CLAUDE.md or a skill
-      # reference cannot change how a component behaves, and the static gate above still runs prettier,
-      # cspell and the skill checks on them. `every` makes a file match both lines, so the one pattern
-      # carries the path list as a brace group.
-      - uses: dorny/paths-filter@v3
-        id: code
-        with:
-          predicate-quantifier: every
-          filters: |
-            components:
-              - '{packages/components/**,packages/build-tools/**,package.json,package-lock.json,.github/workflows/ci.yml}'
-              - '!**/*.md'
 
   # `npm run verify` used to be one job, on the principle that CI should run exactly the command a
   # developer runs and nothing else. Sharding the browser suite breaks that into two — so the split lives
@@ -104,7 +84,7 @@ jobs:
   verify-components-static:
     name: Verify components (static)
     needs: changes
-    if: needs.changes.outputs.components == 'true'
+    if: fromJSON(needs.changes.outputs.gates).components
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -139,15 +119,16 @@ jobs:
   verify-components-test:
     name: Verify components (tests ${{ matrix.shard }}/${{ strategy.job-total }})
     needs: changes
-    if: needs.changes.outputs.component-code == 'true'
+    if: fromJSON(needs.changes.outputs.gates).browser
     runs-on: ubuntu-latest
     # Playwright's own image already holds this version's three browsers and the ~130 apt packages they
     # need. Installing those packages on a bare runner is what made a shard slow: 26-46s from a quick
     # Ubuntu mirror, 34-42 minutes from a slow one, and once a hang cancelled at 207 minutes, against
     # 4-9 minutes of tests. The tag must match the `playwright` version the packages pin; a
-    # mismatch fails at launch ("Executable doesn't exist"), not by testing the wrong browsers.
+    # mismatch fails at launch ("Executable doesn't exist"), not by testing the wrong browsers. So the tag
+    # is read from the lockfile by the `changes` job and is written nowhere in this file.
     container:
-      image: mcr.microsoft.com/playwright:v1.55.1-noble
+      image: mcr.microsoft.com/playwright:v${{ needs.changes.outputs.playwright }}-noble
       # Firefox won't start as root when HOME belongs to another user, as it does in a job container.
       # `--ipc=host` is Playwright's advice for Chromium, which can run out of shared memory without it.
       options: --user 1001 --ipc=host
@@ -175,7 +156,7 @@ jobs:
   verify-docs:
     name: Verify documentation
     needs: changes
-    if: needs.changes.outputs.docs == 'true'
+    if: fromJSON(needs.changes.outputs.gates).docs
     # Pinned, not `ubuntu-latest`. That label moved to Ubuntu 26.04, where Playwright 1.55.1 refuses to
     # install Chromium ("does not support chromium on ubuntu26.04-x64"). A cached browser hid that until
     # the cache key changed. Move this when a Playwright bump supports the newer image.
@@ -188,21 +169,18 @@ jobs:
           cache: npm
       - run: npm ci
       # `check:a11y` opens each Inspiration Screen in Chromium to run axe on it, and needs no other engine.
-      # The cache is keyed on the Playwright version, because that alone decides which Chromium build is
+      # The cache is keyed on the Playwright version the `changes` job read from the lockfile, because that alone decides which Chromium build is
       # downloaded. It was keyed on the whole lockfile, so every dependency bump missed it and spent three
       # minutes downloading a browser that had not changed.
       #
       # Not the Playwright image the shards run in. That was tried, locally, and `test:a11y` failed in it on
       # each of three runs: axe flagged two more elements in the needs-review fixture than it does here.
-      - name: Read the Playwright version the lockfile resolved
-        id: playwright
-        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/playwright'].version")" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright Chromium
         id: playwright-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+          key: playwright-chromium-${{ runner.os }}-${{ needs.changes.outputs.playwright }}
       - name: Install Playwright Chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
@@ -211,7 +189,7 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
       # The shared build modules' own tests, including the changelog sorter the docs page reads from.
-      # Seconds, and the `docs` filter already fires on every path they cover.
+      # Seconds, and the `docs` gate already opens for every path they cover.
       - run: npm run verify --workspace @cruglobal/cornerstone-build-tools
       # The site reads the library's manifest and copies its bundled build, so the library has to be
       # built — but not tested. That is the whole saving: minutes instead of half an hour.
@@ -222,48 +200,40 @@ jobs:
       - run: npm run verify:skills --workspace @cruglobal/cornerstone-components
       - run: npm run verify --workspace cornerstone-docs-site
 
+  # Whether this pull request carries the changeset it owes. The rule is CLAUDE.md's Changeset Rules, written
+  # as `packages/build-tools/changeset-gate.js` with a test per clause. It needs no install: the job used to
+  # spend a minute on `npm ci` to run a one-second command.
+  #
+  # `gates.changeset` is false on a push and on the release pull request, which exists to consume changesets.
+  # It is true for Dependabot: most of its pull requests owe nothing, and the script says which do.
   changeset:
     name: Changeset present
-    # Skip the changeset gate for automated maintenance PRs (e.g. Dependabot)
-    # and the Changesets release PR — none of these touch the token API.
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.head_ref != 'changeset-release/main' &&
-      !startsWith(github.head_ref, 'dependabot/')
+    needs: changes
+    if: fromJSON(needs.changes.outputs.gates).changeset
     runs-on: ubuntu-latest
     steps:
+      # The merge commit and its parents. `HEAD^1` is the pull request's own base, not a hardcoded main:
+      # on a stacked pull request, comparing against main counted every changeset in the stack, so one
+      # that added none of its own still passed on an ancestor's.
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version-file: .tool-versions
-          cache: npm
-      - run: npm ci
-      # Compare against the PR's own base, not a hardcoded main. On a stacked
-      # PR, --since=origin/main counts every changeset in the whole stack, so a
-      # PR that added none of its own still passed on an ancestor's. BASE_REF
-      # goes through env rather than inline interpolation because git allows
-      # `$` and `;` in ref names, which would otherwise be a shell-injection
-      # surface.
       - name: Require a changeset for this PR's own diff
-        env:
-          BASE_REF: ${{ github.event.pull_request.base.ref }}
-        run: |
-          git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
-          npx changeset status --since="origin/$BASE_REF"
+        run: node packages/build-tools/changeset-gate.js --base HEAD^1
 
   # The one check `main`'s branch protection names (cru-terraform, github/CruGlobal/repos/
   # cornerstone-design-system). Requiring this job instead of each job above means a renamed job or
   # a different shard count never blocks `main` until Terraform catches up. A skipped job passes the
-  # gate on purpose: the path filters skip suites a change cannot affect, and GitHub counts a skipped
+  # gate on purpose: `affected.js` skips suites a change cannot affect, and GitHub counts a skipped
   # required check as passed anyway.
   gate:
     name: CI gate
     needs:
-      - validate-tokens
-      - build
       - changes
+      - verify-tokens
       - verify-components-static
       - verify-components-test
       - verify-docs

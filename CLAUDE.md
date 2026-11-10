@@ -53,12 +53,15 @@ Every PR that touches the token API needs a changeset:
 PRs that only change scripts/tooling with no token API impact still take a real bump and a real
 description — never `npx changeset add --empty`.
 
-Two kinds of PR take no changeset at all: Dependabot PRs (a `dependabot/` branch, which CI's `Changeset
-present` job skips) and lockfile-only PRs, whose diff changes `package-lock.json` and no `package.json`.
+Two kinds of PR take no changeset at all: Dependabot PRs (a `dependabot/` branch) and lockfile-only PRs,
+whose diff changes `package-lock.json` and no `package.json`.
 Neither changes what a consumer installs. The test is that last point: a Dependabot PR that moves a
 `dependencies` or `peerDependencies` range in `packages/components/package.json` or
 `packages/tokens/package.json` does change it, so it takes a patch changeset (`Changed: …`) pushed to its
 branch before merge. A `devDependencies` bump never does.
+
+CI's `Changeset present` job checks these rules by running `packages/build-tools/changeset-gate.js`, which
+has a test for each one. It reads "lockfile-only" strictly: `package-lock.json` is the only file changed.
 
 **Keep the description to the change, not the reasoning behind it.** A changeset body is copied verbatim
 into `CHANGELOG.md`, which npm, GitHub and the docs changelog all render, so an essay here is an essay on
