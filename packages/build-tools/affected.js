@@ -18,13 +18,14 @@ import { fileURLToPath } from "node:url";
 import { repoDir } from "./workspace.js";
 
 /**
- * Paths every package depends on: the shared build modules, the root manifest and lockfile that decide
- * what is installed, the Node version, and the workflow that runs the gates.
+ * Paths every package depends on: the shared build modules, the root manifest, lockfile and `.npmrc` that
+ * decide what is installed, the Node version, and the workflow that runs the gates.
  */
 const EVERY_PACKAGE = [
   "packages/build-tools/",
   "package.json",
   "package-lock.json",
+  ".npmrc",
   ".tool-versions",
   ".github/workflows/ci.yml",
 ];
@@ -46,7 +47,25 @@ const REACHES = {
   docs: ["packages/docs/", "packages/components/", ...EVERY_PACKAGE],
 };
 
+/** The package directories the lists above name. */
+const KNOWN_PACKAGES = new Set(
+  Object.values(REACHES)
+    .flat()
+    .filter((path) => /^packages\/[^/]+\/$/.test(path))
+);
+
+/**
+ * The manifest of a package no list above names: one added after this file was written. Every job starts
+ * with one `npm ci` across all the workspaces, so a new workspace changes every job's install, and until it
+ * has a list of its own nothing else would open a gate for it.
+ */
+const isNewWorkspaceManifest = (file) => {
+  const manifest = /^(packages\/[^/]+\/)package\.json$/.exec(file);
+  return manifest !== null && !KNOWN_PACKAGES.has(manifest[1]);
+};
+
 const reaches = (file, paths) =>
+  isNewWorkspaceManifest(file) ||
   paths.some((path) =>
     path.endsWith("/") ? file.startsWith(path) : file === path
   );

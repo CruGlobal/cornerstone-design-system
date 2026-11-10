@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { changesetVerdict } from "./changeset-gate.js";
+import { changesetVerdict, readDiff } from "./changeset-gate.js";
 
 const packages = [
   "@cruglobal/cornerstone-components",
@@ -74,6 +74,23 @@ describe("changesetVerdict", () => {
         packages: [...packages, "cornerstone-docs-site"],
       });
       assert.equal(result.ok, true);
+    });
+
+    it("passes with a comment line and a quoted bump, both of which changesets reads", () => {
+      const content = `---\n# why this is a minor\n'@cruglobal/cornerstone-components': "minor"\n---\n\nAdded: a thing.\n`;
+      const result = verdict([".changeset/a.md"], {
+        changesets: [{ path: ".changeset/a.md", content }],
+      });
+      assert.equal(result.ok, true);
+    });
+
+    it("fails when a comment is the only thing in the frontmatter", () => {
+      const content = `---\n# nothing to release\n---\n\nChanged: a thing.\n`;
+      const result = verdict([".changeset/a.md"], {
+        changesets: [{ path: ".changeset/a.md", content }],
+      });
+      assert.equal(result.ok, false);
+      assert.match(result.reason, /names no package/);
     });
 
     it("fails when the changeset is empty, as `changeset add --empty` writes it", () => {
@@ -299,5 +316,57 @@ describe("changesetVerdict", () => {
       assert.equal(typeof result.reason, "string");
       assert.ok(result.reason.length > 0);
     }
+  });
+});
+
+describe("readDiff", () => {
+  const nameStatus = (...pairs) =>
+    pairs.map(([status, path]) => `${status}\0${path}\0`).join("");
+
+  it("lists every path the diff touches, whatever happened to it", () => {
+    const { files } = readDiff(
+      nameStatus(
+        ["M", "packages/components/package.json"],
+        ["A", "packages/components/src/new.ts"],
+        ["D", "docs/old.md"]
+      )
+    );
+    assert.deepEqual(files, [
+      "packages/components/package.json",
+      "packages/components/src/new.ts",
+      "docs/old.md",
+    ]);
+  });
+
+  it("counts a changeset the diff adds, and not one it edits or deletes", () => {
+    const { files, addedChangesets } = readDiff(
+      nameStatus(
+        ["A", ".changeset/added.md"],
+        ["M", ".changeset/edited.md"],
+        ["D", ".changeset/deleted.md"]
+      )
+    );
+    assert.deepEqual(addedChangesets, [".changeset/added.md"]);
+    assert.equal(files.length, 3);
+  });
+
+  it("does not count the changeset README, the config, or a file in a folder below", () => {
+    const { addedChangesets } = readDiff(
+      nameStatus(
+        ["A", ".changeset/README.md"],
+        ["A", ".changeset/config.json"],
+        ["A", ".changeset/drafts/later.md"]
+      )
+    );
+    assert.deepEqual(addedChangesets, []);
+  });
+
+  it("keeps a path with a space or a non-ASCII character whole", () => {
+    const { files } = readDiff(nameStatus(["A", "docs/a note é.md"]));
+    assert.deepEqual(files, ["docs/a note é.md"]);
+  });
+
+  it("reads an empty diff as no files", () => {
+    assert.deepEqual(readDiff(""), { files: [], addedChangesets: [] });
   });
 });

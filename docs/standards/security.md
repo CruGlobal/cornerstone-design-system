@@ -105,8 +105,9 @@ concern. What this document protects here is the **release**, the **CI**, the **
   `browser` gate keeps Markdown out of the browser suite; a diff that makes a `.md` file an input to a
   component's runtime breaks that.
 - Actions are pinned by tag, not commit SHA. One is third-party: `changesets/action@v1` in `release.yml`,
-  which holds `contents: write`, `pull-requests: write` and `id-token: write`. The test image is pulled by tag too, and `release.yml` installs `npm@latest`. A new
-  third-party action or image, or a moved tag, is reviewed like a new dependency.
+  which holds `contents: write`, `pull-requests: write` and `id-token: write`. The test image is pulled by
+  tag too, and `release.yml` installs `npm@latest`. A new third-party action or image, or a moved tag, is
+  reviewed like a new dependency.
 - `agent-review-approve.yml` calls `CruGlobal/agent-review`'s reusable `approve.yml` and `withdraw.yml`, which
   run with `pull-requests: write` and call that repo's actions at `@main`. The caller is pinned to a commit
   SHA; a change that moves it to a branch or tag, widens its `permissions:`, adds a step that checks out the
@@ -167,8 +168,7 @@ the PRs it came from.
   the root `overrides`, `.github/dependabot.yml`) lists every config source in precedence order, and a
   publish-setting change shows `npm publish --dry-run` from the machine class the publish will run on.
   Pin a version exactly in the package that uses it rather than in a root `overrides` block, which
-  Dependabot does not edit (#95 and #281 could not merge) (#282 was a stale root pin
-  outliving a Playwright bump). The chain here: a root
+  Dependabot does not edit (#95 and #281 could not merge). The chain here: a root
   `.npmrc` added believing it enabled provenance (it is on by default under OIDC and only blocks local
   publishes), reasoning about one package's `publishConfig` while the root file still applied to every
   package, a failed bootstrap publish, then the deletion.
@@ -183,10 +183,10 @@ the PRs it came from.
   opens through a path filter that misses a file.
   <!-- evidence: PR #84, #86, #89, #94, #98 -->
 
-- **Playwright moves in two places.** See Dependencies above: both packages' exact pin. `ci.yml`'s
-  container tag follows the lockfile. A root `overrides` entry for it does not come back, and a major bump in a package family
-  (`@web/test-runner-playwright` 1.x next to `@web/test-runner` 0.19) is read against the lockfile for a
-  nested second copy. #241's bump ran under a stale 1.52 override until #282.
+- **Playwright moves in two places.** Both packages' exact pin, as Dependencies above says; `ci.yml`'s
+  container tag follows the lockfile. A root `overrides` entry for it does not come back, and a major
+  bump in a package family (`@web/test-runner-playwright` 1.x next to `@web/test-runner` 0.19) is read
+  against the lockfile for a nested second copy. #241's bump ran under a stale 1.52 override until #282.
   <!-- evidence: PR #241, #264, #282 -->
 - **The release PR's CI waits for a person.** changesets' "chore: version packages" PR is pushed with
   `GITHUB_TOKEN`, so GitHub holds its `pull_request` CI run for approval instead of starting it: #231, #236
@@ -202,9 +202,10 @@ the PRs it came from.
   transitive majors. #241 to #244 were approved with empty reviews within a minute of each other.
   <!-- evidence: PR #240, #241, #242, #243, #244 -->
 - **The CI gate and its filters stay whole.** A diff that adds, removes or renames a `ci.yml` job changes the
-  `gate` job's `needs:` with it, and a gate added to `packages/build-tools/affected.js` gets a job that reads it; that
-  module's tests fail when the two disagree. A check that validates output built from `packages/docs/src/content/docs/**`
-  runs in a job that docs-only PRs trigger (#277 moved `verify:skills` for this).
+  `gate` job's `needs:` with it, and a gate added to `packages/build-tools/affected.js` gets a job that
+  reads it; that module's tests fail when the two disagree. A check that validates output built from
+  `packages/docs/src/content/docs/**` runs in a job that docs-only PRs trigger (#277 moved `verify:skills`
+  for this).
   <!-- evidence: PR #229, #277, #329 -->
 - **Query and stored values reach markup only through an allowlist.** A docs page or inline script that
   writes a URL parameter or `localStorage` value into markup (`document.write`, `innerHTML`) looks it up in

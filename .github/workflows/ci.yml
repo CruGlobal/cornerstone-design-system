@@ -56,8 +56,7 @@ jobs:
 
   # One job for the token package: lint the tree, build it, then load the built `./mui` export under
   # plain Node ESM, the way a non-TypeScript consumer would. These are the three commands the package's
-  # README gives a developer, in the same order. They used to be two jobs with an install each, on every
-  # pull request; 1 of the 30 merged before this change touched a token.
+  # README gives a developer, in the same order.
   verify-tokens:
     name: Verify tokens
     needs: changes
@@ -206,8 +205,7 @@ jobs:
       - run: npm run verify --workspace cornerstone-docs-site
 
   # Whether this pull request carries the changeset it owes. The rule is CLAUDE.md's Changeset Rules, written
-  # as `packages/build-tools/changeset-gate.js` with a test per clause. It needs no install: the job used to
-  # spend a minute on `npm ci` to run a one-second command.
+  # as `packages/build-tools/changeset-gate.js` with a test per clause. It needs no install.
   #
   # `gates.changeset` is false on a push and on the release pull request, which exists to consume changesets.
   # It is true for Dependabot: most of its pull requests owe nothing, and the script says which do.

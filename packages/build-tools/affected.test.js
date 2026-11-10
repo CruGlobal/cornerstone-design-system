@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import { affected, playwrightVersion } from "./affected.js";
 
 /** The gates for a pull request from an ordinary branch that changed `files`. */
@@ -121,9 +123,12 @@ describe("affected", () => {
     for (const file of [
       "package.json",
       "package-lock.json",
+      ".npmrc",
       ".tool-versions",
       ".github/workflows/ci.yml",
       "packages/build-tools/site-url.js",
+      // A workspace no rule names yet. One `npm ci` installs every workspace, so it changes every job.
+      "packages/a-new-package/package.json",
     ]) {
       it(`${file} opens every path gate`, () => {
         const { tokens, components, browser, docs } = gatesFor(file);
@@ -246,6 +251,7 @@ describe("affected", () => {
 // `ci.yml` names each gate as a bare string. One it misspells reads as null, the job skips, and `CI gate`
 // counts a skipped job as passed.
 describe("ci.yml", () => {
+  const JOB_ID = /^  ([a-z0-9-]+):$/gm;
   const workflow = readFileSync(
     new URL("../../.github/workflows/ci.yml", import.meta.url),
     "utf8"
@@ -265,11 +271,24 @@ describe("ci.yml", () => {
 
   it("gives every job but the first and the last a gate", () => {
     const jobs = [
-      ...workflow
-        .slice(workflow.indexOf("\njobs:\n"))
-        .matchAll(/^  ([a-z-]+):$/gm),
+      ...workflow.slice(workflow.indexOf("\njobs:\n")).matchAll(JOB_ID),
     ].map(([, job]) => job);
     assert.equal(jobs.length, read.length + 2, `jobs: ${jobs.join(", ")}`);
+  });
+
+  // A job `gate` does not need can fail and `CI gate`, the one check branch protection requires, still
+  // passes.
+  it("makes the gate job need every other job", () => {
+    const jobsBlock = workflow.slice(workflow.indexOf("\njobs:\n"));
+    const jobs = [...jobsBlock.matchAll(JOB_ID)].map(([, job]) => job);
+    const needs = /^  gate:\n(?:.*\n)*?    needs:\n((?:      - .+\n)+)/m.exec(
+      jobsBlock
+    );
+    assert.ok(needs, "the gate job has a needs list");
+    assert.deepEqual(
+      [...needs[1].matchAll(/- ([a-z0-9-]+)/g)].map(([, job]) => job).sort(),
+      jobs.filter((job) => job !== "gate").sort()
+    );
   });
 });
 
@@ -306,5 +325,42 @@ describe("playwrightVersion", () => {
       packages: { "node_modules/playwright": { version: "1.55.1\nx=y" } },
     };
     assert.throws(() => playwrightVersion(lockfile), /not a release version/);
+  });
+});
+
+// The script itself, for the one branch `affected()` cannot reach: git failing to produce the diff.
+describe("node affected.js", () => {
+  const script = fileURLToPath(new URL("./affected.js", import.meta.url));
+  const run = (...args) =>
+    spawnSync(process.execPath, [script, ...args], {
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        GITHUB_EVENT_NAME: "push",
+        GITHUB_HEAD_REF: "",
+        GITHUB_REF_NAME: "main",
+      },
+    });
+
+  it("opens every path gate, and still succeeds, when git cannot diff against the base", () => {
+    const { status, stdout, stderr } = run("--base", "0".repeat(40));
+    assert.equal(status, 0, stderr);
+    assert.match(stderr, /every gate is open/);
+
+    const gates = JSON.parse(/^gates=(.+)$/m.exec(stdout)[1]);
+    assert.deepEqual(gates, {
+      tokens: true,
+      components: true,
+      browser: true,
+      docs: true,
+      changeset: false,
+    });
+    assert.match(stdout, /^playwright=\d+\.\d+\.\d+$/m);
+  });
+
+  it("exits 2 with a usage line when --base is missing", () => {
+    const { status, stderr } = run();
+    assert.equal(status, 2);
+    assert.match(stderr, /Usage: node affected\.js --base <commit>/);
   });
 });

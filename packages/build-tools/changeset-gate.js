@@ -47,11 +47,14 @@ function releases(content) {
   }
   return frontmatter[1]
     .split(/\r?\n/)
-    .filter((line) => line.trim())
+    .filter((line) => line.trim() && !line.trim().startsWith("#"))
     .map((line) => {
       const pair = RELEASE_LINE.exec(line);
       return pair
-        ? { name: pair[2] ?? pair[3], bump: pair[4] }
+        ? {
+            name: pair[2] ?? pair[3],
+            bump: pair[4].replace(/^(["'])(.*)\1$/, "$2"),
+          }
         : { unreadable: line.trim() };
     });
 }
@@ -154,6 +157,34 @@ export function changesetVerdict({ diff, changesets, branch, packages }) {
   return { ok: false, reason: "This pull request adds no changeset." };
 }
 
+/**
+ * The facts in `git diff --name-status --no-renames -z` output: every path the diff touches, and the
+ * changeset files it adds. `-z` gives status and path as separate NUL-ended fields, with the path unquoted.
+ *
+ * Only an added changeset counts. One the pull request edits or deletes was owed by an earlier change.
+ *
+ * @param {string} nameStatus
+ * @returns {{ files: string[], addedChangesets: string[] }}
+ */
+export function readDiff(nameStatus) {
+  const fields = nameStatus.split("\0").filter(Boolean);
+  const changes = [];
+  for (let i = 0; i < fields.length; i += 2) {
+    changes.push({ status: fields[i], path: fields[i + 1] });
+  }
+  return {
+    files: changes.map(({ path }) => path),
+    addedChangesets: changes
+      .filter(
+        ({ status, path }) =>
+          status === "A" &&
+          /^\.changeset\/[^/]+\.md$/.test(path) &&
+          path !== ".changeset/README.md"
+      )
+      .map(({ path }) => path),
+  };
+}
+
 const git = (...args) =>
   execFileSync("git", args, {
     cwd: repoDir(),
@@ -196,23 +227,9 @@ function main() {
     return;
   }
 
-  // `-z` gives status and path as separate NUL-ended fields, with the path unquoted.
-  const fields = git(
-    "diff",
-    "--name-status",
-    "--no-renames",
-    "-z",
-    base,
-    "HEAD",
-    "--"
-  )
-    .split("\0")
-    .filter(Boolean);
-  const changes = [];
-  for (let i = 0; i < fields.length; i += 2) {
-    changes.push({ status: fields[i], path: fields[i + 1] });
-  }
-  const files = changes.map(({ path }) => path);
+  const { files, addedChangesets } = readDiff(
+    git("diff", "--name-status", "--no-renames", "-z", base, "HEAD", "--")
+  );
 
   const { ok, reason } = changesetVerdict({
     diff: {
@@ -226,14 +243,10 @@ function main() {
         )
       ),
     },
-    changesets: changes
-      .filter(
-        ({ status, path }) =>
-          status === "A" &&
-          /^\.changeset\/[^/]+\.md$/.test(path) &&
-          path !== ".changeset/README.md"
-      )
-      .map(({ path }) => ({ path, content: git("show", `HEAD:${path}`) })),
+    changesets: addedChangesets.map((path) => ({
+      path,
+      content: git("show", `HEAD:${path}`),
+    })),
     branch: process.env.GITHUB_HEAD_REF ?? "",
     packages: workspacePackages(),
   });
