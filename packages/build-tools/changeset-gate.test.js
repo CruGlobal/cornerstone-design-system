@@ -33,10 +33,45 @@ describe("changesetVerdict", () => {
       assert.equal(result.ok, true);
     });
 
-    it("passes with double quotes, no quotes, and more than one package", () => {
-      const content = `---\n"@cruglobal/cornerstone-components": minor\n@cruglobal/cornerstone-design-system: major\n---\n\nAdded: a thing.\n`;
+    it("passes with double quotes and more than one package", () => {
+      const content = `---\n"@cruglobal/cornerstone-components": minor\n'@cruglobal/cornerstone-design-system': major\n---\n\nAdded: a thing.\n`;
       const result = verdict([".changeset/a.md"], {
         changesets: [{ path: ".changeset/a.md", content }],
+      });
+      assert.equal(result.ok, true);
+    });
+
+    // Changesets reads the frontmatter as YAML, where `@` cannot start an unquoted key. A changeset like
+    // this one would pass here, merge, and then fail `changeset version` on `main`.
+    it("fails when a scoped package name is not quoted, which changesets cannot parse", () => {
+      const content = `---\n@cruglobal/cornerstone-design-system: major\n---\n\nAdded: a thing.\n`;
+      const result = verdict([".changeset/a.md"], {
+        changesets: [{ path: ".changeset/a.md", content }],
+      });
+      assert.equal(result.ok, false);
+      assert.match(result.reason, /changesets cannot read/);
+      assert.match(
+        result.reason,
+        /@cruglobal\/cornerstone-design-system: major/
+      );
+    });
+
+    it("fails when the quotes around a package name do not match", () => {
+      const content = `---\n'@cruglobal/cornerstone-components": patch\n---\n\nFixed: a thing.\n`;
+      const result = verdict([".changeset/a.md"], {
+        changesets: [{ path: ".changeset/a.md", content }],
+      });
+      assert.equal(result.ok, false);
+      assert.match(result.reason, /changesets cannot read/);
+    });
+
+    it("passes an unquoted name that has no scope, which is plain YAML", () => {
+      const content = `---\ncornerstone-docs-site: patch\n---\n\nFixed: a thing.\n`;
+      const result = changesetVerdict({
+        diff: { files: [".changeset/a.md"], manifests: {} },
+        changesets: [{ path: ".changeset/a.md", content }],
+        branch: "feature",
+        packages: [...packages, "cornerstone-docs-site"],
       });
       assert.equal(result.ok, true);
     });

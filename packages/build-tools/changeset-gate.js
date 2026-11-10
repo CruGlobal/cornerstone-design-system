@@ -30,6 +30,15 @@ const BUMPS = ["patch", "minor", "major"];
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)^---[ \t]*$/m;
 
+/**
+ * One frontmatter line: a package name, a colon, a bump. The name is in matching quotes, or is a bare word
+ * that starts with a letter or digit. Changesets reads the frontmatter as YAML, where `@` cannot start a
+ * bare word, so an unquoted `@cruglobal/…` key is a parse error there. Accepting it here would let a
+ * changeset pass this gate, merge, and then stop `changeset version` on `main`.
+ */
+const RELEASE_LINE =
+  /^(?:(["'])(.+)\1|([A-Za-z0-9][\w./-]*))[ \t]*:[ \t]*(.*?)[ \t]*$/;
+
 /** The packages and bumps a changeset's frontmatter names, or `null` when it has no frontmatter. */
 function releases(content) {
   const frontmatter = FRONTMATTER.exec(content);
@@ -40,10 +49,10 @@ function releases(content) {
     .split(/\r?\n/)
     .filter((line) => line.trim())
     .map((line) => {
-      const pair = /^\s*["']?(.+?)["']?\s*:\s*(.*?)\s*$/.exec(line);
+      const pair = RELEASE_LINE.exec(line);
       return pair
-        ? { name: pair[1], bump: pair[2] }
-        : { name: line.trim(), bump: "" };
+        ? { name: pair[2] ?? pair[3], bump: pair[4] }
+        : { unreadable: line.trim() };
     });
 }
 
@@ -56,7 +65,12 @@ function changesetProblem({ path, content }, packages) {
   if (content.replace(FRONTMATTER, "").trim() === "") {
     return `${path} has no description. Say what changed, starting with its category, such as "Fixed:".`;
   }
-  for (const { name, bump } of named) {
+  for (const { name, bump, unreadable } of named) {
+    if (unreadable !== undefined) {
+      return `${path} has a frontmatter line changesets cannot read: ${JSON.stringify(
+        unreadable
+      )}. Write it as '<package name>': patch, with the name in matching quotes.`;
+    }
     if (!packages.includes(name)) {
       return `${path} names "${name}", which is not a package in this workspace.`;
     }
