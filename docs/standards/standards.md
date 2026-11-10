@@ -65,17 +65,17 @@ repository unless a diff genuinely introduces one of those concerns.
 
 ### Commands (quote these exactly; don't invent equivalents)
 
-| Purpose                                                                              | Command                                                               |
-| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| Lint the token tree                                                                  | `npm run validate --workspace @cruglobal/cornerstone-design-system`   |
-| Library static gate (prettier, build, eslint and ast-grep, cspell, tsc, five checks) | `npm run verify:static --workspace @cruglobal/cornerstone-components` |
-| Library browser suite                                                                | `npm test --workspace @cruglobal/cornerstone-components`              |
-| Library full gate                                                                    | `npm run verify --workspace @cruglobal/cornerstone-components`        |
-| Docs site gate                                                                       | `npm run verify --workspace cornerstone-docs-site`                    |
-| Build tools' tests                                                                   | `npm run verify --workspace @cruglobal/cornerstone-build-tools`       |
-| One component, watching                                                              | `npm run test:component -- --watch --group <name>`                    |
-| New component                                                                        | `npm run create`                                                      |
-| Add a changeset                                                                      | `npx changeset`                                                       |
+| Purpose                                                                             | Command                                                               |
+| ----------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Lint the token tree                                                                 | `npm run validate --workspace @cruglobal/cornerstone-design-system`   |
+| Library static gate (prettier, build, eslint and ast-grep, cspell, tsc, six checks) | `npm run verify:static --workspace @cruglobal/cornerstone-components` |
+| Library browser suite                                                               | `npm test --workspace @cruglobal/cornerstone-components`              |
+| Library full gate                                                                   | `npm run verify --workspace @cruglobal/cornerstone-components`        |
+| Docs site gate                                                                      | `npm run verify --workspace cornerstone-docs-site`                    |
+| Build tools' tests                                                                  | `npm run verify --workspace @cruglobal/cornerstone-build-tools`       |
+| One component, watching                                                             | `npm run test:component -- --watch --group <name>`                    |
+| New component                                                                       | `npm run create`                                                      |
+| Add a changeset                                                                     | `npx changeset`                                                       |
 
 **What lint already enforces** (do not re-flag): Prettier; ESLint `import-x/order` with no blank lines
 between groups; `no-console` (warn and error allowed); `eqeqeq` with `null: ignore`, a recorded exception
@@ -127,13 +127,13 @@ see only a `css` template with no `${}` or escape in it, so they skip `icon.styl
 
 ### **Vocabulary**
 
-- [ ] Uses `packages/components/GLOSSARY.md` terms: *Cornerstone Components* for the library and *Cornerstone*
-      only for the whole; *ministry* and *sub-brand*, not tenant; *palette* and *theme* as separate axes;
-      *brand* for the variant and *primary* only for the action colour
-- [ ] Inspiration library prose uses `packages/docs/GLOSSARY.md` terms: *Pattern*, *Screen* and *Flow*
-      (the three *tiers*), a Screen's *States* (never *variant*), *Goal* for Screens and Flows and *Kind*
-      for Patterns (never *category* on its own), *Reasoning* and *Rule*, and *Connections*
-- [ ] Comments carry the non-obvious *why* in one line; a comment restating the next line is deleted
+- [ ] Uses `packages/components/GLOSSARY.md` terms: _Cornerstone Components_ for the library and _Cornerstone_
+      only for the whole; _ministry_ and _sub-brand_, not tenant; _palette_ and _theme_ as separate axes;
+      _brand_ for the variant and _primary_ only for the action colour
+- [ ] Inspiration library prose uses `packages/docs/GLOSSARY.md` terms: _Pattern_, _Screen_ and _Flow_
+      (the three _tiers_), a Screen's _States_ (never _variant_), _Goal_ for Screens and Flows and _Kind_
+      for Patterns (never _category_ on its own), _Reasoning_ and _Rule_, and _Connections_
+- [ ] Comments carry the non-obvious _why_ in one line; a comment restating the next line is deleted
 
 ### **Pull request**
 

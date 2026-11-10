@@ -112,7 +112,7 @@ after a fixed sleep cannot fail (#235).
 **The check scripts are tests too**
 
 `test:parts` (`check-css-parts.js`), `test:properties` (`check-css-properties.js`), `test:base-path`,
-`test:docs-url`, `verify:skills` and `lint:ast-grep` (whose `ast-grep test` runs `ast-grep/rule-tests/`
+`test:docs-url`, `test:scripts` (the `node --test` files beside the scripts), `verify:skills` and `lint:ast-grep` (whose `ast-grep test` runs `ast-grep/rule-tests/`
 first) in `packages/components`; `check:assets`, `check:pages` (with `test:displayed-source`, for the code
 it skips), `check:tokens`, `check:components`, `check:anatomy`, `check:contrast`, `check:variants`,
 `check:a11y` (with `test:a11y`, which proves it can fail), `test:inspiration` and `check:markdown-remark`
@@ -135,9 +135,10 @@ Rules derived from 96 merged PRs: #49–#169 (October 2026) and #228–#329 (Nov
 the PRs it came from.
 
 - **A change to test infrastructure or an internal helper ships with a test.** `src/internal/*.ts` helpers
-  and the selection logic in `web-test-runner.config.js` have a dozen call sites each; `waitForEvent` gained
-  a resolve-on-timeout with no `event.test.ts`, and `WTR_SHARD` round-robin selection was verified by a
-  hand-run table nothing re-runs. A guard with no test and no comment is a reason to stop and add the test
+  have a dozen call sites each, and every CI shard depends on the file selection. `waitForEvent` gained a
+  resolve-on-timeout with no `event.test.ts`, and `WTR_SHARD` selection first lived in
+  `web-test-runner.config.js`, dealt round robin and verified by a hand-run table nothing re-ran. It is now
+  `scripts/test-selection.js`, which `npm run test:scripts` tests. A guard with no test and no comment is a reason to stop and add the test
   first, not to delete it: the first draft of #113 removed `cs-accordion-item`'s `animationGeneration` guard
   as "the bug", and the existing rapid-toggling test failed on all three engines.
   <!-- evidence: PR #113, #114 -->
