@@ -116,7 +116,7 @@ npm run build
 npm run test:durations
 ```
 
-That runs the whole suite and rewrites `test-durations.json` with the seconds each file took, averaged over the three engines. Commit the result. Run it on a quiet machine, since a busy one inflates whichever files were running at the time. If the run warns that some files did not pass, run those again before committing.
+That runs the whole suite and rewrites `test-durations.json` with the seconds each file took, averaged over the three engines. Commit the result. Run it on a quiet machine, since a busy one inflates whichever files were running at the time. Tests are not retried during this run, so a test that times out fails. If the run warns that some files did not pass, refresh just those with the command below before committing: it replaces the inflated number.
 
 To refresh one component's files and leave the rest as they are, call the runner itself. `npm run test:durations -- --group button` does not work: npm keeps `--group` for itself and the whole suite runs.
 
@@ -124,9 +124,7 @@ To refresh one component's files and leave the rest as they are, call the runner
 WTR_RECORD_DURATIONS=true npx web-test-runner --group button
 ```
 
-Those numbers are rougher than a full run's. The files run with nothing else loading the machine, and they also wait for the three browsers to launch, which a full run spreads thin. Use it to get a new file onto the list, and do a full run before trusting the balance.
-
-One thing no warning covers: a test that times out and then passes on its retry adds the timeout to its file's number. If a file's number jumps for no reason, run it again.
+Those numbers are rougher than a full run's. In any run, the first files each browser opens also wait for that browser to launch. In a one-group run every file is one of the first, and nothing else is loading the machine. Use it to get a new file onto the list or to replace a number a failure inflated, and do a full run when the shards drift.
 
 ### Creating New Components
 
