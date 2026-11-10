@@ -127,8 +127,52 @@ describe('durationsReporter', () => {
     assert.deepEqual(read(), { 'src/a.test.ts': 2, 'src/b.test.ts': 2 });
     assert.equal(warnings.length, 1);
     assert.match(warnings[0], /1 file\(s\) did not pass/);
-    assert.match(warnings[0], /b\.test\.ts/);
+    assert.match(warnings[0], /^ {2}src\/b\.test\.ts$/m);
     assert.doesNotMatch(warnings[0], /a\.test\.ts/);
+    assert.ok(!warnings[0].includes(rootDir), 'names the file the way test-durations.json does');
+  });
+
+  it('names a file once when it failed in more than one engine', (t) => {
+    const { reporter, sessions, warnings } = setUp(t);
+    reporter.start({ sessions, config: { rootDir } });
+
+    const failed = ['1', '2', '3'].map((id) => {
+      sessions.set(id, 'src/a.test.ts', SESSION_STATUS.INITIALIZING);
+      return sessions.set(id, 'src/a.test.ts', SESSION_STATUS.FINISHED, { passed: false });
+    });
+    reporter.onTestRunFinished({ sessions: failed });
+
+    assert.match(warnings[0], /1 file\(s\) did not pass/);
+    assert.equal(warnings[0].match(/a\.test\.ts/g).length, 1);
+  });
+
+  it('does not clock a session that was only scheduled when the reporter started', (t) => {
+    const { reporter, sessions, read } = setUp(t);
+    sessions.set('1', 'src/a.test.ts', SESSION_STATUS.SCHEDULED, { silent: true });
+    reporter.start({ sessions, config: { rootDir } });
+
+    t.mock.timers.tick(5000);
+    sessions.set('1', 'src/a.test.ts', SESSION_STATUS.INITIALIZING);
+    t.mock.timers.tick(1000);
+    reporter.onTestRunFinished({ sessions: [sessions.set('1', 'src/a.test.ts', SESSION_STATUS.FINISHED)] });
+
+    assert.deepEqual(read(), { 'src/a.test.ts': 1 });
+  });
+
+  it('warns through the console in place when the warning is made', (t) => {
+    const dir = mkdtempSync(join(tmpdir(), 'durations-'));
+    t.after(() => rmSync(dir, { recursive: true, force: true }));
+    const reporter = durationsReporter({ path: join(dir, 'test-durations.json') });
+    const sessions = new FakeSessions();
+    const warn = t.mock.method(console, 'warn', () => {});
+    reporter.start({ sessions, config: { rootDir } });
+
+    sessions.set('1', 'src/a.test.ts', SESSION_STATUS.INITIALIZING);
+    reporter.onTestRunFinished({
+      sessions: [sessions.set('1', 'src/a.test.ts', SESSION_STATUS.FINISHED, { passed: false })],
+    });
+
+    assert.equal(warn.mock.callCount(), 1);
   });
 
   it('says nothing when every session passed', (t) => {

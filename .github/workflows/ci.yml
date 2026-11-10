@@ -197,11 +197,12 @@ jobs:
       # (UIUX-330). The runner pin above comes off with a Playwright bump (UIUX-329).
       - name: Read what decides the Chromium build
         id: playwright
-        # The version is assigned on its own line so that a failed read fails the step. Inside the `echo`
-        # it would not, and an empty version would make the cache key the same for every Playwright.
+        # The version is assigned and checked on lines of their own so that a bad read fails the step.
+        # `node -p` prints the word `undefined` for a missing field, and that or an empty value would make
+        # the cache key the same for every Playwright.
         run: |
           version=$(node -p "require('./package-lock.json').packages['node_modules/playwright'].version")
-          [ -n "$version" ]
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "image=${ImageOS:-unknown}" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright Chromium
