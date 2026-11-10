@@ -35,10 +35,14 @@ const EVERY_PACKAGE = [
  *
  * The dependency runs one way, and the lists mirror it: the documentation site renders the component
  * library, so a component change reaches `docs`, but a docs page cannot change a component.
+ *
+ * `browser` is what the component suite loads. `components`, the static gate, reaches further: its
+ * `test:docs-url` check also reads the Claude Code plugins at the repo root, which no component loads.
  */
 const REACHES = {
   tokens: ["packages/tokens/", ...EVERY_PACKAGE],
-  components: ["packages/components/", ...EVERY_PACKAGE],
+  components: ["packages/components/", "plugins/", ...EVERY_PACKAGE],
+  browser: ["packages/components/", ...EVERY_PACKAGE],
   docs: ["packages/docs/", "packages/components/", ...EVERY_PACKAGE],
 };
 
@@ -79,7 +83,7 @@ export function affected({ changedFiles, event, branch }) {
       tokens: any((file) => reaches(file, REACHES.tokens)),
       components: any((file) => reaches(file, REACHES.components)),
       browser: any(
-        (file) => reaches(file, REACHES.components) && !isMarkdown(file)
+        (file) => reaches(file, REACHES.browser) && !isMarkdown(file)
       ),
       docs: any((file) => reaches(file, REACHES.docs)),
       changeset: event === "pull_request" && branch !== RELEASE_BRANCH,

@@ -33,6 +33,17 @@ describe("affected", () => {
       );
     });
 
+    it("opens for a Claude Code plugin, whose pages the docs-URL check reads", () => {
+      assert.equal(
+        gatesFor("plugins/cornerstone/agents/daniel.md").components,
+        true
+      );
+      assert.equal(
+        gatesFor("plugins/cornerstone/plugin.json").components,
+        true
+      );
+    });
+
     it("stays shut for a docs page", () => {
       assert.equal(
         gatesFor("packages/docs/src/content/docs/components/button.mdx")
@@ -68,6 +79,10 @@ describe("affected", () => {
         ).browser,
         true
       );
+    });
+
+    it("stays shut for a plugin, which no component loads", () => {
+      assert.equal(gatesFor("plugins/cornerstone/plugin.json").browser, false);
     });
 
     it("stays shut for code outside what the suite loads", () => {
