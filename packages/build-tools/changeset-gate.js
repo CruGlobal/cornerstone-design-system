@@ -28,16 +28,23 @@ const PUBLISHED_MANIFESTS = [
 const RUNTIME_FIELDS = ["dependencies", "peerDependencies"];
 const BUMPS = ["patch", "minor", "major"];
 
-const FRONTMATTER = /^---\r?\n([\s\S]*?)^---[ \t]*$/m;
+// Anchored to the start of the file. Changesets reads whatever follows the closing `---` as the summary, so
+// frontmatter further down would leave it reading a different description than this gate checked.
+const FRONTMATTER = /^---\r?\n((?:.*\r?\n)*?)---[ \t]*(?=\r?\n|$)/;
 
 /**
  * One frontmatter line: a package name, a colon, a bump. The name is in matching quotes, or is a bare word
  * that starts with a letter or digit. Changesets reads the frontmatter as YAML, where `@` cannot start a
  * bare word, so an unquoted `@cruglobal/…` key is a parse error there. Accepting it here would let a
- * changeset pass this gate, merge, and then stop `changeset version` on `main`.
+ * changeset pass this gate, merge, and then stop `changeset version` on `main`. The same goes for a colon
+ * with no space after it, which YAML reads as part of the word.
+ *
+ * This is narrower than YAML on purpose. Whatever it accepts, changesets must accept too, and
+ * `changeset-gate.test.js` checks that against the real parser. A form it turns away costs a contributor one
+ * edit; a form it lets through wrongly breaks the release.
  */
 const RELEASE_LINE =
-  /^(?:(["'])(.+)\1|([A-Za-z0-9][\w./-]*))[ \t]*:[ \t]*(.*?)[ \t]*$/;
+  /^(?:(["'])([^"'\\]+)\1|([A-Za-z0-9][\w./-]*))[ \t]*:[ \t]+(\S*)[ \t]*$/;
 
 /** The packages and bumps a changeset's frontmatter names, or `null` when it has no frontmatter. */
 function releases(content) {
@@ -68,12 +75,17 @@ function changesetProblem({ path, content }, packages) {
   if (content.replace(FRONTMATTER, "").trim() === "") {
     return `${path} has no description. Say what changed, starting with its category, such as "Fixed:".`;
   }
+  const seen = new Set();
   for (const { name, bump, unreadable } of named) {
     if (unreadable !== undefined) {
       return `${path} has a frontmatter line changesets cannot read: ${JSON.stringify(
         unreadable
       )}. Write it as '<package name>': patch, with the name in matching quotes.`;
     }
+    if (seen.has(name)) {
+      return `${path} names "${name}" twice. Changesets cannot read a package listed more than once.`;
+    }
+    seen.add(name);
     if (!packages.includes(name)) {
       return `${path} names "${name}", which is not a package in this workspace.`;
     }
