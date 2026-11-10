@@ -4,8 +4,11 @@
  * The rule is the root `CLAUDE.md`'s Changeset Rules, as code. CI used to install the whole workspace to
  * run `npx changeset status`, which answered a weaker question: it accepted an empty changeset, and it
  * never looked at the two kinds of pull request that take none. `changesetVerdict()` takes the facts and
- * returns a verdict with the reason, so every clause has a test, and the job that runs it needs a checkout
- * and Node and nothing else.
+ * returns a verdict with the reason, so every clause has a test.
+ *
+ * Changeset files are read with `@changesets/parse`, the parser `changeset version` itself uses, so a file
+ * this gate passes is one the release can read. A parser written here would have to match YAML exactly, and
+ * each gap would be a changeset that merges and then stops the release on `main`.
  *
  * `npx changeset status --since=origin/main` is still the closest local check, and `npx changeset` is how
  * to add one.
@@ -14,6 +17,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import parseChangeset from "@changesets/parse";
 import { repoDir } from "./workspace.js";
 
 /**
@@ -26,71 +30,35 @@ const PUBLISHED_MANIFESTS = [
   "packages/tokens/package.json",
 ];
 const RUNTIME_FIELDS = ["dependencies", "peerDependencies"];
+// Changesets also accepts "none". It releases nothing, which is an empty changeset by another name.
 const BUMPS = ["patch", "minor", "major"];
 
-// Anchored to the start of the file. Changesets reads whatever follows the closing `---` as the summary, so
-// frontmatter further down would leave it reading a different description than this gate checked.
-const FRONTMATTER = /^---\r?\n((?:.*\r?\n)*?)---[ \t]*(?=\r?\n|$)/;
-
-/**
- * One frontmatter line: a package name, a colon, a bump. The name is in matching quotes, or is a bare word
- * that starts with a letter or digit. Changesets reads the frontmatter as YAML, where `@` cannot start a
- * bare word, so an unquoted `@cruglobal/…` key is a parse error there. Accepting it here would let a
- * changeset pass this gate, merge, and then stop `changeset version` on `main`. The same goes for a colon
- * with no space after it, which YAML reads as part of the word.
- *
- * This is narrower than YAML on purpose. Whatever it accepts, changesets must accept too, and
- * `changeset-gate.test.js` checks that against the real parser. A form it turns away costs a contributor one
- * edit; a form it lets through wrongly breaks the release.
- */
-const RELEASE_LINE =
-  /^(?:(["'])([^"'\\]+)\1|([A-Za-z0-9][\w./-]*))[ \t]*:[ \t]+(\S*)[ \t]*$/;
-
-/** The packages and bumps a changeset's frontmatter names, or `null` when it has no frontmatter. */
-function releases(content) {
-  const frontmatter = FRONTMATTER.exec(content);
-  if (!frontmatter) {
-    return null;
-  }
-  return frontmatter[1]
-    .split(/\r?\n/)
-    .filter((line) => line.trim() && !line.trim().startsWith("#"))
-    .map((line) => {
-      const pair = RELEASE_LINE.exec(line);
-      return pair
-        ? {
-            name: pair[2] ?? pair[3],
-            bump: pair[4].replace(/^(["'])(.*)\1$/, "$2"),
-          }
-        : { unreadable: line.trim() };
-    });
-}
+// The package is CommonJS with a `default` export, which Node hands to an ES module one level down.
+const parse = parseChangeset.default ?? parseChangeset;
 
 /** What is wrong with one added changeset file, or `null` when it records a real bump. */
 function changesetProblem({ path, content }, packages) {
-  const named = releases(content);
-  if (!named || named.length === 0) {
+  let changeset;
+  try {
+    changeset = parse(content);
+  } catch (error) {
+    return `${path} is not a changeset that changesets can read. ${
+      error.message.split("\n")[0]
+    }`;
+  }
+  const { releases, summary } = changeset;
+  if (releases.length === 0) {
     return `${path} names no package. Every pull request takes a real bump and a description, never an empty changeset.`;
   }
-  if (content.replace(FRONTMATTER, "").trim() === "") {
+  if (summary.replace(/-/g, "").trim() === "") {
     return `${path} has no description. Say what changed, starting with its category, such as "Fixed:".`;
   }
-  const seen = new Set();
-  for (const { name, bump, unreadable } of named) {
-    if (unreadable !== undefined) {
-      return `${path} has a frontmatter line changesets cannot read: ${JSON.stringify(
-        unreadable
-      )}. Write it as '<package name>': patch, with the name in matching quotes.`;
-    }
-    if (seen.has(name)) {
-      return `${path} names "${name}" twice. Changesets cannot read a package listed more than once.`;
-    }
-    seen.add(name);
+  for (const { name, type } of releases) {
     if (!packages.includes(name)) {
       return `${path} names "${name}", which is not a package in this workspace.`;
     }
-    if (!BUMPS.includes(bump)) {
-      return `${path} gives "${name}" the bump "${bump}". It has to be patch, minor or major.`;
+    if (!BUMPS.includes(type)) {
+      return `${path} gives "${name}" the bump "${type}". It has to be patch, minor or major.`;
     }
   }
   return null;

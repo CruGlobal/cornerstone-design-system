@@ -205,7 +205,9 @@ jobs:
       - run: npm run verify --workspace cornerstone-docs-site
 
   # Whether this pull request carries the changeset it owes. The rule is CLAUDE.md's Changeset Rules, written
-  # as `packages/build-tools/changeset-gate.js` with a test per clause. It needs no install.
+  # as `packages/build-tools/changeset-gate.js` with a test per clause. The install is for
+  # `@changesets/parse`: the gate reads each changeset with the parser the release uses, so a file it passes
+  # is one `changeset version` can read.
   #
   # `gates.changeset` is false on a push and on the release pull request, which exists to consume changesets.
   # It is true for Dependabot: most of its pull requests owe nothing, and the script says which do.
@@ -224,6 +226,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .tool-versions
+          cache: npm
+      - run: npm ci
       - name: Require a changeset for this PR's own diff
         run: node packages/build-tools/changeset-gate.js --base HEAD^1
 
