@@ -94,7 +94,11 @@ export default {
       // hardware this config cannot see, such as CI or a smaller machine, without hiding a real
       // failure, which fails on the retry too. If a test ever needs more than one retry to pass, that
       // is a bug to chase rather than a number to raise.
-      retries: 1,
+      //
+      // Not while durations are recorded. A test that times out and passes on its retry would add the
+      // timeout to its file's number and report nothing. With no retry it fails, and the recorder's
+      // warning names the file.
+      retries: process.env.WTR_RECORD_DURATIONS === 'true' ? 0 : 1,
       // fails the whole test suite on first failure rather than letting the whole test suite run.
       bail: process.env['FAIL_FAST'] === 'true',
     },

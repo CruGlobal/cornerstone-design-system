@@ -9,9 +9,8 @@
  * The numbers are relative. A developer machine and a CI runner disagree about how many seconds a file
  * takes and agree about which files are heavy, and the deal only needs the second.
  *
- * Two things the numbers carry that are not the file's own cost. Each engine's first files also wait for
- * that browser to launch. And a test that times out, then passes on its retry, adds the timeout to its
- * file without the run reporting a failure.
+ * One thing the numbers carry that is not the file's own cost: an engine's first files also wait for that
+ * browser to launch, and so do the files that start after a browser had to be launched again.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { relative, sep } from 'node:path';
@@ -64,8 +63,7 @@ export function durationsReporter({ path, warn = (message) => console.warn(messa
       rootDir = config.rootDir;
       // The runner starts its first batch of sessions before it starts the reporters, so those pages are
       // already opening and their status change has been missed. Their clock starts now, or their files
-      // would be timed without the page load every other file is charged for. The browser is still
-      // launching at this point, so these files are charged for that too.
+      // would be timed without the page load every other file is charged for.
       for (const session of sessions.all()) {
         if (isRunning(session)) {
           started.set(session.id, Date.now());
@@ -86,8 +84,7 @@ export function durationsReporter({ path, warn = (message) => console.warn(messa
 
     onTestRunFinished({ sessions = [] } = {}) {
       // A timeout or a browser that would not start inflates a file's number. The time is still written,
-      // since a shard has to budget for a file that fails, but it is not one to commit. A test that timed
-      // out and passed on its retry is not caught here: the runner reports that session as passed.
+      // since a shard has to budget for a file that fails, but it is not one to commit.
       const failed = [
         ...new Set(sessions.filter((session) => !session.passed).map((session) => key(session.testFile))),
       ];

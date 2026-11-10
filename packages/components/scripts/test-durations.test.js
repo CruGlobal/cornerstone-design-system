@@ -68,14 +68,14 @@ describe('durationsReporter', () => {
   }
 
   /** A reporter writing to a throwaway file, with the clock under the test's control. */
-  const setUp = (t) => {
+  const setUp = (t, options = {}) => {
     const dir = mkdtempSync(join(tmpdir(), 'durations-'));
     t.after(() => rmSync(dir, { recursive: true, force: true }));
     t.mock.timers.enable({ apis: ['Date'], now: 0 });
 
     const path = join(dir, 'test-durations.json');
     const warnings = [];
-    const reporter = durationsReporter({ path, warn: (message) => warnings.push(message) });
+    const reporter = durationsReporter({ path, warn: (message) => warnings.push(message), ...options });
     return {
       path,
       warnings,
@@ -142,6 +142,7 @@ describe('durationsReporter', () => {
     });
     reporter.onTestRunFinished({ sessions: failed });
 
+    assert.equal(warnings.length, 1);
     assert.match(warnings[0], /1 file\(s\) did not pass/);
     assert.equal(warnings[0].match(/a\.test\.ts/g).length, 1);
   });
@@ -160,10 +161,7 @@ describe('durationsReporter', () => {
   });
 
   it('warns through the console in place when the warning is made', (t) => {
-    const dir = mkdtempSync(join(tmpdir(), 'durations-'));
-    t.after(() => rmSync(dir, { recursive: true, force: true }));
-    const reporter = durationsReporter({ path: join(dir, 'test-durations.json') });
-    const sessions = new FakeSessions();
+    const { reporter, sessions } = setUp(t, { warn: undefined });
     const warn = t.mock.method(console, 'warn', () => {});
     reporter.start({ sessions, config: { rootDir } });
 
