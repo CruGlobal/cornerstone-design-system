@@ -112,7 +112,7 @@ after a fixed sleep cannot fail (#235).
 **The check scripts are tests too**
 
 `test:parts` (`check-css-parts.js`), `test:properties` (`check-css-properties.js`), `test:base-path`,
-`test:docs-url`, `verify:skills` and `lint:ast-grep` (whose `ast-grep test` runs `ast-grep/rule-tests/`
+`test:docs-url`, `test:scripts` (the `node --test` files beside the scripts), `verify:skills` and `lint:ast-grep` (whose `ast-grep test` runs `ast-grep/rule-tests/`
 first) in `packages/components`; `check:assets`, `check:pages` (with `test:displayed-source`, for the code
 it skips), `check:tokens`, `check:components`, `check:anatomy`, `check:contrast`, `check:variants`,
 `check:a11y` (with `test:a11y`, which proves it can fail), `test:inspiration` and `check:markdown-remark`

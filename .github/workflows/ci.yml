@@ -125,9 +125,8 @@ jobs:
   # therefore buy close to nothing — the file list is the only axis with parallelism left in it.
   #
   # The run is as slow as its slowest shard, so the files are dealt by measured cost, not by count:
-  # `scripts/test-selection.js` in the components package, weighted by its `test-durations.json`. Four
-  # shards dealt round robin took anywhere from 308 to 661 seconds in the same run, and the gate waited on
-  # the 661.
+  # `scripts/test-selection.js` in the components package, weighted by its `test-durations.json`. Dealt
+  # round robin, one shard could take twice as long as another, and the gate waited on the slow one.
   #
   # The shard count is written once, as the length of `matrix.shard`; the job name and `WTR_SHARD` read
   # `strategy.job-total`.
@@ -152,7 +151,7 @@ jobs:
       # Firefox won't start as root when HOME belongs to another user, as it does in a job container.
       # `--ipc=host` is Playwright's advice for Chromium, which can run out of shared memory without it.
       options: --user 1001 --ipc=host
-    # A shard takes about six minutes. Past thirty it is stuck, and waiting longer only holds the runner.
+    # A shard is meant to take a few minutes. Past thirty it is stuck, and waiting longer only holds the runner.
     timeout-minutes: 30
     strategy:
       fail-fast: false
