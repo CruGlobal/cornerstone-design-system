@@ -60,8 +60,10 @@ Neither changes what a consumer installs. The test is that last point: a Dependa
 `packages/tokens/package.json` does change it, so it takes a patch changeset (`Changed: …`) pushed to its
 branch before merge. A `devDependencies` bump never does.
 
-CI's `Changeset present` job checks these rules by running `packages/build-tools/changeset-gate.js`, which
-has a test for each one.
+CI's `Changeset present` job runs `packages/build-tools/changeset-gate.js`, which checks what a script
+can and has a test for each check: that the pull request adds a changeset changesets can read, naming a
+workspace package with a patch, minor or major bump and a description, and the two exceptions above with
+the moved-range rule. Whether the bump level and the package are the right ones is still the reviewer's call.
 
 **Keep the description to the change, not the reasoning behind it.** A changeset body is copied verbatim
 into `CHANGELOG.md`, which npm, GitHub and the docs changelog all render, so an essay here is an essay on

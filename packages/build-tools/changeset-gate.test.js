@@ -359,6 +359,14 @@ describe("changesetVerdict", () => {
         ["package-lock.json", "packages/docs/package.json"],
         {
           branch,
+          diff: {
+            manifests: {
+              "packages/docs/package.json": manifest(
+                { dependencies: { astro: "^5.0.0" } },
+                { dependencies: { astro: "^5.1.0" } }
+              ),
+            },
+          },
         }
       );
       assert.equal(result.ok, true);
