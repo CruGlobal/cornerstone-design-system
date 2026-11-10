@@ -3,10 +3,15 @@ import * as os from 'os';
 import * as process from 'process';
 import { litSsrPlugin } from '@lit-labs/testing/web-test-runner-ssr-plugin.js';
 import { esbuildPlugin } from '@web/dev-server-esbuild';
+import { defaultReporter } from '@web/test-runner';
 import { a11ySnapshotPlugin } from '@web/test-runner-commands/plugins';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { globbySync } from 'globby';
 import { getAllComponents } from './scripts/shared.js';
+import { durationsReporter } from './scripts/test-durations.js';
+import { selectTestFiles } from './scripts/test-selection.js';
+
+const TEST_DURATIONS = './test-durations.json';
 
 // Get a list of all Cornerstone component imports for the test runner
 const metadata = JSON.parse(readFileSync('./dist/unbundled/custom-elements.json'), 'utf8');
@@ -57,41 +62,26 @@ const browsers = [
   playwrightLauncher({ product: 'webkit', concurrency }),
 ];
 
-/**
- * One slice of the suite, for CI. `WTR_SHARD=2/4` runs the second quarter of the test files.
- *
- * The suite is ~28 minutes on a GitHub runner and almost all of that is serial: `concurrency` resolves to
- * 1 on a 4-core runner, so each engine works through 76 files one page at a time, and the three engines
- * already run in parallel with each other. Splitting *by engine* would therefore buy almost nothing —
- * the only axis with real parallelism left in it is the file list.
- *
- * Round-robin over the sorted list rather than contiguous chunks: test files vary widely in cost (the
- * `tree` and `select` suites dwarf `spinner`), and contiguous slices put neighbours — which are usually
- * related and similarly expensive — on the same runner.
- *
- * Unset, every file runs, so a developer's `npm test` is unchanged.
- */
-const shard = process.env.WTR_SHARD;
-const allTests = 'src/**/*.test.ts';
-let files = allTests;
+// Which files this run covers. `WTR_SHARD=2/6` is one of CI's six slices, dealt by the measured cost of each
+// file so the slices finish together; unset, every file runs, so a developer's `npm test` is the whole suite.
+// The rules, and why, are in `scripts/test-selection.js`, where they have tests.
+const files = selectTestFiles({
+  all: globbySync('src/**/*.test.ts'),
+  shard: process.env.WTR_SHARD,
+  weights: JSON.parse(readFileSync(TEST_DURATIONS, 'utf8')),
+});
 
-if (shard) {
-  const [index, total] = shard.split('/').map(Number);
-  if (!Number.isInteger(index) || !Number.isInteger(total) || index < 1 || total < 1 || index > total) {
-    throw new Error(`WTR_SHARD must look like "2/4"; got "${shard}"`);
-  }
-  files = globbySync(allTests)
-    .sort()
-    .filter((_, position) => position % total === index - 1);
-
-  if (files.length === 0) {
-    throw new Error(`WTR_SHARD=${shard} selected no test files.`);
-  }
+// `npm run test:durations` re-measures the weights above. Off by default, so an ordinary run never rewrites
+// a committed file.
+const reporters = [defaultReporter()];
+if (process.env.WTR_RECORD_DURATIONS === 'true') {
+  reporters.push(durationsReporter({ path: TEST_DURATIONS }));
 }
 
 export default {
   rootDir: '.',
   files, // "default" group — every test file, or this run's shard of them
+  reporters,
   concurrentBrowsers: 3,
   nodeResolve: true,
   testFramework: {

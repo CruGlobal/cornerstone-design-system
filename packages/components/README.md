@@ -99,6 +99,25 @@ npm run build
 
 You can also run `npm run build:serve` to start an [`http-server`](https://www.npmjs.com/package/http-server) instance on `http://localhost:4000` after the build completes, so you can preview the production build.
 
+### Testing
+
+`npm test` runs every test file in Chromium, Firefox and WebKit. Build first: the tests load components from `dist/`.
+
+CI splits the suite across six runners with `WTR_SHARD`, and you can run one of those slices yourself:
+
+```bash
+WTR_SHARD=2/6 npm test
+```
+
+Files are dealt to shards by how long each one takes, so the shards finish together. Those timings live in `test-durations.json`. A test file that is not in it still runs; it just counts as one second when the shards are dealt. Refresh the file when CI's shards drift more than a minute or two apart, or after adding several heavy test files:
+
+```bash
+npm run build
+npm run test:durations
+```
+
+That runs the whole suite and rewrites `test-durations.json` with the seconds each file took, averaged over the three engines. Commit the result. Run it on a quiet machine, since a busy one inflates whichever files were running at the time.
+
 ### Creating New Components
 
 To scaffold a new component, run the following command. It prompts for the tag name, which must start with

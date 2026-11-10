@@ -10,7 +10,7 @@ on:
   pull_request:
 
 # One run per ref. A second push used to leave the first still going, and the component gate holds
-# four runners for about ten minutes each — two of them competing for the same runners is how a suite
+# six runners for several minutes each — two of them competing for the same runners is how a suite
 # starts failing on timeouts rather than assertions. `cancel-in-progress` is safe here because nothing in this
 # workflow deploys or publishes; the worst a cancelled run loses is a result we no longer want.
 concurrency:
@@ -51,8 +51,8 @@ jobs:
       # Loads the built `./mui` export under plain Node ESM, the way a non-TypeScript consumer would.
       - run: npm test --workspace @cruglobal/cornerstone-design-system
 
-  # What changed decides what runs. The component suite drives three real browsers on four runners for
-  # about ten minutes each; a change to a documentation page has no way to affect it, and paying for it anyway is
+  # What changed decides what runs. The component suite drives three real browsers on six runners for
+  # several minutes each; a change to a documentation page has no way to affect it, and paying for it anyway is
   # how a gate stops being run.
   #
   # The dependency is one-directional and the filters mirror it: the documentation site consumes the
@@ -114,23 +114,31 @@ jobs:
           cache: npm
       - run: npm ci
       # Everything in `verify` that is not the browser suite: prettier, build, eslint, cspell, tsc and the
-      # four file checks. Once, rather than repeated on each of the four shards below.
+      # file checks. Once, rather than repeated on each of the shards below.
       - run: npm run verify:static --workspace @cruglobal/cornerstone-components
 
-  # The browser suite, in quarters.
+  # The browser suite, in sixths.
   #
-  # It was ~28 minutes, and almost all of that is serial: `concurrency` in web-test-runner.config.js
-  # resolves to 1 on a 4-core runner, so each engine walks all 76 test files one page at a time, and the
-  # three engines already run in parallel with one another. Splitting by *engine* would therefore buy
-  # close to nothing — the file list is the only axis with parallelism left in it.
+  # It was ~28 minutes as one job, and almost all of that is serial: `concurrency` in
+  # web-test-runner.config.js resolves to 1 on a 4-core runner, so each engine walks the test files one page
+  # at a time, and the three engines already run in parallel with one another. Splitting by *engine* would
+  # therefore buy close to nothing — the file list is the only axis with parallelism left in it.
   #
-  # Four shards also thins the failure mode CLAUDE.md records, where WebKit stops being able to open pages
+  # The run is as slow as its slowest shard, so the files are dealt by measured cost, not by count:
+  # `scripts/test-selection.js` in the components package, weighted by its `test-durations.json`. Four
+  # shards dealt round robin took anywhere from 308 to 661 seconds in the same run, and the gate waited on
+  # the 661.
+  #
+  # The shard count is written once, as the length of `matrix.shard`; the job name and `WTR_SHARD` read
+  # `strategy.job-total`.
+  #
+  # Short shards also thin the failure mode CLAUDE.md records, where WebKit stops being able to open pages
   # near the end of a long run: no shard has a long tail any more.
   #
-  # `fail-fast: false` because a failure in one quarter says nothing about the other three, and cancelling
-  # them turns one red test into three unknowns.
+  # `fail-fast: false` because a failure in one shard says nothing about the others, and cancelling
+  # them turns one red test into five unknowns.
   verify-components-test:
-    name: Verify components (tests ${{ matrix.shard }}/4)
+    name: Verify components (tests ${{ matrix.shard }}/${{ strategy.job-total }})
     needs: changes
     if: needs.changes.outputs.component-code == 'true'
     runs-on: ubuntu-latest
@@ -144,12 +152,12 @@ jobs:
       # Firefox won't start as root when HOME belongs to another user, as it does in a job container.
       # `--ipc=host` is Playwright's advice for Chromium, which can run out of shared memory without it.
       options: --user 1001 --ipc=host
-    # A shard takes about ten minutes. Past thirty it is stuck, and waiting longer only holds the runner.
+    # A shard takes about six minutes. Past thirty it is stuck, and waiting longer only holds the runner.
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -162,7 +170,7 @@ jobs:
       - run: npm run build --workspace @cruglobal/cornerstone-components
       - name: Run this shard of the suite
         env:
-          WTR_SHARD: ${{ matrix.shard }}/4
+          WTR_SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
         run: npm test --workspace @cruglobal/cornerstone-components
 
   verify-docs:
@@ -170,6 +178,14 @@ jobs:
     needs: changes
     if: needs.changes.outputs.docs == 'true'
     runs-on: ubuntu-latest
+    # The same image as the test shards, for one browser: `check:a11y` opens each Inspiration Screen in
+    # Chromium to run axe on it. This job used to install Chromium itself behind a cache keyed on the whole
+    # lockfile, so every dependency bump missed the cache and spent three minutes downloading a browser
+    # that had not changed. The image costs about 25 seconds to pull and has nothing to miss. Same tag as
+    # the shards, and it moves with the `playwright` pin for the same reason.
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.1-noble
+      options: --user 1001 --ipc=host
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -177,22 +193,6 @@ jobs:
           node-version-file: .tool-versions
           cache: npm
       - run: npm ci
-      # `check:a11y` opens each Inspiration Screen in Chromium to run axe on it, and needs no other engine.
-      # Same caching as the component suite, but its own key: this cache holds Chromium alone, and sharing
-      # the suite's key would let a cache saved here hand the suite a directory missing Firefox and WebKit.
-      - name: Cache Playwright Chromium
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - name: Install Playwright Chromium
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-      # The apt packages `--with-deps` installs live outside the cached directory, as in the suite's job.
-      - name: Install Playwright Chromium system dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
       # The shared build modules' own tests, including the changelog sorter the docs page reads from.
       # Seconds, and the `docs` filter already fires on every path they cover.
       - run: npm run verify --workspace @cruglobal/cornerstone-build-tools
