@@ -106,6 +106,17 @@ export function playwrightVersion(lockfile) {
       )}`
     );
   }
+  const others = Object.entries(lockfile.packages)
+    .filter(([path]) => path.endsWith("/node_modules/playwright"))
+    .filter(([, entry]) => entry.version !== version)
+    .map(([path, entry]) => `${path} (${entry.version})`);
+  if (others.length > 0) {
+    throw new Error(
+      `package-lock.json resolves more than one playwright version: ${version} at the root and ${others.join(
+        ", "
+      )}. One image cannot hold the browsers for both.`
+    );
+  }
   return version;
 }
 
@@ -117,10 +128,12 @@ function changedSince(base) {
   try {
     const out = execFileSync(
       "git",
-      ["diff", "--name-only", "--no-renames", base, "HEAD", "--"],
+      // `-z` because git otherwise quotes and escapes a path with a non-ASCII character in it, and a
+      // quoted path matches no rule.
+      ["diff", "--name-only", "--no-renames", "-z", base, "HEAD", "--"],
       { cwd: repoDir(), encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }
     );
-    return out.split("\n").filter(Boolean);
+    return out.split("\0").filter(Boolean);
   } catch (error) {
     console.error(
       `Could not diff against "${base}", so every gate is open.\n${

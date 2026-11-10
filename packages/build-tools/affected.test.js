@@ -228,6 +228,36 @@ describe("affected", () => {
   });
 });
 
+// `ci.yml` names each gate as a bare string. One it misspells reads as null, the job skips, and `CI gate`
+// counts a skipped job as passed.
+describe("ci.yml", () => {
+  const workflow = readFileSync(
+    new URL("../../.github/workflows/ci.yml", import.meta.url),
+    "utf8"
+  );
+  const read = [
+    ...workflow.matchAll(
+      /^\s+if: fromJSON\(needs\.changes\.outputs\.gates\)\.(\S+)$/gm
+    ),
+  ].map(([, gate]) => gate);
+  const gates = Object.keys(
+    affected({ changedFiles: [], event: "push", branch: "main" }).gates
+  );
+
+  it("reads each gate affected() returns exactly once, and no other", () => {
+    assert.deepEqual([...read].sort(), [...gates].sort());
+  });
+
+  it("gives every job but the first and the last a gate", () => {
+    const jobs = [
+      ...workflow
+        .slice(workflow.indexOf("\njobs:\n"))
+        .matchAll(/^  ([a-z-]+):$/gm),
+    ].map(([, job]) => job);
+    assert.equal(jobs.length, read.length + 2, `jobs: ${jobs.join(", ")}`);
+  });
+});
+
 describe("playwrightVersion", () => {
   it("reads the version the lockfile resolved", () => {
     const lockfile = {
@@ -240,6 +270,19 @@ describe("playwrightVersion", () => {
     assert.throws(
       () => playwrightVersion({ packages: {} }),
       /no `playwright` entry/
+    );
+  });
+
+  it("refuses a lockfile that resolves a second, different Playwright under one package", () => {
+    const lockfile = {
+      packages: {
+        "node_modules/playwright": { version: "1.55.1" },
+        "packages/docs/node_modules/playwright": { version: "1.56.0" },
+      },
+    };
+    assert.throws(
+      () => playwrightVersion(lockfile),
+      /more than one playwright version.*packages\/docs\/node_modules\/playwright \(1\.56\.0\)/
     );
   });
 

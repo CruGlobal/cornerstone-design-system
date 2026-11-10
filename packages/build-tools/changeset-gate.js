@@ -28,9 +28,11 @@ const PUBLISHED_MANIFESTS = [
 const RUNTIME_FIELDS = ["dependencies", "peerDependencies"];
 const BUMPS = ["patch", "minor", "major"];
 
+const FRONTMATTER = /^---\r?\n([\s\S]*?)^---[ \t]*$/m;
+
 /** The packages and bumps a changeset's frontmatter names, or `null` when it has no frontmatter. */
 function releases(content) {
-  const frontmatter = /^---\r?\n([\s\S]*?)^---\s*$/m.exec(content);
+  const frontmatter = FRONTMATTER.exec(content);
   if (!frontmatter) {
     return null;
   }
@@ -50,6 +52,9 @@ function changesetProblem({ path, content }, packages) {
   const named = releases(content);
   if (!named || named.length === 0) {
     return `${path} names no package. Every pull request takes a real bump and a description, never an empty changeset.`;
+  }
+  if (content.replace(FRONTMATTER, "").trim() === "") {
+    return `${path} has no description. Say what changed, starting with its category, such as "Fixed:".`;
   }
   for (const { name, bump } of named) {
     if (!packages.includes(name)) {
@@ -142,13 +147,17 @@ const git = (...args) =>
     stdio: ["ignore", "pipe", "pipe"],
   });
 
-/** A file's parsed JSON at a commit, or `null` when the commit does not have it. */
+/**
+ * A file's parsed JSON at a commit, or `null` when the commit does not have the file. A file that is there
+ * and does not parse throws: reading it as absent would report that no dependency moved.
+ */
 function jsonAt(commit, path) {
   try {
-    return JSON.parse(git("show", `${commit}:${path}`));
+    git("cat-file", "-e", `${commit}:${path}`);
   } catch {
     return null;
   }
+  return JSON.parse(git("show", `${commit}:${path}`));
 }
 
 /** The name of every package under `packages/`. */
@@ -173,20 +182,22 @@ function main() {
     return;
   }
 
-  const changes = git(
+  // `-z` gives status and path as separate NUL-ended fields, with the path unquoted.
+  const fields = git(
     "diff",
     "--name-status",
     "--no-renames",
+    "-z",
     base,
     "HEAD",
     "--"
   )
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const [status, path] = line.split("\t");
-      return { status, path };
-    });
+    .split("\0")
+    .filter(Boolean);
+  const changes = [];
+  for (let i = 0; i < fields.length; i += 2) {
+    changes.push({ status: fields[i], path: fields[i + 1] });
+  }
   const files = changes.map(({ path }) => path);
 
   const { ok, reason } = changesetVerdict({

@@ -50,6 +50,16 @@ describe("changesetVerdict", () => {
       assert.match(result.reason, /\.changeset\/empty\.md names no package/);
     });
 
+    it("fails when the changeset names a bump and says nothing about it", () => {
+      const silent = {
+        path: ".changeset/silent.md",
+        content: "---\n'@cruglobal/cornerstone-components': patch\n---\n\n",
+      };
+      const result = verdict([silent.path], { changesets: [silent] });
+      assert.equal(result.ok, false);
+      assert.match(result.reason, /\.changeset\/silent\.md has no description/);
+    });
+
     it("fails on an empty changeset even beside a real one", () => {
       const empty = { path: ".changeset/empty.md", content: "---\n---\n" };
       const result = verdict([patch().path, empty.path], {
@@ -109,6 +119,24 @@ describe("changesetVerdict", () => {
 
     it("fails for an empty diff", () => {
       assert.equal(verdict([]).ok, false);
+    });
+  });
+
+  describe("devDependencies", () => {
+    it("never owe a changeset of their own, on any branch: the pull request owes one as usual", () => {
+      const path = "packages/components/package.json";
+      const result = verdict([path, "package-lock.json"], {
+        diff: {
+          manifests: {
+            [path]: manifest(
+              { devDependencies: { eslint: "^9.0.0" } },
+              { devDependencies: { eslint: "^9.1.0" } }
+            ),
+          },
+        },
+      });
+      assert.equal(result.ok, false);
+      assert.equal(result.reason, "This pull request adds no changeset.");
     });
   });
 

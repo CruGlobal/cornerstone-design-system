@@ -85,7 +85,7 @@ concern. What this document protects here is the **release**, the **CI**, the **
 
 **CI permissions and triggers**
 
-- `ci.yml` runs with `contents: read, pull-requests: read`. `release.yml` is the only workflow with
+- `ci.yml` runs with `contents: read`. `release.yml` is the only workflow with
   `contents: write, pull-requests: write, id-token: write`; `pages.yml` has `pages: write, id-token: write`.
   A job gaining a `write` it did not have, a `pull_request_target` trigger, or a secret echoed to a log is
   a finding.
@@ -167,15 +167,16 @@ the PRs it came from.
   the root `overrides`, `.github/dependabot.yml`) lists every config source in precedence order, and a
   publish-setting change shows `npm publish --dry-run` from the machine class the publish will run on.
   Pin a version exactly in the package that uses it rather than in a root `overrides` block, which
-  Dependabot does not edit (#95 and #281 could not merge), and move the `ci.yml` container tag with a
-  Playwright pin (#282). The chain here: a root
+  Dependabot does not edit (#95 and #281 could not merge) (#282 was a stale root pin
+  outliving a Playwright bump). The chain here: a root
   `.npmrc` added believing it enabled provenance (it is on by default under OIDC and only blocks local
   publishes), reasoning about one package's `publishConfig` while the root file still applied to every
   package, a failed bootstrap publish, then the deletion.
   <!-- evidence: PR #103, #110, #112 -->
 - **Workflow hygiene with teeth.** A `pull_request:` trigger carries no `branches:` filter (the old
   `branches: [main]` ran no CI at all on stacked PRs); a gate that compares against a branch uses
-  `github.event.pull_request.base.ref`, never `origin/main`; every `${{ github.event.* }}` value reaches a
+  the pull request's own base (`HEAD^1` of its merge checkout, or `github.event.pull_request.base.ref`),
+  never `origin/main`; every `${{ github.event.* }}` value reaches a
   `run:` step through `env:`, never inline, since ref names may carry `$` and `;`; and a job behind a
   job-level `if:` must not be one a required status check names, because a skipped job satisfies the rule.
   Since #329 the required check is `CI gate`, which counts a skipped job as passed, so the same hole now
@@ -201,8 +202,8 @@ the PRs it came from.
   transitive majors. #241 to #244 were approved with empty reviews within a minute of each other.
   <!-- evidence: PR #240, #241, #242, #243, #244 -->
 - **The CI gate and its filters stay whole.** A diff that adds, removes or renames a `ci.yml` job changes the
-  `gate` job's `needs:` with it, and a change to `steps.filter`'s components list makes the same change to
-  `steps.code`'s brace group. A check that validates output built from `packages/docs/src/content/docs/**`
+  `gate` job's `needs:` with it, and a gate added to `packages/build-tools/affected.js` gets a job that reads it; that
+  module's tests fail when the two disagree. A check that validates output built from `packages/docs/src/content/docs/**`
   runs in a job that docs-only PRs trigger (#277 moved `verify:skills` for this).
   <!-- evidence: PR #229, #277, #329 -->
 - **Query and stored values reach markup only through an allowlist.** A docs page or inline script that
