@@ -37,18 +37,32 @@ export function mergeDurations(samples, previous = {}) {
   return Object.fromEntries(Object.entries(merged).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
 }
 
-/** A web-test-runner reporter that writes the measured durations to `path` after each run. */
-export function durationsReporter({ path }) {
+/**
+ * A web-test-runner reporter that writes the measured durations to `path` after each run.
+ *
+ * @param {object} options
+ * @param {string} options.path Where `test-durations.json` lives.
+ * @param {(message: string) => void} [options.warn] Told when a run's numbers should not be trusted.
+ */
+export function durationsReporter({ path, warn = console.warn }) {
   const started = new Map();
   const samples = [];
+  const isRunning = (session) =>
+    session.status !== SESSION_STATUS.SCHEDULED && session.status !== SESSION_STATUS.FINISHED;
 
   return {
     start({ sessions, config }) {
+      // The runner starts its first batch of sessions before it starts the reporters, so those pages are
+      // already opening and their status change has been missed. Their clock starts now, or their files
+      // would be timed without the page load every other file is charged for.
+      for (const session of sessions.all()) {
+        if (isRunning(session)) {
+          started.set(session.id, Date.now());
+        }
+      }
+
       sessions.on('session-status-updated', (session) => {
-        // The first sessions can be initializing before this listener exists, so a session's clock starts
-        // at whichever running status is seen first.
-        const running = session.status !== SESSION_STATUS.SCHEDULED && session.status !== SESSION_STATUS.FINISHED;
-        if (running && !started.has(session.id)) {
+        if (isRunning(session) && !started.has(session.id)) {
           started.set(session.id, Date.now());
         }
         // A session that failed still took its time, and a shard has to budget for it either way.
@@ -60,7 +74,17 @@ export function durationsReporter({ path }) {
       });
     },
 
-    onTestRunFinished() {
+    onTestRunFinished({ sessions = [] } = {}) {
+      // A timeout or a browser that would not start inflates a file's number. The time is still written,
+      // since a shard has to budget for a file that fails, but it is not one to commit.
+      const failed = [...new Set(sessions.filter((session) => !session.passed).map((session) => session.testFile))];
+      if (failed.length > 0) {
+        warn(
+          `test-durations: ${failed.length} file(s) did not pass, so their timings may be inflated. ` +
+            `Run them again before committing ${path}:\n${failed.map((file) => `  ${file}`).join('\n')}`,
+        );
+      }
+
       const previous = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : {};
       writeFileSync(path, JSON.stringify(mergeDurations(samples, previous), null, 2) + '\n');
       samples.length = 0;

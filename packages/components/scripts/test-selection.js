@@ -23,15 +23,12 @@ const UNKNOWN_WEIGHT = 1;
 /**
  * @param {object} input
  * @param {string[]} input.all Every test file in the suite.
- * @param {string[]} [input.only] Restrict the run to these files. Applied before sharding, so the shards
- *   split the restricted set. A path that is not in `all` is ignored.
- * @param {string} [input.shard] `"2/6"` for the second of six shards. Unset, the whole selection runs.
+ * @param {string} [input.shard] `"2/6"` for the second of six shards. Unset, every file runs.
  * @param {Record<string, number>} [input.weights] Seconds per file.
  * @returns {string[]} The files to run, sorted.
  */
-export function selectTestFiles({ all, only, shard, weights = {} }) {
-  const allowed = only && new Set(only);
-  const selection = [...all].filter((file) => !allowed || allowed.has(file)).sort();
+export function selectTestFiles({ all, shard, weights = {} }) {
+  const selection = [...all].sort();
   const files = shard ? dealShard(selection, parseShard(shard), weights) : selection;
 
   // The runner treats an empty file list as nothing to do, and exits 0.

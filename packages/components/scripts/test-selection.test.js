@@ -72,26 +72,6 @@ describe('selectTestFiles', () => {
     ]);
   });
 
-  describe('only', () => {
-    it('restricts the suite before dealing, so the shards split the restricted set', () => {
-      const all = names(10);
-      const only = [all[1], all[4], all[7], all[8]];
-      const dealt = shards(2, { all, only });
-
-      assert.deepEqual([...dealt.flat()].sort(), only);
-      assert.deepEqual(
-        dealt.map((files) => files.length),
-        [2, 2],
-      );
-    });
-
-    it('never selects a file that is not in the suite', () => {
-      assert.deepEqual(selectTestFiles({ all: ['src/a.test.ts'], only: ['src/a.test.ts', 'src/elsewhere.test.ts'] }), [
-        'src/a.test.ts',
-      ]);
-    });
-  });
-
   describe('refuses', () => {
     for (const shard of ['0/4', '5/4', '2', 'a/b', '1.5/4', '2/0', '/4', '1/4/2']) {
       it(`a shard written "${shard}"`, () => {
@@ -102,7 +82,6 @@ describe('selectTestFiles', () => {
     it('a selection with no files in it, which would otherwise pass by testing nothing', () => {
       assert.throws(() => selectTestFiles({ all: names(2), shard: '3/3' }), /selected no test files/);
       assert.throws(() => selectTestFiles({ all: [] }), /selected no test files/);
-      assert.throws(() => selectTestFiles({ all: names(2), only: [] }), /selected no test files/);
     });
   });
 });

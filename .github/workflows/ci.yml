@@ -169,18 +169,23 @@ jobs:
           cache: npm
       - run: npm ci
       # `check:a11y` opens each Inspiration Screen in Chromium to run axe on it, and needs no other engine.
-      # The cache is keyed on the Playwright version the `changes` job read from the lockfile, because that alone decides which Chromium build is
-      # downloaded. It was keyed on the whole lockfile, so every dependency bump missed it and spent three
-      # minutes downloading a browser that had not changed.
+      # The cache is keyed on what decides which Chromium build is downloaded: the Playwright version the
+      # `changes` job read from the lockfile, and the runner's image and architecture. It was keyed on the
+      # whole lockfile, so every dependency bump missed it and spent three minutes downloading a browser
+      # that had not changed.
       #
       # Not the Playwright image the shards run in. That was tried, locally, and `test:a11y` failed in it on
-      # each of three runs: axe flagged two more elements in the needs-review fixture than it does here.
+      # each of three runs: axe flagged two more elements in the needs-review fixture than it does here
+      # (UIUX-330). The runner pin above comes off with a Playwright bump (UIUX-329).
+      - name: Read the runner image
+        id: runner
+        run: echo "image=${ImageOS:-unknown}" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright Chromium
         id: playwright-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ needs.changes.outputs.playwright }}
+          key: playwright-chromium-${{ steps.runner.outputs.image }}-${{ runner.arch }}-${{ needs.changes.outputs.playwright }}
       - name: Install Playwright Chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
