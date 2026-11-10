@@ -299,6 +299,197 @@ describe('<cs-tooltip>', () => {
           expect(body.hidden).to.be.true;
         });
 
+        it('should stay open when cs-hide is cancelled', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip for="cs-button" open>This is a tooltip</cs-tooltip>
+              <cs-button id="cs-button">Hover Me</cs-button>
+            </div>
+          `);
+          const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
+          const body = tooltip.shadowRoot!.querySelector<HTMLElement>('[part~="body"]')!;
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
+
+          const showSpy = sinon.spy();
+          const afterHideSpy = sinon.spy();
+          tooltip.addEventListener('cs-show', showSpy);
+          tooltip.addEventListener('cs-after-hide', afterHideSpy);
+
+          tooltip.addEventListener('cs-hide', (event) => event.preventDefault(), { once: true });
+          tooltip.open = false;
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
+
+          // Restoring `open` folds into the same update, so it neither replays the show nor finishes the hide.
+          expect(tooltip.open).to.be.true;
+          expect(tooltip.hasAttribute('open')).to.be.true;
+          expect(body.hidden).to.be.false;
+          expect(showSpy.called).to.be.false;
+          expect(afterHideSpy.called).to.be.false;
+
+          // The cancelled hide left the Escape listener in place, and this close is not cancelled.
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !tooltip.open);
+          await settleAnimations(tooltip);
+          expect(body.hidden).to.be.true;
+          expect(afterHideSpy.calledOnce).to.be.true;
+        });
+
+        it('should keep closing on Escape after being moved in the DOM while open', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip for="cs-button" open>This is a tooltip</cs-tooltip>
+              <cs-button id="cs-button">Hover Me</cs-button>
+            </div>
+          `);
+          const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
+
+          // Moving an open tooltip re-registers its listeners without replaying the hide and show.
+          const hideSpy = sinon.spy();
+          const showSpy = sinon.spy();
+          tooltip.addEventListener('cs-hide', hideSpy);
+          tooltip.addEventListener('cs-show', showSpy);
+          el.appendChild(tooltip);
+          await tooltip.updateComplete;
+          // A replayed show would be queued behind the first update, so wait out a second one before checking.
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
+
+          expect(tooltip.open).to.be.true;
+          expect(hideSpy.called).to.be.false;
+          expect(showSpy.called).to.be.false;
+
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !tooltip.open);
+        });
+
+        it('should keep closing on Escape after a cancelled hide and a move in the DOM', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip for="cs-button" open>This is a tooltip</cs-tooltip>
+              <cs-button id="cs-button">Hover Me</cs-button>
+            </div>
+          `);
+          const tooltip = el.querySelector<CsTooltip>('cs-tooltip')!;
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
+
+          // A cancelled hide keeps the tooltip's claim on the Escape listener and stack entry.
+          tooltip.addEventListener('cs-hide', (event) => event.preventDefault(), { once: true });
+          tooltip.open = false;
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
+          expect(tooltip.open).to.be.true;
+
+          // So a move restores them without replaying the hide and show.
+          const hideSpy = sinon.spy();
+          const showSpy = sinon.spy();
+          const afterHideSpy = sinon.spy();
+          tooltip.addEventListener('cs-hide', hideSpy);
+          tooltip.addEventListener('cs-show', showSpy);
+          tooltip.addEventListener('cs-after-hide', afterHideSpy);
+          el.appendChild(tooltip);
+          await tooltip.updateComplete;
+          await tooltip.updateComplete;
+          await settleAnimations(tooltip);
+          expect(showSpy.called).to.be.false;
+
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !tooltip.open);
+          await settleAnimations(tooltip);
+          expect(hideSpy.calledOnce).to.be.true;
+          expect(afterHideSpy.calledOnce).to.be.true;
+        });
+
+        it('should register once when shown while detached and then reconnected', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip id="under" for="under-anchor" open>Underneath</cs-tooltip>
+              <cs-button id="under-anchor">Under</cs-button>
+              <cs-tooltip id="moved" for="moved-anchor">Moved</cs-tooltip>
+              <cs-button id="moved-anchor">Moved</cs-button>
+            </div>
+          `);
+          const under = el.querySelector<CsTooltip>('#under')!;
+          const moved = el.querySelector<CsTooltip>('#moved')!;
+          await under.updateComplete;
+          await moved.updateComplete;
+          await settleAnimations(under);
+
+          // Showing while detached claims the stack entry; only the reconnect may add it.
+          moved.remove();
+          moved.open = true;
+          await moved.updateComplete;
+          el.appendChild(moved);
+          await moved.updateComplete;
+          await settleAnimations(moved);
+
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !moved.open);
+          expect(under.open).to.be.true;
+
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !under.open);
+        });
+
+        it('should leave the dismissible beneath it reachable after being opened and moved in the same tick', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip id="under" for="under-anchor" open>Underneath</cs-tooltip>
+              <cs-button id="under-anchor">Under</cs-button>
+              <cs-tooltip id="moved" for="moved-anchor">Moved</cs-tooltip>
+              <cs-button id="moved-anchor">Moved</cs-button>
+            </div>
+          `);
+          const under = el.querySelector<CsTooltip>('#under')!;
+          const moved = el.querySelector<CsTooltip>('#moved')!;
+          await under.updateComplete;
+          await moved.updateComplete;
+          await settleAnimations(under);
+
+          // The open is still pending when the move reconnects, so only the show branch may register it.
+          moved.open = true;
+          el.appendChild(moved);
+          await moved.updateComplete;
+          await settleAnimations(moved);
+          expect(moved.open).to.be.true;
+
+          // Escape closes the moved tooltip and leaves no stale entry above the one underneath.
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !moved.open);
+          expect(under.open).to.be.true;
+
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !under.open);
+        });
+
+        it('should not take Escape from the dismissible beneath it after being moved while open but disabled', async () => {
+          const el = await fixture<HTMLDivElement>(html`
+            <div>
+              <cs-tooltip id="under" for="under-anchor" open>Underneath</cs-tooltip>
+              <cs-button id="under-anchor">Under</cs-button>
+              <cs-tooltip id="moved" for="moved-anchor" open disabled>Moved</cs-tooltip>
+              <cs-button id="moved-anchor">Moved</cs-button>
+            </div>
+          `);
+          const under = el.querySelector<CsTooltip>('#under')!;
+          const moved = el.querySelector<CsTooltip>('#moved')!;
+          await under.updateComplete;
+          await moved.updateComplete;
+          await settleAnimations(under);
+
+          // A disabled tooltip never showed, so a move must not register it.
+          el.appendChild(moved);
+          await moved.updateComplete;
+
+          await sendKeys({ press: 'Escape' });
+          await waitUntil(() => !under.open);
+          expect(moved.open).to.be.true;
+        });
+
         it('should not fire cs-after-show when cs-show is prevented', async () => {
           const el = await fixture<HTMLDivElement>(html`
             <div>
