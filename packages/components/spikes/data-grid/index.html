@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>cs-data-grid spike</title>
+    <link rel="stylesheet" href="out/cornerstone.css" />
+    <link rel="stylesheet" href="out/fl.css" id="fl-theme" disabled />
+    <style>
+      body {
+        margin: 0;
+        padding: var(--cs-space-l);
+        background: var(--cs-color-surface-default);
+        font-family: var(--cs-font-family-body);
+      }
+      main {
+        display: flex;
+        flex-direction: column;
+        gap: var(--cs-space-m);
+      }
+      #toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--cs-space-xs);
+        align-items: center;
+      }
+      cs-data-grid {
+        --cs-data-grid-height: 70vh;
+      }
+      #layout-json {
+        font-family: var(--cs-font-family-code);
+        font-size: var(--cs-font-size-s);
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>cs-data-grid spike (UIUX-340)</h1>
+      <div id="toolbar">
+        <label
+          >Column
+          <select id="column"></select
+        ></label>
+        <button data-action="earlier">Move earlier</button>
+        <button data-action="later">Move later</button>
+        <button data-action="pin">Pin</button>
+        <button data-action="unpin">Unpin</button>
+        <button data-action="save">Save layout</button>
+        <button data-action="restore">Restore layout</button>
+        <button data-action="reset">Reset layout</button>
+        <button data-action="dark">Toggle dark</button>
+        <button data-action="brand">Toggle FamilyLife</button>
+        <button data-action="rtl">Toggle RTL</button>
+      </div>
+      <cs-data-grid label="Quick entry batch 4471"></cs-data-grid>
+      <button id="submit" data-action="submit" onclick="document.querySelector('cs-data-grid').submit()">
+        Submit batch
+      </button>
+      <p id="layout-json"></p>
+    </main>
+    <script type="module" src="out/demo.js"></script>
+  </body>
+</html>

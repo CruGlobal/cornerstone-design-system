@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "noEmit": true, "emitDeclarationOnly": false, "declaration": false, "types": [] },
+  "include": ["./*.ts", "./events/*.ts"]
+}
