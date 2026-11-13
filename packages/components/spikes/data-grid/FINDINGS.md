@@ -21,7 +21,7 @@ Chromium inside a shadow root with 5,000 rows.
 |---|---|---|
 | Tab moves cell to cell, wraps rows, leaves after the last cell | **Pass.** Tested both ends, incl. a last row drawn only because it is active. | **Pass.** Default behavior, seen hands-on. Wraps onto read-only cells unless `tabToNextCell` skips them. |
 | Edited cell keeps focus and text while the grid scrolls | **Pass.** Same input, focus, text and caret kept after a jump to row ~2,500 and back. Breaking the fix makes 8 of 27 tests fail. | **Pass.** Hands-on: scrolled ~1,900 rows away, kept typing, value kept and committed. |
-| Lookup cells filter as you type | **Pass (spike level).** Combobox in the top layer, Escape closes list then cancels edit. Axe flags the "No matches" text (fixable). | **Partial.** Filtering editor (Rich Select) is Enterprise. We would write the same combobox as a custom editor. |
+| Lookup cells filter as you type | **Pass (spike level).** Combobox in the top layer, Escape closes list then cancels edit. Axe flags the "No matches" text as critical (a merge blocker, small fix). | **Partial.** Filtering editor (Rich Select) is Enterprise. We would write the same combobox as a custom editor. |
 | Screen readers hear the cell and edit start / stop | **Partial.** Carried by real focus moving into the input and back, checked in Chromium's accessibility tree. No one has listened with a screen reader. | **Partial.** Good grid roles. Edit start / stop not announced. Its own docs list screen reader problems under row virtualization. No WCAG claim. |
 | Themed from Cornerstone tokens, no clashes | **Pass in Chromium.** Light, dark, FamilyLife. Text contrast passes in all four combinations. | **Pass.** `themeQuartz.withParams` takes `var(--cs-*)`. A hostile page `input` rule did not leak into the shadow root. |
 | Pinned columns, column order, save / restore layouts | **Pass.** Sticky pins keep one row in reading order. `layout` JSON getter / setter repairs stale layouts. | **Pass.** `pinned`, column state and grid state APIs are all Community. |
@@ -41,15 +41,21 @@ Chromium inside a shadow root with 5,000 rows.
 
 ## Accessibility review (Esther, during the spike)
 
-Nothing blocks the build option. Two defects must be fixed before a real build merges:
+Nothing blocks choosing to build. Two defects block merging a real build, because both fail axe and the
+"keyboard reachable" line of the accessibility floor (D-1 and L5 in `evidence/esther-review.md`):
 
-- **No tab stop while editing.** The editor has `tabindex="-1"` and no cell holds `0`, so if focus leaves mid-edit,
-  Tab cannot get back into a cell. Axe reports `scrollable-region-focusable` in edit mode. One-line fix. Confirmed.
-- **Delete on a filled required cell** marks it invalid while it still shows the value.
+- **No tab stop while editing (D-1).** The editor has `tabindex="-1"` and no cell holds `0`, so if focus leaves
+  mid-edit, Tab cannot get back into a cell. Axe reports `scrollable-region-focusable` in edit mode. One-line fix.
+  Confirmed.
+- **"No matches" inside the lookup list (L5).** The text is a plain `div` inside `role="listbox"`, which axe rates
+  critical.
 
-Also short of the criteria: failed-save reason only in a tooltip, weak row label ("Amount 2"), grid label from an
-attribute instead of a slot, and Alt+End as a placeholder exit key. The focus ring inherits the existing contrast
-gap (1.47:1 on Cru light), which hits AG Grid themed with our tokens the same way.
+Also short of the criteria, all ordinary build work: Delete on a filled required cell marks it invalid while it
+still shows the value (D-2), the failed-save reason only in a tooltip (E2), a weak row label like "Amount 2" (F5), the
+grid label from an attribute instead of a slot (R1), and Alt+End as a placeholder exit key that does nothing while
+editing and misses `cs-*` hosts when looking for the next focus target. The focus ring inherits the existing
+contrast gap (1.47:1 on Cru light, worse on the active-row tint), which hits AG Grid themed with our tokens the same
+way. If the grid ships before that gap closes, the known gaps record must name it.
 
 For AG Grid, the hands-on test shows behavior, not accessibility. Its live region would sit inside our shadow root,
 the JAWS plus Firefox case our announcer exists to avoid. Each app adopting it would repeat these checks, and our
