@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>AG Grid spike check</title>
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@36.3.0/dist/ag-grid-community.min.js"></script>
+    <style>
+      :root {
+        --cs-color-surface-default: #fff;
+        --cs-color-text-normal: #1a1a1a;
+        --cs-color-brand-fill-loud: #c45a0d;
+        --cs-font-family-body: system-ui;
+      }
+      body {
+        font-family: system-ui;
+        margin: 16px;
+      }
+      /* hostile page CSS to see if it leaks into a shadow-root grid */
+      div {
+        letter-spacing: 0.5px;
+      }
+      input {
+        border: 3px solid red !important;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="before">Before grid</button>
+    <test-grid></test-grid>
+    <button id="after">After grid</button>
+    <script>
+      const funds = [
+        "General Fund",
+        "Missions",
+        "Staff Support",
+        "Building",
+        "Relief",
+        "Jesus Film",
+        "Campus",
+        "Athletes",
+        "Family Life",
+        "Global Aid",
+      ];
+      const rows = Array.from({ length: 5000 }, (_, i) => ({
+        id: i + 1,
+        donor: "Donor " + (i + 1),
+        amount: (i * 7) % 500,
+        fund: funds[i % funds.length],
+        note: "",
+      }));
+      window.__log = [];
+      class TestGrid extends HTMLElement {
+        connectedCallback() {
+          const root = this.attachShadow({ mode: "open" });
+          const div = document.createElement("div");
+          div.style.height = "400px";
+          div.style.width = "600px";
+          root.appendChild(div);
+          const theme = agGrid.themeQuartz.withParams({
+            backgroundColor: "var(--cs-color-surface-default)",
+            foregroundColor: "var(--cs-color-text-normal)",
+            accentColor: "var(--cs-color-brand-fill-loud)",
+            fontFamily: "var(--cs-font-family-body)",
+          });
+          window.api = agGrid.createGrid(
+            div,
+            {
+              theme,
+              themeStyleContainer: root,
+              rowData: rows,
+              columnDefs: [
+                { field: "id", pinned: "left", width: 80 },
+                { field: "donor", editable: true, width: 160 },
+                { field: "amount", editable: true, width: 120 },
+                {
+                  field: "fund",
+                  editable: true,
+                  width: 160,
+                  cellEditor: "agSelectCellEditor",
+                  cellEditorParams: { values: funds },
+                },
+                { field: "note", editable: true, width: 300 },
+              ],
+              onCellEditingStarted: (e) =>
+                __log.push("start " + e.rowIndex + " " + e.colDef.field),
+              onCellEditingStopped: (e) =>
+                __log.push(
+                  "stop " + e.rowIndex + " " + e.colDef.field + " " + e.value
+                ),
+            },
+            { modules: [agGrid.AllCommunityModule] }
+          );
+        }
+      }
+      customElements.define("test-grid", TestGrid);
+    </script>
+  </body>
+</html>
