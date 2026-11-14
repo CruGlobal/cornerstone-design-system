@@ -400,7 +400,7 @@ function borderStepsFor(role, mode, keyStep) {
   return { quiet: g.borderQuiet, normal: g.borderNormal, loud };
 }
 
-function gridFor(role, mode, keyStep) {
+export function gridFor(role, mode, keyStep) {
   const g = GRID[mode];
   const isNeutral = role === 'neutral';
   const border = borderStepsFor(role, mode, keyStep);
@@ -426,7 +426,7 @@ function gridFor(role, mode, keyStep) {
 }
 
 /** Non-role colour, reproducing the reference theme's definitions against role aliases. */
-function surfaceFor(mode, brandKeyStep) {
+export function surfaceFor(mode, brandKeyStep) {
   if (mode === 'light') {
     return [
       ['surface-raised', 'white'],
@@ -582,16 +582,14 @@ export function buildTheme(brandName, brand, ramps) {
   return out.join('\n');
 }
 
-// ─── CLI ──────────────────────────────────────────────────────────────────
-if (process.argv[1] && process.argv[1].endsWith('palette.mjs')) {
-  const brandName = process.argv[2];
-  const dry = process.argv.includes('--dry');
-  if (!brandName) {
-    console.error('usage: node tools/palette.mjs <brand> [--dry]');
-    process.exit(1);
-  }
+// ─── ramps ────────────────────────────────────────────────────────────────
+/** A brand's knob file, `tools/brands/<name>.json`. */
+export function readBrand(brandName) {
+  return JSON.parse(readFileSync(join(ROOT, `tools/brands/${brandName}.json`), 'utf8'));
+}
 
-  const brand = JSON.parse(readFileSync(join(ROOT, `tools/brands/${brandName}.json`), 'utf8'));
+/** Every hue's eleven-step ramp for a brand, keyed by hue name. */
+export function buildRamps(brand) {
   const neutralHues = new Set(Object.keys(brand.neutralPoints ?? {}));
 
   // The brand's chroma register: the mean of its chromatic keys. A synthesized hue arrives in this
@@ -615,6 +613,20 @@ if (process.argv[1] && process.argv[1].endsWith('palette.mjs')) {
   for (const [hue, from] of Object.entries(brand.synthesized ?? {})) {
     ramps[hue] = synthesized(from, brandChroma);
   }
+  return { ramps, brandChroma };
+}
+
+// ─── CLI ──────────────────────────────────────────────────────────────────
+if (process.argv[1] && process.argv[1].endsWith('palette.mjs')) {
+  const brandName = process.argv[2];
+  const dry = process.argv.includes('--dry');
+  if (!brandName) {
+    console.error('usage: node tools/palette.mjs <brand> [--dry]');
+    process.exit(1);
+  }
+
+  const brand = readBrand(brandName);
+  const { ramps, brandChroma } = buildRamps(brand);
 
   // ─── report ───
   console.log(`brand ${brandName} — chroma register ${brandChroma.toFixed(3)}\n`);
