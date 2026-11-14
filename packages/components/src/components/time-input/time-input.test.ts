@@ -351,6 +351,82 @@ describe('<cs-time-input>', () => {
       }
     });
 
+    describe('rapid toggling', () => {
+      it('keeps the popup active when reopened during the hide animation', async () => {
+        const el = await fixture<CsTimeInput>(
+          html`<cs-time-input
+            lang="en-GB"
+            style="--cs-show-duration: 100ms; --cs-hide-duration: 100ms"
+          ></cs-time-input>`,
+        );
+        const popup = el.shadowRoot!.querySelector<CsPopup>('.time-input-popup')!;
+        const afterHideHandler = sinon.spy();
+        await el.show();
+        el.addEventListener('cs-after-hide', afterHideHandler);
+
+        // Start closing, then reopen before the hide animation ends.
+        el.open = false;
+        await el.updateComplete;
+        const afterShow = oneEvent(el, 'cs-after-show');
+        el.open = true;
+        await afterShow;
+        // Give the abandoned hide time to finish its animation.
+        await aTimeout(150);
+
+        expect(el.open).to.be.true;
+        expect(popup.active).to.be.true;
+        expect(afterHideHandler.callCount).to.equal(0);
+      });
+
+      it('keeps the popup inactive when closed during the show animation', async () => {
+        const el = await fixture<CsTimeInput>(
+          html`<cs-time-input
+            lang="en-GB"
+            style="--cs-show-duration: 100ms; --cs-hide-duration: 100ms"
+          ></cs-time-input>`,
+        );
+        const popup = el.shadowRoot!.querySelector<CsPopup>('.time-input-popup')!;
+        const afterShowHandler = sinon.spy();
+        el.addEventListener('cs-after-show', afterShowHandler);
+
+        // Start opening, then close before the show animation ends.
+        el.open = true;
+        await el.updateComplete;
+        const afterHide = oneEvent(el, 'cs-after-hide');
+        el.open = false;
+        await afterHide;
+        // Give the abandoned show time to finish its animation.
+        await aTimeout(150);
+
+        expect(el.open).to.be.false;
+        expect(popup.active).to.be.false;
+        expect(afterShowHandler.callCount).to.equal(0);
+      });
+
+      it('does not move focus into the columns on a later open after a pointer open was closed mid-animation', async () => {
+        const el = await fixture<CsTimeInput>(
+          html`<cs-time-input
+            lang="en-GB"
+            style="--cs-show-duration: 100ms; --cs-hide-duration: 100ms"
+          ></cs-time-input>`,
+        );
+        const expandButton = el.shadowRoot!.querySelector<HTMLButtonElement>('.expand-button')!;
+
+        // A pointer open asks for focus to move into the columns once shown; close it before that happens.
+        expandButton.click();
+        await el.updateComplete;
+        const afterHide = oneEvent(el, 'cs-after-hide');
+        el.open = false;
+        await afterHide;
+        await aTimeout(150);
+
+        // A programmatic open did not ask for that focus move, so it must not inherit it.
+        await el.show();
+        const active = el.shadowRoot!.activeElement;
+        expect(active?.classList.contains('column')).to.not.be.true;
+      });
+    });
+
     it('renders one column per segment', async () => {
       const el = await fixture<CsTimeInput>(html`<cs-time-input lang="en-US"></cs-time-input>`);
       el.show();

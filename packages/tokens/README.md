@@ -142,7 +142,8 @@ The `/pull-tokens` command syncs design tokens from the Figma source file and re
 
 ```sh
 npm run validate       # lint the token tree (exits 1 on any error)
-npm run build          # compile tokens → build/ via Style Dictionary
+npm run build          # compile tokens → build/ via Style Dictionary, and the MUI adapter → build/mui/ via tsc
+npm test               # load the built ./mui export under plain Node ESM and build each brand × mode theme
 npm run version        # consume changesets → bump package.json + write CHANGELOG.md
 npm run release        # publish to npm (runs automatically via release.yml)
 npx changeset          # interactively add a changeset before merging a PR

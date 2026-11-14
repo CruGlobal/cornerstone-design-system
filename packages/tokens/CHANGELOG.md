@@ -1,5 +1,11 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.11.0
+
+### Fixed
+
+- [#339](https://github.com/CruGlobal/cornerstone-design-system/pull/339) [`a4b1cc0`](https://github.com/CruGlobal/cornerstone-design-system/commit/a4b1cc0c8b43ed3d0509d513aecbef297171ecb2) Thanks [@rguinee](https://github.com/rguinee)! - The `./mui` export now resolves to compiled JavaScript with declarations, so `import '@cruglobal/cornerstone-design-system/mui'` loads under plain Node ESM, Jest, Vitest and JS-only bundlers, not only behind a TypeScript-aware bundler.
+
 ## 0.10.0
 
 ## 0.9.0

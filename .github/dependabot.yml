@@ -2,9 +2,9 @@
 # directory, not several. This is an npm workspace, and scanning the root covers every package — without
 # it, the same dependency gets a pull request per package it appears in.
 #
-# A Playwright bump needs one more edit than Dependabot makes: the container image tag in
-# `.github/workflows/ci.yml` has to move to the same version, or the test shards launch browsers that do
-# not match the package.
+# A Playwright bump needs no edit beyond the one Dependabot makes. The container image the test shards
+# run in takes its tag from the lockfile: `packages/build-tools/affected.js` reads the resolved `playwright`
+# version in CI's `changes` job, and `.github/workflows/ci.yml` builds the image name from it.
 version: 2
 updates:
   - package-ecosystem: npm

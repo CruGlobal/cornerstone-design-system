@@ -3,11 +3,14 @@
 `plugins/**` ships Claude Code plugins to every consumer who installs the `cru` marketplace, and
 `.claude/**`, `CLAUDE.md`, `docs/agents/**` and the `GLOSSARY*.md` files steer every session in this repo.
 These are prompts: a weak line in one is a defect that fires on every run, for every reader, with no test
-to catch it. The writing standard is the `writing-for-agents` skill; review against it rather than
+to catch it. The writing standard is the `writing-for-agents` skill from `mattpocock-skills`, which
+`cornerstone-dev` installs; review against it rather than
 restating it.
 
-**Applies when the diff touches** `plugins/**`, `.claude/**`, `CLAUDE.md`,
-`packages/*/CLAUDE.md`, `docs/agents/**`, `GLOSSARY-MAP.md` or `packages/*/GLOSSARY.md`.
+**Applies when the diff touches** `plugins/**`, `.claude-plugin/**`, `.claude/**`, `CLAUDE.md`,
+`packages/*/CLAUDE.md`, `docs/agents/**`, `docs/standards/**`, `GLOSSARY-MAP.md`, `packages/*/GLOSSARY.md`,
+or the hand-written skill sources that ship in the package (`packages/components/scripts/agent-skill/*.md`,
+`packages/components/scripts/design-skill/**`).
 
 ---
 
@@ -39,7 +42,7 @@ A persona that both hands off (sideways, to another persona) and escalates (outw
 the test that separates them in one sentence before either list. Adjacent sections that each route work
 away without that sentence will be confused.
 
-**Shape of a persona** (`plugins/cornerstone-dev/agents/*.md`)
+**Shape of a persona** (`plugins/*/agents/*.md`)
 
 Front matter `name`, `description` (leading word first; one trigger per branch), and `model` only where a
 decision set a floor. A bar stated as "X is finished when Y", the domain, the boundaries (each naming the
@@ -55,6 +58,18 @@ refusal names the exact artifact ("findings", not "output") so it cannot contrad
 file. `plugins/*/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` duplicate descriptions;
 a change to one changes the other.
 
+**A hook is a prompt that runs code** (`plugins/*/hooks/`)
+
+`plugins/cornerstone/hooks/session-start.sh` runs at the start of every session in every project that enables
+the `cornerstone` plugin, and its `additionalContext` is read as part of the prompt. Its header is the
+contract: POSIX `sh` with no `jq` or `node`; silent unless the answer is certain; every failure path ends in
+`exit 0`; facts rather than commands, since hook text framed as instructions can be treated as prompt
+injection. Look for: a new exit code, stderr output or dependency; an instruction where a fact was; a skill or
+element named in the context that `plugins/cornerstone/skills/*/SKILL.md` or the library does not have; a
+change to the contributor-workspace test (a root `package.json` named `cornerstone` with `workspaces`) that
+Daniel does not share. Nothing tests the hook, so its PR shows the output from a consumer project, from inside
+this repo (silent) and from a project without the dependency (silent).
+
 **No `@` mentions.** `@Esther`-style text on GitHub pings real accounts (PR #203). Personas are named
 plainly.
 
@@ -68,12 +83,14 @@ plainly.
 - Hand-off versus escalation axis stated once, before the lists: Yes/No/N/A
 - Persona shape and length held; roadmap in the future tense: Yes/No/N/A
 - Sibling prompts, `CLAUDE.md` and the two plugin manifests still agree: Yes/No/N/A
+- A hook stays silent unless certain, exits 0 on every path, and states facts: Yes/No/N/A
 
 ---
 
 ## Mined from merged PR history
 
-Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from.
+Rules derived from 96 merged PRs: #49–#169 (October 2026) and #228–#329 (November 2026). Each carries
+the PRs it came from.
 
 - **AI failure mode: dead pointers.** `CONTEXT-MAP.md` (now `GLOSSARY-MAP.md`) was cited by `CLAUDE.md` and `docs/agents/domain.md`
   before it existed; `needs-review` was named as a label that never existed on this repo; `triage`, a
@@ -100,3 +117,8 @@ Rules derived from 46 merged PRs (#49–#169). Each carries the PRs it came from
   changed in `plugins/*/.claude-plugin/plugin.json` changes the matching `.claude-plugin/marketplace.json`
   entry in the same diff; the base tier advertised a retired command in both until someone diffed them.
   <!-- evidence: PR #90, #91, #92 -->
+
+- **A persona points at the ticket, not today's example.** A rule in `plugins/**/agents/*.md` that names a
+  component as the live example of a gap goes stale the day that component is fixed: #275 fixed callout and
+  `esther.md` needed its own PR to stop naming it. Point at the tracking ticket (UIUX-119) instead.
+  <!-- evidence: PR #275, #276 -->

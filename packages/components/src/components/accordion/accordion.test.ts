@@ -453,6 +453,93 @@ describe('<cs-accordion>', () => {
           await expectEvent(el, 'cs-accordion-collapse', () => sendKeys({ press: 'Enter' }));
           expect(item.expanded).to.be.false;
         });
+
+        it('should keep every enabled header tabbable at once instead of using a roving tabindex', async () => {
+          const el = await fixture<CsAccordion>(html`
+            <cs-accordion>
+              <cs-accordion-item label="One">Content one</cs-accordion-item>
+              <cs-accordion-item label="Two">Content two</cs-accordion-item>
+            </cs-accordion>
+          `);
+          const [first, second] = el.querySelectorAll<CsAccordionItem>('cs-accordion-item');
+          const firstButton = first.shadowRoot!.querySelector<HTMLButtonElement>('[part~="button"]')!;
+          const secondButton = second.shadowRoot!.querySelector<HTMLButtonElement>('[part~="button"]')!;
+
+          expect(firstButton.getAttribute('tabindex')).to.equal('0');
+          expect(secondButton.getAttribute('tabindex')).to.equal('0');
+
+          secondButton.focus();
+          await el.updateComplete;
+
+          expect(firstButton.getAttribute('tabindex')).to.equal('0');
+          expect(secondButton.getAttribute('tabindex')).to.equal('0');
+        });
+
+        it('should move through every enabled header with Tab', async () => {
+          const el = await fixture<CsAccordion>(html`
+            <cs-accordion>
+              <cs-accordion-item id="one" label="One">Content one</cs-accordion-item>
+              <cs-accordion-item id="two" label="Two" disabled>Content two</cs-accordion-item>
+              <cs-accordion-item id="three" label="Three">Content three</cs-accordion-item>
+            </cs-accordion>
+          `);
+          const one = el.querySelector<CsAccordionItem>('#one')!;
+          const three = el.querySelector<CsAccordionItem>('#three')!;
+          const oneButton = one.shadowRoot!.querySelector<HTMLButtonElement>('[part~="button"]')!;
+
+          oneButton.focus();
+          await sendKeys({ press: 'Tab' });
+
+          expect(document.activeElement).to.equal(three);
+        });
+
+        it('should move between enabled headers with the arrow keys, Home and End, wrapping at the ends', async () => {
+          const el = await fixture<CsAccordion>(html`
+            <cs-accordion>
+              <cs-accordion-item id="one" label="One">Content one</cs-accordion-item>
+              <cs-accordion-item id="two" label="Two" disabled>Content two</cs-accordion-item>
+              <cs-accordion-item id="three" label="Three">Content three</cs-accordion-item>
+            </cs-accordion>
+          `);
+          const one = el.querySelector<CsAccordionItem>('#one')!;
+          const three = el.querySelector<CsAccordionItem>('#three')!;
+          const oneButton = one.shadowRoot!.querySelector<HTMLButtonElement>('[part~="button"]')!;
+
+          oneButton.focus();
+          await sendKeys({ press: 'ArrowDown' });
+          expect(document.activeElement, 'ArrowDown skips the disabled header').to.equal(three);
+
+          await sendKeys({ press: 'ArrowDown' });
+          expect(document.activeElement, 'ArrowDown wraps to the first header').to.equal(one);
+
+          await sendKeys({ press: 'ArrowUp' });
+          expect(document.activeElement, 'ArrowUp wraps to the last header').to.equal(three);
+
+          await sendKeys({ press: 'Home' });
+          expect(document.activeElement, 'Home moves to the first header').to.equal(one);
+
+          await sendKeys({ press: 'End' });
+          expect(document.activeElement, 'End moves to the last header').to.equal(three);
+        });
+
+        it('should not move focus when an arrow key is pressed on a disabled header', async () => {
+          const el = await fixture<CsAccordion>(html`
+            <cs-accordion>
+              <cs-accordion-item id="one" label="One">Content one</cs-accordion-item>
+              <cs-accordion-item id="two" label="Two" disabled>Content two</cs-accordion-item>
+              <cs-accordion-item id="three" label="Three">Content three</cs-accordion-item>
+            </cs-accordion>
+          `);
+          const two = el.querySelector<CsAccordionItem>('#two')!;
+          const twoButton = two.shadowRoot!.querySelector<HTMLButtonElement>('[part~="button"]')!;
+
+          twoButton.focus();
+          await sendKeys({ press: 'ArrowDown' });
+          expect(document.activeElement).to.equal(two);
+
+          await sendKeys({ press: 'ArrowUp' });
+          expect(document.activeElement).to.equal(two);
+        });
       });
 
       describe('nested accordions', () => {

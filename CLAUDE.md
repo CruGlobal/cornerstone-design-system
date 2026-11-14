@@ -53,6 +53,18 @@ Every PR that touches the token API needs a changeset:
 PRs that only change scripts/tooling with no token API impact still take a real bump and a real
 description — never `npx changeset add --empty`.
 
+Two kinds of PR take no changeset at all: Dependabot PRs (a `dependabot/` branch) and lockfile-only PRs,
+whose diff changes `package-lock.json` and nothing else.
+Neither changes what a consumer installs. The test is that last point: a Dependabot PR that moves a
+`dependencies` or `peerDependencies` range in `packages/components/package.json` or
+`packages/tokens/package.json` does change it, so it takes a patch changeset (`Changed: …`) pushed to its
+branch before merge. A `devDependencies` bump never does.
+
+CI's `Changeset present` job runs `packages/build-tools/changeset-gate.js`, which checks what a script
+can and has a test for each check: that the pull request adds a changeset changesets can read, naming a
+workspace package with a patch, minor or major bump and a description, and the two exceptions above with
+the moved-range rule. Whether the bump level and the package are the right ones is still the reviewer's call.
+
 **Keep the description to the change, not the reasoning behind it.** A changeset body is copied verbatim
 into `CHANGELOG.md`, which npm, GitHub and the docs changelog all render, so an essay here is an essay on
 three surfaces. A line or two, or a short bullet list; the rationale belongs in the PR description, which
@@ -83,6 +95,12 @@ Merging to `main` triggers `release.yml`. `changesets/action` will:
 
 1. While changesets are pending → open/update a **"chore: version packages"** PR
 2. When that PR is merged → publish to npm with provenance via npm Trusted Publishing (no `NPM_TOKEN` needed; `id-token: write` permission is already configured)
+
+Merging the release PR is Cornerstone's deploy, and a maintainer does it by hand. The bot's pushes leave
+that PR's CI run waiting for approval, so: approve the run for the PR's current head commit ("Approve and
+run workflows" on the PR), wait for `CI gate`, approve the PR, merge. Every merge to `main` re-pushes the
+PR, which holds a new run and dismisses the earlier approval, so do all four steps right before
+publishing. Never automate them.
 
 Why a first publish is done by hand, where provenance is declared (and why not in a root `.npmrc`), and why
 `prepublishOnly` only builds: `.claude/rules/release-publishing.md`, which loads when release config is touched.
@@ -128,3 +146,32 @@ Review a branch with the `code-review` skill against a fixed point such as `main
 against live in `docs/standards/`, one file per area, each saying which paths it applies to. The ast-grep rules
 in `packages/components/ast-grep/` run in that package's `npm run lint`, locally and in CI, so a review leaves
 what they catch to them.
+
+## Who approves and merges
+
+Paths in this section are relative to the repo root. A maintainer is anyone with write access.
+
+Who did the work decides who approves the pull request. Each work item in Jira (`UIUX`) carries one tier label,
+set by a person during planning: `agent-alone` (an agent runs it end to end), `agent-builds` (an agent builds it
+while a named person shapes it) or `human-leads` (only a person takes it). An agent opens pull requests under the
+GitHub account of the person running it, so GitHub cannot tell an agent's pull request from that person's own; the
+`needs-human-approval` label is the marker. agent-review's approve action (`approval.cjs` in
+CruGlobal/agent-review, called by `.github/workflows/agent-review-approve.yml`) will not approve while a person's
+copy of that label is on the pull request, and never removes it.
+
+- **An agent's pull request**, for `agent-alone` or `agent-builds` work: the agent runs `/agent-review:review`
+  and posts the report. Once `CI gate` has passed (`gh pr checks <n> --watch`), the report is clean and the bot
+  has approved, and `needs-human-approval` is still absent, the agent turns on auto-merge with
+  `gh pr merge <n> --auto --merge`. If the repo refuses auto-merge, it leaves the merge to a maintainer. Never
+  `--admin` or any other bypass.
+- **A contributor's own pull request**, with no agent (`human-leads` work): add `needs-human-approval` when
+  opening it. agent-review still reviews it, but the bot will not approve it. Another maintainer approves it
+  before it merges, since GitHub never lets an author approve their own pull request; only a maintainer with
+  bypass rights may merge without that.
+- **Any pull request carrying `needs-human-approval`**, whoever added it (a contributor, an agent, or agent-review
+  for the paths `human_approval` lists in `.claude/review/config.yml`, which keep an agent from changing its own
+  instructions or guardrails and merging the change): a maintainer approves and merges it; an agent never does.
+  Adding the label does not withdraw an approval the bot already gave, so if auto-merge is on, also run
+  `gh pr merge <n> --disable-auto`.
+- **The release pull request** is the deploy (Release Flow). A maintainer approves its CI run, approves it and
+  merges it; an agent never does.
