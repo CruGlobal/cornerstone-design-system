@@ -233,6 +233,20 @@ describe('<cs-animation>', () => {
 
           expect(el.play).to.be.true;
         });
+
+        it('should rebuild the animation when iterationStart changes', async () => {
+          const el = await fixture<CsAnimation>(
+            html`<cs-animation name="bounce" duration="10000" iterations="1"><div></div></cs-animation>`,
+          );
+          expect(getAnimation(el)?.effect?.getTiming().iterationStart).to.equal(0);
+
+          el.iterationStart = 0.5;
+          await el.updateComplete;
+          await nextFrame();
+          await nextFrame();
+
+          expect(getAnimation(el)?.effect?.getTiming().iterationStart).to.equal(0.5);
+        });
       });
 
       describe('restart()', () => {
