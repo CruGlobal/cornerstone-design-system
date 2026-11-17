@@ -148,7 +148,7 @@ Add `allow-custom-value` to keep typed text that matches no option as the value.
 
 ### Creating Options
 
-Add `allow-create` to offer a create option when what was typed matches nothing. Picking it emits `cs-create`, then adds a `<cs-option>` with the typed text as its value and label, and picks it. Call `preventDefault()` on the event to check, change or save the new value yourself first.
+Add `allow-create` to offer a create option when what was typed matches nothing. Picking it emits `cs-create`, then adds a `<cs-option>` with the typed text as its value and label, and picks it. Call `preventDefault()` on the event to check, change or save the new value yourself first. If a framework renders the options, do that and add the option through the framework, so its next render keeps it. A value already picked stays picked: typing it again does not create it twice.
 
 ```html {.example}
 <cs-combobox label="Tags" multiple allow-create class="create-example">
@@ -204,7 +204,7 @@ The list shows a status row in place of options: `empty` when there are no optio
 
 ### Server Mode
 
-Set the `dataSource` property to load options from a server as people type. When an answer lands, it replaces the options, dividers and group labels in the list, and leaves everything else inside the combobox alone, such as a slotted label or hint. It is called with the typed text and an `AbortSignal`: when the list opens, right away, and after typing pauses for `filter-debounce` milliseconds (250 by default). A newer request aborts the one before it, so pass the signal on to `fetch()`. The combobox stops filtering on its own and shows what the server returns. A failed request shows the `error` row in place of whatever was showing, so nothing from an older answer can be picked, and tries again on the next open or keystroke.
+Set the `dataSource` property to load options from a server as people type. When an answer lands, it replaces the options, dividers and group labels in the list, and leaves everything else inside the combobox alone, such as a slotted label or hint. It is called with the typed text and an `AbortSignal`: when the list opens, right away, and after typing pauses for `filter-debounce` milliseconds (250 by default). A newer request aborts the one before it, so pass the signal on to `fetch()`. `loading` is true from the keystroke that schedules a request, so while the answer for new text is on its way the list says it is loading rather than showing results for older text. The combobox stops filtering on its own and shows what the server returns. A failed request shows the `error` row in place of whatever was showing, so nothing from an older answer can be picked, and tries again on the next open or keystroke.
 
 Return option data such as `{ value, label, disabled }`, real DOM nodes such as `<cs-option>` and `<cs-divider>`, or a [Lit template](https://lit.dev/docs/templates/overview/).
 
@@ -395,7 +395,7 @@ The combobox follows the ARIA Authoring Practices pattern for an editable combob
 | --- | --- |
 | Typing | Opens the list and narrows it. The first match is highlighted. |
 | Down Arrow / Up Arrow | Opens the list, or moves the highlight. Disabled options are skipped. |
-| Home / End | Moves the caret to the start or end of the text. If you had arrowed into the list, the highlight goes back to the first match. |
+| Home / End | Moves the caret to the start or end of the text. If you had arrowed into the list, the highlight goes back to the first match of what you typed, or is cleared when nothing is typed. |
 | Enter | Picks the highlighted option, or creates the typed value when the create option is highlighted. With the list closed, submits the form. |
 | Tab | Picks or creates the highlighted option if you typed or moved to it, then moves on. |
 | Escape | Closes the list, throws away what was typed and puts back the last pick's label. |
