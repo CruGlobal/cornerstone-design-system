@@ -72,6 +72,7 @@ const translation: Translation = {
   nextVideo: '下一个视频',
   nextYear: '下一年',
   noData: '暂无数据',
+  noOptions: '没有选项',
   noResults: '无匹配结果',
   now: '此刻',
   numCharacters: (num) => `${num}个字符`,
@@ -85,8 +86,10 @@ const translation: Translation = {
     }
     return `${num} 选择项目`;
   },
+  numResults: (num) => `${num} 个结果`,
   numRowsCopied: (num) => `已复制 ${num} 行`,
   numRowsSelected: (num) => `已选择 ${num} 行`,
+  optionsLoadError: '无法加载选项',
   pageXOfY: (page, total) => `第 ${page} 页，共 ${total} 页`,
   pagination: '分页',
   pause: '暂停',

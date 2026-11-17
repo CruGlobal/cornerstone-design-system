@@ -72,6 +72,7 @@ const translation: Translation = {
   nextVideo: 'Következő videó',
   nextYear: 'Következő év',
   noData: 'Nincs adat',
+  noOptions: 'Nincsenek lehetőségek',
   noResults: 'Nincs egyező találat',
   now: 'Most',
   numCharacters: (num) => {
@@ -95,8 +96,10 @@ const translation: Translation = {
     }
     return `${num} lehetőség kiválasztva`;
   },
+  numResults: (num) => `${num} találat`,
   numRowsCopied: (num) => (num === 1 ? '1 sor másolva' : `${num} sor másolva`),
   numRowsSelected: (num) => (num === 1 ? '1 sor kiválasztva' : `${num} sor kiválasztva`),
+  optionsLoadError: 'Nem sikerült betölteni a lehetőségeket',
   pageXOfY: (page, total) => `${total}/${page}. oldal`,
   pagination: 'Lapozás',
   pause: 'Szünet',

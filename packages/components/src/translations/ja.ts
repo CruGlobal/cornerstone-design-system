@@ -72,6 +72,7 @@ const translation: Translation = {
   nextVideo: '次の動画',
   nextYear: '翌年',
   noData: 'データがありません',
+  noOptions: 'オプションがありません',
   noResults: '一致する結果がありません',
   now: '現在',
   numCharacters: (num) => `${num}文字`,
@@ -82,8 +83,10 @@ const translation: Translation = {
     }
     return `${num} 個の項目が選択されました`;
   },
+  numResults: (num) => `${num} 件の結果`,
   numRowsCopied: (num) => `${num} 行をコピーしました`,
   numRowsSelected: (num) => `${num} 行を選択中`,
+  optionsLoadError: 'オプションを読み込めませんでした',
   pageXOfY: (page, total) => `${total} ページ中 ${page} ページ`,
   pagination: 'ページ送り',
   pause: '一時停止',

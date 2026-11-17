@@ -73,6 +73,7 @@ const translation: Translation = {
   nextVideo: 'Sonraki video',
   nextYear: 'Sonraki yıl',
   noData: 'Veri yok',
+  noOptions: 'Seçenek yok',
   noResults: 'Eşleşen sonuç yok',
   now: 'Şimdi',
   numCharacters: (num) => {
@@ -96,8 +97,10 @@ const translation: Translation = {
     }
     return `${num} seçenek seçildi`;
   },
+  numResults: (num) => `${num} sonuç`,
   numRowsCopied: (num) => (num === 1 ? '1 satır kopyalandı' : `${num} satır kopyalandı`),
   numRowsSelected: (num) => (num === 1 ? '1 satır seçildi' : `${num} satır seçildi`),
+  optionsLoadError: 'Seçenekler yüklenemedi',
   pageXOfY: (page, total) => `Sayfa ${page} / ${total}`,
   pagination: 'Sayfalandırma',
   pause: 'Duraklat',

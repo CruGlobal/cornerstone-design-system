@@ -73,6 +73,7 @@ const translation: Translation = {
   nextVideo: 'Келесі бейне',
   nextYear: 'Келесі жыл',
   noData: 'Деректер жоқ',
+  noOptions: 'Опциялар жоқ',
   noResults: 'Сәйкес нәтижелер жоқ',
   now: 'Қазір',
   numCharacters: (num) => {
@@ -99,8 +100,10 @@ const translation: Translation = {
     }
     return `${num} таңдалды`;
   },
+  numResults: (num) => `${num} нәтиже`,
   numRowsCopied: (num) => (num === 1 ? '1 жол көшірілді' : `${num} жол көшірілді`),
   numRowsSelected: (num) => (num === 1 ? '1 жол таңдалды' : `${num} жол таңдалды`),
+  optionsLoadError: 'Опцияларды жүктеу мүмкін болмады',
   pageXOfY: (page, total) => `${total} ішінен ${page} бет`,
   pagination: 'Беттеу',
   pause: 'Тоқтату',

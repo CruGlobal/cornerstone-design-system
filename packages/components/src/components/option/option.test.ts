@@ -1,7 +1,8 @@
-import { aTimeout, expect } from '@open-wc/testing';
+import { aTimeout, expect, waitUntil } from '@open-wc/testing';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { fixtures } from '../../internal/test/fixture.js';
+import type CsCombobox from '../combobox/combobox.js';
 import type CsSelect from '../select/select.js';
 import type CsOption from './option.js';
 
@@ -250,6 +251,40 @@ describe('<cs-option>', () => {
           const disabledOption = select.querySelector<CsOption>('cs-option[disabled]')!;
           expect(disabledOption.disabled).to.be.true;
           expect(disabledOption.getAttribute('aria-disabled')).to.equal('true');
+        });
+      });
+
+      describe('within a combobox', () => {
+        it('should tell the parent cs-combobox, and no other element, when its label changes', async () => {
+          const combobox = await fixture<CsCombobox>(html`
+            <cs-combobox label="Test" value="1">
+              <cs-option value="1">One</cs-option>
+            </cs-combobox>
+          `);
+          const option = combobox.querySelector<CsOption>('cs-option')!;
+          const whenDefined = sinon.spy(customElements, 'whenDefined');
+
+          try {
+            option.textContent = 'Uno';
+            await waitUntil(() => combobox.inputValue === 'Uno');
+
+            // Only the parent's own tag is waited on, so a page that loads the combobox alone still hears it.
+            expect(whenDefined.args.map(([tagName]) => tagName)).to.deep.equal(['cs-combobox']);
+          } finally {
+            whenDefined.restore();
+          }
+        });
+
+        it('should be picked when its selected property is set directly, as Vue does', async () => {
+          const combobox = await fixture<CsCombobox>(html`<cs-combobox label="Test"></cs-combobox>`);
+          const option = document.createElement('cs-option');
+          option.value = 'two';
+          option.textContent = 'Two';
+          option.selected = true;
+          combobox.append(option);
+
+          await waitUntil(() => combobox.value === 'two');
+          expect(combobox.inputValue).to.equal('Two');
         });
       });
     });

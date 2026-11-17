@@ -72,6 +72,7 @@ const translation: Translation = {
   nextVideo: 'Neste video',
   nextYear: 'Neste år',
   noData: 'Ingen data',
+  noOptions: 'Ingen alternativer',
   noResults: 'Ingen samsvarende resultater',
   now: 'Nå',
   numCharacters: (num) => {
@@ -95,8 +96,10 @@ const translation: Translation = {
     }
     return `${num} alternativer valgt`;
   },
+  numResults: (num) => `${num} treff`,
   numRowsCopied: (num) => (num === 1 ? '1 rad kopiert' : `${num} rader kopiert`),
   numRowsSelected: (num) => (num === 1 ? '1 rad valgt' : `${num} rader valgt`),
+  optionsLoadError: 'Kunne ikke laste inn alternativene',
   pageXOfY: (page, total) => `Side ${page} av ${total}`,
   pagination: 'Paginering',
   pause: 'Pause',
