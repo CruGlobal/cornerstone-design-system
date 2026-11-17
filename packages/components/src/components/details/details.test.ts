@@ -1,4 +1,4 @@
-import { expect, oneEvent, waitUntil } from '@open-wc/testing';
+import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
@@ -492,6 +492,55 @@ describe('<cs-details>', () => {
 
           expect(afterShowSpy.callCount).to.equal(1);
           expect(afterHideSpy.callCount).to.equal(0);
+        });
+
+        it('should finish showing when a hide is cancelled during the show animation', async () => {
+          const el = await fixture<CsDetails>(html`
+            <cs-details summary="Test">Content for testing rapid toggle.</cs-details>
+          `);
+          const body = el.shadowRoot!.querySelector<HTMLElement>('.body')!;
+          const afterShowSpy = sinon.spy();
+          el.addEventListener('cs-after-show', afterShowSpy);
+          el.addEventListener('cs-hide', (event: Event) => event.preventDefault());
+
+          el.open = true;
+          await el.updateComplete;
+          el.open = false;
+          await el.updateComplete;
+
+          // The show animation is still the one running. Finish it and let its promise settle.
+          finishAnimations(el);
+          await aTimeout(0);
+
+          expect(el.open).to.be.true;
+          expect(afterShowSpy.callCount).to.equal(1);
+          expect(body.style.height).to.equal('auto');
+          expect(el.isAnimating).to.be.false;
+        });
+
+        it('should finish hiding when a show is cancelled during the hide animation', async () => {
+          const el = await fixture<CsDetails>(html`
+            <cs-details open summary="Test">Content for testing rapid toggle.</cs-details>
+          `);
+          const body = el.shadowRoot!.querySelector<HTMLElement>('.body')!;
+          const afterHideSpy = sinon.spy();
+          el.addEventListener('cs-after-hide', afterHideSpy);
+          el.addEventListener('cs-show', (event: Event) => event.preventDefault());
+
+          el.open = false;
+          await el.updateComplete;
+          el.open = true;
+          await el.updateComplete;
+
+          // The hide animation is still the one running. Finish it and let its promise settle.
+          finishAnimations(el);
+          await aTimeout(0);
+
+          expect(el.open).to.be.false;
+          expect(afterHideSpy.callCount).to.equal(1);
+          expect(body.style.height).to.equal('0px');
+          expect(el.isAnimating).to.be.false;
+          expect(el.details.open).to.be.false;
         });
       });
 
