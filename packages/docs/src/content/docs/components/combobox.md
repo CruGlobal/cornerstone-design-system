@@ -204,7 +204,7 @@ The list shows a status row in place of options: `empty` when there are no optio
 
 ### Server Mode
 
-Set the `dataSource` property to load options from a server as people type. When an answer lands, it replaces the options, dividers and group labels in the list, and leaves everything else inside the combobox alone, such as a slotted label or hint. It is called with the typed text and an `AbortSignal`: when the list opens, right away, and after typing pauses for `filter-debounce` milliseconds (250 by default). A newer request aborts the one before it, so pass the signal on to `fetch()`. `loading` is true from the keystroke that schedules a request. While the answer for new text is on its way, older results stay showing, with the spinner in the field and none of them highlighted as a match, and the create option and the no-results row wait for the new answer. The loading row shows only when no options are showing. The combobox stops filtering on its own and shows what the server returns. A failed request shows the `error` row in place of whatever was showing, so nothing from an older answer can be picked, and tries again on the next open or keystroke.
+Set the `dataSource` property to load options from a server as people type. When an answer lands, it replaces the options, dividers and group labels in the list, and leaves everything else inside the combobox alone, such as a slotted label or hint. It is called with the typed text and an `AbortSignal`: when the list opens, right away, and after typing pauses for `filter-debounce` milliseconds (250 by default). A newer request aborts the one before it, so pass the signal on to `fetch()`. `loading` is true from the keystroke that schedules a request. While the answer for new text is on its way, older results stay showing, with the spinner in the field and none of them highlighted as a match, and the create option and the no-results row wait for the new answer. The loading row shows only when no options are showing. The combobox stops filtering on its own and shows what the server returns. A failed request shows the `error` row in place of whatever was showing, so nothing from an older answer can be picked, and tries again on the next open or keystroke. A request that was aborted, or that newer typing has superseded, reports no failure.
 
 Return option data such as `{ value, label, disabled }`, real DOM nodes such as `<cs-option>` and `<cs-divider>`, or a [Lit template](https://lit.dev/docs/templates/overview/).
 
@@ -236,7 +236,7 @@ Return option data such as `{ value, label, disabled }`, real DOM nodes such as 
 A `dataSource` that returns a string is refused: the request fails and the `error` row shows. This is on purpose, so text from a server can't inject markup into the page. Return option data, DOM nodes or a Lit template instead.
 :::
 
-Call `reload()` to request options again for what is in the field, for example after saving something new on the server. With a `dataSource`, it resolves once the new options are in the list.
+Call `reload()` to request options again for what is in the field, for example after saving something new on the server. With a `dataSource`, it resolves once the new options are in the list, unless typing schedules a newer request first: that answer is then for older text, so `reload()` resolves without it and the newer answer fills the list.
 
 ### Server Mode with Events
 

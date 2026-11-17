@@ -124,6 +124,7 @@ function toValues(value: string | readonly string[] | null | undefined): string[
  * @event {{ query: string, signal: AbortSignal }} cs-options-request - Emitted in server mode when the combobox needs
  *  options for `query`.
  * @event {{ error: unknown, request: { query: string } }} cs-options-error - Emitted when a `dataSource` request fails.
+ *  Not emitted for a request that was aborted, or that newer typing has superseded.
  *
  * @csspart form-control - The form control that wraps the label, input, and hint.
  * @csspart form-control-label - The label.
@@ -495,6 +496,19 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     return this.server || this.dataSource !== null;
   }
 
+  /** True while a newer keystroke's request waits on the debounce. */
+  private get requestScheduled() {
+    return this.requestTimeout !== undefined;
+  }
+
+  /**
+   * True when the options showing answer text no longer in the field: text was typed, or the field was just emptied
+   * and its request still waits. Read before finishEditing(), which clears both.
+   */
+  private get showingAnswerForOldText() {
+    return this.query.trim() !== '' || this.requestScheduled;
+  }
+
   private get acceptsCustomValue() {
     return this.allowCustomValue && !this.multiple;
   }
@@ -798,9 +812,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       return;
     }
 
-    // Text was typed, or the field was just emptied and its request still waits: either way the options showing
-    // answer text that is no longer in the field.
-    const hadQuery = this.query.trim() !== '' || this.requestTimeout !== undefined;
+    const hadQuery = this.showingAnswerForOldText;
     this.finishEditing();
     this.inputValue = '';
     this.displayInput.focus({ preventScroll: true });
@@ -808,7 +820,9 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     // Emit after update, ahead of the input and change events commitValues() queues
     void this.updateComplete.then(() => this.dispatchEvent(new CsClearEvent()));
     this.commitValues([]);
-    this.highlightBasis = 'query';
+    if (this.open) {
+      this.highlightBasis = 'query';
+    }
     this.highlight(null);
     if (hadQuery) {
       this.showEveryOption();
@@ -1263,9 +1277,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       next = [option.value];
     }
 
-    // Text was typed, or the field was just emptied and its request still waits: either way the options showing
-    // answer text that is no longer in the field.
-    const hadQuery = this.query.trim() !== '' || this.requestTimeout !== undefined;
+    const hadQuery = this.showingAnswerForOldText;
     this.pickedOptions.set(option.value, option);
     this.finishEditing();
 
@@ -1531,13 +1543,13 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       const result = await this.dataSource(query, signal);
       // Aborted, or a newer keystroke's request waits on the debounce: this answer is for older text, so loading stays
       // on and the list stays as it is until the newer one lands.
-      if (signal.aborted || this.requestTimeout !== undefined) {
+      if (signal.aborted || this.requestScheduled) {
         return;
       }
       this.replaceOptions(result);
       this.loading = false;
     } catch (error) {
-      if (signal.aborted || this.requestTimeout !== undefined) {
+      if (signal.aborted || this.requestScheduled) {
         return;
       }
       // Hide what was showing behind the error row; the next open or keystroke requests again.
@@ -1823,8 +1835,9 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
   /**
    * Requests options again for the current query, or an empty one when the list is closed. Useful after creating
-   * something on the server. With a `dataSource`, resolves once the new options are in the list. Without one, resolves
-   * once `cs-options-request` has been emitted. Outside server mode it filters the list again.
+   * something on the server. With a `dataSource`, resolves once the new options are in the list, unless typing
+   * schedules a newer request first: then that answer is for older text, and it resolves without it. Without a
+   * `dataSource`, resolves once `cs-options-request` has been emitted. Outside server mode it filters the list again.
    */
   async reload() {
     if (!this.isServerMode) {

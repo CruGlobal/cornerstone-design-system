@@ -1290,6 +1290,32 @@ describe('<cs-combobox>', () => {
       });
 
       describe('clearing', () => {
+        it('should highlight the pick on the next open after clearing a closed list', async () => {
+          const form = await fixture<HTMLFormElement>(html`
+            <form>
+              <cs-combobox name="fruit" label="Fruit" with-clear>
+                <cs-option value="apple">Apple</cs-option>
+                <cs-option value="banana" selected>Banana</cs-option>
+              </cs-combobox>
+            </form>
+          `);
+          const el = form.querySelector('cs-combobox')!;
+          await el.updateComplete;
+
+          // The clear button does not open the list
+          await clickOnElement(part(el, 'clear-button'));
+          expect(el.value).to.equal(null);
+          expect(el.open).to.be.false;
+
+          form.reset();
+          await el.updateComplete;
+          expect(el.value).to.equal('banana');
+
+          await clickOnElement(el.displayInput);
+          await waitUntil(() => el.open);
+          expect(el.currentOption?.value).to.equal('banana');
+        });
+
         it('should clear the value and emit cs-clear, input and change', async () => {
           const el = await fixture<CsCombobox>(html`
             <cs-combobox label="Fruit" with-clear value="apple">
@@ -2058,7 +2084,8 @@ describe('<cs-combobox>', () => {
         });
 
         it('should drop an answer that lands while the request for newer text waits', async () => {
-          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="300"></cs-combobox>`);
+          // A debounce no slow browser can outlast, so "ap" is still waiting when the checks below run
+          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="5000"></cs-combobox>`);
           const answerForA = deferred<{ value: string; label: string }[]>();
           el.dataSource = (query) => (query === 'a' ? answerForA.promise : fruitsMatching(query));
 
@@ -2073,7 +2100,9 @@ describe('<cs-combobox>', () => {
           expect(el.loading).to.be.true;
           expect(el.currentOption?.label).to.equal(undefined);
 
-          await answered(el, ['Apple', 'Apricot']);
+          // reload() asks for "ap" now rather than after the debounce, and resolves once its options are in
+          await el.reload();
+          expect(shownLabels(el)).to.deep.equal(['Apple', 'Apricot']);
           expect(el.currentOption?.value).to.equal('apple');
         });
 
@@ -2149,7 +2178,7 @@ describe('<cs-combobox>', () => {
         });
 
         it('should stop loading when the list closes inside the debounce, and send nothing', async () => {
-          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="50"></cs-combobox>`);
+          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="300"></cs-combobox>`);
           const requests = sinon.spy((query: string) => fruitsMatching(query));
           el.dataSource = requests;
 
@@ -2161,13 +2190,13 @@ describe('<cs-combobox>', () => {
           await el.hide();
           expect(el.loading).to.be.false;
           // Longer than the debounce, so a request that was not cancelled would have gone out by now
-          await aTimeout(150);
+          await aTimeout(450);
           expect(requests.callCount).to.equal(1);
         });
 
         it('should keep loading while a request is in flight and only the waiting one is cancelled', async () => {
           const form = await fixture<HTMLFormElement>(html`
-            <form><cs-combobox name="fruit" label="Fruit" filter-debounce="50"></cs-combobox></form>
+            <form><cs-combobox name="fruit" label="Fruit" filter-debounce="300"></cs-combobox></form>
           `);
           const el = form.querySelector('cs-combobox')!;
           const answerForA = deferred<{ value: string; label: string }[]>();
@@ -2193,7 +2222,7 @@ describe('<cs-combobox>', () => {
 
         it('should stop loading once a cancelled schedule follows a request whose dataSource was removed', async () => {
           const form = await fixture<HTMLFormElement>(html`
-            <form><cs-combobox name="fruit" label="Fruit" server filter-debounce="20"></cs-combobox></form>
+            <form><cs-combobox name="fruit" label="Fruit" server filter-debounce="300"></cs-combobox></form>
           `);
           const el = form.querySelector('cs-combobox')!;
           const never = deferred<{ value: string; label: string }[]>();
