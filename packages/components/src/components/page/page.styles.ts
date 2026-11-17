@@ -252,8 +252,10 @@ export default css`
   /*
    * The sidebar is not shown on mobile. The shared navigation slots leave it for the drawer there, but the
    * desktop-navigation-* slots are always rendered inside it, so their content stays put and has to be hidden with
-   * it. Keyed on the view attribute so it follows the page's own width, and so it outranks the display: grid above;
-   * the media query in page.mobile.styles.ts has the same specificity as that rule and comes earlier in the cascade.
+   * it. Keyed on the view attribute so it follows the page's own width, and so it outranks the display: grid above.
+   * The media query in page.mobile.styles.ts has the same specificity as that rule. In client rendering it comes
+   * earlier in the cascade and loses. On a server-rendered page it comes later and wins, which hides the sidebar
+   * before hydration sets view, so keep both.
    */
   :host([view='mobile']) [part~='navigation'] {
     display: none;
