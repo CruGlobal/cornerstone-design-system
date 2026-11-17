@@ -284,6 +284,14 @@ export default css`
       padding-inline: 2.25em;
     }
 
+    /*
+     * Filtering hides group labels and dividers with the hidden attribute, but the browser's [hidden] rule loses to
+     * any author display, the rule above included. random-content.styles.ts has the same note.
+     */
+    slot:not([name])::slotted([hidden]) {
+      display: none !important;
+    }
+
     /* A status row stands in for the options, padded like one so the text lines up with option labels. */
     .status {
       padding: 0.5em 1em 0.5em 2.25em;

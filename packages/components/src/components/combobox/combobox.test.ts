@@ -1,6 +1,6 @@
 import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { sendKeys } from '@web/test-runner-commands';
-import { html } from 'lit';
+import { html, nothing, render } from 'lit';
 import sinon from 'sinon';
 import type { CsOptionsRequestEvent } from '../../events/options-request.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
@@ -366,10 +366,15 @@ describe('<cs-combobox>', () => {
           await waitUntil(() => el.open);
           expect(small.hidden).to.be.true;
           expect(divider.hidden).to.be.true;
+          // The hidden attribute alone loses to a slotted display rule, so check what renders
+          expect(getComputedStyle(small).display).to.equal('none');
+          expect(getComputedStyle(divider).display).to.equal('none');
 
           await el.hide();
           expect(small.hidden).to.be.false;
           expect(divider.hidden).to.be.false;
+          expect(getComputedStyle(small).display).to.not.equal('none');
+          expect(getComputedStyle(divider).display).to.not.equal('none');
           expect(shownLabels(el)).to.deep.equal(['Apple', 'Banana']);
         });
 
@@ -1046,6 +1051,34 @@ describe('<cs-combobox>', () => {
           expect(el.inputValue).to.equal('');
         });
 
+        it('should start from its selected option when it connects before its options upgrade', async () => {
+          // Setting innerHTML on a parent upgrades the combobox before the options inside it, so its first look at
+          // them finds plain elements with no value. A bundle that defines cs-combobox before cs-option does the same.
+          const container = await fixture<HTMLElement>(html`<div></div>`);
+          container.innerHTML = `
+            <cs-combobox id="many" multiple>
+              <cs-option value="a">A</cs-option><cs-option value="b" selected>B</cs-option><cs-option value="c">C</cs-option>
+            </cs-combobox>
+            <cs-combobox id="one">
+              <cs-option value="a">A</cs-option><cs-option value="b" selected>B</cs-option><cs-option value="c">C</cs-option>
+            </cs-combobox>
+          `;
+          const many = container.querySelector<CsCombobox>('#many')!;
+          const one = container.querySelector<CsCombobox>('#one')!;
+          await Promise.all(
+            [...container.querySelectorAll<CsOption>('cs-option')].map((option) => option.updateComplete),
+          );
+          await many.updateComplete;
+          await one.updateComplete;
+          await aTimeout(0);
+
+          expect(many.value).to.deep.equal(['b']);
+          expect(one.value).to.equal('b');
+          expect(one.inputValue).to.equal('B');
+          expect(options(many).map((option) => option.selected)).to.deep.equal([false, true, false]);
+          expect(options(one).map((option) => option.selected)).to.deep.equal([false, true, false]);
+        });
+
         it('should reset to its selected option', async () => {
           const form = await fixture<HTMLFormElement>(html`
             <form>
@@ -1182,6 +1215,26 @@ describe('<cs-combobox>', () => {
           } finally {
             announcements.stop();
           }
+        });
+
+        it('should leave the markers a framework keeps among its children', async () => {
+          const container = await fixture<HTMLElement>(html`<div></div>`);
+          const view = (withHint: boolean) =>
+            html`<cs-combobox label="Fruit"
+              >${withHint ? html`<span slot="hint">Pick a fruit</span>` : nothing}</cs-combobox
+            >`;
+          render(view(false), container);
+          const el = container.querySelector('cs-combobox')!;
+          await el.updateComplete;
+          el.dataSource = () => [{ value: 'apple', label: 'Apple' }];
+
+          await el.show();
+          await waitUntil(() => shownLabels(el).join() === 'Apple');
+
+          // Lit inserts the hint before a comment marker it keeps inside the combobox, which must still be there
+          render(view(true), container);
+          expect(el.querySelector('[slot="hint"]')?.textContent).to.equal('Pick a fruit');
+          expect(shownLabels(el)).to.deep.equal(['Apple']);
         });
 
         it('should request again with reload() and resolve once the new options are in', async () => {

@@ -187,6 +187,10 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   private hasNavigated = false;
   /** How the list should place its first highlight when it opens. */
   private openHighlight: 'first' | 'last' | null = null;
+  /** Nodes the combobox appended from a `dataSource` answer. Only these, and options, go when the next answer lands. */
+  private serverNodes = new Set<Node>();
+  /** True while waiting once for options that have not upgraded yet. */
+  private waitingForOptions = false;
   /** Options and decorations this component hid while filtering. Only these are shown again. */
   private filteredOut = new Set<Element>();
   private requestController: AbortController | null = null;
@@ -806,14 +810,22 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       return;
     }
 
-    if (!customElements.get('cs-option')) {
-      void customElements.whenDefined('cs-option').then(() => this.handleDefaultSlotChange());
-    }
-
     if (this.didSSR && !this.hasUpdated) {
       void this.updateComplete.then(() => this.handleDefaultSlotChange());
       return;
     }
+
+    // An option that has not upgraded yet has no value, so reading it now would match it to any pick. That happens
+    // when cs-combobox is defined before cs-option, or upgrades first because its markup was set with innerHTML. Wait
+    // once: whenDefined() settles after every pending option has upgraded, at once if cs-option is already defined.
+    // Waiting only once means an option whose upgrade failed is skipped (getAllOptions) rather than waited on forever.
+    const pending = [...this.querySelectorAll('cs-option')].some((option) => !option.matches(':defined'));
+    if (pending && !this.waitingForOptions) {
+      this.waitingForOptions = true;
+      void customElements.whenDefined('cs-option').then(() => this.handleDefaultSlotChange());
+      return;
+    }
+    this.waitingForOptions = false;
 
     const oldValue = this.value;
     this.cachedOptions = null;
@@ -861,7 +873,10 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     if (!this?.querySelectorAll) {
       return [];
     }
-    this.cachedOptions = [...this.querySelectorAll<CsOption>('cs-option')];
+    // Only upgraded options: one that has not upgraded has no value or label to read yet (see processSlotChange).
+    this.cachedOptions = [...this.querySelectorAll<CsOption>('cs-option')].filter((option) =>
+      option.matches(':defined'),
+    );
     return this.cachedOptions;
   }
 
@@ -1187,7 +1202,14 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     const option = document.createElement('cs-option');
     option.setAttribute('value', inputValue);
     option.textContent = inputValue;
-    this.append(option);
+
+    // Right after the last option, which keeps it out of the range a framework owns after its marker (replaceOptions)
+    const last = this.getAllOptions().at(-1);
+    if (last?.parentElement === this) {
+      last.after(option);
+    } else {
+      this.prepend(option);
+    }
 
     // Refresh the option cache now rather than on the next slotchange, so the pick below can find it.
     this.cachedOptions = null;
@@ -1368,18 +1390,26 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     await this.updateComplete;
   }
 
-  /** Swaps the default slot's content for what a `dataSource` returned. */
+  /**
+   * Swaps the options for what a `dataSource` returned. Only what the combobox owns goes: the nodes it appended last
+   * time, and any options, dividers and group labels in the default slot. Everything else stays, comments included,
+   * because a framework rendering the combobox's children keeps its markers there.
+   */
   private replaceOptions(result: ComboboxDataSourceResult) {
     const nodes = this.toNodes(result);
+    const owned = ['cs-option', 'cs-divider', 'small'];
 
     for (const node of [...this.childNodes]) {
-      if (node instanceof Element && node.hasAttribute('slot')) {
-        continue;
+      const isOwnedElement = node instanceof Element && !node.hasAttribute('slot') && owned.includes(node.localName);
+      if (this.serverNodes.has(node) || isOwnedElement) {
+        node.remove();
       }
-      node.remove();
     }
 
-    this.append(...nodes);
+    // Put them first. Lit and Vue keep a marker among the combobox's children and own everything after it, so nodes
+    // appended at the end would be removed on their next render.
+    this.serverNodes = new Set(nodes);
+    this.prepend(...nodes);
     this.processSlotChange();
   }
 
