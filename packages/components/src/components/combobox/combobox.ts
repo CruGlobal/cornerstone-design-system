@@ -186,13 +186,12 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   private isEditing = false;
   /** True once the user moves the highlight with a key, so Tab picks it even with nothing typed. */
   private hasNavigated = false;
-  /** Where the arrow key that opened the list points, until the user types. Read by placeHighlight. */
-  private openHighlight: 'first' | 'last' | null = null;
   /**
-   * What the open list is showing, which decides the highlight when its options change (see placeHighlight): what
-   * opening it showed, or the answer to the text in the field, typed or emptied.
+   * What the open list is showing, which decides the highlight when its options change (see placeHighlight). While it
+   * shows what opening it showed: 'first' or 'last' when an arrow key opened it, else 'none'. Once it answers the text
+   * in the field, typed or emptied: 'query'.
    */
-  private highlightBasis: 'open' | 'query' = 'open';
+  private highlightBasis: 'first' | 'last' | 'none' | 'query' = 'none';
   /** The root the open list listens to for focus, saved because `getRootNode()` changes once the element is removed. */
   private listenerRoot: Node | null = null;
   /** Nodes the combobox appended from a `dataSource` answer. Only these, and options, go when the next answer lands. */
@@ -637,7 +636,6 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     this.isEditing = true;
     this.hasNavigated = false;
     this.highlightBasis = 'query';
-    this.openHighlight = null;
 
     if (!this.open) {
       // Opening requests and filters with the query already set.
@@ -680,7 +678,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
         }
 
         if (!this.open) {
-          this.openHighlight = down ? 'first' : 'last';
+          this.highlightBasis = down ? 'first' : 'last';
           void this.show();
           return;
         }
@@ -696,7 +694,6 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
         if (this.open && this.hasNavigated) {
           this.hasNavigated = false;
           this.highlightBasis = 'query';
-          this.openHighlight = null;
           this.highlightAfterTyping();
         }
         return;
@@ -801,7 +798,9 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       return;
     }
 
-    const hadQuery = this.query.trim() !== '';
+    // Text was typed, or the field was just emptied and its request still waits: either way the options showing
+    // answer text that is no longer in the field.
+    const hadQuery = this.query.trim() !== '' || this.requestTimeout !== undefined;
     this.finishEditing();
     this.inputValue = '';
     this.displayInput.focus({ preventScroll: true });
@@ -1056,7 +1055,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
   /** After the list narrows, highlights the first match, unless typed text is allowed to stand as the value. */
   private highlightAfterTyping() {
-    if (this.query.trim() === '' || this.acceptsCustomValue) {
+    // The options showing answer older text until the answer for this text lands, so none of them is its first match
+    if (this.query.trim() === '' || this.acceptsCustomValue || (this.isServerMode && this.loading)) {
       this.highlight(null);
       return;
     }
@@ -1094,8 +1094,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
    *
    * Across every row: when the options change and the highlighted value is still among them, the highlight stays on
    * it (refreshHighlight), so a keyboard user keeps their place. `highlightBasis` records which half of the table
-   * applies: 'open' for the open rows, 'query' once the user types, empties or clears the field, or picks in multiple
-   * mode.
+   * applies: 'first', 'last' or 'none' for the open rows, 'query' once the user types, empties or clears the field, or
+   * picks in multiple mode.
    */
   private placeHighlight() {
     if (this.highlightBasis === 'query') {
@@ -1105,7 +1105,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
     const items = this.navigableItems();
     const picked = items.find((option) => option.selected);
-    const start = this.openHighlight;
+    const start = this.highlightBasis === 'none' ? null : this.highlightBasis;
     const target = picked ?? (start === 'first' ? items[0] : start === 'last' ? items[items.length - 1] : undefined);
 
     this.highlight(target ?? null);
@@ -1263,7 +1263,9 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       next = [option.value];
     }
 
-    const hadQuery = this.query.trim() !== '';
+    // Text was typed, or the field was just emptied and its request still waits: either way the options showing
+    // answer text that is no longer in the field.
+    const hadQuery = this.query.trim() !== '' || this.requestTimeout !== undefined;
     this.pickedOptions.set(option.value, option);
     this.finishEditing();
 
@@ -1272,7 +1274,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       this.commitValues(next);
       this.highlightBasis = 'query';
       this.highlight(option);
-      // With nothing typed the options showing already answer the empty field, so there is nothing to ask again.
+      // With nothing typed or waiting, the options showing already answer the empty field: nothing to ask again.
       if (hadQuery) {
         this.showEveryOption();
       }
@@ -1508,6 +1510,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   private async requestOptions() {
     this.cancelScheduledRequest();
     this.requestController?.abort();
+    // The aborted call's finally skips its cleanup once the controller changes, so clear its flag here
+    this.awaitingAnswer = false;
 
     const controller = new AbortController();
     const { signal } = controller;
@@ -1525,13 +1529,15 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     this.awaitingAnswer = true;
     try {
       const result = await this.dataSource(query, signal);
-      if (signal.aborted) {
+      // Aborted, or a newer keystroke's request waits on the debounce: this answer is for older text, so loading stays
+      // on and the list stays as it is until the newer one lands.
+      if (signal.aborted || this.requestTimeout !== undefined) {
         return;
       }
       this.replaceOptions(result);
       this.loading = false;
     } catch (error) {
-      if (signal.aborted) {
+      if (signal.aborted || this.requestTimeout !== undefined) {
         return;
       }
       // Hide what was showing behind the error row; the next open or keystroke requests again.
@@ -1715,7 +1721,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       this.dispatchEvent(csShowEvent);
       if (csShowEvent.defaultPrevented) {
         // Forget where an arrow key meant to start, or a later open would still apply it
-        this.openHighlight = null;
+        this.highlightBasis = 'none';
         this.open = false;
         return;
       }
@@ -1725,15 +1731,18 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       this.popup.active = true;
       this.lastAnnouncement = '';
 
-      this.highlightBasis = this.query.trim() !== '' || this.isEditing ? 'query' : 'open';
+      if (this.query.trim() !== '' || this.isEditing) {
+        this.highlightBasis = 'query';
+      }
       this.applyFilter();
-      this.placeHighlight();
 
+      // In server mode the request goes out first, so placing the highlight sees it pending
       if (this.isServerMode) {
         void this.requestOptions();
       } else {
         this.scheduleAnnouncement();
       }
+      this.placeHighlight();
 
       await animateWithClass(this.popup.popup, 'show');
 
@@ -1768,8 +1777,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       }
       this.query = '';
       this.hasNavigated = false;
-      this.openHighlight = null;
-      this.highlightBasis = 'open';
+      this.highlightBasis = 'none';
       this.highlight(null);
 
       await animateWithClass(this.popup.popup, 'hide');

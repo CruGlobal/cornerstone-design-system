@@ -1,4 +1,4 @@
-import { expect, oneEvent, waitUntil } from '@open-wc/testing';
+import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html, nothing, render } from 'lit';
 import sinon from 'sinon';
@@ -1036,6 +1036,34 @@ describe('<cs-combobox>', () => {
           expect(el.displayInput.value).to.equal('');
         });
 
+        it('should settle typed text on hide(), changing the value and emitting input and change', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" allow-custom-value>
+              <cs-option value="apple">Apple</cs-option>
+              <cs-option value="banana">Banana</cs-option>
+            </cs-combobox>
+          `);
+
+          // Custom text is kept
+          await type(el, 'Mango');
+          await expectEvent(el, ['input', 'change'], () => el.hide());
+          expect(el.value).to.equal('Mango');
+
+          // Text equal to an option's label picks that option
+          await typeOver(el, 'banana');
+          await expectEvent(el, ['input', 'change'], () => el.hide());
+          expect(el.value).to.equal('banana');
+          expect(el.inputValue).to.equal('Banana');
+
+          // An emptied field clears the value
+          el.focus();
+          el.displayInput.select();
+          await press(el, 'Backspace');
+          await waitUntil(() => el.open);
+          await expectEvent(el, ['input', 'change'], () => el.hide());
+          expect(el.value).to.equal(null);
+        });
+
         it('should be ignored when multiple is set', async () => {
           const el = await fixture<CsCombobox>(html`
             <cs-combobox label="Fruit" allow-custom-value multiple>
@@ -1529,7 +1557,7 @@ describe('<cs-combobox>', () => {
          * the same labels, so without this the check could pass before the new answer lands.
          */
         async function answeredAfter(el: CsCombobox, requests: sinon.SinonSpy, asked: number, labels: string[]) {
-          if (requests.callCount > 0 || el.dataSource) {
+          if (el.dataSource) {
             await waitUntil(() => requests.callCount > asked, 'expected a new request');
           }
           await answered(el, labels);
@@ -1978,6 +2006,162 @@ describe('<cs-combobox>', () => {
           await waitUntil(() => !el.loading);
           await el.updateComplete;
           expect(el.shadowRoot!.querySelector('.create-option') !== null, 'create option shown').to.be.true;
+        });
+
+        it('should drop an answer that lands while the request for newer text waits', async () => {
+          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="300"></cs-combobox>`);
+          const answerForA = deferred<{ value: string; label: string }[]>();
+          el.dataSource = (query) => (query === 'a' ? answerForA.promise : fruitsMatching(query));
+
+          // Typing "a" opens the list and asks at once; "p" then waits on the debounce
+          await type(el, 'a');
+          await type(el, 'p');
+          answerForA.resolve(fruitsMatching('a'));
+          await answerForA.promise;
+          await el.updateComplete;
+
+          // The answer for "a" cannot stand for "ap": still loading, nothing highlighted
+          expect(el.loading).to.be.true;
+          expect(el.currentOption?.label).to.equal(undefined);
+
+          await answered(el, ['Apple', 'Apricot']);
+          expect(el.currentOption?.value).to.equal('apple');
+        });
+
+        it('should highlight nothing when typing opens the list, until the first answer lands', async () => {
+          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" allow-create></cs-combobox>`);
+          const answerForB = deferred<{ value: string; label: string }[]>();
+          const created = sinon.spy();
+          el.addEventListener('cs-create', created);
+          el.dataSource = (query) => (query === 'b' ? answerForB.promise : fruitsMatching(query));
+
+          // Leave the answer for the empty field behind as the options showing
+          await el.show();
+          await answered(el, ['Apple', 'Apricot', 'Banana', 'Cherry']);
+          await el.hide();
+
+          await type(el, 'b');
+          await waitUntil(() => el.open);
+          expect(el.currentOption?.label).to.equal(undefined);
+          await press(el, 'Enter');
+          expect(el.value).to.equal(null);
+          expect(created).to.not.have.been.called;
+
+          answerForB.resolve(fruitsMatching('b'));
+          await answered(el, ['Banana']);
+        });
+
+        it('should ask for every option again when a pick lands while the request for an emptied field waits', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" multiple filter-debounce="300"></cs-combobox>
+          `);
+          const requests = sinon.spy((query: string) => fruitsMatching(query));
+          el.dataSource = requests;
+
+          await type(el, 'ap');
+          await answered(el, ['Apple', 'Apricot']);
+
+          // Emptying the field schedules a request for "", and the pick comes before it goes out
+          await press(el, 'Backspace');
+          await press(el, 'Backspace');
+          await press(el, 'ArrowDown');
+          await press(el, 'Enter');
+          expect(el.value).to.deep.equal(['apple']);
+
+          await answered(el, ['Apple', 'Apricot', 'Banana', 'Cherry']);
+          expect(requests.lastCall.args[0]).to.equal('');
+        });
+
+        it('should keep a single created pick when its text is typed again after the server dropped its option', async () => {
+          const el = await fixture<CsCombobox>(
+            html`<cs-combobox label="Fruit" allow-create filter-debounce="10"></cs-combobox>`,
+          );
+          const created = sinon.spy();
+          el.addEventListener('cs-create', created);
+          el.dataSource = (query) => fruitsMatching(query);
+
+          await type(el, 'Kiwi');
+          await waitUntil(() => el.shadowRoot!.querySelector('.create-option') !== null);
+          await el.updateComplete;
+          await press(el, 'Enter');
+          expect(el.value).to.equal('Kiwi');
+
+          // Reopening asks for "" again, and that answer drops the created option
+          await el.show();
+          await answered(el, ['Apple', 'Apricot', 'Banana', 'Cherry']);
+          await typeOver(el, 'Kiwi');
+          await waitUntil(() => el.shadowRoot!.querySelector('.create-option') !== null && !el.loading);
+          await el.updateComplete;
+          await press(el, 'Enter');
+
+          expect(el.value).to.equal('Kiwi');
+          expect(created).to.have.been.calledOnce;
+          await waitUntil(() => !el.open);
+        });
+
+        it('should stop loading when the list closes inside the debounce, and send nothing', async () => {
+          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="50"></cs-combobox>`);
+          const requests = sinon.spy((query: string) => fruitsMatching(query));
+          el.dataSource = requests;
+
+          await el.show();
+          await answered(el, ['Apple', 'Apricot', 'Banana', 'Cherry']);
+          await type(el, 'a');
+          expect(el.loading).to.be.true;
+
+          await el.hide();
+          expect(el.loading).to.be.false;
+          // Longer than the debounce, so a request that was not cancelled would have gone out by now
+          await aTimeout(150);
+          expect(requests.callCount).to.equal(1);
+        });
+
+        it('should keep loading while a request is in flight and only the waiting one is cancelled', async () => {
+          const form = await fixture<HTMLFormElement>(html`
+            <form><cs-combobox name="fruit" label="Fruit" filter-debounce="50"></cs-combobox></form>
+          `);
+          const el = form.querySelector('cs-combobox')!;
+          const answerForA = deferred<{ value: string; label: string }[]>();
+          const asked: string[] = [];
+          el.dataSource = (query) => {
+            asked.push(query);
+            return query === 'a' ? answerForA.promise : fruitsMatching(query);
+          };
+
+          await el.show();
+          await answered(el, ['Apple', 'Apricot', 'Banana', 'Cherry']);
+          await type(el, 'a');
+          await waitUntil(() => asked.includes('a'));
+          await type(el, 'p');
+
+          // Resetting the form cancels the request waiting for "ap"; the one for "a" is still on its way
+          form.reset();
+          expect(el.loading).to.be.true;
+
+          answerForA.resolve(fruitsMatching('a'));
+          await waitUntil(() => !el.loading);
+        });
+
+        it('should stop loading once a cancelled schedule follows a request whose dataSource was removed', async () => {
+          const form = await fixture<HTMLFormElement>(html`
+            <form><cs-combobox name="fruit" label="Fruit" server filter-debounce="20"></cs-combobox></form>
+          `);
+          const el = form.querySelector('cs-combobox')!;
+          const never = deferred<{ value: string; label: string }[]>();
+          let requests = 0;
+          el.addEventListener('cs-options-request', () => requests++);
+          el.dataSource = () => never.promise;
+
+          // A dataSource request goes out, then the page removes the dataSource while it is in flight
+          await el.show();
+          el.dataSource = null;
+          await type(el, 'a');
+          await waitUntil(() => requests === 2);
+
+          // A schedule that is cancelled with nothing left in flight ends loading
+          await type(el, 'b');
+          form.reset();
+          expect(el.loading).to.be.false;
         });
 
         it('should replace what a DocumentFragment brought, not pile it up', async () => {
