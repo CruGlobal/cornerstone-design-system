@@ -93,6 +93,7 @@ const translation: Translation = {
   nextVideo: 'Следующее видео',
   nextYear: 'Следующий год',
   noData: 'Нет данных',
+  noOptions: 'Нет вариантов',
   noResults: 'Нет совпадений',
   now: 'Сейчас',
   numCharacters: (num) => {
@@ -126,6 +127,7 @@ const translation: Translation = {
     }
     return `выбрано ${num} варианта`;
   },
+  numResults: (num) => `Найдено результатов: ${num}`,
   numRowsCopied: (num) => {
     const mod10 = num % 10;
     const mod100 = num % 100;
@@ -148,6 +150,7 @@ const translation: Translation = {
     }
     return `Выбрано ${num} строк`;
   },
+  optionsLoadError: 'Не удалось загрузить варианты',
   pageXOfY: (page, total) => `Страница ${page} из ${total}`,
   pagination: 'Постраничная навигация',
   pause: 'Пауза',

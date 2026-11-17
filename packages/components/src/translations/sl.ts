@@ -97,6 +97,7 @@ const translation: Translation = {
   nextVideo: 'Naslednji videoposnetek',
   nextYear: 'Naslednje leto',
   noData: 'Ni podatkov',
+  noOptions: 'Ni možnosti',
   noResults: 'Ni ustreznih rezultatov',
   now: 'Zdaj',
   numCharacters: (num) => {
@@ -140,6 +141,7 @@ const translation: Translation = {
     }
     return `${num} možnosti izbranih`;
   },
+  numResults: (num) => `Število zadetkov: ${num}`,
   numRowsCopied: (num) => {
     const mod100 = num % 100;
     if (mod100 === 1) {
@@ -166,6 +168,7 @@ const translation: Translation = {
     }
     return `${num} izbranih vrstic`;
   },
+  optionsLoadError: 'Možnosti ni bilo mogoče naložiti',
   pageXOfY: (page, total) => `Stran ${page} od ${total}`,
   pagination: 'Oštevilčevanje strani',
   pause: 'Premor',

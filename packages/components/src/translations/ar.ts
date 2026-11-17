@@ -94,6 +94,7 @@ const translation: Translation = {
   nextVideo: 'الفيديو التالي',
   nextYear: 'السنة التالية',
   noData: 'لا توجد بيانات',
+  noOptions: 'لا توجد خيارات',
   noResults: 'لا توجد نتائج مطابقة',
   now: 'الآن',
   numCharacters: (num) => {
@@ -141,6 +142,7 @@ const translation: Translation = {
     }
     return `تم تحديد ${num} خيار`;
   },
+  numResults: (num) => `عدد النتائج: ${num}`,
   numRowsCopied: (num) => {
     if (num === 0) {
       return 'لم يتم نسخ أي صفوف';
@@ -171,6 +173,7 @@ const translation: Translation = {
     }
     return `تم تحديد ${num} صفًا`;
   },
+  optionsLoadError: 'تعذّر تحميل الخيارات',
   pageXOfY: (page, total) => `الصفحة ${page} من ${total}`,
   pagination: 'ترقيم الصفحات',
   pause: 'إيقاف مؤقت',

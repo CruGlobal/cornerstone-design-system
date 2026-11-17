@@ -92,6 +92,7 @@ const translation: Translation = {
   nextVideo: 'Sljedeći video',
   nextYear: 'Sljedeća godina',
   noData: 'Nema podataka',
+  noOptions: 'Nema opcija',
   noResults: 'Nema odgovarajućih rezultata',
   now: 'Sada',
   numCharacters: (num) => {
@@ -125,6 +126,7 @@ const translation: Translation = {
     }
     return `${num} odabranih opcija`;
   },
+  numResults: (num) => `Broj rezultata: ${num}`,
   numRowsCopied: (num) => {
     if (num === 1) {
       return '1 redak kopiran';
@@ -147,6 +149,7 @@ const translation: Translation = {
     }
     return `${num} redaka odabrano`;
   },
+  optionsLoadError: 'Opcije nije moguće učitati',
   pageXOfY: (page, total) => `Stranica ${page} od ${total}`,
   pagination: 'Straničenje',
   pause: 'Pauziraj',

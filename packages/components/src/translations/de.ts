@@ -73,6 +73,7 @@ const translation: Translation = {
   nextVideo: 'Nächstes Video',
   nextYear: 'Nächstes Jahr',
   noData: 'Keine Daten',
+  noOptions: 'Keine Optionen',
   noResults: 'Keine passenden Ergebnisse',
   now: 'Jetzt',
   numCharacters: (num) => {
@@ -96,8 +97,10 @@ const translation: Translation = {
     }
     return `${num} Optionen ausgewählt`;
   },
+  numResults: (num) => (num === 1 ? '1 Ergebnis' : `${num} Ergebnisse`),
   numRowsCopied: (num) => (num === 1 ? '1 Zeile kopiert' : `${num} Zeilen kopiert`),
   numRowsSelected: (num) => (num === 1 ? '1 Zeile ausgewählt' : `${num} Zeilen ausgewählt`),
+  optionsLoadError: 'Optionen konnten nicht geladen werden',
   pageXOfY: (page, total) => `Seite ${page} von ${total}`,
   pagination: 'Seitennavigation',
   pause: 'Pausieren',

@@ -72,6 +72,7 @@ const translation: Translation = {
   nextVideo: 'अगला वीडियो',
   nextYear: 'अगला वर्ष',
   noData: 'कोई डेटा नहीं',
+  noOptions: 'कोई विकल्प नहीं',
   noResults: 'कोई मेल खाने वाले परिणाम नहीं',
   now: 'अभी',
   numCharacters: (num) => {
@@ -95,8 +96,10 @@ const translation: Translation = {
     }
     return `${num} विकल्प चयनित`;
   },
+  numResults: (num) => `${num} परिणाम`,
   numRowsCopied: (num) => (num === 1 ? '1 पंक्ति कॉपी की गई' : `${num} पंक्तियाँ कॉपी की गईं`),
   numRowsSelected: (num) => (num === 1 ? '1 पंक्ति चयनित' : `${num} पंक्तियाँ चयनित`),
+  optionsLoadError: 'विकल्प लोड नहीं हो सके',
   pageXOfY: (page, total) => `${total} में से पृष्ठ ${page}`,
   pagination: 'पृष्ठ क्रमांकन',
   pause: 'रोकें',

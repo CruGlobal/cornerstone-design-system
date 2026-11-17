@@ -72,6 +72,7 @@ const translation: Translation = {
   nextVideo: 'Video berikutnya',
   nextYear: 'Tahun berikutnya',
   noData: 'Tidak ada data',
+  noOptions: 'Tidak ada opsi',
   noResults: 'Tidak ada hasil yang cocok',
   now: 'Sekarang',
   numCharacters: (num) => {
@@ -95,8 +96,10 @@ const translation: Translation = {
     }
     return `${num} opsi yang dipilih`;
   },
+  numResults: (num) => `${num} hasil`,
   numRowsCopied: (num) => `${num} baris disalin`,
   numRowsSelected: (num) => `${num} baris dipilih`,
+  optionsLoadError: 'Gagal memuat opsi',
   pageXOfY: (page, total) => `Halaman ${page} dari ${total}`,
   pagination: 'Penomoran halaman',
   pause: 'Jeda',

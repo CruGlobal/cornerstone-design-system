@@ -72,6 +72,7 @@ const translation: Translation = {
   nextVideo: '下一個影片',
   nextYear: '下一年',
   noData: '無資料',
+  noOptions: '沒有選項',
   noResults: '無相符的結果',
   now: '現在',
   numCharacters: (num) => `${num}個字元`,
@@ -85,8 +86,10 @@ const translation: Translation = {
     }
     return `${num} 選擇項目`;
   },
+  numResults: (num) => `${num} 個結果`,
   numRowsCopied: (num) => `已複製 ${num} 列`,
   numRowsSelected: (num) => `已選擇 ${num} 列`,
+  optionsLoadError: '無法載入選項',
   pageXOfY: (page, total) => `第 ${page} 頁，共 ${total} 頁`,
   pagination: '分頁',
   pause: '暫停',

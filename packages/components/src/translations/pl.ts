@@ -87,6 +87,7 @@ const translation: Translation = {
   nextVideo: 'Następny film',
   nextYear: 'Następny rok',
   noData: 'Brak danych',
+  noOptions: 'Brak opcji',
   noResults: 'Brak pasujących wyników',
   now: 'Teraz',
   numCharacters: (num) => {
@@ -120,6 +121,7 @@ const translation: Translation = {
     }
     return `Wybrano ${num} opcje`;
   },
+  numResults: (num) => `Liczba wyników: ${num}`,
   numRowsCopied: (num) => {
     if (num === 1) {
       return 'Skopiowano 1 wiersz';
@@ -142,6 +144,7 @@ const translation: Translation = {
     }
     return `Wybrano ${num} wierszy`;
   },
+  optionsLoadError: 'Nie udało się wczytać opcji',
   pageXOfY: (page, total) => `Strona ${page} z ${total}`,
   pagination: 'Paginacja',
   pause: 'Wstrzymaj',

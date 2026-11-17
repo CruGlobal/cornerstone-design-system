@@ -72,6 +72,7 @@ const translation: Translation = {
   nextVideo: 'Nästa video',
   nextYear: 'Nästa år',
   noData: 'Inga data',
+  noOptions: 'Inga alternativ',
   noResults: 'Inga matchande resultat',
   now: 'Nu',
   numCharacters: (num) => {
@@ -95,8 +96,10 @@ const translation: Translation = {
     }
     return `${num} alternativ valda`;
   },
+  numResults: (num) => `${num} resultat`,
   numRowsCopied: (num) => (num === 1 ? '1 rad kopierad' : `${num} rader kopierade`),
   numRowsSelected: (num) => (num === 1 ? '1 rad markerad' : `${num} rader markerade`),
+  optionsLoadError: 'Det gick inte att läsa in alternativen',
   pageXOfY: (page, total) => `Sida ${page} av ${total}`,
   pagination: 'Paginering',
   pause: 'Pausa',

@@ -88,6 +88,7 @@ const translation: Translation = {
   nextVideo: 'Další video',
   nextYear: 'Další rok',
   noData: 'Žádná data',
+  noOptions: 'Žádné možnosti',
   noResults: 'Žádné odpovídající výsledky',
   now: 'Nyní',
   numCharacters: (num) => {
@@ -117,6 +118,7 @@ const translation: Translation = {
     }
     return `Počet vybraných možností: ${num}`;
   },
+  numResults: (num) => `Počet výsledků: ${num}`,
   numRowsCopied: (num) => {
     if (num === 1) {
       return 'Byl zkopírován 1 řádek';
@@ -135,6 +137,7 @@ const translation: Translation = {
     }
     return `Je vybráno ${num} řádků`;
   },
+  optionsLoadError: 'Možnosti se nepodařilo načíst',
   pageXOfY: (page, total) => `Stránka ${page} z ${total}`,
   pagination: 'Stránkování',
   pause: 'Pozastavit',
