@@ -118,22 +118,32 @@ function oklchToHex(lch) {
   return { hex: `#${hex}`, clipped: C < lch.C - 1e-6 };
 }
 
-/** Solve for the OKLCH lightness whose rendered colour hits `targetY` at this chroma and hue. */
+/**
+ * Solve for the OKLCH lightness whose rendered colour hits `targetY` at this chroma and hue.
+ *
+ * The bisection runs on the luminance of the *rounded* hex, a step function, so it closes in on the hex
+ * step that crosses `targetY`: `lo` always renders below the target and `hi` at or above it. The answer is
+ * picked from those two hexes by a fixed rule, never from the last midpoint. The last midpoint sits within
+ * a few ulps of a rounding boundary, so which side it lands on came down to the last bit of `**`, and that
+ * differs between Node 22 and Node 25.
+ *
+ * Rule: whichever of the two hexes has luminance closer to `targetY`; on an exact tie, `hi`, the one that
+ * meets the target.
+ */
 function solveForLuminance(targetY, C, H) {
   let lo = 0;
   let hi = 1;
-  let best = null;
   for (let i = 0; i < 60; i++) {
     const mid = (lo + hi) / 2;
-    const out = oklchToHex({ L: mid, C, H });
-    best = out;
-    if (luminance(out.hex) < targetY) {
+    if (luminance(oklchToHex({ L: mid, C, H }).hex) < targetY) {
       lo = mid;
     } else {
       hi = mid;
     }
   }
-  return best;
+  const below = oklchToHex({ L: lo, C, H });
+  const above = oklchToHex({ L: hi, C, H });
+  return Math.abs(luminance(below.hex) - targetY) < Math.abs(luminance(above.hex) - targetY) ? below : above;
 }
 
 // ─── the spec, derived from upstream's own palettes ────────────────────────
