@@ -182,7 +182,7 @@ export default class CsAnimation extends CornerstoneElement {
     'endDelay',
     'fill',
     'iterations',
-    'iterationsStart',
+    'iterationStart',
     'keyframes',
   ])
   handleAnimationChange() {
