@@ -249,6 +249,16 @@ export default css`
     grid-template-rows: minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
   }
 
+  /*
+   * The sidebar is not shown on mobile. The shared navigation slots leave it for the drawer there, but the
+   * desktop-navigation-* slots are always rendered inside it, so their content stays put and has to be hidden with
+   * it. Keyed on the view attribute so it follows the page's own width, and so it outranks the display: grid above;
+   * the media query in page.mobile.styles.ts has the same specificity as that rule and comes earlier in the cascade.
+   */
+  :host([view='mobile']) [part~='navigation'] {
+    display: none;
+  }
+
   [part~='drawer']::part(dialog) {
     background-color: var(--cs-color-surface-default);
   }

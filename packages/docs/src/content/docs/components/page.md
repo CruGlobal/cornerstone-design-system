@@ -302,9 +302,8 @@ A drawer often needs a title that the sidebar doesn't, because on desktop the pa
 Don't use `cs-mobile-only` on a `navigation-header` to keep it out of the sidebar. It hides the header on desktop, but it breaks the sidebar's layout. The sidebar is a grid of three rows: the header, then the navigation in a row that grows to fill the column, then the footer. A hidden element drops out of that grid, so the navigation moves up into the header's row and stops filling the sidebar, and the footer moves up off the bottom. Use `mobile-navigation-header` instead, which leaves the sidebar's grid alone.
 :::
 
-Two gaps to know about for now:
+One gap to know about for now:
 
-- **Content in a `desktop-navigation-*` slot still shows on mobile.** It stays at the side of the page, beside the main content, where the sidebar would be. Add `cs-desktop-only` to it as well. The sidebar isn't meant to show on mobile at all, so hiding its content there doesn't disturb anything.
 - **The menu button only appears when a shared slot has content.** The page decides whether to show its button from `navigation`, `navigation-header` and `navigation-footer` alone. If you fill only the `mobile-navigation-*` slots, add your own button with `data-toggle-nav`.
 
 #### Custom Widths

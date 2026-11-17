@@ -189,6 +189,36 @@ describe('<cs-page>', () => {
           await el.updateComplete;
           expect(getAssignedContainer()).to.equal('desktop-navigation');
         });
+
+        // The desktop-only slots are always rendered in the sidebar, so unlike the shared slots their content does
+        // not leave it on mobile. The sidebar itself has to be hidden there.
+        it('should hide desktop-navigation-* content on mobile', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page mobile-breakpoint="768" style="width: 1200px;">
+              <div slot="desktop-navigation-header">Desktop header</div>
+              <nav slot="desktop-navigation">Desktop navigation</nav>
+              <div slot="desktop-navigation-footer">Desktop footer</div>
+              <main>Main content</main>
+            </cs-page>
+          `);
+
+          const desktopContent = [...el.querySelectorAll<HTMLElement>('[slot^="desktop-navigation"]')];
+          const renderedCount = () => desktopContent.filter((item) => item.getClientRects().length > 0).length;
+
+          await waitUntil(() => el.view === 'desktop');
+          await el.updateComplete;
+          expect(renderedCount()).to.equal(3);
+
+          el.style.width = '400px';
+          await waitUntil(() => el.view === 'mobile');
+          await el.updateComplete;
+          expect(renderedCount()).to.equal(0);
+
+          el.style.width = '1200px';
+          await waitUntil(() => el.view === 'desktop');
+          await el.updateComplete;
+          expect(renderedCount()).to.equal(3);
+        });
       });
 
       describe('CSS parts', () => {
