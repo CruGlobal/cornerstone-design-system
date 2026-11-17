@@ -1126,6 +1126,27 @@ describe('<cs-combobox>', () => {
           expect(options(el).length).to.equal(2);
         });
 
+        it('should not offer to create a value a disabled option holds', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" allow-create>
+              <cs-option value="kiwi" disabled>Green fruit</cs-option>
+              <cs-option value="lime">Lime</cs-option>
+            </cs-combobox>
+          `);
+          const created = sinon.spy();
+          el.addEventListener('cs-create', created);
+
+          await type(el, 'kiwi');
+          await waitUntil(() => el.open);
+          await el.updateComplete;
+          expect(el.shadowRoot!.querySelector('.create-option') !== null, 'element present').to.be.false;
+          expect(shownStatus(el)).to.deep.equal(['no-results']);
+
+          await press(el, 'Enter');
+          expect(created).to.not.have.been.called;
+          expect(el.value).to.equal(null);
+        });
+
         it('should let a cancelled cs-create leave the options alone', async () => {
           const el = await fixture<CsCombobox>(html`
             <cs-combobox label="Fruit" allow-create>
@@ -1893,6 +1914,31 @@ describe('<cs-combobox>', () => {
           expect(el.querySelector('cs-divider') !== null, 'element present').to.be.false;
         });
 
+        it('should keep a created pick when the server’s answers never carry it', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" multiple allow-create filter-debounce="10"></cs-combobox>
+          `);
+          const created = sinon.spy();
+          el.addEventListener('cs-create', created);
+          el.dataSource = (query) => fruitsMatching(query);
+
+          await type(el, 'Kiwi');
+          await waitUntil(() => el.shadowRoot!.querySelector('.create-option'));
+          await el.updateComplete;
+          await press(el, 'Enter');
+          expect(el.value).to.deep.equal(['Kiwi']);
+
+          // The next answer does not carry Kiwi, so its option has left the list, but the pick has not
+          await answered(el, ['Apple', 'Apricot', 'Banana', 'Cherry']);
+          await type(el, 'Kiwi');
+          await waitUntil(() => el.shadowRoot!.querySelector('.create-option'));
+          await el.updateComplete;
+          await press(el, 'Enter');
+
+          expect(el.value).to.deep.equal(['Kiwi']);
+          expect(created).to.have.been.calledOnce;
+        });
+
         it('should not offer to create, or say nothing matches, while the answer for new text is on its way', async () => {
           const el = await fixture<CsCombobox>(html`
             <cs-combobox label="Fruit" allow-create filter-debounce="300"></cs-combobox>
@@ -1914,6 +1960,27 @@ describe('<cs-combobox>', () => {
           await waitUntil(() => !el.loading);
           await el.updateComplete;
           expect(el.shadowRoot!.querySelector('.create-option') !== null, 'create option shown').to.be.true;
+        });
+
+        it('should replace what a DocumentFragment brought, not pile it up', async () => {
+          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit"></cs-combobox>`);
+          el.dataSource = () => {
+            const fragment = document.createDocumentFragment();
+            const option = document.createElement('cs-option');
+            option.value = 'apple';
+            option.textContent = 'Apple';
+            const note = document.createElement('span');
+            note.className = 'note';
+            fragment.append(option, note);
+            return fragment;
+          };
+
+          await el.show();
+          await answered(el, ['Apple']);
+          await el.reload();
+          await el.reload();
+          expect(el.querySelectorAll('span.note').length).to.equal(1);
+          expect(shownLabels(el)).to.deep.equal(['Apple']);
         });
 
         it('should refuse an HTML string rather than parse it', async () => {

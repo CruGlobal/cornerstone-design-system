@@ -495,12 +495,15 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   }
 
   private get showCreateOption() {
+    const text = this.query.trim();
     return (
       this.allowCreate &&
       this.open &&
-      this.query.trim() !== '' &&
+      text !== '' &&
       this.visibleCount === 0 &&
-      !(this.isServerMode && (this.loading || this.loadFailed))
+      !(this.isServerMode && (this.loading || this.loadFailed)) &&
+      // A disabled option holding this value means it cannot be picked now, so it cannot be created either
+      !this.getAllOptions().some((option) => option.disabled && option.value === text)
     );
   }
 
@@ -1293,18 +1296,26 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       return;
     }
 
-    // The create option shows when no label matches, but an option may already carry this value under another label.
-    // Pick that one rather than adding a second option with the same value. Already picked in multiple mode, it stays.
-    const existing = this.getAllOptions().find((option) => option.value === inputValue);
-    if (existing) {
-      if (this.multiple && existing.selected) {
-        this.finishEditing();
+    // The create option shows when no label matches, but the value may already be held. A pick stays picked, even
+    // when a server answer has taken its option out of the list, rather than being created again and toggled off.
+    const existing = this.getAllOptions().find((option) => option.value === inputValue && !option.disabled);
+    if (this.selectedValues.includes(inputValue)) {
+      this.finishEditing();
+      if (this.multiple) {
         this.inputValue = '';
-        this.highlight(existing);
+        this.highlightBasis = 'query';
+        this.highlight(existing ?? null);
         this.showEveryOption();
       } else {
-        this.pick(existing);
+        this.syncTextToValue();
+        void this.hide();
       }
+      return;
+    }
+
+    // Or an option may carry this value under another label: pick it rather than add a second with the same value.
+    if (existing) {
+      this.pick(existing);
       return;
     }
 
@@ -1318,7 +1329,9 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     option.setAttribute('value', inputValue);
     option.textContent = inputValue;
 
-    // Right after the last option, which keeps it out of the range a framework owns after its marker (replaceOptions)
+    // Right after the last option, so it lists last and lands outside a framework's trailing range when the options
+    // come before it (replaceOptions). Options a framework renders itself are its own: cancel cs-create and add the
+    // option through the framework, or its next render may drop this one.
     const last = this.getAllOptions().at(-1);
     if (last?.parentElement === this) {
       last.after(option);
@@ -1544,6 +1557,9 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     for (const node of [...this.childNodes]) {
       const isOwnedElement = node instanceof Element && !node.hasAttribute('slot') && owned.includes(node.localName);
       if (this.serverNodes.has(node) || isOwnedElement) {
+        if (node instanceof Element) {
+          this.filteredOut.delete(node);
+        }
         node.remove();
       }
     }
@@ -1562,12 +1578,22 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       return [...fragment.childNodes];
     }
 
+    // A fragment empties itself into the combobox, so record its children: they are what replaceOptions removes next.
+    if (result instanceof DocumentFragment) {
+      return [...result.childNodes];
+    }
+
     if (result instanceof Node) {
       return [result];
     }
 
     if (Array.isArray(result)) {
-      return result.map((item: ComboboxOptionData | Node) => (item instanceof Node ? item : this.optionFromData(item)));
+      return result.flatMap((item: ComboboxOptionData | Node) => {
+        if (item instanceof DocumentFragment) {
+          return [...item.childNodes];
+        }
+        return item instanceof Node ? [item] : [this.optionFromData(item)];
+      });
     }
 
     // A string lands here on purpose: the combobox never parses markup it is handed.
