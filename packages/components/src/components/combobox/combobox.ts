@@ -346,8 +346,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
   /**
    * Keeps typed text that matches no option as the value. Single selection only; ignored when `multiple` is set. The
-   * first match is not highlighted while typing, so Enter, Tab or leaving the field keeps exactly what was typed. Text
-   * that equals an option's label picks that option.
+   * first match is not highlighted while typing, so Enter, Tab, leaving the field or closing the list keeps exactly
+   * what was typed, and Escape throws it away. Text that equals an option's label picks that option.
    */
   @property({ attribute: 'allow-custom-value', type: Boolean }) allowCustomValue = false;
 
@@ -595,11 +595,11 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
     // Keep focus in the text field. A press on the field itself is left alone, so once the field has focus the caret
     // lands where it was pressed. The press that first focuses it selects the label instead (handleInputFocus).
+    // Decided afresh on every press, so a press released outside the field cannot leave it set for a later one
+    this.keepSelectionOnMouseUp = onInput && !isFocused;
     if (!onInput) {
       event.preventDefault();
       this.displayInput.focus({ preventScroll: true });
-    } else if (!isFocused) {
-      this.keepSelectionOnMouseUp = true;
     }
 
     if (onExpandIcon && this.open) {
@@ -783,6 +783,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
   private handleInputBlur(event: FocusEvent) {
     const next = event.relatedTarget as Node | null;
+    this.keepSelectionOnMouseUp = false;
 
     // Focus moving to a tag's remove button or the clear button stays inside the combobox.
     if (next && (this.contains(next) || this.shadowRoot?.contains(next))) {
@@ -874,8 +875,9 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     // when cs-combobox is defined before cs-option, or upgrades first because its markup was set with innerHTML. Wait
     // once: whenDefined() settles after every pending option has upgraded, at once if cs-option is already defined.
     // Waiting only once means an option whose upgrade failed is skipped (getAllOptions) rather than waited on forever.
-    const pending = [...this.querySelectorAll('cs-option')].some((option) => !option.matches(':defined'));
-    if (pending && !this.waitingForOptions) {
+    const all = [...this.querySelectorAll<CsOption>('cs-option')];
+    const defined = all.filter((option) => option.matches(':defined'));
+    if (defined.length !== all.length && !this.waitingForOptions) {
       this.waitingForOptions = true;
       void customElements.whenDefined('cs-option').then(() => this.handleDefaultSlotChange());
       return;
@@ -883,7 +885,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     this.waitingForOptions = false;
 
     const oldValue = this.value;
-    this.cachedOptions = null;
+    // The same list getAllOptions() would build: only upgraded options
+    this.cachedOptions = defined;
     this.updateDefaultValue();
     this.syncOptions();
     this.applyFilter();
@@ -1796,7 +1799,11 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     return waitForEvent(this, 'cs-after-show');
   }
 
-  /** Hides the listbox. */
+  /**
+   * Hides the listbox. Typed text is settled as leaving the field does: kept with `allow-custom-value`, cleared when the
+   * field was emptied, otherwise replaced by the pick's label. So `hide()` can change the value and emit `input` and
+   * `change`. Only Escape throws typed text away.
+   */
   async hide() {
     if (!this.open) {
       return undefined;
