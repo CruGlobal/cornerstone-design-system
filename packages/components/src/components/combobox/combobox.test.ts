@@ -1458,6 +1458,24 @@ describe('<cs-combobox>', () => {
           expect(options(one).map((option) => option.selected)).to.deep.equal([false, true, false]);
         });
 
+        it('should give the form a value set from a cs-show listener', async () => {
+          const form = await fixture<HTMLFormElement>(html`
+            <form>
+              <cs-combobox name="fruit" label="Fruit">
+                <cs-option value="apple">Apple</cs-option>
+                <cs-option value="banana">Banana</cs-option>
+              </cs-combobox>
+            </form>
+          `);
+          const el = form.querySelector('cs-combobox')!;
+          // cs-show fires inside an update, after the step that normally writes the form value
+          el.addEventListener('cs-show', () => (el.value = 'banana'), { once: true });
+
+          await el.show();
+          expect(el.value).to.equal('banana');
+          expect(new FormData(form).get('fruit')).to.equal('banana');
+        });
+
         it('should reset to its selected option', async () => {
           const form = await fixture<HTMLFormElement>(html`
             <form>

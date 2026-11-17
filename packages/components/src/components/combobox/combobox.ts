@@ -257,6 +257,12 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       this.inputValue = '';
     }
     this.requestUpdate('value', oldValue);
+
+    // Set during an update (from a cs-show listener, say), the requested update joins the one running after willUpdate()
+    // has written the form value, so write it here too. Before the first update, willUpdate() still does it.
+    if (this.hasUpdated && !isServer) {
+      this.syncValueState();
+    }
   }
 
   get value(): string | string[] | null {
