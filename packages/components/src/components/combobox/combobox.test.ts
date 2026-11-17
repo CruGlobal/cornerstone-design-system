@@ -672,6 +672,32 @@ describe('<cs-combobox>', () => {
           options(el)[0].textContent = 'Green apple';
           await waitUntil(() => el.inputValue === 'Green apple');
         });
+
+        it('should forget an arrow-key open that cs-show cancelled', async () => {
+          const el = await fixture<HTMLElement>(html`
+            <div>
+              <cs-combobox label="Fruit">
+                <cs-option value="apple">Apple</cs-option>
+                <cs-option value="apricot">Apricot</cs-option>
+                <cs-option value="banana">Banana</cs-option>
+                <cs-option value="cherry">Cherry</cs-option>
+              </cs-combobox>
+              <button>Next</button>
+            </div>
+          `);
+          const combobox = el.querySelector('cs-combobox')!;
+          combobox.addEventListener('cs-show', (event) => event.preventDefault(), { once: true });
+          combobox.focus();
+          await press(combobox, 'ArrowDown');
+          expect(combobox.open).to.be.false;
+
+          // A later open by pointer highlights nothing, so Tab picks nothing
+          await clickOnElement(combobox.displayInput);
+          await waitUntil(() => combobox.open);
+          expect(combobox.currentOption?.label).to.equal(undefined);
+          await press(combobox, 'Tab');
+          expect(combobox.value).to.equal(null);
+        });
       });
 
       describe('multiple', () => {
@@ -1217,6 +1243,26 @@ describe('<cs-combobox>', () => {
           }
         });
 
+        it('should replace options already showing with the error row when a request fails', async () => {
+          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="20"></cs-combobox>`);
+          el.dataSource = (query) =>
+            query === '' ? [{ value: 'apple', label: 'Apple' }] : Promise.reject(new Error('offline'));
+
+          await el.show();
+          await waitUntil(() => shownLabels(el).join() === 'Apple');
+
+          const failed = oneEvent(el, 'cs-options-error');
+          await type(el, 'b');
+          await failed;
+          await el.updateComplete;
+
+          expect(shownStatus(el)).to.deep.equal(['error']);
+          expect(shownLabels(el)).to.deep.equal([]);
+          expect(el.currentOption?.label).to.equal(undefined);
+          await press(el, 'Enter');
+          expect(el.value).to.equal(null);
+        });
+
         it('should leave the markers a framework keeps among its children', async () => {
           const container = await fixture<HTMLElement>(html`<div></div>`);
           const view = (withHint: boolean) =>
@@ -1235,6 +1281,49 @@ describe('<cs-combobox>', () => {
           render(view(true), container);
           expect(el.querySelector('[slot="hint"]')?.textContent).to.equal('Pick a fruit');
           expect(shownLabels(el)).to.deep.equal(['Apple']);
+        });
+
+        it('should ask for every option again when the clear button empties an open list', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" with-clear filter-debounce="20"></cs-combobox>
+          `);
+          const dataSource = sinon.spy((query: string) => [{ value: query || 'all', label: query || 'All' }]);
+          el.dataSource = dataSource;
+
+          await type(el, 'b');
+          await waitUntil(() => shownLabels(el).join() === 'b');
+          await clickOnElement(part(el, 'clear-button'));
+
+          await waitUntil(() => shownLabels(el).join() === 'All');
+          expect(dataSource.lastCall.args[0]).to.equal('');
+          expect(el.inputValue).to.equal('');
+        });
+
+        it('should highlight the arrow’s option, or the pick, once the first results arrive', async () => {
+          const el = await fixture<HTMLElement>(html`
+            <div>
+              <cs-combobox label="Fruit"></cs-combobox>
+              <button>Next</button>
+            </div>
+          `);
+          const combobox = el.querySelector('cs-combobox')!;
+          combobox.dataSource = () => [
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ];
+
+          combobox.focus();
+          await press(combobox, 'ArrowDown');
+          await waitUntil(() => shownLabels(combobox).length === 2);
+          expect(combobox.currentOption?.value).to.equal('apple');
+          await press(combobox, 'ArrowDown');
+          await press(combobox, 'Enter');
+          expect(combobox.value).to.equal('banana');
+
+          await clickOnElement(combobox.displayInput);
+          await waitUntil(() => combobox.open && shownLabels(combobox).length === 2);
+          await combobox.updateComplete;
+          expect(combobox.currentOption?.value).to.equal('banana');
         });
 
         it('should request again with reload() and resolve once the new options are in', async () => {

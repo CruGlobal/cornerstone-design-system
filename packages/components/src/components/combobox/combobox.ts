@@ -185,7 +185,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   private isEditing = false;
   /** True once the user moves the highlight with a key, so Tab picks it even with nothing typed. */
   private hasNavigated = false;
-  /** How the list should place its first highlight when it opens. */
+  /** Where an arrow key that opened the list put the highlight. Kept until the list closes, so results can reuse it. */
   private openHighlight: 'first' | 'last' | null = null;
   /** Nodes the combobox appended from a `dataSource` answer. Only these, and options, go when the next answer lands. */
   private serverNodes = new Set<Node>();
@@ -490,11 +490,12 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
   /** Which status row the open list shows in place of options, if any. */
   private get statusRow(): StatusRow | null {
-    if (this.visibleCount > 0 || this.showCreateOption) {
-      return null;
-    }
+    // A failed request hides whatever options were showing, so the error row always stands alone.
     if (this.isServerMode && this.loadFailed) {
       return 'error';
+    }
+    if (this.visibleCount > 0 || this.showCreateOption) {
+      return null;
     }
     if (this.isServerMode && this.loading) {
       return 'loading';
@@ -753,11 +754,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     // Emit after update, ahead of the input and change events commitValues() queues
     void this.updateComplete.then(() => this.dispatchEvent(new CsClearEvent()));
     this.commitValues([]);
-
-    if (this.open) {
-      this.applyFilter();
-      this.highlight(null);
-    }
+    this.highlight(null);
+    this.showEveryOption();
   }
 
   private handleClearMouseDown(event: MouseEvent) {
@@ -837,7 +835,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       // Keep the highlight on an option that is still there, or place it again
       const items = this.navigableItems();
       if (!this.currentOption || !items.includes(this.currentOption)) {
-        this.highlightAfterTyping();
+        this.placeHighlight();
       }
       this.scheduleAnnouncement();
     }
@@ -960,6 +958,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   /** Shows the options that match the query and hides the rest. In server mode the server has already filtered. */
   private applyFilter() {
     const filtering = this.open && !this.isServerMode && this.query.trim() !== '';
+    // After a failed request the options showing answer an older query, so none may be picked until one succeeds.
+    const failed = this.open && this.isServerMode && this.loadFailed;
     const matches = this.filter ?? defaultFilter;
     let count = 0;
 
@@ -969,7 +969,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
         continue;
       }
 
-      const show = !filtering || matches(option, this.query);
+      const show = !failed && (!filtering || matches(option, this.query));
       this.setFilteredOut(option, !show);
       if (show) {
         count++;
@@ -979,7 +979,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     // Dividers and group labels only make sense around the full list.
     for (const decoration of this.getDecorations()) {
       if (decoration instanceof HTMLElement && (!decoration.hidden || this.filteredOut.has(decoration))) {
-        this.setFilteredOut(decoration, filtering);
+        this.setFilteredOut(decoration, filtering || failed);
       }
     }
 
@@ -1015,8 +1015,11 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     this.highlight(this.navigableItems()[0] ?? null);
   }
 
-  /** Where the highlight starts when the list opens. */
-  private highlightOnOpen() {
+  /**
+   * Places the highlight when the list opens, and again when its options change under it, as when server results
+   * land: the first match for typed text, else the pick, else where the arrow key that opened the list points.
+   */
+  private placeHighlight() {
     if (this.query.trim() !== '') {
       this.highlightAfterTyping();
       return;
@@ -1025,7 +1028,6 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     const items = this.navigableItems();
     const picked = items.find((option) => option.selected);
     const start = this.openHighlight;
-    this.openHighlight = null;
 
     if (picked) {
       this.highlight(picked);
@@ -1177,12 +1179,27 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     if (this.multiple) {
       this.inputValue = '';
       this.commitValues(next);
-      this.applyFilter();
       this.highlight(option);
+      this.showEveryOption();
       this.scheduleAnnouncement();
     } else {
       this.commitValues(next);
       void this.hide();
+    }
+  }
+
+  /**
+   * After the query empties under an open list, shows every option again: by filtering on the client, or in server
+   * mode by asking for the empty query's results, so the list never shows matches for text no longer in the field.
+   */
+  private showEveryOption() {
+    if (!this.open) {
+      return;
+    }
+    if (this.isServerMode) {
+      void this.requestOptions();
+    } else {
+      this.applyFilter();
     }
   }
 
@@ -1373,9 +1390,11 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       if (signal.aborted) {
         return;
       }
-      // The next open or keystroke requests again.
+      // Hide what was showing behind the error row; the next open or keystroke requests again.
       this.loadFailed = true;
       this.loading = false;
+      this.applyFilter();
+      this.highlight(null);
       this.dispatchEvent(new CsOptionsErrorEvent({ error, request: { query } }));
     } finally {
       if (this.requestController === controller) {
@@ -1384,7 +1403,9 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     }
 
     if (this.open) {
-      this.highlightAfterTyping();
+      if (!this.currentOption || !this.navigableItems().includes(this.currentOption)) {
+        this.placeHighlight();
+      }
       this.scheduleAnnouncement();
     }
     await this.updateComplete;
@@ -1523,6 +1544,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       const csShowEvent = new CsShowEvent();
       this.dispatchEvent(csShowEvent);
       if (csShowEvent.defaultPrevented) {
+        // Forget where an arrow key meant to start, or a later open would still apply it
+        this.openHighlight = null;
         this.open = false;
         return;
       }
@@ -1533,7 +1556,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       this.lastAnnouncement = '';
 
       this.applyFilter();
-      this.highlightOnOpen();
+      this.placeHighlight();
 
       if (this.isServerMode) {
         void this.requestOptions();
@@ -1573,6 +1596,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       }
       this.query = '';
       this.hasNavigated = false;
+      this.openHighlight = null;
       this.highlight(null);
 
       await animateWithClass(this.popup.popup, 'hide');
