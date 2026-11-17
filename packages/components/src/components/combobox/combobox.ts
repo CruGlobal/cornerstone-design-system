@@ -540,8 +540,10 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   };
 
   private handleDocumentMouseDown = (event: MouseEvent) => {
-    // Close when clicking outside of the combobox
+    // Close when clicking outside of the combobox. This runs before the text field's blur, so settle the text here,
+    // or closing would throw away custom text that leaving the field keeps.
     if (!event.composedPath().includes(this)) {
+      this.settleText();
       void this.hide();
     }
   };

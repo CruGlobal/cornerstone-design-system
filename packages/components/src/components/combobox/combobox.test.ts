@@ -810,6 +810,24 @@ describe('<cs-combobox>', () => {
           expect(el.inputValue).to.equal('Apple');
         });
 
+        it('should keep typed text when the user clicks away', async () => {
+          const el = await fixture<HTMLElement>(html`
+            <div>
+              <p>Somewhere else, above the list that opens below</p>
+              <cs-combobox label="Fruit" allow-custom-value>
+                <cs-option value="apple">Apple</cs-option>
+              </cs-combobox>
+            </div>
+          `);
+          const combobox = el.querySelector('cs-combobox')!;
+          await type(combobox, 'Mango');
+          await waitUntil(() => combobox.open);
+
+          await clickOnElement(el.querySelector('p')!);
+          await waitUntil(() => !combobox.open);
+          expect(combobox.value).to.equal('Mango');
+        });
+
         it('should be ignored when multiple is set', async () => {
           const el = await fixture<CsCombobox>(html`
             <cs-combobox label="Fruit" allow-custom-value multiple>
