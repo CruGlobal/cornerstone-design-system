@@ -197,9 +197,6 @@ export default class CsDetails extends CornerstoneElement {
 
   @watch('open', { waitUntilFirstUpdate: true })
   async handleOpenChange() {
-    this.animationGeneration++;
-    const generation = this.animationGeneration;
-
     if (this.open) {
       this.details.open = true;
       // Show
@@ -210,6 +207,9 @@ export default class CsDetails extends CornerstoneElement {
         this.details.open = false;
         return;
       }
+
+      // Claim the animation only once the show is going ahead. A cancelled show must leave a running hide to finish.
+      const generation = ++this.animationGeneration;
 
       // Close other details with the same name
       this.closeOthersWithSameName();
@@ -249,6 +249,9 @@ export default class CsDetails extends CornerstoneElement {
         this.open = true;
         return;
       }
+
+      // Claim the animation only once the hide is going ahead. A cancelled hide must leave a running show to finish.
+      const generation = ++this.animationGeneration;
 
       this.isAnimating = true;
       const duration = prefersReducedMotion()
