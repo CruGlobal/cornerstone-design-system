@@ -70,6 +70,25 @@ function listenForAnnouncements() {
   return { messages, stop: () => observer.disconnect() };
 }
 
+/** The four fruits most tests use, as option data a dataSource can return. */
+const FRUIT_DATA = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'apricot', label: 'Apricot' },
+  { value: 'banana', label: 'Banana' },
+  { value: 'cherry', label: 'Cherry' },
+];
+
+/** Answers like the client-side filter does: labels containing the query, ignoring case. */
+function fruitsMatching(query: string) {
+  return FRUIT_DATA.filter((fruit) => fruit.label.toLowerCase().includes(query.toLowerCase()));
+}
+
+/** Waits until the list shows exactly these labels and nothing is loading: at once in client mode, once the answer lands in server mode. */
+async function answered(el: CsCombobox, labels: string[]) {
+  await waitUntil(() => !el.loading && shownLabels(el).join() === labels.join(), `expected ${labels.join()}`);
+  await el.updateComplete;
+}
+
 /** A promise whose settling the test controls, standing in for a server response. */
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -1436,6 +1455,192 @@ describe('<cs-combobox>', () => {
           await el.updateComplete;
           expect(el.value).to.equal('banana');
           expect(el.inputValue).to.equal('Banana');
+        });
+      });
+
+      describe('highlight rule', () => {
+        // One rule decides what is highlighted when the list opens and whenever its options change under it. It is
+        // written out above placeHighlight() in combobox.ts. Each row runs in client mode (options in the markup) and
+        // in server mode (the same options from a dataSource that filters as the client does).
+        const all = ['Apple', 'Apricot', 'Banana', 'Cherry'];
+
+        async function rig(mode: 'client' | 'server', multiple = false) {
+          const el =
+            mode === 'client'
+              ? await fixture<CsCombobox>(html`
+                  <cs-combobox label="Fruit" with-clear ?multiple=${multiple}>
+                    <cs-option value="apple">Apple</cs-option>
+                    <cs-option value="apricot">Apricot</cs-option>
+                    <cs-option value="banana">Banana</cs-option>
+                    <cs-option value="cherry">Cherry</cs-option>
+                  </cs-combobox>
+                `)
+              : await fixture<CsCombobox>(html`
+                  <cs-combobox label="Fruit" with-clear ?multiple=${multiple} filter-debounce="10"></cs-combobox>
+                `);
+          const requests = sinon.spy((query: string) => fruitsMatching(query));
+          if (mode === 'server') {
+            el.dataSource = requests;
+          }
+          return { el, requests };
+        }
+
+        /**
+         * In server mode, waits for a request after `asked` before checking the answer. The list from before can show
+         * the same labels, so without this the check could pass before the new answer lands.
+         */
+        async function answeredAfter(el: CsCombobox, requests: sinon.SinonSpy, asked: number, labels: string[]) {
+          if (requests.callCount > 0 || el.dataSource) {
+            await waitUntil(() => requests.callCount > asked, 'expected a new request');
+          }
+          await answered(el, labels);
+        }
+
+        for (const mode of ['client', 'server'] as const) {
+          describe(`in ${mode} mode`, () => {
+            it('first open by Down Arrow, nothing picked: the first option, and Tab picks it', async () => {
+              const { el } = await rig(mode);
+              el.focus();
+              await press(el, 'ArrowDown');
+              await answered(el, all);
+              expect(el.currentOption?.value).to.equal('apple');
+              await press(el, 'Tab');
+              expect(el.value).to.equal('apple');
+            });
+
+            it('first open by Up Arrow, nothing picked: the last option', async () => {
+              const { el } = await rig(mode);
+              el.focus();
+              await press(el, 'ArrowUp');
+              await answered(el, all);
+              expect(el.currentOption?.value).to.equal('cherry');
+            });
+
+            it('open by pointer with a pick: the pick, and Tab changes nothing', async () => {
+              const { el } = await rig(mode);
+              el.value = 'banana';
+              const changed = sinon.spy();
+              el.addEventListener('change', changed);
+
+              await clickOnElement(el.displayInput);
+              await answered(el, all);
+              expect(el.currentOption?.value).to.equal('banana');
+              await press(el, 'Tab');
+              expect(el.value).to.equal('banana');
+              expect(changed).to.not.have.been.called;
+            });
+
+            it('open by pointer with nothing picked: nothing, and Tab picks nothing', async () => {
+              const { el } = await rig(mode);
+              await clickOnElement(el.displayInput);
+              await answered(el, all);
+              expect(el.currentOption?.label).to.equal(undefined);
+              await press(el, 'Tab');
+              expect(el.value).to.equal(null);
+            });
+
+            it('text typed: the first match', async () => {
+              const { el } = await rig(mode);
+              await type(el, 'ap');
+              await answered(el, ['Apple', 'Apricot']);
+              expect(el.currentOption?.value).to.equal('apple');
+            });
+
+            it('text emptied by the user: nothing, and Enter clears the pick', async () => {
+              const { el, requests } = await rig(mode);
+              el.value = 'banana';
+              await clickOnElement(el.displayInput);
+              await answered(el, all);
+              expect(el.currentOption?.value).to.equal('banana');
+
+              // In server mode the label arrives with the answer, after focus selected the raw value, so select again
+              el.displayInput.select();
+              const asked = requests.callCount;
+              await press(el, 'Backspace');
+              expect(el.inputValue).to.equal('');
+              await answeredAfter(el, requests, asked, all);
+              expect(el.currentOption?.label).to.equal(undefined);
+              await press(el, 'Enter');
+              expect(el.value).to.equal(null);
+            });
+
+            it('opened by an arrow, then text typed and deleted: nothing, and Tab picks nothing', async () => {
+              const { el, requests } = await rig(mode);
+              el.focus();
+              await press(el, 'ArrowDown');
+              await answered(el, all);
+              await type(el, 'x');
+              await answered(el, []);
+              const asked = requests.callCount;
+              await press(el, 'Backspace');
+              await answeredAfter(el, requests, asked, all);
+              expect(el.currentOption?.label).to.equal(undefined);
+              await press(el, 'Tab');
+              expect(el.value).to.equal(null);
+            });
+
+            it('after a pick in multiple mode: the option just picked, with no new request', async () => {
+              const { el, requests } = await rig(mode, true);
+              el.value = ['apple'];
+              el.focus();
+              await press(el, 'ArrowDown');
+              await answered(el, all);
+              expect(el.currentOption?.value).to.equal('apple');
+              await press(el, 'ArrowDown');
+              await press(el, 'ArrowDown');
+              const asked = requests.callCount;
+
+              await press(el, 'Enter');
+              await el.updateComplete;
+              expect(el.value).to.deep.equal(['apple', 'banana']);
+              expect(el.currentOption?.value).to.equal('banana');
+              expect(requests.callCount).to.equal(asked);
+              await press(el, 'ArrowDown');
+              expect(el.currentOption?.value).to.equal('cherry');
+            });
+
+            it('after a pick in multiple mode with text typed: the option just picked, once every option is back', async () => {
+              const { el } = await rig(mode, true);
+              await type(el, 'ban');
+              await answered(el, ['Banana']);
+              await press(el, 'Enter');
+              await answered(el, all);
+              expect(el.value).to.deep.equal(['banana']);
+              expect(el.currentOption?.value).to.equal('banana');
+            });
+
+            it('after the clear button: nothing', async () => {
+              const { el } = await rig(mode);
+              el.value = 'banana';
+              await clickOnElement(el.displayInput);
+              await answered(el, all);
+              await clickOnElement(part(el, 'clear-button'));
+              await answered(el, all);
+              expect(el.value).to.equal(null);
+              expect(el.currentOption?.label).to.equal(undefined);
+            });
+          });
+        }
+
+        // Only a dataSource can fail, so this row has no client-mode counterpart.
+        it('after a failed request: nothing; a retry by typing: the first match (server mode)', async () => {
+          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="10"></cs-combobox>`);
+          let fail = false;
+          el.dataSource = (query) => (fail ? Promise.reject(new Error('offline')) : fruitsMatching(query));
+
+          await el.show();
+          await answered(el, all);
+          fail = true;
+          const failed = oneEvent(el, 'cs-options-error');
+          await type(el, 'b');
+          await failed;
+          await el.updateComplete;
+          expect(el.currentOption?.label).to.equal(undefined);
+
+          fail = false;
+          await type(el, 'a');
+          await answered(el, ['Banana']);
+          expect(el.currentOption?.value).to.equal('banana');
         });
       });
 
