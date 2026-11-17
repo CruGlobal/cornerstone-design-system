@@ -1,4 +1,4 @@
-import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
+import { expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html, nothing, render } from 'lit';
 import sinon from 'sinon';
@@ -182,7 +182,7 @@ describe('<cs-combobox>', () => {
 
             if ('ariaActiveDescendantElement' in Element.prototype) {
               // The reference reaches from the shadow root out to the option in the light DOM.
-              expect(el.displayInput.ariaActiveDescendantElement).to.equal(banana);
+              expect(el.displayInput.ariaActiveDescendantElement === banana, 'active descendant').to.be.true;
             } else {
               // An ID reference cannot leave the shadow root, so none is written, and the live region reads instead.
               expect(el.displayInput.hasAttribute('aria-activedescendant')).to.be.false;
@@ -300,7 +300,8 @@ describe('<cs-combobox>', () => {
           const banana = options(el)[2];
           expect(banana.selected).to.be.true;
           expect(banana.getAttribute('aria-selected')).to.equal('true');
-          expect(banana.shadowRoot!.querySelector('cs-icon[part~="checked-icon"]')).to.exist;
+          expect(banana.shadowRoot!.querySelector('cs-icon[part~="checked-icon"]') !== null, 'element present').to.be
+            .true;
         });
 
         it('should narrow the list as the user types and highlight the first match', async () => {
@@ -519,7 +520,7 @@ describe('<cs-combobox>', () => {
           });
 
           expect(el.value).to.equal('apricot');
-          expect(el.shadowRoot!.activeElement).to.equal(el.displayInput);
+          expect(el.shadowRoot!.activeElement === el.displayInput, 'focused element').to.be.true;
         });
 
         it('should move the highlight with the arrow keys, keeping focus in the field', async () => {
@@ -547,7 +548,7 @@ describe('<cs-combobox>', () => {
           await press(el, 'ArrowUp');
           expect(el.currentOption?.label).to.equal('Cherry');
 
-          expect(el.shadowRoot!.activeElement).to.equal(el.displayInput);
+          expect(el.shadowRoot!.activeElement === el.displayInput, 'focused element').to.be.true;
           expect(el.currentOption!.matches(':focus')).to.be.false;
         });
 
@@ -661,6 +662,12 @@ describe('<cs-combobox>', () => {
           expect(handler).to.not.have.been.called;
           expect(el.value).to.equal('cherry');
           expect(el.inputValue).to.equal('Cherry');
+
+          // The control: a pick by the user does fire both, and the same wait is long enough to see them
+          await typeOver(el, 'ban');
+          await press(el, 'Enter');
+          await el.updateComplete;
+          expect(handler).to.have.been.calledTwice;
         });
 
         it('should show a label change on the picked option', async () => {
@@ -739,7 +746,7 @@ describe('<cs-combobox>', () => {
           el.querySelector('button')!.focus();
           await press(combobox, 'Tab');
 
-          expect(combobox.shadowRoot!.activeElement).to.equal(combobox.displayInput);
+          expect(combobox.shadowRoot!.activeElement === combobox.displayInput, 'focused element').to.be.true;
           expect(combobox.displayInput.selectionStart).to.equal(0);
           expect(combobox.displayInput.selectionEnd).to.equal('Cherry'.length);
         });
@@ -879,7 +886,7 @@ describe('<cs-combobox>', () => {
           await el.updateComplete;
 
           const tags = part(el, 'tags');
-          expect(tags.querySelector('img')).to.equal(null);
+          expect(tags.querySelector('img') !== null, 'element present').to.be.false;
           expect(tags.textContent).to.include('<img src="x" alt="Apple">');
         });
 
@@ -1088,7 +1095,7 @@ describe('<cs-combobox>', () => {
           await el.updateComplete;
           await press(el, 'Enter');
 
-          expect(options(el)).to.have.length(2);
+          expect(options(el).length).to.equal(2);
           // Already picked, so it stays picked rather than toggling off
           expect(el.value).to.deep.equal(['kiwi']);
           expect(el.inputValue).to.equal('');
@@ -1097,7 +1104,7 @@ describe('<cs-combobox>', () => {
           await waitUntil(() => el.currentOption?.value === 'lime');
           await press(el, 'Enter');
           expect(el.value).to.deep.equal(['kiwi', 'lime']);
-          expect(options(el)).to.have.length(2);
+          expect(options(el).length).to.equal(2);
         });
 
         it('should let a cancelled cs-create leave the options alone', async () => {
@@ -1115,7 +1122,7 @@ describe('<cs-combobox>', () => {
           await el.updateComplete;
           await press(el, 'Enter');
 
-          expect(options(el)).to.have.length(4);
+          expect(options(el).length).to.equal(4);
           expect(el.value).to.equal(null);
         });
 
@@ -1183,7 +1190,7 @@ describe('<cs-combobox>', () => {
           });
           expect(el.value).to.equal(null);
           expect(el.inputValue).to.equal('');
-          expect(el.shadowRoot!.activeElement).to.equal(el.displayInput);
+          expect(el.shadowRoot!.activeElement === el.displayInput, 'focused element').to.be.true;
         });
       });
 
@@ -1212,7 +1219,7 @@ describe('<cs-combobox>', () => {
           );
           await clickOnElement(el.displayInput);
           await waitUntil(() => el.open);
-          expect(el.shadowRoot!.activeElement).to.equal(el.displayInput);
+          expect(el.shadowRoot!.activeElement === el.displayInput, 'focused element').to.be.true;
         });
       });
 
@@ -1233,7 +1240,7 @@ describe('<cs-combobox>', () => {
           await clickOnElement(el.displayInput);
           await el.updateComplete;
           expect(el.open).to.be.false;
-          expect(el.shadowRoot!.activeElement).to.equal(null);
+          expect(el.shadowRoot!.activeElement === null, 'focused element').to.be.true;
         });
 
         it('should close when disabled while open', async () => {
@@ -1402,7 +1409,7 @@ describe('<cs-combobox>', () => {
           );
           await many.updateComplete;
           await one.updateComplete;
-          await aTimeout(0);
+          await waitUntil(() => one.value === 'b' && JSON.stringify(many.value) === '["b"]');
 
           expect(many.value).to.deep.equal(['b']);
           expect(one.value).to.equal('b');
@@ -1498,7 +1505,7 @@ describe('<cs-combobox>', () => {
           expect(shownStatus(el)).to.deep.equal(['loading']);
           expect(el.customStates.has('loading')).to.be.true;
           expect(el.customStates.has('showing-loading-row')).to.be.true;
-          expect(el.shadowRoot!.querySelector('[part~="spinner"]')).to.equal(null);
+          expect(el.shadowRoot!.querySelector('[part~="spinner"]') !== null, 'element present').to.be.false;
 
           answer.resolve([{ value: 'apple', label: 'Apple' }]);
           await waitUntil(() => !el.loading);
@@ -1519,7 +1526,7 @@ describe('<cs-combobox>', () => {
           await el.updateComplete;
 
           expect(shownStatus(el)).to.deep.equal([]);
-          expect(part(el, 'spinner')).to.exist;
+          expect(part(el, 'spinner') !== null, 'element present').to.be.true;
           expect(el.customStates.has('showing-loading-row')).to.be.false;
           answer.resolve([]);
         });
@@ -1674,11 +1681,11 @@ describe('<cs-combobox>', () => {
 
           await el.show();
           await waitUntil(() => shownLabels(el).join() === 'From a node');
-          expect(el.querySelector('cs-divider')).to.exist;
+          expect(el.querySelector('cs-divider') !== null, 'element present').to.be.true;
 
           await type(el, 't');
           await waitUntil(() => shownLabels(el).join() === 'From a template');
-          expect(el.querySelector('cs-divider')).to.equal(null);
+          expect(el.querySelector('cs-divider') !== null, 'element present').to.be.false;
         });
 
         it('should refuse an HTML string rather than parse it', async () => {
@@ -1691,8 +1698,8 @@ describe('<cs-combobox>', () => {
           const { detail } = await errorEvent;
 
           expect(detail.error).to.be.instanceOf(TypeError);
-          expect(el.querySelector('img')).to.equal(null);
-          expect(options(el)).to.have.length(0);
+          expect(el.querySelector('img') !== null, 'element present').to.be.false;
+          expect(options(el).length).to.equal(0);
         });
 
         it('should keep a pick and its label when the server replaces the options', async () => {
@@ -1721,7 +1728,7 @@ describe('<cs-combobox>', () => {
           el.addEventListener('cs-options-request', (event) => requests.push(event));
 
           await el.show();
-          expect(requests).to.have.length(1);
+          expect(requests.length).to.equal(1);
           expect(requests[0].detail.query).to.equal('');
           expect(requests[0].detail.signal).to.be.instanceOf(AbortSignal);
           expect(el.loading).to.be.true;
