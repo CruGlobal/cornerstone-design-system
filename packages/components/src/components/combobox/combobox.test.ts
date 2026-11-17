@@ -1893,6 +1893,29 @@ describe('<cs-combobox>', () => {
           expect(el.querySelector('cs-divider') !== null, 'element present').to.be.false;
         });
 
+        it('should not offer to create, or say nothing matches, while the answer for new text is on its way', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" allow-create filter-debounce="300"></cs-combobox>
+          `);
+          el.dataSource = () => [];
+
+          // Opening by typing asks at once; the answer for "k" is that nothing matches
+          await type(el, 'k');
+          await waitUntil(() => el.shadowRoot!.querySelector('.create-option') !== null);
+          expect(el.loading).to.be.false;
+
+          // "ki" waits on the debounce. The answer showing is for "k", so it cannot stand for "ki" yet
+          await sendKeys({ type: 'i' });
+          await el.updateComplete;
+          expect(el.loading).to.be.true;
+          expect(el.shadowRoot!.querySelector('.create-option') !== null, 'create option shown').to.be.false;
+          expect(shownStatus(el)).to.deep.equal(['loading']);
+
+          await waitUntil(() => !el.loading);
+          await el.updateComplete;
+          expect(el.shadowRoot!.querySelector('.create-option') !== null, 'create option shown').to.be.true;
+        });
+
         it('should refuse an HTML string rather than parse it', async () => {
           const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit"></cs-combobox>`);
           // @ts-expect-error - a string is not a valid answer, which is the point

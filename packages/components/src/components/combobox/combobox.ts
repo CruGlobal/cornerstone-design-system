@@ -204,6 +204,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   /** Options and decorations this component hid while filtering. Only these are shown again. */
   private filteredOut = new Set<Element>();
   private requestController: AbortController | null = null;
+  /** True while a dataSource call is awaited. */
+  private awaitingAnswer = false;
   private requestTimeout: number | undefined;
   private announceTimeout: number | undefined;
   private lastAnnouncement = '';
@@ -371,7 +373,10 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   /** In server mode, how long to wait after the last keystroke before requesting options, in milliseconds. */
   @property({ attribute: 'filter-debounce', type: Number }) filterDebounce = 250;
 
-  /** Whether an options request is pending. In server mode without a `dataSource`, set it back to `false` yourself. */
+  /**
+   * Whether an options request is pending, from the keystroke that schedules it. In server mode without a
+   * `dataSource`, set it back to `false` yourself once you have answered.
+   */
   @property({ type: Boolean, reflect: true }) loading = false;
 
   /** Controls whether and how text input is automatically capitalized as it is entered by the user. */
@@ -1442,14 +1447,25 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
   private scheduleRequest() {
     clearTimeout(this.requestTimeout);
+    // Pending from the keystroke: the options showing answer older text, so neither the create option nor the
+    // no-results row may stand for the new text until its answer lands.
+    this.loading = true;
     this.requestTimeout = window.setTimeout(() => {
+      this.requestTimeout = undefined;
       void this.requestOptions();
     }, this.filterDebounce);
   }
 
   private cancelScheduledRequest() {
+    if (this.requestTimeout === undefined) {
+      return;
+    }
     clearTimeout(this.requestTimeout);
     this.requestTimeout = undefined;
+    // Nothing is on its way now, unless a dataSource answer is still being awaited
+    if (!this.awaitingAnswer) {
+      this.loading = false;
+    }
   }
 
   /** Aborts any request in flight, and any waiting on the debounce. */
@@ -1458,6 +1474,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     if (this.requestController) {
       this.requestController.abort();
       this.requestController = null;
+      this.awaitingAnswer = false;
       this.loading = false;
     }
   }
@@ -1483,6 +1500,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       return;
     }
 
+    this.awaitingAnswer = true;
     try {
       const result = await this.dataSource(query, signal);
       if (signal.aborted) {
@@ -1503,6 +1521,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     } finally {
       if (this.requestController === controller) {
         this.requestController = null;
+        this.awaitingAnswer = false;
       }
     }
 
