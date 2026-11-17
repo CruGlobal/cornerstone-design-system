@@ -21,6 +21,8 @@ import { buildRamps, gridFor, hexToOklch, luminance, oklchToHex, readBrand, surf
 const ROOT = new URL('../../..', import.meta.url).pathname.replace(/\/$/, '');
 const OUT = join(ROOT, 'packages/tokens/libraries/daisyui.css');
 const AA = 4.5;
+// WCAG 1.4.11: a control's edge, a checked mark or a focus ring against what sits next to it.
+const NON_TEXT = 3;
 
 // daisyUI 5.5's soft variants (alert-soft, badge-soft, btn-soft) mix 8% or 10% of the slot colour into
 // base-100. The text roles are checked on both, as well as on base-100 and base-200.
@@ -35,9 +37,12 @@ const THEMES = [
 
 // daisyUI slot → `cs-*` theme token. A slot and its `-content` are a fill and the text that sits on it.
 // `cs-*` has no secondary role; secondary reads neutral's loud fill until the design team names one.
+// A slot can name one token per mode. base-200 is daisyUI's second surface (default buttons, zebra rows):
+// in light that is the lowered surface, but in dark lowered is darker than an already near-black page
+// (1.06:1), so dark uses the raised surface, the way dark themes show a layer.
 const SLOTS = {
   'base-100': 'surface-default',
-  'base-200': 'surface-lowered',
+  'base-200': { light: 'surface-lowered', dark: 'surface-raised' },
   'base-300': 'surface-border',
   'base-content': 'text-normal',
   primary: 'brand-fill-loud',
@@ -157,7 +162,9 @@ function themeTokens(brandName, mode) {
 
 function resolveTheme(theme) {
   const token = themeTokens(theme.brand, theme.mode);
-  const colors = Object.fromEntries(Object.entries(SLOTS).map(([slot, t]) => [slot, token(t)]));
+  const colors = Object.fromEntries(
+    Object.entries(SLOTS).map(([slot, t]) => [slot, token(typeof t === 'string' ? t : t[theme.mode])]),
+  );
   const text = Object.fromEntries(Object.entries(TEXT_ROLES).map(([slot, [t]]) => [slot, token(t)]));
   return { ...theme, colors, text };
 }
@@ -177,6 +184,15 @@ function render(themes) {
     ' * For links in running text use --color-link, the cs-* link colour, not --color-accent. Accent is a',
     ' * fill and is not checked as text. --color-link passes AA on base-100; in the light themes it is',
     ' * about 4:1 on base-200, so keep links in running text off base-200 for now.',
+    ' *',
+    ' * Text colours are checked on base-100, base-200 and the soft tints only. Several are under 4.5:1',
+    ' * on base-300 (about 4.25:1 in dark, and --color-link about 3.7:1 in light), so keep text off',
+    ' * base-300 (row hover in table-zebra, chat bubbles, steps).',
+    ' *',
+    ' * Some fills are under 3:1 against base-100, which WCAG 1.4.11 asks of a control edge, a checked',
+    ' * mark or a focus ring: cru-light primary, success and warning, familylife-light success, accent, info and',
+    ' * warning, and familylife-dark primary and error. Do not use those colours for checkbox, radio, toggle',
+    ' * or as the only focus ring. `node packages/components/tools/daisyui.mjs --report` lists every pair.',
     ' */',
     '',
   ].join('\n');
@@ -199,9 +215,14 @@ function render(themes) {
 function pairs(theme) {
   const { colors: c, text } = theme;
   const out = [];
+  // `gated` pairs fail --check; the rest are printed by --report only, against their own minimum.
+  const add = (kind, fg, bg, ratio, min = AA, gated = false) => out.push({ kind, fg, bg, ratio, min, gated });
   for (const slot of ['primary', 'secondary', 'accent', 'neutral', 'info', 'success', 'warning', 'error']) {
-    out.push({ kind: 'fill', fg: `${slot}-content`, bg: slot, ratio: contrast(c[`${slot}-content`], c[slot]) });
-    out.push({ kind: 'fill-as-text', fg: slot, bg: 'base-100', ratio: contrast(c[slot], c['base-100']) });
+    add('fill', `${slot}-content`, slot, contrast(c[`${slot}-content`], c[slot]));
+    add('fill-as-text', slot, 'base-100', contrast(c[slot], c['base-100']));
+    for (const bg of ['base-100', 'base-200']) {
+      add('non-text', slot, bg, contrast(c[slot], c[bg]), NON_TEXT);
+    }
   }
   for (const [role, [, slot]] of Object.entries(TEXT_ROLES)) {
     const backs = slot
@@ -212,8 +233,9 @@ function pairs(theme) {
         ]
       : [['base-100', c['base-100']]];
     for (const [bg, hex] of backs) {
-      out.push({ kind: 'text-role', fg: role, bg, ratio: contrast(text[role], hex) });
+      add('text-role', role, bg, contrast(text[role], hex), AA, true);
     }
+    add('text-role', role, 'base-300', contrast(text[role], c['base-300']));
   }
   return out;
 }
@@ -226,8 +248,11 @@ if (args.has('--report')) {
   for (const t of themes) {
     console.log(`\n${t.name}`);
     for (const p of pairs(t)) {
-      const mark = p.ratio >= AA ? '    ' : 'MISS';
-      console.log(`  ${mark} ${p.kind.padEnd(13)} ${p.fg.padEnd(22)} on ${p.bg.padEnd(16)} ${p.ratio.toFixed(2)}:1`);
+      const mark = p.ratio >= p.min ? '    ' : 'MISS';
+      const note = p.gated ? '' : ` (report only, ${p.min}:1)`;
+      console.log(
+        `  ${mark} ${p.kind.padEnd(13)} ${p.fg.padEnd(22)} on ${p.bg.padEnd(16)} ${p.ratio.toFixed(2)}:1${note}`,
+      );
     }
   }
 } else if (args.has('--check')) {
@@ -238,8 +263,8 @@ if (args.has('--report')) {
     );
   }
   for (const t of themes) {
-    for (const p of pairs(t).filter((x) => x.kind === 'text-role' && x.ratio < AA)) {
-      problems.push(`${t.name}: --color-${p.fg} on ${p.bg} is ${p.ratio.toFixed(2)}:1, under ${AA}:1.`);
+    for (const p of pairs(t).filter((x) => x.gated && x.ratio < x.min)) {
+      problems.push(`${t.name}: --color-${p.fg} on ${p.bg} is ${p.ratio.toFixed(2)}:1, under ${p.min}:1.`);
     }
   }
   if (problems.length > 0) {

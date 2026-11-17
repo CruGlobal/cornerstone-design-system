@@ -10,6 +10,15 @@
  * For links in running text use --color-link, the cs-* link colour, not --color-accent. Accent is a
  * fill and is not checked as text. --color-link passes AA on base-100; in the light themes it is
  * about 4:1 on base-200, so keep links in running text off base-200 for now.
+ *
+ * Text colours are checked on base-100, base-200 and the soft tints only. Several are under 4.5:1
+ * on base-300 (about 4.25:1 in dark, and --color-link about 3.7:1 in light), so keep text off
+ * base-300 (row hover in table-zebra, chat bubbles, steps).
+ *
+ * Some fills are under 3:1 against base-100, which WCAG 1.4.11 asks of a control edge, a checked
+ * mark or a focus ring: cru-light primary, success and warning, familylife-light success, accent, info and
+ * warning, and familylife-dark primary and error. Do not use those colours for checkbox, radio, toggle
+ * or as the only focus ring. `node packages/components/tools/daisyui.mjs --report` lists every pair.
  */
 
 @plugin "daisyui/theme" {
@@ -18,7 +27,7 @@
   prefersdark: true;
   color-scheme: "dark";
   --color-base-100: #121212;
-  --color-base-200: #0a0a0a;
+  --color-base-200: #1e1e1e;
   --color-base-300: #323232;
   --color-base-content: #f0efee;
   --color-primary: #ffd000;
@@ -144,7 +153,7 @@
   prefersdark: false;
   color-scheme: "dark";
   --color-base-100: #121212;
-  --color-base-200: #0a0a0a;
+  --color-base-200: #24272a;
   --color-base-300: #323232;
   --color-base-content: #f1f1f1;
   --color-primary: #006c5b;
