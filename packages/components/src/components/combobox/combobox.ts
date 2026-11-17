@@ -22,6 +22,7 @@ import { waitForEvent } from '../../internal/event.js';
 import { announce } from '../../internal/live-announcer.js';
 import { scrollIntoView } from '../../internal/scroll.js';
 import { HasSlotController } from '../../internal/slot.js';
+import { submitOnEnter } from '../../internal/submit-on-enter.js';
 import { RequiredValidator } from '../../internal/validators/required-validator.js';
 import { watch } from '../../internal/watch.js';
 import formControlStyles from '../../styles/component/form-control.styles.js';
@@ -191,6 +192,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   private serverNodes = new Set<Node>();
   /** True while waiting once for options that have not upgraded yet. */
   private waitingForOptions = false;
+  /** Set by a press that focuses the field, so the release that follows does not undo the selected label. */
+  private keepSelectionOnMouseUp = false;
   /** Options and decorations this component hid while filtering. Only these are shown again. */
   private filteredOut = new Set<Element>();
   private requestController: AbortController | null = null;
@@ -564,20 +567,40 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
     const onInput = path.includes(this.displayInput);
     const onExpandIcon = path.some((el) => el instanceof Element && el.classList?.contains('expand-icon'));
+    const isFocused = this.shadowRoot?.activeElement === this.displayInput;
 
-    // Keep focus in the text field. A press on the field itself is left alone so the caret lands where it was pressed.
+    // Keep focus in the text field. A press on the field itself is left alone, so once the field has focus the caret
+    // lands where it was pressed. The press that first focuses it selects the label instead (handleInputFocus).
     if (!onInput) {
       event.preventDefault();
       this.displayInput.focus({ preventScroll: true });
+    } else if (!isFocused) {
+      this.keepSelectionOnMouseUp = true;
     }
 
     if (onExpandIcon && this.open) {
-      this.restoreText();
+      // Closing with the chevron is leaving the list, not cancelling it: only Escape throws typed text away.
+      this.settleText();
       void this.hide();
       return;
     }
 
     void this.show();
+  }
+
+  private handleInputFocus() {
+    // In single mode the field shows the pick's label. Select it, so typing replaces the label rather than adding to it.
+    if (!this.multiple && !this.isEditing && this.displayInput.value !== '') {
+      this.displayInput.select();
+    }
+  }
+
+  private handleInputMouseUp(event: MouseEvent) {
+    // Releasing the press that focused the field would collapse the selection into a caret. Keep it, once.
+    if (this.keepSelectionOnMouseUp) {
+      this.keepSelectionOnMouseUp = false;
+      event.preventDefault();
+    }
   }
 
   private handleInput(event: Event) {
@@ -620,11 +643,11 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
         const down = event.key === 'ArrowDown';
 
         if (event.altKey) {
-          // Alt+Down opens without moving the highlight; Alt+Up closes.
+          // Alt+Down opens without moving the highlight; Alt+Up closes, settling the text as leaving does.
           if (down) {
             void this.show();
           } else if (this.open) {
-            this.restoreText();
+            this.settleText();
             void this.hide();
           }
           return;
@@ -642,19 +665,19 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
       case 'Home':
       case 'End': {
-        // While the list is open these move the highlight. Closed, they move the caret as usual.
-        if (!this.open) {
-          return;
+        // As in the ARIA APG editable combobox, these always move the caret in the text field. If the user had
+        // arrowed into the list, the highlight goes back to where typing put it, as focus returns to the field.
+        if (this.open && this.hasNavigated) {
+          this.hasNavigated = false;
+          this.highlightAfterTyping();
         }
-        event.preventDefault();
-        const items = this.navigableItems();
-        this.highlight(event.key === 'Home' ? items[0] : items[items.length - 1], { announce: true });
-        this.hasNavigated = true;
         return;
       }
 
       case 'Enter': {
         if (!this.open) {
+          // The field sits in a shadow root, so the browser's implicit submission cannot reach the form.
+          submitOnEnter(event, this);
           return;
         }
         event.preventDefault();
@@ -667,7 +690,9 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
         // In multiple mode it never un-picks: Tab past a picked option leaves it picked.
         const option = this.currentOption;
         const intended = this.query.trim() !== '' || this.hasNavigated;
-        if (this.open && option && intended && !(this.multiple && option.selected)) {
+        if (this.open && intended && this.createIsCurrent) {
+          this.create();
+        } else if (this.open && option && intended && !(this.multiple && option.selected)) {
           this.pick(option);
         }
         return;
@@ -1210,6 +1235,21 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       return;
     }
 
+    // The create option shows when no label matches, but an option may already carry this value under another label.
+    // Pick that one rather than adding a second option with the same value. Already picked in multiple mode, it stays.
+    const existing = this.getAllOptions().find((option) => option.value === inputValue);
+    if (existing) {
+      if (this.multiple && existing.selected) {
+        this.finishEditing();
+        this.inputValue = '';
+        this.highlight(existing);
+        this.showEveryOption();
+      } else {
+        this.pick(existing);
+      }
+      return;
+    }
+
     const event = new CsCreateEvent({ inputValue });
     this.dispatchEvent(event);
     if (event.defaultPrevented) {
@@ -1305,6 +1345,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     this._value = next;
     this.valueHasChanged = true;
     this.requestUpdate('value', oldValue);
+    this.syncValueState();
     this.syncOptions();
 
     // Emit after updating
@@ -1314,6 +1355,16 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     });
 
     return true;
+  }
+
+  /**
+   * Writes the form value and validity now rather than leaving them to the next update. A commit can happen inside a
+   * @watch handler (closing the list settles the text), where a requested update joins the one already running after
+   * willUpdate() has written the form value, and would be lost.
+   */
+  private syncValueState() {
+    this.updateFormValue(this.value);
+    this.updateValidity();
   }
 
   private handleTagRemove(event: CsRemoveEvent, directOption?: CsOption) {
@@ -1508,9 +1559,14 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
   @watch('disabled', { waitUntilFirstUpdate: true })
   handleDisabledChange() {
-    // Close the listbox when the control is open and disabled
+    // Close the listbox when the control is disabled while open. Not here and now: a property set inside a @watch
+    // handler joins the update already running, after the `open` watcher has looked, so the close would never run.
     if (this.disabled && this.open) {
-      this.open = false;
+      void this.updateComplete.then(() => {
+        if (this.disabled) {
+          this.open = false;
+        }
+      });
     }
   }
 
@@ -1525,11 +1581,20 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     }
   }
 
+  @watch(['allowCustomValue', 'server', 'dataSource'], { waitUntilFirstUpdate: true })
+  handleValueRulesChange() {
+    // These decide which values the combobox can hold, so the value, and the label in the field, can change with them.
+    this.syncOptions();
+    this.syncValueState();
+    this.requestUpdate('value');
+  }
+
   @watch('multiple', { waitUntilFirstUpdate: true })
   handleMultipleChange() {
     this.finishEditing();
     this.inputValue = '';
     this.syncOptions();
+    this.syncValueState();
     this.requestUpdate('value');
   }
 
@@ -1590,9 +1655,10 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       this.cancelRequest();
       clearTimeout(this.announceTimeout);
 
-      // A hide nobody typed toward, such as `hide()`, throws away half-typed text.
+      // Every close but Escape (which restored the text before getting here) settles what was typed, as leaving the
+      // field does: `hide()`, `open = false` and disabling included.
       if (this.isEditing) {
-        this.restoreText();
+        this.settleText();
       }
       this.query = '';
       this.hasNavigated = false;
@@ -1753,6 +1819,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
                   aria-invalid=${this.hasInteracted && !this.validity.valid ? 'true' : 'false'}
                   @input=${this.handleInput}
                   @keydown=${this.handleKeyDown}
+                  @focus=${this.handleInputFocus}
+                  @mouseup=${this.handleInputMouseUp}
                   @blur=${this.handleInputBlur}
                 />
               </div>

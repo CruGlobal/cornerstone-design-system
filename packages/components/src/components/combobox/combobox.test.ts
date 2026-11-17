@@ -520,7 +520,7 @@ describe('<cs-combobox>', () => {
           expect(el.shadowRoot!.activeElement).to.equal(el.displayInput);
         });
 
-        it('should move the highlight with the arrow keys, Home and End, keeping focus in the field', async () => {
+        it('should move the highlight with the arrow keys, keeping focus in the field', async () => {
           const el = await fixture<CsCombobox>(html`
             <cs-combobox label="Fruit">
               <cs-option value="apple">Apple</cs-option>
@@ -537,9 +537,10 @@ describe('<cs-combobox>', () => {
           // The disabled option is skipped
           await press(el, 'ArrowDown');
           expect(el.currentOption?.label).to.equal('Banana');
-          await press(el, 'End');
+          await press(el, 'ArrowDown');
           expect(el.currentOption?.label).to.equal('Cherry');
-          await press(el, 'Home');
+          // And the highlight wraps
+          await press(el, 'ArrowDown');
           expect(el.currentOption?.label).to.equal('Apple');
           await press(el, 'ArrowUp');
           expect(el.currentOption?.label).to.equal('Cherry');
@@ -671,6 +672,96 @@ describe('<cs-combobox>', () => {
           `);
           options(el)[0].textContent = 'Green apple';
           await waitUntil(() => el.inputValue === 'Green apple');
+        });
+
+        it('should leave Home and End to the text field, and hand the highlight back to the first match', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit">
+              <cs-option value="apple">Apple</cs-option>
+              <cs-option value="apricot">Apricot</cs-option>
+              <cs-option value="banana">Banana</cs-option>
+              <cs-option value="cherry">Cherry</cs-option>
+            </cs-combobox>
+          `);
+          // Where the caret lands is the platform's call (on macOS, Firefox and WebKit leave it where it is), so assert
+          // that the combobox never takes the key from the text field.
+          const prevented: Record<string, boolean> = {};
+          el.addEventListener('keydown', (event) => (prevented[event.key] = event.defaultPrevented));
+
+          await type(el, 'ap');
+          await waitUntil(() => el.open);
+          await press(el, 'ArrowDown');
+          expect(el.currentOption?.label).to.equal('Apricot');
+
+          await press(el, 'Home');
+          expect(prevented.Home).to.be.false;
+          expect(el.currentOption?.label).to.equal('Apple');
+
+          await press(el, 'End');
+          expect(prevented.End).to.be.false;
+          expect(el.currentOption?.label).to.equal('Apple');
+          expect(el.open).to.be.true;
+        });
+
+        it('should select the pick’s label when the field is pressed, so typing replaces it', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" value="apple">
+              <cs-option value="apple">Apple</cs-option>
+              <cs-option value="apricot">Apricot</cs-option>
+              <cs-option value="banana">Banana</cs-option>
+              <cs-option value="cherry">Cherry</cs-option>
+            </cs-combobox>
+          `);
+          await clickOnElement(el.displayInput);
+          await waitUntil(() => el.open);
+          await sendKeys({ type: 'ban' });
+          await el.updateComplete;
+
+          expect(el.inputValue).to.equal('ban');
+          expect(el.currentOption?.label).to.equal('Banana');
+        });
+
+        it('should select the pick’s label when the field is reached with Tab', async () => {
+          const el = await fixture<HTMLElement>(html`
+            <div>
+              <button>Before</button>
+              <cs-combobox label="Fruit" value="cherry">
+                <cs-option value="apple">Apple</cs-option>
+                <cs-option value="apricot">Apricot</cs-option>
+                <cs-option value="banana">Banana</cs-option>
+                <cs-option value="cherry">Cherry</cs-option>
+              </cs-combobox>
+            </div>
+          `);
+          const combobox = el.querySelector('cs-combobox')!;
+          el.querySelector('button')!.focus();
+          await press(combobox, 'Tab');
+
+          expect(combobox.shadowRoot!.activeElement).to.equal(combobox.displayInput);
+          expect(combobox.displayInput.selectionStart).to.equal(0);
+          expect(combobox.displayInput.selectionEnd).to.equal('Cherry'.length);
+        });
+
+        it('should submit its form on Enter while the list is closed', async () => {
+          const form = await fixture<HTMLFormElement>(html`
+            <form>
+              <cs-combobox name="fruit" value="apple">
+                <cs-option value="apple">Apple</cs-option>
+                <cs-option value="apricot">Apricot</cs-option>
+                <cs-option value="banana">Banana</cs-option>
+                <cs-option value="cherry">Cherry</cs-option>
+              </cs-combobox>
+              <button type="submit">Go</button>
+            </form>
+          `);
+          const combobox = form.querySelector('cs-combobox')!;
+          const submitted = sinon.spy((event: Event) => event.preventDefault());
+          form.addEventListener('submit', submitted);
+
+          combobox.focus();
+          await press(combobox, 'Enter');
+          await waitUntil(() => submitted.calledOnce);
+          expect(combobox.open).to.be.false;
         });
 
         it('should forget an arrow-key open that cs-show cancelled', async () => {
@@ -859,6 +950,64 @@ describe('<cs-combobox>', () => {
           expect(combobox.value).to.equal('Mango');
         });
 
+        it('should keep typed text however the list is closed, except with Escape', async () => {
+          const form = await fixture<HTMLFormElement>(html`
+            <form>
+              <cs-combobox name="fruit" label="Fruit" allow-custom-value>
+                <cs-option value="apple">Apple</cs-option>
+                <cs-option value="apricot">Apricot</cs-option>
+                <cs-option value="banana">Banana</cs-option>
+                <cs-option value="cherry">Cherry</cs-option>
+              </cs-combobox>
+            </form>
+          `);
+          const el = form.querySelector('cs-combobox')!;
+
+          await type(el, 'Mango');
+          await press(el, 'Alt+ArrowUp');
+          await waitUntil(() => !el.open);
+          expect(el.value).to.equal('Mango');
+
+          await typeOver(el, 'Papaya');
+          await waitUntil(() => el.open);
+          await clickOnElement(part(el, 'expand-icon'));
+          await waitUntil(() => !el.open);
+          expect(el.value).to.equal('Papaya');
+
+          await typeOver(el, 'Guava');
+          await waitUntil(() => el.open);
+          await el.hide();
+          expect(el.value).to.equal('Guava');
+          // hide() settles the text inside an update, and the form still has to hear about it
+          expect(new FormData(form).get('fruit')).to.equal('Guava');
+
+          await typeOver(el, 'Lime');
+          await waitUntil(() => el.open);
+          await press(el, 'Escape');
+          expect(el.value).to.equal('Guava');
+          expect(el.inputValue).to.equal('Guava');
+        });
+
+        it('should empty the field when turning allow-custom-value off drops its value', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" allow-custom-value>
+              <cs-option value="apple">Apple</cs-option>
+              <cs-option value="apricot">Apricot</cs-option>
+              <cs-option value="banana">Banana</cs-option>
+              <cs-option value="cherry">Cherry</cs-option>
+            </cs-combobox>
+          `);
+          await type(el, 'Mango');
+          await press(el, 'Enter');
+          expect(el.value).to.equal('Mango');
+
+          el.allowCustomValue = false;
+          await el.updateComplete;
+          expect(el.value).to.equal(null);
+          expect(el.inputValue).to.equal('');
+          expect(el.displayInput.value).to.equal('');
+        });
+
         it('should be ignored when multiple is set', async () => {
           const el = await fixture<CsCombobox>(html`
             <cs-combobox label="Fruit" allow-custom-value multiple>
@@ -901,6 +1050,52 @@ describe('<cs-combobox>', () => {
           const created = options(el).at(-1)!;
           expect(created.value).to.equal('Mango');
           expect(created.label).to.equal('Mango');
+        });
+
+        it('should create on Tab when the create option is the highlight', async () => {
+          const el = await fixture<HTMLElement>(html`
+            <div>
+              <cs-combobox label="Fruit" allow-create>
+                <cs-option value="apple">Apple</cs-option>
+                <cs-option value="apricot">Apricot</cs-option>
+                <cs-option value="banana">Banana</cs-option>
+                <cs-option value="cherry">Cherry</cs-option>
+              </cs-combobox>
+              <button>Next</button>
+            </div>
+          `);
+          const combobox = el.querySelector('cs-combobox')!;
+          await type(combobox, 'Kiwi');
+          await waitUntil(() => combobox.open);
+          await combobox.updateComplete;
+          await press(combobox, 'Tab');
+
+          expect(combobox.value).to.equal('Kiwi');
+          expect(options(combobox).at(-1)!.value).to.equal('Kiwi');
+        });
+
+        it('should pick an option that already has the typed value instead of adding a second', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" allow-create multiple>
+              <cs-option value="kiwi" selected>Green fruit</cs-option>
+              <cs-option value="lime">Lime</cs-option>
+            </cs-combobox>
+          `);
+          await type(el, 'kiwi');
+          await waitUntil(() => el.open);
+          await el.updateComplete;
+          await press(el, 'Enter');
+
+          expect(options(el)).to.have.length(2);
+          // Already picked, so it stays picked rather than toggling off
+          expect(el.value).to.deep.equal(['kiwi']);
+          expect(el.inputValue).to.equal('');
+
+          await type(el, 'lime');
+          await waitUntil(() => el.currentOption?.value === 'lime');
+          await press(el, 'Enter');
+          expect(el.value).to.deep.equal(['kiwi', 'lime']);
+          expect(options(el)).to.have.length(2);
         });
 
         it('should let a cancelled cs-create leave the options alone', async () => {
@@ -1016,6 +1211,71 @@ describe('<cs-combobox>', () => {
           await clickOnElement(el.displayInput);
           await waitUntil(() => el.open);
           expect(el.shadowRoot!.activeElement).to.equal(el.displayInput);
+        });
+      });
+
+      describe('disabled', () => {
+        it('should not open or take input when disabled', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" disabled>
+              <cs-option value="apple">Apple</cs-option>
+              <cs-option value="apricot">Apricot</cs-option>
+              <cs-option value="banana">Banana</cs-option>
+              <cs-option value="cherry">Cherry</cs-option>
+            </cs-combobox>
+          `);
+          expect(el.displayInput.disabled).to.be.true;
+
+          await el.show();
+          expect(el.open).to.be.false;
+          await clickOnElement(el.displayInput);
+          await el.updateComplete;
+          expect(el.open).to.be.false;
+          expect(el.shadowRoot!.activeElement).to.equal(null);
+        });
+
+        it('should close when disabled while open', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit">
+              <cs-option value="apple">Apple</cs-option>
+              <cs-option value="apricot">Apricot</cs-option>
+              <cs-option value="banana">Banana</cs-option>
+              <cs-option value="cherry">Cherry</cs-option>
+            </cs-combobox>
+          `);
+          await el.show();
+          const hidden = oneEvent(el, 'cs-after-hide');
+          el.disabled = true;
+          await hidden;
+          expect(el.open).to.be.false;
+          expect(part(el, 'listbox').hidden).to.be.true;
+        });
+
+        it('should pass accessibility tests when disabled', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" disabled value="apple">
+              <cs-option value="apple">Apple</cs-option>
+              <cs-option value="apricot">Apricot</cs-option>
+              <cs-option value="banana">Banana</cs-option>
+              <cs-option value="cherry">Cherry</cs-option>
+            </cs-combobox>
+          `);
+          await expect(el).to.be.accessible();
+        });
+
+        it('should pass accessibility tests when invalid', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" hint="Pick a fruit." required>
+              <cs-option value="apple">Apple</cs-option>
+              <cs-option value="apricot">Apricot</cs-option>
+              <cs-option value="banana">Banana</cs-option>
+              <cs-option value="cherry">Cherry</cs-option>
+            </cs-combobox>
+          `);
+          el.hasInteracted = true;
+          await el.updateComplete;
+          expect(el.displayInput.getAttribute('aria-invalid')).to.equal('true');
+          await expect(el).to.be.accessible();
         });
       });
 
