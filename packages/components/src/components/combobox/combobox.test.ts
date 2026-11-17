@@ -1,9 +1,11 @@
 import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
-import { sendKeys } from '@web/test-runner-commands';
+import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html, nothing, render } from 'lit';
 import sinon from 'sinon';
 import type { CsOptionsRequestEvent } from '../../events/options-request.js';
+import { expectNoMotion } from '../../internal/test/expect-animation-duration.js';
 import { expectEvent } from '../../internal/test/expect-event.js';
+import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
 import { clickOnElement } from '../../internal/test/pointer-utilities.js';
@@ -653,8 +655,8 @@ describe('<cs-combobox>', () => {
 
           await type(el, 'ap');
           el.value = 'cherry';
+          // input and change would be queued on this same update, so they have run by the time it settles
           await el.updateComplete;
-          await aTimeout(0);
 
           expect(handler).to.not.have.been.called;
           expect(el.value).to.equal('cherry');
@@ -908,7 +910,7 @@ describe('<cs-combobox>', () => {
           await type(el, 'Mango');
           await waitUntil(() => el.open);
           // Nothing is highlighted, so Enter keeps exactly what was typed
-          expect(el.currentOption).to.equal(undefined);
+          expect(el.currentOption?.label).to.equal(undefined);
 
           await expectEvent(el, ['input', 'change'], async () => {
             await press(el, 'Enter');
@@ -1279,6 +1281,50 @@ describe('<cs-combobox>', () => {
         });
       });
 
+      describe('motion and cleanup', () => {
+        it('should not move when the user prefers reduced motion', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit">
+              <cs-option value="apple">Apple</cs-option>
+              <cs-option value="apricot">Apricot</cs-option>
+              <cs-option value="banana">Banana</cs-option>
+              <cs-option value="cherry">Cherry</cs-option>
+            </cs-combobox>
+          `);
+          await emulateMedia({ reducedMotion: 'reduce' });
+          try {
+            el.open = true;
+            await expectNoMotion(el.popup.popup, 'show');
+            await settleAnimations(el);
+
+            el.open = false;
+            await expectNoMotion(el.popup.popup, 'hide');
+            await settleAnimations(el);
+          } finally {
+            await emulateMedia({ reducedMotion: 'no-preference' });
+          }
+        });
+
+        it('should stop listening to the shadow root it was in once removed while open', async () => {
+          const host = await fixture<HTMLElement>(html`<div></div>`);
+          const root = host.attachShadow({ mode: 'open' });
+          const el = document.createElement('cs-combobox');
+          el.label = 'Fruit';
+          el.innerHTML = '<cs-option value="apple">Apple</cs-option>';
+          root.append(el);
+          await el.updateComplete;
+          await el.show();
+
+          const removeListener = sinon.spy(root, 'removeEventListener');
+          try {
+            el.remove();
+            expect(removeListener.calledWith('focusin')).to.be.true;
+          } finally {
+            removeListener.restore();
+          }
+        });
+      });
+
       describe('form integration', () => {
         it('should be invalid when required and empty, and valid once something is picked', async () => {
           const el = await fixture<CsCombobox>(
@@ -1404,6 +1450,8 @@ describe('<cs-combobox>', () => {
           expect(dataSource.secondCall.args[0]).to.equal('kiw');
           await waitUntil(() => shownLabels(el).join() === 'kiw');
 
+          // Three keystrokes made one request, not three
+          expect(dataSource.callCount).to.equal(2);
           // No client filtering: the server's answer is shown as is, first match highlighted
           expect(el.currentOption?.value).to.equal('kiw');
         });
@@ -1434,7 +1482,9 @@ describe('<cs-combobox>', () => {
           answers[1].resolve([{ value: 'fresh', label: 'Fresh' }]);
           await waitUntil(() => shownLabels(el).join() === 'Fresh');
           answers[0].resolve([{ value: 'stale', label: 'Stale' }]);
-          await aTimeout(50);
+          // The combobox's own continuation was queued on this promise first, so it has run once this one does
+          await answers[0].promise;
+          await el.updateComplete;
           expect(shownLabels(el)).to.deep.equal(['Fresh']);
         });
 
@@ -1584,6 +1634,17 @@ describe('<cs-combobox>', () => {
           await waitUntil(() => combobox.open && shownLabels(combobox).length === 2);
           await combobox.updateComplete;
           expect(combobox.currentOption?.value).to.equal('banana');
+        });
+
+        it('should hand out a copy of its value, never its own array', async () => {
+          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" multiple server></cs-combobox>`);
+          el.value = ['apple'];
+          await el.updateComplete;
+
+          el.value.push('banana');
+          expect(el.value).to.deep.equal(['apple']);
+          (el.defaultValue as string[]).push('banana');
+          expect(el.defaultValue).to.deep.equal([]);
         });
 
         it('should request again with reload() and resolve once the new options are in', async () => {

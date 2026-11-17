@@ -188,6 +188,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   private hasNavigated = false;
   /** Where an arrow key that opened the list put the highlight. Kept until the list closes, so results can reuse it. */
   private openHighlight: 'first' | 'last' | null = null;
+  /** The root the open list listens to for focus, saved because `getRootNode()` changes once the element is removed. */
+  private listenerRoot: Node | null = null;
   /** Nodes the combobox appended from a `dataSource` answer. Only these, and options, go when the next answer lands. */
   private serverNodes = new Set<Node>();
   /** True while waiting once for options that have not upgraded yet. */
@@ -263,7 +265,7 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
 
   get defaultValue(): string | string[] | null {
     const values = this._defaultValue ?? [];
-    return this.multiple ? values : (values[0] ?? null);
+    return this.multiple ? [...values] : (values[0] ?? null);
   }
 
   /** The text in the field. In single mode it shows the picked option's label until the user types. */
@@ -470,7 +472,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
       values = raw.filter((value) => known.has(value));
     }
 
-    return this.multiple ? values : values.slice(0, 1);
+    // Always a fresh array, so nothing outside can reach the stored one through `value`.
+    return this.multiple ? [...values] : values.slice(0, 1);
   }
 
   private get isServerMode() {
@@ -513,8 +516,10 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     registerDismissible(this);
 
     // If the component is rendered in a shadow root, we need to attach the focusin listener there too
-    if (this.getRootNode() !== document) {
-      this.getRootNode().addEventListener('focusin', this.handleDocumentFocusIn);
+    const root = this.getRootNode();
+    if (root !== document) {
+      root.addEventListener('focusin', this.handleDocumentFocusIn);
+      this.listenerRoot = root;
     }
   }
 
@@ -524,9 +529,9 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     document.removeEventListener('mousedown', this.handleDocumentMouseDown);
     unregisterDismissible(this);
 
-    if (this.getRootNode() !== document) {
-      this.getRootNode().removeEventListener('focusin', this.handleDocumentFocusIn);
-    }
+    // Remove it from the root it was added to. Once the element is removed, getRootNode() is the element itself.
+    this.listenerRoot?.removeEventListener('focusin', this.handleDocumentFocusIn);
+    this.listenerRoot = null;
   }
 
   private handleDocumentFocusIn = (event: FocusEvent) => {
@@ -810,8 +815,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     this.displayInput.focus({ preventScroll: true });
   }
 
-  /* @internal - used by options to update labels */
-  public handleDefaultSlotChange() {
+  /** @internal Called by `<cs-option>` when its label or value changes, so the combobox reads its options again. */
+  handleDefaultSlotChange() {
     if (this.slotChangePending) {
       return;
     }
@@ -823,8 +828,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
     });
   }
 
-  /* @internal - used by options whose `selected` property is set directly, as Vue does */
-  public selectionChanged() {
+  /** @internal Called by `<cs-option>` when its `selected` property is set directly, as Vue does. */
+  selectionChanged() {
     this.processSlotChange();
   }
 
