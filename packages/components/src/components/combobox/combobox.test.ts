@@ -498,6 +498,55 @@ describe('<cs-combobox>', () => {
           await waitUntil(() => !combobox.open);
         });
 
+        describe('Tab from a list long enough to scroll', () => {
+          // Chromium and Firefox make a scrolling element a tab stop, so the list's scroller must stay out of the tab
+          // order. A short list does not scroll, which is why these need fifty options.
+          async function longList() {
+            const el = await fixture<HTMLElement>(html`
+              <div>
+                <cs-combobox label="State"></cs-combobox>
+                <input id="next" aria-label="Next field" />
+              </div>
+            `);
+            const combobox = el.querySelector('cs-combobox')!;
+            for (let n = 1; n <= 50; n++) {
+              const option = document.createElement('cs-option');
+              option.value = `state-${n}`;
+              option.textContent = `State ${n}`;
+              combobox.append(option);
+            }
+            await waitUntil(() => options(combobox).length === 50);
+            await combobox.updateComplete;
+            return { combobox, next: el.querySelector<HTMLInputElement>('#next')! };
+          }
+
+          it('should move on to the next field and close, with nothing picked', async () => {
+            const { combobox, next } = await longList();
+            combobox.focus();
+            await press(combobox, 'Alt+ArrowDown');
+            await waitUntil(() => combobox.open);
+            const listbox = part(combobox, 'listbox');
+            expect(listbox.scrollHeight > listbox.clientHeight, 'the list scrolls').to.be.true;
+
+            await press(combobox, 'Tab');
+            expect(document.activeElement === next, 'focus on the next field').to.be.true;
+            await waitUntil(() => !combobox.open);
+            expect(combobox.value).to.equal(null);
+          });
+
+          it('should pick the highlight, close and move on to the next field', async () => {
+            const { combobox, next } = await longList();
+            combobox.focus();
+            await press(combobox, 'ArrowDown');
+            await waitUntil(() => combobox.open);
+
+            await press(combobox, 'Tab');
+            expect(combobox.value).to.equal('state-1');
+            await waitUntil(() => !combobox.open);
+            expect(document.activeElement === next, 'focus on the next field').to.be.true;
+          });
+        });
+
         it('should not pick anything on Tab when nothing was typed or chosen', async () => {
           const el = await fixture<CsCombobox>(html`
             <div>

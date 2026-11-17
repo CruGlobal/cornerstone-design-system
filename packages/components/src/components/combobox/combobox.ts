@@ -1977,9 +1977,14 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
               </span>
             </div>
 
+            <!--
+              The panel scrolls, and Chromium and Firefox make a scroller a tab stop. Focus stays in the text field, so
+              keep it out of the tab order: Tab moves on to the next control.
+            -->
             <div
               part="listbox"
               class="listbox"
+              tabindex="-1"
               @mousedown=${this.handleListboxMouseDown}
               @click=${this.handleListboxClick}
             >
