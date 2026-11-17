@@ -6,6 +6,10 @@
  * and as a text colour. Those slots are FILLS and several fail WCAG AA as text. For text (text-*,
  * link-*, and the soft, outline, dash and ghost variants) use the matching
  * --color-on-<slot>-container, which passes AA on base-100, base-200 and the soft tints.
+ *
+ * For links in running text use --color-link, the cs-* link colour, not --color-accent. Accent is a
+ * fill and is not checked as text. --color-link passes AA on base-100; in the light themes it is
+ * about 4:1 on base-200, so keep links in running text off base-200 for now.
  */
 
 @plugin "daisyui/theme" {
@@ -39,6 +43,7 @@
   --color-on-success-container: #00ab60;
   --color-on-warning-container: #f08020;
   --color-on-error-container: #e37377;
+  --color-link: #00a4b8;
   --radius-selector: 0rem;
   --radius-field: 0rem;
   --radius-box: 0rem;
@@ -80,6 +85,7 @@
   --color-on-success-container: #006737;
   --color-on-warning-container: #8d4500;
   --color-on-error-container: #a62938;
+  --color-link: #008192;
   --radius-selector: 0rem;
   --radius-field: 0rem;
   --radius-box: 0rem;
@@ -121,6 +127,7 @@
   --color-on-success-container: #38614d;
   --color-on-warning-container: #904308;
   --color-on-error-container: #9c362f;
+  --color-link: #557c81;
   --radius-selector: 0rem;
   --radius-field: 0rem;
   --radius-box: 0rem;
@@ -162,6 +169,7 @@
   --color-on-success-container: #5ba37f;
   --color-on-warning-container: #e47e3d;
   --color-on-error-container: #be8780;
+  --color-link: #7ca7ad;
   --radius-selector: 0rem;
   --radius-field: 0rem;
   --radius-box: 0rem;

@@ -66,6 +66,11 @@ const TEXT_ROLES = {
   'on-success-container': ['success-on-quiet', 'success'],
   'on-warning-container': ['warning-on-quiet', 'warning'],
   'on-error-container': ['danger-on-quiet', 'error'],
+  // Not a daisyUI slot. The components' link colour, for links in running text, so an app need not borrow
+  // --color-accent (a fill) for them. Checked on base-100 only: in light mode link-50 is 45 steps from
+  // base-200 (neutral-95), so it cannot reach 4.5:1 there. That is fixed at the source, in palette.mjs's
+  // LINK_STEP, not here.
+  link: ['text-link', null],
 };
 
 const SHAPE = {
@@ -168,6 +173,10 @@ function render(themes) {
     ' * and as a text colour. Those slots are FILLS and several fail WCAG AA as text. For text (text-*,',
     ' * link-*, and the soft, outline, dash and ghost variants) use the matching',
     ' * --color-on-<slot>-container, which passes AA on base-100, base-200 and the soft tints.',
+    ' *',
+    ' * For links in running text use --color-link, the cs-* link colour, not --color-accent. Accent is a',
+    ' * fill and is not checked as text. --color-link passes AA on base-100; in the light themes it is',
+    ' * about 4:1 on base-200, so keep links in running text off base-200 for now.',
     ' */',
     '',
   ].join('\n');
@@ -195,11 +204,13 @@ function pairs(theme) {
     out.push({ kind: 'fill-as-text', fg: slot, bg: 'base-100', ratio: contrast(c[slot], c['base-100']) });
   }
   for (const [role, [, slot]] of Object.entries(TEXT_ROLES)) {
-    const backs = [
-      ['base-100', c['base-100']],
-      ['base-200', c['base-200']],
-      ...SOFT_MIX.map((p) => [`${slot}-soft-${p}%`, mixOklab(c[slot], c['base-100'], p)]),
-    ];
+    const backs = slot
+      ? [
+          ['base-100', c['base-100']],
+          ['base-200', c['base-200']],
+          ...SOFT_MIX.map((p) => [`${slot}-soft-${p}%`, mixOklab(c[slot], c['base-100'], p)]),
+        ]
+      : [['base-100', c['base-100']]];
     for (const [bg, hex] of backs) {
       out.push({ kind: 'text-role', fg: role, bg, ratio: contrast(text[role], hex) });
     }
