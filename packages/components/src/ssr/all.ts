@@ -16,6 +16,7 @@ export { default as CsCarouselItem } from '../components/carousel-item/carousel-
 export { default as CsCheckbox } from '../components/checkbox/checkbox.js';
 export { default as CsCheckboxGroup } from '../components/checkbox-group/checkbox-group.js';
 export { default as CsColorPicker } from '../components/color-picker/color-picker.js';
+export { default as CsCombobox } from '../components/combobox/combobox.js';
 export { default as CsComparison } from '../components/comparison/comparison.js';
 export { default as CsCopyButton } from '../components/copy-button/copy-button.js';
 export { default as CsDetails } from '../components/details/details.js';
