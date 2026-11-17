@@ -89,7 +89,9 @@ Add `selected` to an option, or set `value` on the combobox, to start with a pic
 
 Typing narrows the list to the options whose label contains what was typed, ignoring case. The first match is highlighted, and Enter, Tab or a tap picks it. Opened with nothing typed, the list shows every option, with a check on the current pick. When nothing matches, the list stays open and says so.
 
-Only a picked option's value is ever submitted. If someone types and then leaves the field without picking, the field shows the last pick again. Emptying the field and leaving it clears the value.
+Only a picked option's value is ever submitted. If someone types and then leaves the field without picking, the field shows the last pick again. Emptying the field and leaving it clears the value. Closing the list any other way, with the chevron, Alt+Up Arrow or `hide()`, does the same as leaving. Only Escape always throws away what was typed and puts back the last pick's label.
+
+When the field gains focus with a pick in it, its label is selected, so typing replaces it rather than adding to it.
 
 `input` and `change` fire when the value changes, not on each keystroke. Read `inputValue` for the text in the field.
 
@@ -134,7 +136,7 @@ Use the `max-options-visible` attribute to cap how many tags show before the res
 
 ### Custom Values
 
-Add `allow-custom-value` to keep typed text that matches no option as the value. Nothing is highlighted while typing, so Enter, Tab or leaving the field keeps exactly what was typed. Text that equals an option's label picks that option. This works with a single value only, and is ignored when `multiple` is set.
+Add `allow-custom-value` to keep typed text that matches no option as the value. Nothing is highlighted while typing, so Enter, Tab, leaving the field or closing the list keeps exactly what was typed. Escape throws it away. Text that equals an option's label picks that option. This works with a single value only, and is ignored when `multiple` is set.
 
 ```html {.example}
 <cs-combobox label="Job title" allow-custom-value>
@@ -202,7 +204,7 @@ The list shows a status row in place of options: `empty` when there are no optio
 
 ### Server Mode
 
-Set the `dataSource` property to load options from a server as people type. It is called with the typed text and an `AbortSignal`: when the list opens, right away, and after typing pauses for `filter-debounce` milliseconds (250 by default). A newer request aborts the one before it, so pass the signal on to `fetch()`. The combobox stops filtering on its own and shows what the server returns. A failed request shows the `error` row and tries again on the next open or keystroke.
+Set the `dataSource` property to load options from a server as people type. When an answer lands, it replaces the options, dividers and group labels in the list, and leaves everything else inside the combobox alone, such as a slotted label or hint. It is called with the typed text and an `AbortSignal`: when the list opens, right away, and after typing pauses for `filter-debounce` milliseconds (250 by default). A newer request aborts the one before it, so pass the signal on to `fetch()`. The combobox stops filtering on its own and shows what the server returns. A failed request shows the `error` row in place of whatever was showing, so nothing from an older answer can be picked, and tries again on the next open or keystroke.
 
 Return option data such as `{ value, label, disabled }`, real DOM nodes such as `<cs-option>` and `<cs-divider>`, or a [Lit template](https://lit.dev/docs/templates/overview/).
 
@@ -231,7 +233,7 @@ Return option data such as `{ value, label, disabled }`, real DOM nodes such as 
 
 :::warning
 <strong>The combobox never parses HTML.</strong><br />
-A `dataSource` that returns a string is refused: the request fails and the `error` row shows. This is on purpose, so text from a server can't inject markup into the page. Return option data, DOM nodes or a Lit template instead. Web Awesome's combobox accepts an HTML string here; this one does not.
+A `dataSource` that returns a string is refused: the request fails and the `error` row shows. This is on purpose, so text from a server can't inject markup into the page. Return option data, DOM nodes or a Lit template instead.
 :::
 
 Call `reload()` to request options again for what is in the field, for example after saving something new on the server. With a `dataSource`, it resolves once the new options are in the list.
@@ -254,7 +256,10 @@ When your framework renders the options itself, set the `server` attribute inste
         return;
       }
       const matches = people.filter((name) => name.toLowerCase().includes(query.toLowerCase()));
-      combobox.replaceChildren(
+
+      // Replace only the options, so a slotted label, hint or icon stays
+      combobox.querySelectorAll(':scope > cs-option, :scope > cs-divider').forEach((el) => el.remove());
+      combobox.append(
         ...matches.map((name) => {
           const option = document.createElement('cs-option');
           option.value = name;
@@ -390,11 +395,11 @@ The combobox follows the ARIA Authoring Practices pattern for an editable combob
 | --- | --- |
 | Typing | Opens the list and narrows it. The first match is highlighted. |
 | Down Arrow / Up Arrow | Opens the list, or moves the highlight. Disabled options are skipped. |
-| Home / End | While the list is open, moves the highlight to the first or last option. |
-| Enter | Picks the highlighted option. |
-| Tab | Picks the highlighted option if you typed or moved to it, then moves on. |
-| Escape | Closes the list and puts back the last pick's label. |
-| Alt+Down Arrow / Alt+Up Arrow | Opens the list without moving the highlight / closes it. |
+| Home / End | Moves the caret to the start or end of the text. If you had arrowed into the list, the highlight goes back to the first match. |
+| Enter | Picks the highlighted option, or creates the typed value when the create option is highlighted. With the list closed, submits the form. |
+| Tab | Picks or creates the highlighted option if you typed or moved to it, then moves on. |
+| Escape | Closes the list, throws away what was typed and puts back the last pick's label. |
+| Alt+Down Arrow / Alt+Up Arrow | Opens the list without moving the highlight / closes it, keeping the text as leaving the field does. |
 | Backspace | In an empty field with `multiple`, removes the last tag. |
 
 The text field points at the highlighted option through `aria-activedescendant`, which the combobox sets with element reflection because the field and the options sit on opposite sides of a shadow root. A polite live region reads the result count as the list narrows, and each status message: empty, no results, loading and error. Where a browser lacks element reflection, the live region also reads the highlighted option. No screen reader test of this component is recorded yet.
