@@ -14,6 +14,16 @@ import '../icon/icon.js';
 import mobileStyles from './page.mobile.styles.js';
 import styles from './page.styles.js';
 
+/** The slots whose content the mobile drawer shows. The menu button only earns its place when one of them is filled. */
+const drawerNavigationSlots = [
+  'navigation',
+  'navigation-header',
+  'navigation-footer',
+  'mobile-navigation',
+  'mobile-navigation-header',
+  'mobile-navigation-footer',
+];
+
 //
 // TODO - the toPx and toLength functions aren't used anywhere else, and they're not named or documented well enough to
 // abstract into a utility as-is.
@@ -268,16 +278,13 @@ export default class CsPage extends CornerstoneElement {
   private updateNavigationToggleState = (e?: Event) => {
     if (e) {
       const slotName = (e.target as HTMLSlotElement).name;
-      if (!['navigation', 'navigation-header', 'navigation-footer'].includes(slotName)) {
+      if (!drawerNavigationSlots.includes(slotName)) {
         return;
       }
     }
 
     const hasCustomToggle = Boolean(this.querySelector(":not([slot='navigation-toggle']) [data-toggle-nav]"));
-    const hasNavigationContent =
-      Boolean(this.querySelector('[slot="navigation"]')) ||
-      Boolean(this.querySelector('[slot="navigation-header"]')) ||
-      Boolean(this.querySelector('[slot="navigation-footer"]'));
+    const hasNavigationContent = drawerNavigationSlots.some((name) => this.querySelector(`[slot="${name}"]`));
     this.disableNavigationToggle = hasCustomToggle || !hasNavigationContent;
   };
 

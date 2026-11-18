@@ -191,6 +191,69 @@ describe('<cs-page>', () => {
         });
       });
 
+      describe('menu button', () => {
+        // The menu button opens the drawer, so it shows when a slot the drawer renders has content.
+        for (const slot of ['mobile-navigation', 'mobile-navigation-header', 'mobile-navigation-footer']) {
+          it(`should enable the menu button when only ${slot} has content`, async () => {
+            const el = await fixture<CsPage>(html`
+              <cs-page>
+                <div slot=${slot}>Drawer content</div>
+                <main>Main content</main>
+              </cs-page>
+            `);
+            await el.updateComplete;
+
+            expect(el.disableNavigationToggle).to.be.false;
+            expect(el.hasAttribute('disable-navigation-toggle')).to.be.false;
+          });
+        }
+
+        it('should keep the menu button off when only a desktop-navigation slot has content', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <nav slot="desktop-navigation">Sidebar only</nav>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await el.updateComplete;
+
+          expect(el.disableNavigationToggle).to.be.true;
+        });
+
+        it('should enable the menu button when mobile-navigation content is added later', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await el.updateComplete;
+          expect(el.disableNavigationToggle).to.be.true;
+
+          const nav = document.createElement('nav');
+          nav.slot = 'mobile-navigation';
+          nav.textContent = 'Drawer content';
+          el.append(nav);
+
+          await waitUntil(() => !el.disableNavigationToggle);
+
+          nav.remove();
+          await waitUntil(() => el.disableNavigationToggle);
+        });
+
+        it('should still hide the menu button for a custom toggle when a mobile-navigation slot has content', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <button slot="header" data-toggle-nav>Menu</button>
+              <nav slot="mobile-navigation">Drawer content</nav>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await el.updateComplete;
+
+          expect(el.disableNavigationToggle).to.be.true;
+        });
+      });
+
       describe('CSS parts', () => {
         it('should have a base part', async () => {
           const el = await fixture<CsPage>(html`<cs-page>Content</cs-page>`);
