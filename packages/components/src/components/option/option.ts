@@ -8,6 +8,10 @@ import { LocalizeController } from '../../utilities/localize.js';
 import '../icon/icon.js';
 import styles from './option.styles.js';
 
+/** The controls an option can belong to. Each answers the calls an option makes below. */
+const PARENT_SELECTOR = 'cs-select, cs-combobox';
+type OptionParent = HTMLElementTagNameMap['cs-select'] | HTMLElementTagNameMap['cs-combobox'];
+
 /**
  * @summary Options represent the individual choices inside a select or similar form control. Each option holds a value
  *  and the label shown to the user.
@@ -116,14 +120,15 @@ export default class CsOption extends CornerstoneElement {
     this.isDefaultLabelDirty = true;
 
     if (this.isInitialized) {
-      // When the label changes, tell the parent <cs-select> to update. The parent's handleDefaultSlotChange already
-      // calls selectionChanged() internally, so we don't need to call it separately here.
-      customElements.whenDefined('cs-select').then(() => {
-        const controller = this.closest('cs-select');
-        if (controller) {
+      // When the label changes, tell the parent <cs-select> or <cs-combobox> to update. The parent's
+      // handleDefaultSlotChange already calls selectionChanged() internally, so we don't need to call it separately
+      // here. Wait on the parent's own tag: a page that loads only one of the two never defines the other.
+      const controller = this.closest<OptionParent>(PARENT_SELECTOR);
+      if (controller) {
+        customElements.whenDefined(controller.localName).then(() => {
           controller.handleDefaultSlotChange?.();
-        }
-      });
+        });
+      }
     } else {
       this.isInitialized = true;
     }
@@ -151,7 +156,7 @@ export default class CsOption extends CornerstoneElement {
   syncDefaultSelected() {
     if ('closest' in this) {
       // SSR guard.
-      if (!this.closest('cs-select')?.hasInteracted) {
+      if (!this.closest<OptionParent>(PARENT_SELECTOR)?.hasInteracted) {
         // Only sync if defaultSelected is becoming true
         // This prevents overwriting `selected` when it was set directly by frameworks like Vue
         if (this.defaultSelected) {
@@ -206,7 +211,7 @@ export default class CsOption extends CornerstoneElement {
     // Vue binds to the `selected` property instead of the `defaultSelected` property
     // when using `:selected="true"` syntax.
     if (this.selected && !this.defaultSelected) {
-      const parent = this.closest('cs-select');
+      const parent = this.closest<OptionParent>(PARENT_SELECTOR);
 
       if (parent && !parent.hasInteracted) {
         await customElements.whenDefined(parent.localName);

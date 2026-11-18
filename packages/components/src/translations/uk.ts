@@ -93,6 +93,7 @@ const translation: Translation = {
   nextVideo: 'Наступне відео',
   nextYear: 'Наступний рік',
   noData: 'Немає даних',
+  noOptions: 'Немає варіантів',
   noResults: 'Немає відповідних результатів',
   now: 'Зараз',
   numCharacters: (num) => {
@@ -130,6 +131,7 @@ const translation: Translation = {
     }
     return `вибрано ${num} варіантів`;
   },
+  numResults: (num) => `Знайдено результатів: ${num}`,
   numRowsCopied: (num) => {
     const mod10 = num % 10;
     const mod100 = num % 100;
@@ -152,6 +154,7 @@ const translation: Translation = {
     }
     return `Вибрано ${num} рядків`;
   },
+  optionsLoadError: 'Не вдалося завантажити варіанти',
   pageXOfY: (page, total) => `Сторінка ${page} з ${total}`,
   pagination: 'Нумерація сторінок',
   pause: 'Пауза',

@@ -73,6 +73,7 @@ const translation: Translation = {
   nextVideo: 'ویدیوی بعدی',
   nextYear: 'سال بعد',
   noData: 'داده‌ای وجود ندارد',
+  noOptions: 'گزینه‌ای وجود ندارد',
   noResults: 'نتیجه منطبقی وجود ندارد',
   now: 'اکنون',
   numCharacters: (num) => {
@@ -93,8 +94,10 @@ const translation: Translation = {
     }
     return `${num} گزینه انتخاب شده است`;
   },
+  numResults: (num) => `${num} نتیجه`,
   numRowsCopied: (num) => (num === 1 ? '1 ردیف کپی شده است' : `${num} ردیف کپی شده است`),
   numRowsSelected: (num) => (num === 1 ? '1 ردیف انتخاب شده است' : `${num} ردیف انتخاب شده است`),
+  optionsLoadError: 'بارگذاری گزینه‌ها ممکن نشد',
   pageXOfY: (page, total) => `صفحه ${page} از ${total}`,
   pagination: 'صفحه‌بندی',
   pause: 'مکث',

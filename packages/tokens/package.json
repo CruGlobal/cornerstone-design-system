@@ -52,7 +52,7 @@
   "scripts": {
     "lint": "eslint build.mjs scripts/",
     "format": "prettier --write build.mjs scripts/",
-    "validate": "node scripts/validate-tokens.mjs",
+    "validate": "node scripts/validate-tokens.mjs && node ../components/tools/daisyui.mjs --check",
     "build": "node build.mjs && tsc -p libraries/mui/tsconfig.json",
     "prepublishOnly": "npm run build",
     "test": "node scripts/check-mui-export.mjs"

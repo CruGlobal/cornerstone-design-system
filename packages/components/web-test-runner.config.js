@@ -15,7 +15,9 @@ const TEST_DURATIONS = './test-durations.json';
 
 // Get a list of all Cornerstone component imports for the test runner
 const metadata = JSON.parse(readFileSync('./dist/unbundled/custom-elements.json'), 'utf8');
-const serverComponents = [];
+// One entry per tag: the module the server render loads for it, and the tags its `@dependency` lines name. The
+// hydrated fixture reads this to load only what a test's template needs. See `src/internal/test/fixture.ts`.
+const serverComponents = {};
 const componentImports = [];
 getAllComponents(metadata).forEach((component) => {
   if (!component.tagName) {
@@ -24,7 +26,10 @@ getAllComponents(metadata).forEach((component) => {
 
   const name = component.tagName.replace(/^cs-/, '');
 
-  serverComponents.push(`/dist/unbundled/components/${name}/${name}.js`);
+  serverComponents[component.tagName] = {
+    module: `/dist/unbundled/components/${name}/${name}.js`,
+    dependencies: component.dependencies ?? [],
+  };
   componentImports.push(`/dist/bundled/components/${name}/${name}.js`);
 });
 
@@ -162,9 +167,7 @@ export default {
             'Multiple versions of Lit loaded. Loading multiple versions is not recommended. See https://lit.dev/msg/multiple-versions for more information.'
           )
 
-          window.serverComponents = [
-            ${serverComponents.map((str) => `"${str}"`).join(',\n')}
-          ]
+          window.serverComponents = ${JSON.stringify(serverComponents)}
 
           window.clientComponents = [
             ${componentImports.map((str) => `"${str}"`).join(',\n')}

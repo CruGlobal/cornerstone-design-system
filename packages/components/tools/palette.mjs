@@ -118,22 +118,32 @@ function oklchToHex(lch) {
   return { hex: `#${hex}`, clipped: C < lch.C - 1e-6 };
 }
 
-/** Solve for the OKLCH lightness whose rendered colour hits `targetY` at this chroma and hue. */
+/**
+ * Solve for the OKLCH lightness whose rendered colour hits `targetY` at this chroma and hue.
+ *
+ * The bisection runs on the luminance of the *rounded* hex, a step function, so it closes in on the hex
+ * step that crosses `targetY`: `lo` always renders below the target and `hi` at or above it. The answer is
+ * picked from those two hexes by a fixed rule, never from the last midpoint. The last midpoint sits within
+ * a few ulps of a rounding boundary, so which side it lands on came down to the last bit of `**`, and that
+ * differs between Node 22 and Node 25.
+ *
+ * Rule: whichever of the two hexes has luminance closer to `targetY`; on an exact tie, `hi`, the one that
+ * meets the target.
+ */
 function solveForLuminance(targetY, C, H) {
   let lo = 0;
   let hi = 1;
-  let best = null;
   for (let i = 0; i < 60; i++) {
     const mid = (lo + hi) / 2;
-    const out = oklchToHex({ L: mid, C, H });
-    best = out;
-    if (luminance(out.hex) < targetY) {
+    if (luminance(oklchToHex({ L: mid, C, H }).hex) < targetY) {
       lo = mid;
     } else {
       hi = mid;
     }
   }
-  return best;
+  const below = oklchToHex({ L: lo, C, H });
+  const above = oklchToHex({ L: hi, C, H });
+  return Math.abs(luminance(below.hex) - targetY) < Math.abs(luminance(above.hex) - targetY) ? below : above;
 }
 
 // ─── the spec, derived from upstream's own palettes ────────────────────────
@@ -400,7 +410,7 @@ function borderStepsFor(role, mode, keyStep) {
   return { quiet: g.borderQuiet, normal: g.borderNormal, loud };
 }
 
-function gridFor(role, mode, keyStep) {
+export function gridFor(role, mode, keyStep) {
   const g = GRID[mode];
   const isNeutral = role === 'neutral';
   const border = borderStepsFor(role, mode, keyStep);
@@ -426,7 +436,7 @@ function gridFor(role, mode, keyStep) {
 }
 
 /** Non-role colour, reproducing the reference theme's definitions against role aliases. */
-function surfaceFor(mode, brandKeyStep) {
+export function surfaceFor(mode, brandKeyStep) {
   if (mode === 'light') {
     return [
       ['surface-raised', 'white'],
@@ -582,16 +592,14 @@ export function buildTheme(brandName, brand, ramps) {
   return out.join('\n');
 }
 
-// ─── CLI ──────────────────────────────────────────────────────────────────
-if (process.argv[1] && process.argv[1].endsWith('palette.mjs')) {
-  const brandName = process.argv[2];
-  const dry = process.argv.includes('--dry');
-  if (!brandName) {
-    console.error('usage: node tools/palette.mjs <brand> [--dry]');
-    process.exit(1);
-  }
+// ─── ramps ────────────────────────────────────────────────────────────────
+/** A brand's knob file, `tools/brands/<name>.json`. */
+export function readBrand(brandName) {
+  return JSON.parse(readFileSync(join(ROOT, `tools/brands/${brandName}.json`), 'utf8'));
+}
 
-  const brand = JSON.parse(readFileSync(join(ROOT, `tools/brands/${brandName}.json`), 'utf8'));
+/** Every hue's eleven-step ramp for a brand, keyed by hue name. */
+export function buildRamps(brand) {
   const neutralHues = new Set(Object.keys(brand.neutralPoints ?? {}));
 
   // The brand's chroma register: the mean of its chromatic keys. A synthesized hue arrives in this
@@ -615,6 +623,20 @@ if (process.argv[1] && process.argv[1].endsWith('palette.mjs')) {
   for (const [hue, from] of Object.entries(brand.synthesized ?? {})) {
     ramps[hue] = synthesized(from, brandChroma);
   }
+  return { ramps, brandChroma };
+}
+
+// ─── CLI ──────────────────────────────────────────────────────────────────
+if (process.argv[1] && process.argv[1].endsWith('palette.mjs')) {
+  const brandName = process.argv[2];
+  const dry = process.argv.includes('--dry');
+  if (!brandName) {
+    console.error('usage: node tools/palette.mjs <brand> [--dry]');
+    process.exit(1);
+  }
+
+  const brand = readBrand(brandName);
+  const { ramps, brandChroma } = buildRamps(brand);
 
   // ─── report ───
   console.log(`brand ${brandName} — chroma register ${brandChroma.toFixed(3)}\n`);

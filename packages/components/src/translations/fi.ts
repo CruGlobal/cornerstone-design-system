@@ -72,6 +72,7 @@ const translation: Translation = {
   nextVideo: 'Seuraava video',
   nextYear: 'Seuraava vuosi',
   noData: 'Ei tietoja',
+  noOptions: 'Ei vaihtoehtoja',
   noResults: 'Ei vastaavia tuloksia',
   now: 'Nyt',
   numCharacters: (num) => {
@@ -95,8 +96,10 @@ const translation: Translation = {
     }
     return `${num} vaihtoehtoa valittu`;
   },
+  numResults: (num) => (num === 1 ? '1 tulos' : `${num} tulosta`),
   numRowsCopied: (num) => (num === 1 ? '1 rivi kopioitu' : `${num} riviä kopioitu`),
   numRowsSelected: (num) => (num === 1 ? '1 rivi valittu' : `${num} riviä valittu`),
+  optionsLoadError: 'Vaihtoehtojen lataaminen epäonnistui',
   pageXOfY: (page, total) => `Sivu ${page} / ${total}`,
   pagination: 'Sivutus',
   pause: 'Keskeytä',

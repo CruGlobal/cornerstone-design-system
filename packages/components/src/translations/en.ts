@@ -72,6 +72,7 @@ const translation: Translation = {
   nextVideo: 'Next Video',
   nextYear: 'Next year',
   noData: 'No data',
+  noOptions: 'No options',
   noResults: 'No matching results',
   now: 'Now',
   numCharacters: (num) => {
@@ -95,8 +96,18 @@ const translation: Translation = {
     }
     return `${num} options selected`;
   },
+  numResults: (num) => {
+    if (num === 0) {
+      return 'No results';
+    }
+    if (num === 1) {
+      return '1 result';
+    }
+    return `${num} results`;
+  },
   numRowsCopied: (num) => (num === 1 ? '1 row copied' : `${num} rows copied`),
   numRowsSelected: (num) => (num === 1 ? '1 row selected' : `${num} rows selected`),
+  optionsLoadError: "Couldn't load options",
   pageXOfY: (page, total) => `Page ${page} of ${total}`,
   pagination: 'Pagination',
   pause: 'Pause',
