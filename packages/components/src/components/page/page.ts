@@ -14,6 +14,16 @@ import '../icon/icon.js';
 import mobileStyles from './page.mobile.styles.js';
 import styles from './page.styles.js';
 
+/** The slots whose content the mobile drawer shows. The menu button only earns its place when one of them is filled. */
+const drawerNavigationSlots = [
+  'navigation',
+  'navigation-header',
+  'navigation-footer',
+  'mobile-navigation',
+  'mobile-navigation-header',
+  'mobile-navigation-footer',
+];
+
 //
 // TODO - the toPx and toLength functions aren't used anywhere else, and they're not named or documented well enough to
 // abstract into a utility as-is.
@@ -236,7 +246,8 @@ export default class CsPage extends CornerstoneElement {
   /**
    * Determines whether or not to hide the default hamburger button.
    * This will automatically flip to "true" if you add an element with `data-toggle-nav` anywhere in the element light DOM.
-   * Generally this will be set for you and you don't need to do anything, unless you're using SSR, in which case you should set this manually for initial page loads.
+   * The page sets this itself on first render and again when the content of a navigation slot changes, replacing any value set in markup or from code.
+   * Set it by hand in server-rendered markup, where it holds until the page hydrates.
    */
   @property({ attribute: 'disable-navigation-toggle', reflect: true, type: Boolean }) disableNavigationToggle: boolean =
     false;
@@ -265,19 +276,13 @@ export default class CsPage extends CornerstoneElement {
         })
       : null;
 
-  private updateNavigationToggleState = (e?: Event) => {
-    if (e) {
-      const slotName = (e.target as HTMLSlotElement).name;
-      if (!['navigation', 'navigation-header', 'navigation-footer'].includes(slotName)) {
-        return;
-      }
+  private updateNavigationToggleState = (event?: Event) => {
+    if (event && !drawerNavigationSlots.includes((event.target as HTMLSlotElement).name)) {
+      return;
     }
 
     const hasCustomToggle = Boolean(this.querySelector(":not([slot='navigation-toggle']) [data-toggle-nav]"));
-    const hasNavigationContent =
-      Boolean(this.querySelector('[slot="navigation"]')) ||
-      Boolean(this.querySelector('[slot="navigation-header"]')) ||
-      Boolean(this.querySelector('[slot="navigation-footer"]'));
+    const hasNavigationContent = drawerNavigationSlots.some((name) => this.querySelector(`:scope > [slot="${name}"]`));
     this.disableNavigationToggle = hasCustomToggle || !hasNavigationContent;
   };
 
