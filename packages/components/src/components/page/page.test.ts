@@ -7,16 +7,13 @@ import type CsPage from './page.js';
 interface AccessibilityNode {
   role: string;
   name?: string;
-  children?: AccessibilityNode[];
+  children: AccessibilityNode[];
 }
 
 /** The default menu button's node in the page's accessibility tree, or null when it is not exposed. */
 async function menuButtonNode() {
   const tree = (await a11ySnapshot({})) as unknown as AccessibilityNode;
-  return findAccessibilityNode(
-    tree,
-    (node) => node.role === 'button' && node.name === 'Toggle navigation drawer',
-  ) as AccessibilityNode | null;
+  return findAccessibilityNode(tree, (node) => node.role === 'button' && node.name === 'Toggle navigation drawer');
 }
 
 function measuredHeight(el: CsPage, slot: 'banner' | 'header' | 'subheader') {
