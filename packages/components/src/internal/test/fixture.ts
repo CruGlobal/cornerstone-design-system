@@ -42,13 +42,43 @@ export async function clientFixture<T extends HTMLElement = HTMLElement>(templat
 // Make it easy to register describe blocks and tell what type of test failed.
 clientFixture.type = 'client-only' as const;
 
+/** Every string a template holds, however deep: its static parts, and any text or markup among its values. */
+function templateText(value: unknown, seen = new Set<unknown>()): string[] {
+  if (typeof value === 'string') {
+    return [value];
+  }
+  if (typeof value !== 'object' || value === null || value instanceof Node || seen.has(value)) {
+    return [];
+  }
+  seen.add(value);
+  return Object.values(value).flatMap((child) => templateText(child, seen));
+}
+
+/**
+ * The server modules a template needs, which is one per `cs-*` tag written in it.
+ *
+ * The server render runs in a new worker thread for every fixture, and that worker imports each module it is
+ * handed before it renders. Handing it every component made each hydrated fixture pay for about eighty imports
+ * to render one or two elements. A component's own module imports the components it renders inside itself, so
+ * the tags in the template are all the worker has to be told about.
+ *
+ * A template with no `cs-*` tag in its text gets every module, as before: the tags may be built somewhere this
+ * cannot see.
+ */
+export function serverModulesFor(template: TemplateResult, all: string[] = window.serverComponents): string[] {
+  const tags = new Set(templateText(template).flatMap((text) => text.match(/<cs-[a-z0-9-]+/g) ?? []));
+  const modules = all.filter((path) => tags.has(`<cs-${path.split('/').pop()!.replace(/\.js$/, '')}`));
+
+  return modules.length > 0 ? modules : all;
+}
+
 /**
  * Loads up a fixture with SSR, using all unbundled modules, then when it finishes, calls hydration scripts, and then when hydration completes, returns the element.
  */
 export async function hydratedFixture<T extends HTMLElement = HTMLElement>(template: TemplateResult) {
   const hydratedElement = await LitSSRFixture<T>(template, {
     base: import.meta.url,
-    modules: window.serverComponents,
+    modules: serverModulesFor(template),
     hydrate: true,
   });
 

@@ -70,6 +70,13 @@ function listenForAnnouncements() {
   return { messages, stop: () => observer.disconnect() };
 }
 
+/**
+ * A `filter-debounce` long enough that a request scheduled under it is still waiting when the test acts on it.
+ * A keystroke reaches the page through the test runner, and on a busy machine that trip alone can outlast a
+ * debounce of a few hundred milliseconds, which made "inside the debounce" a race.
+ */
+const STILL_WAITING = 60_000;
+
 /** The four fruits most tests use, as option data a dataSource can return. */
 const FRUIT_DATA = [
   { value: 'apple', label: 'Apple' },
@@ -2062,7 +2069,7 @@ describe('<cs-combobox>', () => {
 
         it('should not offer to create, or say nothing matches, while the answer for new text is on its way', async () => {
           const el = await fixture<CsCombobox>(html`
-            <cs-combobox label="Fruit" allow-create filter-debounce="300"></cs-combobox>
+            <cs-combobox label="Fruit" allow-create filter-debounce="${STILL_WAITING}"></cs-combobox>
           `);
           el.dataSource = () => [];
 
@@ -2078,6 +2085,9 @@ describe('<cs-combobox>', () => {
           expect(el.shadowRoot!.querySelector('.create-option') !== null, 'create option shown').to.be.false;
           expect(shownStatus(el)).to.deep.equal(['loading']);
 
+          // The next keystroke waits only a moment, so its answer lands and the create option comes back
+          el.filterDebounce = 10;
+          await sendKeys({ type: 'w' });
           await waitUntil(() => !el.loading);
           await el.updateComplete;
           expect(el.shadowRoot!.querySelector('.create-option') !== null, 'create option shown').to.be.true;
@@ -2196,7 +2206,7 @@ describe('<cs-combobox>', () => {
 
         it('should keep loading while a request is in flight and only the waiting one is cancelled', async () => {
           const form = await fixture<HTMLFormElement>(html`
-            <form><cs-combobox name="fruit" label="Fruit" filter-debounce="300"></cs-combobox></form>
+            <form><cs-combobox name="fruit" label="Fruit" filter-debounce="20"></cs-combobox></form>
           `);
           const el = form.querySelector('cs-combobox')!;
           const answerForA = deferred<{ value: string; label: string }[]>();
@@ -2210,6 +2220,7 @@ describe('<cs-combobox>', () => {
           await answered(el, ['Apple', 'Apricot', 'Banana', 'Cherry']);
           await type(el, 'a');
           await waitUntil(() => asked.includes('a'));
+          el.filterDebounce = STILL_WAITING;
           await type(el, 'p');
 
           // Resetting the form cancels the request waiting for "ap"; the one for "a" is still on its way
@@ -2222,7 +2233,7 @@ describe('<cs-combobox>', () => {
 
         it('should stop loading once a cancelled schedule follows a request whose dataSource was removed', async () => {
           const form = await fixture<HTMLFormElement>(html`
-            <form><cs-combobox name="fruit" label="Fruit" server filter-debounce="300"></cs-combobox></form>
+            <form><cs-combobox name="fruit" label="Fruit" server filter-debounce="20"></cs-combobox></form>
           `);
           const el = form.querySelector('cs-combobox')!;
           const never = deferred<{ value: string; label: string }[]>();
@@ -2236,7 +2247,9 @@ describe('<cs-combobox>', () => {
           await type(el, 'a');
           await waitUntil(() => requests === 2);
 
-          // A schedule that is cancelled with nothing left in flight ends loading
+          // A schedule that is cancelled with nothing left in flight ends loading. The debounce is made long first,
+          // so the request for "ab" is still waiting at the reset however slow the keystroke is to arrive.
+          el.filterDebounce = STILL_WAITING;
           await type(el, 'b');
           form.reset();
           expect(el.loading).to.be.false;
@@ -2308,9 +2321,10 @@ describe('<cs-combobox>', () => {
           expect(requests[0].detail.signal).to.be.instanceOf(AbortSignal);
           expect(el.loading).to.be.true;
 
+          // Wait for the request that asks for "ch", not for a count: two keystrokes further apart than the
+          // debounce make a request each, and the count then passes two without ever stopping there.
           await type(el, 'ch');
-          await waitUntil(() => requests.length === 2);
-          expect(requests[1].detail.query).to.equal('ch');
+          await waitUntil(() => requests.at(-1)?.detail.query === 'ch');
           expect(requests[0].detail.signal.aborted).to.be.true;
 
           // The page answers, then clears loading itself
