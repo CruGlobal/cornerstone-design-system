@@ -275,16 +275,9 @@ export default class CsPage extends CornerstoneElement {
         })
       : null;
 
-  private updateNavigationToggleState = (e?: Event) => {
-    if (e) {
-      const slotName = (e.target as HTMLSlotElement).name;
-      if (!drawerNavigationSlots.includes(slotName)) {
-        return;
-      }
-    }
-
+  private updateNavigationToggleState = () => {
     const hasCustomToggle = Boolean(this.querySelector(":not([slot='navigation-toggle']) [data-toggle-nav]"));
-    const hasNavigationContent = drawerNavigationSlots.some((name) => this.querySelector(`[slot="${name}"]`));
+    const hasNavigationContent = drawerNavigationSlots.some((name) => this.querySelector(`:scope > [slot="${name}"]`));
     this.disableNavigationToggle = hasCustomToggle || !hasNavigationContent;
   };
 

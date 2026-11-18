@@ -1,7 +1,23 @@
 import { aTimeout, expect, nextFrame, waitUntil } from '@open-wc/testing';
+import { a11ySnapshot, findAccessibilityNode } from '@web/test-runner-commands';
 import { html } from 'lit';
 import { fixtures } from '../../internal/test/fixture.js';
 import type CsPage from './page.js';
+
+interface AccessibilityNode {
+  role: string;
+  name?: string;
+  children?: AccessibilityNode[];
+}
+
+/** The default menu button's node in the page's accessibility tree, or null when it is not exposed. */
+async function menuButtonNode() {
+  const tree = (await a11ySnapshot({})) as unknown as AccessibilityNode;
+  return findAccessibilityNode(
+    tree,
+    (node) => node.role === 'button' && node.name === 'Toggle navigation drawer',
+  ) as AccessibilityNode | null;
+}
 
 function measuredHeight(el: CsPage, slot: 'banner' | 'header' | 'subheader') {
   return getComputedStyle(el).getPropertyValue(`--cs-page-${slot}-height`).trim();
@@ -238,6 +254,62 @@ describe('<cs-page>', () => {
 
           nav.remove();
           await waitUntil(() => el.disableNavigationToggle);
+        });
+
+        it('should ignore a slot attribute on an element that is not a child of the page', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <main><span slot="mobile-navigation">Not slotted</span></main>
+            </cs-page>
+          `);
+          await el.updateComplete;
+
+          expect(el.disableNavigationToggle).to.be.true;
+        });
+
+        it('should hide the menu button when a custom toggle is added to another slot later', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <nav slot="mobile-navigation">Drawer content</nav>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await el.updateComplete;
+          expect(el.disableNavigationToggle).to.be.false;
+
+          const button = document.createElement('button');
+          button.slot = 'header';
+          button.toggleAttribute('data-toggle-nav', true);
+          button.textContent = 'Menu';
+          el.append(button);
+
+          await waitUntil(() => el.disableNavigationToggle);
+        });
+
+        it('should expose a named menu button on mobile when only mobile-navigation has content', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page mobile-breakpoint="5000">
+              <nav slot="mobile-navigation">Drawer content</nav>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await waitUntil(() => el.view === 'mobile');
+          await el.updateComplete;
+
+          expect(await menuButtonNode()).to.include({ role: 'button', name: 'Toggle navigation drawer' });
+        });
+
+        it('should not expose the menu button on mobile when only desktop-navigation has content', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page mobile-breakpoint="5000">
+              <nav slot="desktop-navigation">Sidebar only</nav>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await waitUntil(() => el.view === 'mobile');
+          await el.updateComplete;
+
+          expect(await menuButtonNode()).to.be.null;
         });
 
         it('should still hide the menu button for a custom toggle when a mobile-navigation slot has content', async () => {
