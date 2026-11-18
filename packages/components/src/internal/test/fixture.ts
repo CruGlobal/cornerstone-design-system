@@ -98,8 +98,9 @@ function templateText(template: unknown) {
  * to render one or two elements.
  *
  * The declared dependencies matter because a component's module does not always import what it renders, though
- * it should. `cs-time-input` renders `<cs-icon>` and is missing the import (a bug, UIUX-355), so without them its
- * icons would come back from the server as unknown elements and no test would say so.
+ * it should. `cs-time-input` renders `<cs-icon>` and is missing the import, which is a bug in that component.
+ * Without the declared dependencies its icons would come back from the server as unknown elements and no test
+ * would say so.
  *
  * A template gets every module, as before, when it has no known `cs-*` tag in its text, or holds something whose
  * markup cannot be read without running it (see `templateText`): its tags may be built where this cannot see.
