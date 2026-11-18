@@ -45,16 +45,48 @@ export async function clientFixture<T extends HTMLElement = HTMLElement>(templat
 // Make it easy to register describe blocks and tell what type of test failed.
 clientFixture.type = 'client-only' as const;
 
-/** Every string a template holds, however deep: its static parts, and any text or markup among its values. */
-function templateText(value: unknown, seen = new Set<unknown>()): string[] {
-  if (typeof value === 'string') {
-    return [value];
-  }
-  if (typeof value !== 'object' || value === null || value instanceof Node || seen.has(value)) {
-    return [];
-  }
-  seen.add(value);
-  return Object.values(value).flatMap((child) => templateText(child, seen));
+/**
+ * Every string a template holds, however deep: its static parts, and any text or markup among its values.
+ *
+ * `opaque` is true when the template holds something that makes markup this cannot read without running it: a
+ * generator (lit's `map` and `range`), a promise (`until`), or a function handed to a directive (`repeat`).
+ */
+function templateText(template: unknown) {
+  const text: string[] = [];
+  const seen = new Set<unknown>();
+  let opaque = false;
+
+  const visit = (value: unknown, inDirective: boolean) => {
+    if (typeof value === 'string') {
+      text.push(value);
+      return;
+    }
+    if (typeof value === 'function') {
+      // An event listener in a template cannot add markup; a function given to a directive is how it makes it.
+      opaque ||= inDirective;
+      return;
+    }
+    if (typeof value !== 'object' || value === null || value instanceof Node || seen.has(value)) {
+      return;
+    }
+    seen.add(value);
+
+    const isList = Array.isArray(value);
+    if ((!isList && Symbol.iterator in value) || 'then' in value) {
+      opaque = true;
+      return;
+    }
+
+    const isDirective = '_$litDirective$' in value;
+    for (const [key, child] of Object.entries(value)) {
+      if (key !== '_$litDirective$') {
+        visit(child, inDirective || isDirective);
+      }
+    }
+  };
+
+  visit(template, false);
+  return { text, opaque };
 }
 
 /**
@@ -65,19 +97,20 @@ function templateText(value: unknown, seen = new Set<unknown>()): string[] {
  * handed before it renders. Handing it every component made each hydrated fixture pay for about eighty imports
  * to render one or two elements.
  *
- * The declared dependencies matter because a component's module does not always import what it renders.
- * `cs-time-input` renders `<cs-icon>` and leaves the import to the page, so without them its icons would come
- * back from the server as unknown elements and no test would say so.
+ * The declared dependencies matter because a component's module does not always import what it renders, though
+ * it should. `cs-time-input` renders `<cs-icon>` and is missing the import (a bug, UIUX-355), so without them its
+ * icons would come back from the server as unknown elements and no test would say so.
  *
- * A template with no known `cs-*` tag in its text gets every module, as before: the tags may be built somewhere
- * this cannot see.
+ * A template gets every module, as before, when it has no known `cs-*` tag in its text, or holds something whose
+ * markup cannot be read without running it (see `templateText`): its tags may be built where this cannot see.
  */
 export function serverModulesFor(
   template: TemplateResult,
   components: ServerComponents = window.serverComponents,
 ): string[] {
   const needed = new Set<string>();
-  const queue = templateText(template).flatMap((text) => text.match(/<cs-[a-z0-9-]+/g) ?? []);
+  const { text, opaque } = templateText(template);
+  const queue = opaque ? [] : text.flatMap((part) => part.match(/<cs-[a-z0-9-]+/g) ?? []);
 
   while (queue.length > 0) {
     const tag = queue.pop()!.replace(/^</, '');

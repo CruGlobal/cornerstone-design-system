@@ -1,6 +1,10 @@
 import { expect } from '@open-wc/testing';
 import { html } from 'lit';
+import { ifDefined } from 'lit/directives/if-defined.js';
+import { map } from 'lit/directives/map.js';
+import { repeat } from 'lit/directives/repeat.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { until } from 'lit/directives/until.js';
 import { serverModulesFor, type ServerComponents } from './fixture.js';
 
 const COMPONENTS: ServerComponents = {
@@ -58,6 +62,30 @@ describe('serverModulesFor', () => {
     const template = html`<cs-icon></cs-icon><cs-unknown></cs-unknown>`;
 
     expect(serverModulesFor(template, COMPONENTS)).to.deep.equal(['/icon.js']);
+  });
+
+  it('should still pick modules when the template has an event listener and a plain directive', () => {
+    const template = html`<cs-icon name=${ifDefined(undefined)} @click=${() => {}}></cs-icon>`;
+
+    expect(serverModulesFor(template, COMPONENTS)).to.deep.equal(['/icon.js']);
+  });
+
+  it('should fall back to every module when markup comes from a generator', () => {
+    const template = html`<cs-icon></cs-icon>${map(['a'], (value) => html`<cs-option>${value}</cs-option>`)}`;
+
+    expect(serverModulesFor(template, COMPONENTS)).to.deep.equal(ALL);
+  });
+
+  it('should fall back to every module when markup comes from a function given to a directive', () => {
+    const template = html`<cs-icon></cs-icon>${repeat(['a'], (value) => html`<cs-option>${value}</cs-option>`)}`;
+
+    expect(serverModulesFor(template, COMPONENTS)).to.deep.equal(ALL);
+  });
+
+  it('should fall back to every module when markup comes from a promise', () => {
+    const template = html`<cs-icon></cs-icon>${until(Promise.resolve(html`<cs-option></cs-option>`))}`;
+
+    expect(serverModulesFor(template, COMPONENTS)).to.deep.equal(ALL);
   });
 
   it('should fall back to every module when it finds no cs-* tag', () => {

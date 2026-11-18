@@ -77,6 +77,17 @@ function listenForAnnouncements() {
  */
 const STILL_WAITING = 60_000;
 
+let heldClock: sinon.SinonFakeTimers | undefined;
+
+/**
+ * Puts `setTimeout` on a clock the test moves, so a debounce lapses when the test says and not while a keystroke
+ * is on its way. The suite's `afterEach` gives the real clock back, whether the test passed, failed or timed out.
+ */
+function holdTimers() {
+  heldClock = sinon.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'], shouldClearNativeTimers: true });
+  return heldClock;
+}
+
 /** The four fruits most tests use, as option data a dataSource can return. */
 const FRUIT_DATA = [
   { value: 'apple', label: 'Apple' },
@@ -108,6 +119,12 @@ function deferred<T>() {
 }
 
 describe('<cs-combobox>', () => {
+  // Declared in this suite so it runs before the fixture's own afterEach, which waits on a real timer.
+  afterEach(() => {
+    heldClock?.restore();
+    heldClock = undefined;
+  });
+
   for (const fixture of fixtures) {
     describe(`with "${fixture.type}" rendering`, () => {
       describe('accessibility', () => {
@@ -1795,9 +1812,7 @@ describe('<cs-combobox>', () => {
 
       describe('server mode', () => {
         it('should request right away on open, then debounce keystrokes into one request', async () => {
-          const el = await fixture<CsCombobox>(
-            html`<cs-combobox label="Fruit" filter-debounce="${STILL_WAITING}"></cs-combobox>`,
-          );
+          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="100"></cs-combobox>`);
           const dataSource = sinon.spy((query: string, signal: AbortSignal) =>
             signal.aborted ? [] : [{ value: query || 'all', label: query || 'All' }],
           );
@@ -1808,11 +1823,15 @@ describe('<cs-combobox>', () => {
           expect(dataSource.firstCall.args[0]).to.equal('');
           expect(dataSource.firstCall.args[1]).to.be.instanceOf(AbortSignal);
 
-          // The first two keystrokes wait however far apart they land; the third waits only a moment
-          await type(el, 'ki');
-          el.filterDebounce = 10;
-          await type(el, 'w');
-          await waitUntil(() => dataSource.callCount === 2);
+          // The debounce waits on a held clock, so nothing goes out however far apart the keystrokes land. Each one
+          // has to cancel the wait before it: if any did not, moving the clock would send more than one request.
+          const clock = holdTimers();
+          await type(el, 'kiw');
+          expect(dataSource.callCount).to.equal(1);
+          clock.tick(el.filterDebounce + 1);
+          clock.restore();
+
+          await waitUntil(() => dataSource.callCount >= 2);
           expect(dataSource.secondCall.args[0]).to.equal('kiw');
           await waitUntil(() => shownLabels(el).join() === 'kiw');
 
@@ -2203,19 +2222,15 @@ describe('<cs-combobox>', () => {
           await answered(el, ['Apple', 'Apricot', 'Banana', 'Cherry']);
 
           // The debounce runs on a clock the test holds, so it cannot lapse while the keystroke is on its way
-          const clock = sinon.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
-          try {
-            await type(el, 'a');
-            expect(el.loading).to.be.true;
+          const clock = holdTimers();
+          await type(el, 'a');
+          expect(el.loading).to.be.true;
 
-            await el.hide();
-            expect(el.loading).to.be.false;
-            // Past the debounce, so a request that was not cancelled goes out here
-            clock.tick(1000);
-            expect(requests.callCount).to.equal(1);
-          } finally {
-            clock.restore();
-          }
+          await el.hide();
+          expect(el.loading).to.be.false;
+          // Past the debounce, so a request that was not cancelled goes out here
+          clock.tick(el.filterDebounce + 1);
+          expect(requests.callCount).to.equal(1);
         });
 
         it('should keep loading while a request is in flight and only the waiting one is cancelled', async () => {
