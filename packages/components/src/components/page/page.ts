@@ -246,8 +246,8 @@ export default class CsPage extends CornerstoneElement {
   /**
    * Determines whether or not to hide the default hamburger button.
    * This will automatically flip to "true" if you add an element with `data-toggle-nav` anywhere in the element light DOM.
-   * The page works this out again on every slot change, so a value you set from code only lasts until the next one.
-   * Generally this will be set for you and you don't need to do anything, unless you're using SSR, in which case you should set this manually for initial page loads.
+   * The page sets this itself on first render and again on every slot change, replacing any value set in markup or from code.
+   * Set it by hand only in server-rendered markup, where it holds until the page hydrates.
    */
   @property({ attribute: 'disable-navigation-toggle', reflect: true, type: Boolean }) disableNavigationToggle: boolean =
     false;

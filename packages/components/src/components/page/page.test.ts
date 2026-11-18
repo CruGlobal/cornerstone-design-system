@@ -309,6 +309,39 @@ describe('<cs-page>', () => {
           expect(await menuButtonNode()).to.be.null;
         });
 
+        it('should replace a value set from code on the next slot change', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page>
+              <nav slot="mobile-navigation">Drawer content</nav>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await el.updateComplete;
+
+          el.disableNavigationToggle = true;
+          await el.updateComplete;
+          expect(el.disableNavigationToggle).to.be.true;
+
+          const header = document.createElement('div');
+          header.slot = 'header';
+          header.textContent = 'Header';
+          el.append(header);
+
+          await waitUntil(() => !el.disableNavigationToggle);
+        });
+
+        it('should replace a disable-navigation-toggle attribute set in markup on first render', async () => {
+          const el = await fixture<CsPage>(html`
+            <cs-page disable-navigation-toggle>
+              <nav slot="mobile-navigation">Drawer content</nav>
+              <main>Main content</main>
+            </cs-page>
+          `);
+          await el.updateComplete;
+
+          expect(el.disableNavigationToggle).to.be.false;
+        });
+
         it('should still hide the menu button for a custom toggle when a mobile-navigation slot has content', async () => {
           const el = await fixture<CsPage>(html`
             <cs-page>
