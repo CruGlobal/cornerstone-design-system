@@ -8,10 +8,13 @@ import { aTimeout, expect, fixture } from '@open-wc/testing';
 import type { LitElement, TemplateResult } from 'lit';
 import type CornerstoneElement from '../cornerstone-element.js';
 
+/** What the server render needs to know about each tag. `web-test-runner.config.js` builds it from the manifest. */
+export type ServerComponents = Record<string, { module: string; dependencies: string[] }>;
+
 declare global {
   interface Window {
     clientComponents: string[];
-    serverComponents: string[];
+    serverComponents: ServerComponents;
     SSR_ONLY: boolean;
     CSR_ONLY: boolean;
   }
@@ -55,25 +58,41 @@ function templateText(value: unknown, seen = new Set<unknown>()): string[] {
 }
 
 /**
- * The server modules a template needs, which is one per `cs-*` tag written in it.
+ * The server modules a template needs: one for each `cs-*` tag written in it, and one for each tag those
+ * components declare with `@dependency`, followed all the way down.
  *
  * The server render runs in a new worker thread for every fixture, and that worker imports each module it is
  * handed before it renders. Handing it every component made each hydrated fixture pay for about eighty imports
- * to render one or two elements. A component's own module imports the components it renders inside itself, so
- * the tags in the template are all the worker has to be told about.
+ * to render one or two elements.
  *
- * A template with no `cs-*` tag in its text gets every module, as before: the tags may be built somewhere this
- * cannot see.
+ * The declared dependencies matter because a component's module does not always import what it renders.
+ * `cs-time-input` renders `<cs-icon>` and leaves the import to the page, so without them its icons would come
+ * back from the server as unknown elements and no test would say so.
+ *
+ * A template with no known `cs-*` tag in its text gets every module, as before: the tags may be built somewhere
+ * this cannot see.
  */
-export function serverModulesFor(template: TemplateResult, all: string[] = window.serverComponents): string[] {
-  const tags = new Set(templateText(template).flatMap((text) => text.match(/<cs-[a-z0-9-]+/g) ?? []));
-  const modules = all.filter((path) => tags.has(`<cs-${path.split('/').pop()!.replace(/\.js$/, '')}`));
+export function serverModulesFor(
+  template: TemplateResult,
+  components: ServerComponents = window.serverComponents,
+): string[] {
+  const needed = new Set<string>();
+  const queue = templateText(template).flatMap((text) => text.match(/<cs-[a-z0-9-]+/g) ?? []);
 
-  return modules.length > 0 ? modules : all;
+  while (queue.length > 0) {
+    const tag = queue.pop()!.replace(/^</, '');
+    if (tag in components && !needed.has(tag)) {
+      needed.add(tag);
+      queue.push(...components[tag].dependencies);
+    }
+  }
+
+  const tags = needed.size > 0 ? Object.keys(components).filter((tag) => needed.has(tag)) : Object.keys(components);
+  return tags.map((tag) => components[tag].module);
 }
 
 /**
- * Loads up a fixture with SSR, using all unbundled modules, then when it finishes, calls hydration scripts, and then when hydration completes, returns the element.
+ * Loads up a fixture with SSR, using the unbundled modules the template needs (see `serverModulesFor`), then when it finishes, calls hydration scripts, and then when hydration completes, returns the element.
  */
 export async function hydratedFixture<T extends HTMLElement = HTMLElement>(template: TemplateResult) {
   const hydratedElement = await LitSSRFixture<T>(template, {

@@ -1,4 +1,4 @@
-import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
+import { expect, oneEvent, waitUntil } from '@open-wc/testing';
 import { emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html, nothing, render } from 'lit';
 import sinon from 'sinon';
@@ -1795,7 +1795,9 @@ describe('<cs-combobox>', () => {
 
       describe('server mode', () => {
         it('should request right away on open, then debounce keystrokes into one request', async () => {
-          const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="100"></cs-combobox>`);
+          const el = await fixture<CsCombobox>(
+            html`<cs-combobox label="Fruit" filter-debounce="${STILL_WAITING}"></cs-combobox>`,
+          );
           const dataSource = sinon.spy((query: string, signal: AbortSignal) =>
             signal.aborted ? [] : [{ value: query || 'all', label: query || 'All' }],
           );
@@ -1806,7 +1808,10 @@ describe('<cs-combobox>', () => {
           expect(dataSource.firstCall.args[0]).to.equal('');
           expect(dataSource.firstCall.args[1]).to.be.instanceOf(AbortSignal);
 
-          await type(el, 'kiw');
+          // The first two keystrokes wait however far apart they land; the third waits only a moment
+          await type(el, 'ki');
+          el.filterDebounce = 10;
+          await type(el, 'w');
           await waitUntil(() => dataSource.callCount === 2);
           expect(dataSource.secondCall.args[0]).to.equal('kiw');
           await waitUntil(() => shownLabels(el).join() === 'kiw');
@@ -2149,7 +2154,9 @@ describe('<cs-combobox>', () => {
           await type(el, 'ap');
           await answered(el, ['Apple', 'Apricot']);
 
-          // Emptying the field schedules a request for "", and the pick comes before it goes out
+          // Emptying the field schedules a request for "", and the pick comes before it goes out. The debounce is
+          // made long first, so only the pick can bring every option back.
+          el.filterDebounce = STILL_WAITING;
           await press(el, 'Backspace');
           await press(el, 'Backspace');
           await press(el, 'ArrowDown');
@@ -2194,14 +2201,21 @@ describe('<cs-combobox>', () => {
 
           await el.show();
           await answered(el, ['Apple', 'Apricot', 'Banana', 'Cherry']);
-          await type(el, 'a');
-          expect(el.loading).to.be.true;
 
-          await el.hide();
-          expect(el.loading).to.be.false;
-          // Longer than the debounce, so a request that was not cancelled would have gone out by now
-          await aTimeout(450);
-          expect(requests.callCount).to.equal(1);
+          // The debounce runs on a clock the test holds, so it cannot lapse while the keystroke is on its way
+          const clock = sinon.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+          try {
+            await type(el, 'a');
+            expect(el.loading).to.be.true;
+
+            await el.hide();
+            expect(el.loading).to.be.false;
+            // Past the debounce, so a request that was not cancelled goes out here
+            clock.tick(1000);
+            expect(requests.callCount).to.equal(1);
+          } finally {
+            clock.restore();
+          }
         });
 
         it('should keep loading while a request is in flight and only the waiting one is cancelled', async () => {
