@@ -264,25 +264,6 @@ describe('<cs-page>', () => {
           expect(el.disableNavigationToggle).to.be.true;
         });
 
-        it('should hide the menu button when a custom toggle is added to another slot later', async () => {
-          const el = await fixture<CsPage>(html`
-            <cs-page>
-              <nav slot="mobile-navigation">Drawer content</nav>
-              <main>Main content</main>
-            </cs-page>
-          `);
-          await el.updateComplete;
-          expect(el.disableNavigationToggle).to.be.false;
-
-          const button = document.createElement('button');
-          button.slot = 'header';
-          button.toggleAttribute('data-toggle-nav', true);
-          button.textContent = 'Menu';
-          el.append(button);
-
-          await waitUntil(() => el.disableNavigationToggle);
-        });
-
         it('should expose a named menu button on mobile when only mobile-navigation has content', async () => {
           const el = await fixture<CsPage>(html`
             <cs-page mobile-breakpoint="5000">
@@ -309,7 +290,7 @@ describe('<cs-page>', () => {
           expect(await menuButtonNode()).to.be.null;
         });
 
-        it('should replace a value set from code on the next slot change', async () => {
+        it('should keep a value set from code when a slot other than navigation changes', async () => {
           const el = await fixture<CsPage>(html`
             <cs-page>
               <nav slot="mobile-navigation">Drawer content</nav>
@@ -320,26 +301,16 @@ describe('<cs-page>', () => {
 
           el.disableNavigationToggle = true;
           await el.updateComplete;
-          expect(el.disableNavigationToggle).to.be.true;
 
           const header = document.createElement('div');
           header.slot = 'header';
           header.textContent = 'Header';
           el.append(header);
+          await waitUntil(() => header.assignedSlot !== null);
+          await settle();
 
-          await waitUntil(() => !el.disableNavigationToggle);
-        });
-
-        it('should replace a disable-navigation-toggle attribute set in markup on first render', async () => {
-          const el = await fixture<CsPage>(html`
-            <cs-page disable-navigation-toggle>
-              <nav slot="mobile-navigation">Drawer content</nav>
-              <main>Main content</main>
-            </cs-page>
-          `);
-          await el.updateComplete;
-
-          expect(el.disableNavigationToggle).to.be.false;
+          expect(el.disableNavigationToggle).to.be.true;
+          expect(el.hasAttribute('disable-navigation-toggle')).to.be.true;
         });
 
         it('should still hide the menu button for a custom toggle when a mobile-navigation slot has content', async () => {

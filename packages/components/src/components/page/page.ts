@@ -246,8 +246,8 @@ export default class CsPage extends CornerstoneElement {
   /**
    * Determines whether or not to hide the default hamburger button.
    * This will automatically flip to "true" if you add an element with `data-toggle-nav` anywhere in the element light DOM.
-   * The page sets this itself on first render and again on every slot change, replacing any value set in markup or from code.
-   * Set it by hand only in server-rendered markup, where it holds until the page hydrates.
+   * The page sets this itself on first render and again when the content of a navigation slot changes, replacing any value set in markup or from code.
+   * Set it by hand in server-rendered markup, where it holds until the page hydrates.
    */
   @property({ attribute: 'disable-navigation-toggle', reflect: true, type: Boolean }) disableNavigationToggle: boolean =
     false;
@@ -276,7 +276,11 @@ export default class CsPage extends CornerstoneElement {
         })
       : null;
 
-  private updateNavigationToggleState = () => {
+  private updateNavigationToggleState = (event?: Event) => {
+    if (event && !drawerNavigationSlots.includes((event.target as HTMLSlotElement).name)) {
+      return;
+    }
+
     const hasCustomToggle = Boolean(this.querySelector(":not([slot='navigation-toggle']) [data-toggle-nav]"));
     const hasNavigationContent = drawerNavigationSlots.some((name) => this.querySelector(`:scope > [slot="${name}"]`));
     this.disableNavigationToggle = hasCustomToggle || !hasNavigationContent;
