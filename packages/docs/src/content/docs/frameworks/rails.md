@@ -152,6 +152,8 @@ so none of your app's JavaScript runs: no Stimulus controllers, no Turbo.
 For `javascript_include_tag` with `type: "module"`, order alone is not enough. By default Rails also puts the
 file in a `Link: rel=modulepreload` response header, and Firefox counts that as a preload that started before
 the map, wherever the tag sits. `preload_links_header: false` on the tag leaves the header out.
+`preload_link_tag` with `type: "module"` sends the same header and has no option to leave it out, so write
+that `<link rel="modulepreload">` by hand after the import map instead.
 
 It is easy to miss, because the page looks fine. The loader is not in the map, so it still runs and every
 `cs-*` element still draws. Only the things that need your own scripts are dead. Chromium 140 and WebKit 26, the
@@ -177,9 +179,11 @@ TypeError: The specifier “application” was a bare specifier, but was not rem
 
 Moving the tag down does not block parsing: a module script never holds up the parser, wherever it sits in
 `<head>`. It does change the run order. Module scripts run in document order, so your app's module now runs
-before Cornerstone's. App code that calls a component method right away should wait for that component
-first, with `await customElements.whenDefined('cs-button')`, or with `allDefined()` for every component on
-the page. [Waiting for components to be ready](/usage/#waiting-for-components-to-be-ready) covers both.
+before Cornerstone's. App code that calls a component method right away, most often in a Stimulus
+controller's `connect()`, can run before that component is defined, so wait for it first with
+`await customElements.whenDefined('cs-button')`. With Option 2 you can instead import `allDefined` from
+`/cornerstone/cornerstone.js` to wait for every component on the page; Option 1's single file does not export
+it. [Waiting for components to be ready](/usage/#waiting-for-components-to-be-ready) covers both.
 :::
 
 If you pin components directly instead of using the autoloader, pass `preload: false`. `pin_all_from`
@@ -307,7 +311,7 @@ The `Link` header was checked the same way: static pages with the import map fir
 five times, with the header set by the local server. Its text, `</loader.js>; rel=modulepreload; as=script; nopush`,
 is the form `javascript_include_tag` builds for a `type: "module"` tag in actionview 8.1.3.1. That was read in
 the helper's source and seen by calling the helper on its own, where `preload_links_header: false` left the
-header unset.
+header unset. `preload_link_tag` was read in the same source and not run.
 
 - **Firefox 141.0** dropped the import map in five loads of five when the response carried that header, with
   the same warning. With no header, or with `rel=preload` in its place, it kept the map every time.
