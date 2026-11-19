@@ -54,10 +54,21 @@ cp node_modules/@cruglobal/cornerstone-components/dist/bundled/cornerstone.all.j
 
 ```erb
 <%# app/views/layouts/application.html.erb %>
-<%= javascript_include_tag "cornerstone.all", type: "module", "data-turbo-track": "reload" %>
+<%# Already in an importmap-rails layout. Shown for its place in the order, not a line to add. %>
+<%= javascript_importmap_tags %>
+<%= javascript_include_tag "cornerstone.all", type: "module", preload_links_header: false, "data-turbo-track": "reload" %>
 ```
 
-Verified against a digest-only pipeline: every component upgrades, no failed requests, clean console.
+Keep that order. If the layout calls `javascript_importmap_tags`, every Cornerstone module tag goes **after**
+it, because Firefox drops an import map that arrives once a module has started loading, and your app's own
+JavaScript goes with it. `preload_links_header: false` is there for the same reason: by default Rails also
+names a module include tag in a `Link: rel=modulepreload` response header, and that header reaches Firefox
+before any of the HTML, so the map is dropped whatever the tag order. [Import maps](#import-maps) below has
+the symptom and the fix.
+
+The include tag was verified through a digest-only pipeline: every component upgrades, no failed requests,
+clean console. That check covers serving the fingerprinted file. The tag order and the `Link` header were
+checked on their own, outside Rails, as [What has been verified](#what-has-been-verified) sets out.
 
 The trade is size. It is 188 KB gzipped, fixed, because it contains all 70 components whether you use them or
 not. A page using one button costs about 57 KB gzipped through the loader instead. Break-even is somewhere
@@ -75,10 +86,17 @@ cp -R node_modules/@cruglobal/cornerstone-components/dist/bundled public/corners
 ```erb
 <%# app/views/layouts/application.html.erb %>
 <link rel="stylesheet" href="/cornerstone/styles/cornerstone.css">
+<%# Already in an importmap-rails layout. Shown for its place in the order, not a line to add. %>
+<%= javascript_importmap_tags %>
 <script type="module" src="/cornerstone/cornerstone.loader.js"></script>
 ```
 
-That is the whole setup. The loader resolves its base path from its own module URL, so there is no
+That is the whole setup. If the layout calls `javascript_importmap_tags`, the order is part of it: the
+loader's tag goes **after** that call. Firefox drops an import map that arrives once a module has started
+loading, which takes your app's own JavaScript down with it. [Import maps](#import-maps) below has the
+symptom and the fix.
+
+The loader resolves its base path from its own module URL, so there is no
 `setBasePath` call and no `data-cornerstone` attribute to add.
 
 What this actually costs is smaller than it sounds. A page with one button fetches 43 files, and 40 of the 42
@@ -116,9 +134,57 @@ stylesheet in `public/` alongside the components.
 
 ## Import maps
 
-`importmap-rails` does not help here and is not needed. The loader is reached by a plain `<script>` tag from
-a stable URL, so there is nothing to pin, and pinning it *through* the asset pipeline reintroduces the digest
+You do not pin Cornerstone. The loader is reached by a `<script type="module">` tag from a stable URL, so there is
+nothing for `importmap-rails` to map, and pinning it *through* the asset pipeline reintroduces the digest
 problem above.
+
+The two still meet in your layout, and the order of the tags matters.
+
+:::warning
+**Put every Cornerstone module tag after `javascript_importmap_tags`.** That covers the loader's
+`<script type="module">`, `javascript_include_tag "cornerstone.all", type: "module", preload_links_header: false`,
+an inline `<script type="module">`, and any `<link rel="modulepreload">` you add by hand.
+
+The reason is a browser rule. Firefox accepts an import map only until the first module starts to load or
+preload. A map that comes later is thrown away. Without the map, `import "application"` cannot be resolved,
+so none of your app's JavaScript runs: no Stimulus controllers, no Turbo.
+
+For `javascript_include_tag` with `type: "module"`, order alone is not enough. By default Rails also puts the
+file in a `Link: rel=modulepreload` response header, and Firefox counts that as a preload that started before
+the map, wherever the tag sits. `preload_links_header: false` on the tag leaves the header out.
+`preload_link_tag` with `type: "module"` sends the same header and has no option to leave it out, so write
+that `<link rel="modulepreload">` by hand after the import map instead.
+
+It is easy to miss, because the page looks fine. The loader is not in the map, so it still runs and every
+`cs-*` element still draws. Only the things that need your own scripts are dead. Chromium 140 and WebKit 26, the
+versions run for this page, accepted a late map, so it also works on the machine of anyone who is not testing
+in Firefox. Older releases of either may not.
+
+Firefox logs a warning for the dropped map, then an error for the import that needed it:
+
+```text
+Import maps are not allowed after a module load or preload has started.
+TypeError: The specifier “application” was a bare specifier, but was not remapped to anything. Relative module specifiers must start with “./”, “../” or “/”.
+```
+
+```erb
+<%# Before: Firefox drops the import map, and the app's JavaScript never runs %>
+<script type="module" src="/cornerstone/cornerstone.loader.js"></script>
+<%= javascript_importmap_tags %>
+
+<%# After %>
+<%= javascript_importmap_tags %>
+<script type="module" src="/cornerstone/cornerstone.loader.js"></script>
+```
+
+Moving the tag down does not block parsing: a module script never holds up the parser, wherever it sits in
+`<head>`. It does change the run order. Module scripts run in document order, so your app's module now runs
+before Cornerstone's. App code that calls a component method right away, most often in a Stimulus
+controller's `connect()`, can run before that component is defined, so wait for it first with
+`await customElements.whenDefined('cs-button')`. With Option 2 you can instead import `allDefined` from
+`/cornerstone/cornerstone.js` to wait for every component on the page; Option 1's single file does not export
+it. [Waiting for components to be ready](/usage/#waiting-for-components-to-be-ready) covers both.
+:::
 
 If you pin components directly instead of using the autoloader, pass `preload: false`. `pin_all_from`
 defaults to `preload: true`, which emits a `<link rel="modulepreload">` per file on every page — pointed at
@@ -231,5 +297,27 @@ Two things worth knowing before you copy into `public/`: `npm install` in a gene
 files, all web-served** — 350 `.d.ts`, 142 React wrappers and the agent skill included. A three-component page
 issues roughly 50 requests.
 
-**Not yet verified:** the `jsbundling-rails` path, and `setIconPath` against self-hosted SVGs.
+The import map order was checked outside that app too. No Rails app was run for it. The pages were static
+HTML with hand-written tags, served locally and loaded with Playwright 1.55.1:
+
+- **Firefox 141.0** dropped the import map when any of these came before it: a `<script type="module" src>`,
+  an inline `<script type="module">`, or a `<link rel="modulepreload">`. The bare `import "application"` then
+  failed, with the two console messages quoted under [Import maps](#import-maps). The loader's own module
+  still ran.
+- **Firefox 141.0** kept the map when it came first, and when only a classic `<script>` came before it.
+- **Chromium 140.0.7339.186 and WebKit 26.0** resolved the import in every order, with a clean console.
+
+The `Link` header was checked the same way: static pages with the import map first in the HTML, each loaded
+five times, with the header set by the local server. Its text, `</loader.js>; rel=modulepreload; as=script; nopush`,
+is the form `javascript_include_tag` builds for a `type: "module"` tag in actionview 8.1.3.1. That was read in
+the helper's source and seen by calling the helper on its own, where `preload_links_header: false` left the
+header unset. `preload_link_tag` was read in the same source and not run.
+
+- **Firefox 141.0** dropped the import map in five loads of five when the response carried that header, with
+  the same warning. With no header, or with `rel=preload` in its place, it kept the map every time.
+- **Chromium 140.0.7339.186 and WebKit 26.0** resolved the import in five loads of five with the header.
+
+**Not yet verified:** the `jsbundling-rails` path, `setIconPath` against self-hosted SVGs, the import map
+order, the `Link` header and `preload_links_header: false` in a running Rails app, and Firefox releases other
+than 141.0.
 :::
