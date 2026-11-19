@@ -1,5 +1,33 @@
 # @cruglobal/cornerstone-components
 
+## 0.12.0
+
+### Added
+
+- [#369](https://github.com/CruGlobal/cornerstone-design-system/pull/369) [`77b2bc1`](https://github.com/CruGlobal/cornerstone-design-system/commit/77b2bc1a83dedfc8c0842435be368d489d645a26) Thanks [@rguinee](https://github.com/rguinee)! - `<cs-combobox>`, an experimental text field whose list of options narrows as you type, with multiple picks as tags, custom values, created options and options loaded from a server. Translations gain the three terms it reads: `noOptions`, `numResults` and `optionsLoadError`.
+
+- [#360](https://github.com/CruGlobal/cornerstone-design-system/pull/360) [`e48a976`](https://github.com/CruGlobal/cornerstone-design-system/commit/e48a9762e3c179ea941bcdbab5ac9abf73cc00c0) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - `tools/daisyui.mjs` generates the token package's daisyUI themes from the brand knobs, and `npm run verify` checks them. `tools/palette.mjs` now exports `readBrand`, `buildRamps`, `gridFor` and `surfaceFor`. The `cs-*` themes don't change.
+
+### Changed
+
+- [#371](https://github.com/CruGlobal/cornerstone-design-system/pull/371) [`14fc30d`](https://github.com/CruGlobal/cornerstone-design-system/commit/14fc30d8b8b8b5edbe0d6638b50deb464f28eb56) Thanks [@rguinee](https://github.com/rguinee)! - The test suite's server-rendered fixture loads only the components a test's template needs. Nothing in the published package changes.
+
+### Fixed
+
+- [#365](https://github.com/CruGlobal/cornerstone-design-system/pull/365) [`f23d7e2`](https://github.com/CruGlobal/cornerstone-design-system/commit/f23d7e2b8e33d1090660045c060d3b49f5573c26) Thanks [@rguinee](https://github.com/rguinee)! - `<cs-animation>` now rebuilds its animation when `iterationStart` (`iteration-start`) changes after the animation exists. Before, the new value was ignored until another option changed.
+
+- [#371](https://github.com/CruGlobal/cornerstone-design-system/pull/371) [`f7fa505`](https://github.com/CruGlobal/cornerstone-design-system/commit/f7fa505674102431ebfa640147473cb8886708bc) Thanks [@rguinee](https://github.com/rguinee)! - Seven `<cs-combobox>` tests no longer depend on how fast keystrokes arrive. Nothing in the published package changes.
+
+- [#364](https://github.com/CruGlobal/cornerstone-design-system/pull/364) [`f5a69c6`](https://github.com/CruGlobal/cornerstone-design-system/commit/f5a69c6dab2f132dba01a5e561e81f4f17f785b7) Thanks [@rguinee](https://github.com/rguinee)! - `<cs-details>` now finishes opening when a `cs-hide` is cancelled mid-animation, and finishes closing when a `cs-show` is cancelled mid-animation. Before, it stayed stuck in its animating state and never fired `cs-after-show` or `cs-after-hide`.
+
+- [#367](https://github.com/CruGlobal/cornerstone-design-system/pull/367) [`ff4f040`](https://github.com/CruGlobal/cornerstone-design-system/commit/ff4f0405d8a71d2115819613a49a348e532aeefe) Thanks [@rguinee](https://github.com/rguinee)! - `<cs-page>` now hides content in the `desktop-navigation-header`, `desktop-navigation` and `desktop-navigation-footer` slots on mobile. Before, it stayed beside the main content, and the docs said to add `cs-desktop-only` to it.
+
+- [#370](https://github.com/CruGlobal/cornerstone-design-system/pull/370) [`f75426a`](https://github.com/CruGlobal/cornerstone-design-system/commit/f75426a745031f0b6fac991f67c1a9bd46203ca1) Thanks [@rguinee](https://github.com/rguinee)! - `<cs-page>`'s menu button now appears on mobile when only the `mobile-navigation`, `mobile-navigation-header` or `mobile-navigation-footer` slots have content. Before, it needed content in a shared navigation slot.
+
+- [#363](https://github.com/CruGlobal/cornerstone-design-system/pull/363) [`7334f6e`](https://github.com/CruGlobal/cornerstone-design-system/commit/7334f6efb19a638b2a4a20f2939b81b8a2fadf9c) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - The palette generator now gives the same hexes on every Node version. Generated `cru` and `fl` palette steps shift by at most one unit in one channel.
+
+- [#372](https://github.com/CruGlobal/cornerstone-design-system/pull/372) [`b021e80`](https://github.com/CruGlobal/cornerstone-design-system/commit/b021e8007e37f7a0e5c0bd06019f2814de1119e7) Thanks [@rguinee](https://github.com/rguinee)! - The Rails guide, which ships in the `cornerstone` skill, now says to put every Cornerstone module tag after `javascript_importmap_tags` and to pass `preload_links_header: false` on the `cornerstone.all` include tag.
+
 ## 0.11.0
 
 ### Added

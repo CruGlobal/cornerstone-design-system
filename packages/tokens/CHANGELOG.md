@@ -1,5 +1,15 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.12.0
+
+### Added
+
+- [#360](https://github.com/CruGlobal/cornerstone-design-system/pull/360) [`e48a976`](https://github.com/CruGlobal/cornerstone-design-system/commit/e48a9762e3c179ea941bcdbab5ac9abf73cc00c0) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - `libraries/daisyui.css` themes gain `--color-on-{primary,info,success,warning,error}-container` text colours and a `--color-link` for links, plus new `familylife-light` and `familylife-dark` themes.
+
+### Changed
+
+- [#360](https://github.com/CruGlobal/cornerstone-design-system/pull/360) [`e48a976`](https://github.com/CruGlobal/cornerstone-design-system/commit/e48a9762e3c179ea941bcdbab5ac9abf73cc00c0) Thanks [@joannacatanus-ux](https://github.com/joannacatanus-ux)! - The Cru daisyUI themes now match the `cs-*` components. The base colours, neutral, secondary, accent (cyan to purple) and every cru-dark status fill change.
+
 ## 0.11.0
 
 ### Fixed
