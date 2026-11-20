@@ -38,7 +38,7 @@
     "@cruglobal/cornerstone-build-tools": "*",
     "@cruglobal/cornerstone-components": "*",
     "@types/node": "^24.13.3",
-    "astro": "7.3.3",
+    "astro": "7.4.7",
     "axe-core": "^4.13.0",
     "gray-matter": "^4.0.3",
     "mdast-util-from-markdown": "^2.0.3",
