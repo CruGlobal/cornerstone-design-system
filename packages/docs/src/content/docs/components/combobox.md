@@ -136,7 +136,7 @@ Use the `max-options-visible` attribute to cap how many tags show before the res
 
 ### Icons and Avatars in Tags
 
-When an option has an icon or avatar in its `start` slot, its tag shows a copy of it. The copy is hidden from assistive technology, because the tag's text already names the option.
+When an option has an icon or avatar in its `start` slot, its tag shows a copy of it. The copy is display only: it can't be focused or clicked, and it's hidden from assistive technology, because the tag's text already names the option. The `+n` tag that stands for the rest shows no start content.
 
 ```html {.example}
 <cs-combobox class="assignees" label="Assignees" placeholder="Add a person" multiple>
@@ -161,11 +161,13 @@ When an option has an icon or avatar in its `start` slot, its tag shows a copy o
 ```
 
 :::caution
-<strong>The copy only keeps styles it carries with it.</strong><br />
-Tags render inside the combobox's shadow root, where your page's CSS does not reach. Use content that styles itself, such as `<cs-icon>`, `<cs-avatar>`, or an element with a `style` attribute. Content styled by class names, such as a Tailwind avatar, loses those styles in the tag.
+<strong>The copy keeps only the styles it carries.</strong><br />
+Tags render inside the combobox's shadow root, where your page's CSS does not reach, but a `style` attribute comes along with the copy. Use content that styles itself, such as `<cs-icon>` or `<cs-avatar>`, and set anything else it needs, such as a color, in a `style` attribute. Content styled by class names, such as a Tailwind avatar, loses those styles in the tag.
 :::
 
-The tag sizes the copy of an avatar to fit. Size the avatars in the list with your page's CSS, as above, not with a `style` attribute: a `style` attribute comes along with the copy and overrides the tag's size.
+The tag sizes an avatar's copy to fit. Size the avatars in the list with your page's CSS, as above, and leave size out of the `style` attribute, where it would come along and override the tag's size.
+
+Option data from a `dataSource` has no start content. To show icons or avatars in server mode, have the `dataSource` return `<cs-option>` elements.
 
 ### Custom Values
 

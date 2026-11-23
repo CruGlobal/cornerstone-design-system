@@ -286,9 +286,9 @@ export default class CsSelect extends CornerstoneFormAssociatedElement {
   /**
    * A function that customizes the tags to be rendered when multiple=true. The first argument is the option, the second
    * is the current tag's index.  The function should return either a Lit TemplateResult or a string containing trusted
-   * HTML of the symbol to render at the specified value. The default tag shows the option's label and a copy of its
-   * `start` content, hidden from assistive technology. The copy renders in the select's shadow root, where page CSS
-   * does not reach.
+   * HTML of the symbol to render at the specified value. The default tag shows the option's label and an inert,
+   * display-only copy of its `start` content. The copy renders in the select's shadow root, where page CSS does not
+   * reach.
    */
   @property({ attribute: false }) getTag: (option: CsOption, index: number) => TemplateResult | string | HTMLElement = (
     option,

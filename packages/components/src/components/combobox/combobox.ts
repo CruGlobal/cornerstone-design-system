@@ -425,8 +425,8 @@ export default class CsCombobox extends CornerstoneFormAssociatedElement {
   /**
    * A function that customizes the tags to be rendered when `multiple` is true. The first argument is the option, the
    * second is the tag's index. Return a Lit template, an `HTMLElement`, or a string. A string is shown as plain text; it
-   * is never parsed as HTML. The default tag shows the option's label and a copy of its `start` content, hidden from
-   * assistive technology. The copy renders in the combobox's shadow root, where page CSS does not reach.
+   * is never parsed as HTML. The default tag shows the option's label and an inert, display-only copy of its `start`
+   * content. The copy renders in the combobox's shadow root, where page CSS does not reach.
    */
   @property({ attribute: false }) getTag: (option: CsOption, index: number) => TemplateResult | string | HTMLElement = (
     option,
