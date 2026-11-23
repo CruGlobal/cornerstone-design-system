@@ -20,7 +20,7 @@ description: "Tags label, categorize, or represent selections with a compact vis
 ```
 
 ```html {.example .anatomy-only}
-<cs-tag><cs-icon name="star" variant="fill"></cs-icon> Featured</cs-tag>
+<cs-tag><cs-icon slot="start" name="star" variant="fill"></cs-icon>Featured</cs-tag>
 ```
 
 ## Examples
@@ -101,6 +101,28 @@ Use the `size` attribute to change a tag's size.
 <cs-tag size="l">Large</cs-tag>
 <cs-tag size="xl">Extra Large</cs-tag>
 ```
+
+### Icons and Avatars
+
+Put an icon or an avatar in the `start` slot to show it before the tag's text. The tag sizes it at every size: an icon matches the text, and an avatar fills most of the tag's height.
+
+```html {.example}
+<cs-tag size="xs"><cs-icon slot="start" name="star" variant="fill"></cs-icon>Extra Small</cs-tag>
+<cs-tag size="s"><cs-icon slot="start" name="star" variant="fill"></cs-icon>Small</cs-tag>
+<cs-tag size="m"><cs-icon slot="start" name="star" variant="fill"></cs-icon>Medium</cs-tag>
+<cs-tag size="l"><cs-icon slot="start" name="star" variant="fill"></cs-icon>Large</cs-tag>
+<cs-tag size="xl"><cs-icon slot="start" name="star" variant="fill"></cs-icon>Extra Large</cs-tag>
+```
+
+```html {.example}
+<cs-tag size="xs" pill><cs-avatar slot="start" initials="AB" aria-hidden="true"></cs-avatar>Ana Bell</cs-tag>
+<cs-tag size="s" pill><cs-avatar slot="start" initials="AB" aria-hidden="true"></cs-avatar>Ana Bell</cs-tag>
+<cs-tag size="m" pill><cs-avatar slot="start" initials="AB" aria-hidden="true"></cs-avatar>Ana Bell</cs-tag>
+<cs-tag size="l" pill><cs-avatar slot="start" initials="AB" aria-hidden="true"></cs-avatar>Ana Bell</cs-tag>
+<cs-tag size="xl" pill><cs-avatar slot="start" initials="AB" aria-hidden="true"></cs-avatar>Ana Bell</cs-tag>
+```
+
+The tag's text already names what the icon or avatar shows, so keep them decorative. A `<cs-icon>` with no `label` is hidden from assistive technology already. Give a `<cs-avatar>` `aria-hidden="true"`.
 
 ### Pill
 

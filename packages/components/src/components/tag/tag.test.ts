@@ -17,6 +17,13 @@ describe('<cs-tag>', () => {
           const el = await fixture<CsTag>(html`<cs-tag with-remove>Test</cs-tag>`);
           await expect(el).to.be.accessible();
         });
+
+        it('should be accessible with start content', async () => {
+          const el = await fixture<CsTag>(
+            html`<cs-tag with-remove><cs-icon slot="start" name="check" library="system"></cs-icon>Test</cs-tag>`,
+          );
+          await expect(el).to.be.accessible();
+        });
       });
 
       describe('properties', () => {
@@ -94,6 +101,60 @@ describe('<cs-tag>', () => {
           const slot = el.shadowRoot!.querySelector('slot:not([name])');
           expect(slot).to.exist;
         });
+
+        it('should place start content before the content, a gap apart', async () => {
+          const el = await fixture<CsTag>(
+            html`<cs-tag><cs-icon slot="start" name="check" library="system"></cs-icon><span>Done</span></cs-tag>`,
+          );
+          const icon = el.querySelector('cs-icon')!;
+          const text = el.querySelector('span')!;
+          const gap = parseFloat(getComputedStyle(el).columnGap);
+
+          expect(icon.assignedSlot?.name).to.equal('start');
+          expect(text.getBoundingClientRect().left - icon.getBoundingClientRect().right).to.be.closeTo(gap, 0.5);
+        });
+
+        // The tag spaces its children with a flex gap, so a start slot that drew a box of its own would add a gap
+        // to every tag, filled or not.
+        it('should leave no space when the start slot is empty', async () => {
+          const el = await fixture<CsTag>(html`<cs-tag><span>Done</span></cs-tag>`);
+          const style = getComputedStyle(el);
+          const inset = parseFloat(style.paddingInlineStart) + parseFloat(style.borderInlineStartWidth);
+
+          const offset = el.querySelector('span')!.getBoundingClientRect().left - el.getBoundingClientRect().left;
+          expect(offset).to.be.closeTo(inset, 0.5);
+        });
+      });
+
+      describe('start content sizing', () => {
+        for (const size of ['xs', 's', 'm', 'l', 'xl'] as const) {
+          it(`should draw a start icon at the text's size when size="${size}"`, async () => {
+            const el = await fixture<CsTag>(
+              html`<cs-tag size=${size}
+                ><cs-icon slot="start" name="check" library="system"></cs-icon><span>Done</span></cs-tag
+              >`,
+            );
+            const textSize = parseFloat(getComputedStyle(el.querySelector('span')!).fontSize);
+
+            expect(el.querySelector('cs-icon')!.getBoundingClientRect().height).to.be.closeTo(textSize, 0.5);
+          });
+
+          it(`should fit a start avatar inside the tag when size="${size}"`, async () => {
+            const el = await fixture<CsTag>(
+              html`<cs-tag size=${size}
+                ><cs-avatar slot="start" initials="AB"></cs-avatar><span>Ana Bell</span></cs-tag
+              >`,
+            );
+            const textSize = parseFloat(getComputedStyle(el.querySelector('span')!).fontSize);
+            const avatar = el.querySelector('cs-avatar')!.getBoundingClientRect();
+            const tag = el.getBoundingClientRect();
+
+            expect(avatar.width).to.be.closeTo(textSize * 1.75, 0.5);
+            expect(avatar.height).to.be.closeTo(avatar.width, 0.5);
+            expect(avatar.top).to.be.above(tag.top);
+            expect(avatar.bottom).to.be.below(tag.bottom);
+          });
+        }
       });
 
       describe('CSS parts', () => {

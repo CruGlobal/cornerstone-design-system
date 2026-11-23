@@ -10,6 +10,7 @@ import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
 import { clickOnElement } from '../../internal/test/pointer-utilities.js';
 import type CsOption from '../option/option.js';
+import type CsTag from '../tag/tag.js';
 import type CsCombobox from './combobox.js';
 
 /** Focuses the text field and types into it, one key at a time, as a person would. */
@@ -965,6 +966,87 @@ describe('<cs-combobox>', () => {
           await el.updateComplete;
           const tags = [...el.shadowRoot!.querySelectorAll('[part~="tag"]')].map((tag) => tag.textContent?.trim());
           expect(tags).to.deep.equal(['Apple', '+2']);
+        });
+
+        it("should show a copy of each option's start content in its tag", async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+              <cs-option value="cy">Cy Reed</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+          const tag = part(el, 'tag');
+          const copy = tag.querySelector('cs-avatar');
+
+          expect(copy, 'a copy in the tag').to.exist;
+          expect(copy === el.querySelector('cs-avatar'), 'the original moved into the tag').to.be.false;
+          expect(copy!.getAttribute('initials')).to.equal('AB');
+          expect(copy!.assignedSlot?.name).to.equal('start');
+          expect(tag.textContent?.trim()).to.equal('Ana Bell');
+        });
+
+        // The tag's text is the option's label, which already names it, so the copy is decorative.
+        it("should hide the copy of an option's start content from assistive technology", async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+
+          expect(part(el, 'tag').querySelector('cs-avatar')?.getAttribute('aria-hidden')).to.equal('true');
+          await expect(el).to.be.accessible();
+        });
+
+        // A new copy on every render would restart each icon's load, so the icons would flash as people type.
+        it("should keep the same copy of a tag's start content across renders", async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" multiple>
+              <cs-option value="apple" selected
+                ><cs-icon slot="start" name="check" library="system"></cs-icon>Apple</cs-option
+              >
+              <cs-option value="banana">Banana</cs-option>
+            </cs-combobox>
+          `);
+          // Server-rendered, the original icon finishes its own first update after the tag first copies it, and the
+          // attributes it sets on itself change what the tag copies. Let it settle, then render once more.
+          await el.querySelector('cs-icon')!.updateComplete;
+          el.requestUpdate();
+          await el.updateComplete;
+          const before = part(el, 'tag').querySelector('cs-icon');
+
+          await type(el, 'ban');
+
+          // Compared as a boolean: a failed equal on two live components never finishes printing them.
+          expect(before, 'a copy in the tag').to.exist;
+          expect(part(el, 'tag').querySelector('cs-icon') === before, 'the same copy').to.be.true;
+        });
+
+        it('should remove a custom tag through its data-value', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" multiple>
+              <cs-option value="apple" selected>Apple</cs-option>
+              <cs-option value="banana" selected>Banana</cs-option>
+            </cs-combobox>
+          `);
+          el.getTag = (option) => {
+            const tag = document.createElement('cs-tag');
+            tag.withRemove = true;
+            tag.dataset.value = option.value;
+            tag.append(option.label);
+            return tag;
+          };
+          el.requestUpdate();
+          await el.updateComplete;
+          const tag = part(el, 'tags').querySelector<CsTag>('cs-tag[data-value="apple"]')!;
+          await tag.updateComplete;
+
+          await expectEvent(el, ['input', 'change'], async () => {
+            await clickOnElement(tag.shadowRoot!.querySelector('[part~="remove-button"]')!, 'center', 1, 1);
+            await el.updateComplete;
+          });
+          expect(el.value).to.deep.equal(['banana']);
         });
 
         it('should render a string from getTag as text, never as HTML', async () => {
