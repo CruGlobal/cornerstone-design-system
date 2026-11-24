@@ -18,6 +18,15 @@ describe('<cs-tag>', () => {
           await expect(el).to.be.accessible();
         });
 
+        it('should be accessible with a hidden avatar as start content', async () => {
+          const el = await fixture<CsTag>(
+            html`<cs-tag with-remove
+              ><cs-avatar slot="start" initials="AB" aria-hidden="true"></cs-avatar>Ana Bell</cs-tag
+            >`,
+          );
+          await expect(el).to.be.accessible();
+        });
+
         it('should be accessible with start content', async () => {
           const el = await fixture<CsTag>(
             html`<cs-tag with-remove><cs-icon slot="start" name="check" library="system"></cs-icon>Test</cs-tag>`,

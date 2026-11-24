@@ -1,34 +1,17 @@
 import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
-import { a11ySnapshot, resetMouse, sendKeys, sendMouse } from '@web/test-runner-commands';
+import { resetMouse, sendKeys, sendMouse } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
-import { clickOnElement, isWebkit } from '../../internal/test/pointer-utilities.js';
+import { clickOnElement } from '../../internal/test/pointer-utilities.js';
 import { serialize } from '../../utilities/form.js';
 import type CsAvatar from '../avatar/avatar.js';
 import type CsOption from '../option/option.js';
 import type CsTag from '../tag/tag.js';
 import type CsTooltip from '../tooltip/tooltip.js';
 import type CsSelect from './select.js';
-
-interface AccessibilityNode {
-  role: string;
-  name?: string;
-  children?: AccessibilityNode[];
-}
-
-/** Every node of the page's accessibility tree, flattened. A tag has no node of its own to start from. */
-async function accessibilityNodes() {
-  const nodes: AccessibilityNode[] = [];
-  const walk = (node: AccessibilityNode) => {
-    nodes.push(node);
-    node.children?.forEach(walk);
-  };
-  walk((await a11ySnapshot({})) as unknown as AccessibilityNode);
-  return nodes;
-}
 
 /**
  * Asserts the clear button spans the combobox's padding box, then clicks just inside the combobox's top
@@ -834,22 +817,69 @@ describe('<cs-select>', () => {
           expect(withStart.getBoundingClientRect().width).to.be.closeTo(without.getBoundingClientRect().width, 0.5);
         });
 
-        it("should leave a tag's accessible text and remove button as they were", async () => {
+        // What a screen reader gets from a tag: its text, then one button named Remove. The inert copy adds neither.
+        // Checked in the DOM they come from: Playwright's accessibility snapshot of a tag is empty on Linux WebKit, and
+        // shows an inert avatar's initials on macOS WebKit.
+        it("should leave a tag's text and remove button as they were", async () => {
           const el = await fixture<CsSelect>(html`
             <cs-select label="People" multiple>
               <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
             </cs-select>
           `);
           await el.updateComplete;
+          const tag = el.shadowRoot!.querySelector<HTMLElement>('[part~="tag"]')! as CsTag;
+          await tag.updateComplete;
+          const copy = tag.querySelector<HTMLElement>('cs-avatar')!;
+          const text = [...tag.childNodes]
+            .filter((node) => node.nodeType === Node.TEXT_NODE)
+            .map((node) => node.textContent);
+          const buttons = [...tag.shadowRoot!.querySelectorAll('cs-button')];
 
-          const nodes = await accessibilityNodes();
+          expect(copy.inert, 'the copy is inert').to.be.true;
+          expect(text.join('').trim()).to.equal('Ana Bell');
+          expect(buttons.map((button) => button.querySelector('cs-icon')?.label)).to.deep.equal(['Remove']);
+        });
 
-          expect(nodes.some((node) => node.name === 'Ana Bell')).to.be.true;
-          expect(nodes.filter((node) => node.role === 'button').map((node) => node.name)).to.deep.equal(['Remove']);
-          // WebKit's tree shows the initials of any cs-avatar that is inert or aria-hidden, in a tag or on its own,
-          // where Chromium and Firefox hide them. Pinned here so a change in either shows; VoiceOver is unchecked.
-          const avatars = nodes.filter((node) => node.role === 'img' || node.name === 'AB');
-          expect(avatars.map((node) => `${node.role} "${node.name}"`)).to.deep.equal(isWebkit ? ['text "AB"'] : []);
+        // A copy made fresh each render would fetch a broken image again every time, and its error would leave the
+        // control as if the page's own avatar had failed again.
+        it("should keep a failed image's copy, and its error, inside the tag as the control renders", async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select label="People" multiple>
+              <cs-option value="ana" selected
+                ><cs-avatar slot="start" initials="AB" image="/no-such-image.png"></cs-avatar>Ana Bell</cs-option
+              >
+            </cs-select>
+          `);
+          const original = el.querySelector('cs-avatar')!;
+          const errors: EventTarget[] = [];
+          el.addEventListener('cs-error', (event) => errors.push(event.target!));
+          await el.updateComplete;
+          const copy = el.shadowRoot!.querySelector<HTMLElement>('[part~="tag"]')!.querySelector('cs-avatar')!;
+          await waitUntil(() => copy.shadowRoot?.querySelector('.initials'), 'the copy falls back to its initials');
+
+          await el.show();
+          el.requestUpdate();
+          await el.updateComplete;
+
+          expect(
+            el.shadowRoot!.querySelector<HTMLElement>('[part~="tag"]')!.querySelector('cs-avatar') === copy,
+            'the same copy',
+          ).to.be.true;
+          expect(errors.filter((target) => target !== original).length, 'errors from the copy').to.equal(0);
+        });
+
+        it('should leave start content out of the tag that counts the rest', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select label="People" multiple max-options-visible="1">
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+              <cs-option value="cy" selected><cs-avatar slot="start" initials="CR"></cs-avatar>Cy Reed</cs-option>
+            </cs-select>
+          `);
+          await el.updateComplete;
+          const tags = [...el.shadowRoot!.querySelector<HTMLElement>('[part~="tags"]')!.querySelectorAll('cs-tag')];
+
+          expect(tags.map((tag) => tag.textContent?.trim())).to.deep.equal(['Ana Bell', '+1']);
+          expect(tags[1].querySelector('[slot="start"]')).to.be.null;
         });
 
         // Turbo's morph can re-create the option elements after a save. The tags have to come back whole.

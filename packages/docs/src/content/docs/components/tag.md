@@ -122,7 +122,7 @@ Put an icon or an avatar in the `start` slot to show it before the tag's text. T
 <cs-tag size="xl" pill><cs-avatar slot="start" initials="AB" aria-hidden="true"></cs-avatar>Ana Bell</cs-tag>
 ```
 
-The tag's text already names what the icon or avatar shows, so keep them decorative. A `<cs-icon>` with no `label` is hidden from assistive technology already. Give a `<cs-avatar>` `aria-hidden="true"`.
+The tag's text already names what the icon or avatar shows, so keep them decorative. A `<cs-icon>` with no `label` is hidden from assistive technology already. Give a `<cs-avatar>` `aria-hidden="true"`, which hides it in Chromium and Firefox; WebKit still exposes its initials (see [Known gaps](/resources/accessibility#known-gaps)).
 
 ### Pill
 

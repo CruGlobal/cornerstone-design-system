@@ -76,7 +76,17 @@ describe('copyStartContent (client-only)', () => {
     expect(avatarCopy.label).to.equal('Ana Bell');
   });
 
-  it('should copy the start content as it is when called', async () => {
+  // A fresh copy each render would refetch an image and restart an animation every keystroke.
+  it('should return the same copy while the start content is unchanged', async () => {
+    const option = await fixture(html`<div><b slot="start" title="one">1</b>Apple</div>`);
+
+    const first = copyStartContent(option);
+    const second = copyStartContent(option);
+
+    expect(second[0] === first[0], 'the same copy').to.be.true;
+  });
+
+  it('should copy again once an attribute changes', async () => {
     const option = await fixture(html`<div><b slot="start" title="one">1</b>Apple</div>`);
     const first = copyStartContent(option);
 
@@ -85,6 +95,77 @@ describe('copyStartContent (client-only)', () => {
 
     expect(second[0] === first[0], 'a new copy').to.be.false;
     expect(second[0].getAttribute('title')).to.equal('two');
+  });
+
+  it('should copy again once a property changes without an attribute', async () => {
+    const option = await fixture(html`<div><cs-avatar slot="start"></cs-avatar>Ana Bell</div>`);
+    const first = copyStartContent(option);
+
+    option.querySelector<CsAvatar>('cs-avatar')!.initials = 'AB';
+    const second = copyStartContent(option);
+
+    expect(second[0] === first[0], 'a new copy').to.be.false;
+    expect((second[0] as CsAvatar).initials).to.equal('AB');
+  });
+
+  // The copy is part of the control's rendering. Its load and error events are not the page's to hear.
+  it("should keep a copy's load and error events inside it", async () => {
+    const option = await fixture(html`<div><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</div>`);
+    const [copy] = copyStartContent(option);
+    const host = await fixture(html`<div></div>`);
+    host.append(copy);
+    const heard: string[] = [];
+    host.addEventListener('cs-error', (event) => heard.push(event.type));
+    host.addEventListener('cs-load', (event) => heard.push(event.type));
+
+    copy.dispatchEvent(new Event('cs-error', { bubbles: true, composed: true }));
+    copy.dispatchEvent(new Event('cs-load', { bubbles: true, composed: true }));
+
+    expect(heard).to.deep.equal([]);
+  });
+
+  // inert is an HTML attribute. On an SVG element it does nothing, so a focusable SVG copy stayed focusable.
+  it('should make a copy of inline SVG inert', async () => {
+    const option = await fixture(
+      html`<div>
+        <svg slot="start" tabindex="0" viewBox="0 0 2 2"><circle cx="1" cy="1" r="1"></circle></svg>Apple
+      </div>`,
+    );
+    const [copy] = copyStartContent(option);
+    document.body.append(copy);
+    const svg = copy.localName === 'svg' ? copy : copy.querySelector('svg')!;
+
+    (svg as SVGElement).focus();
+
+    expect(document.activeElement === svg, 'the copy took focus').to.be.false;
+    expect(copy.getAttribute('slot')).to.equal('start');
+    copy.remove();
+  });
+
+  // Carrying pairs the original's elements with the copy's by position. If cloning changes the count, they no longer
+  // line up, and carrying anything would go to the wrong element or fail.
+  it('should not fail when the copy has a different number of elements', async () => {
+    if (!customElements.get('copy-start-extra')) {
+      customElements.define(
+        'copy-start-extra',
+        class extends HTMLElement {
+          cloneNode(deep?: boolean) {
+            const clone = super.cloneNode(deep);
+            (clone as Element).append(document.createElement('i'));
+            return clone;
+          }
+        },
+      );
+    }
+    const option = await fixture(
+      html`<div>
+        <copy-start-extra slot="start"><cs-avatar initials="AB"></cs-avatar></copy-start-extra>Ana
+      </div>`,
+    );
+
+    const [copy] = copyStartContent(option);
+
+    expect(copy.localName).to.equal('copy-start-extra');
   });
 
   // Only a direct child is assigned to the option's start slot; one deeper down renders inside the label.
