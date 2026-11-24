@@ -1,5 +1,15 @@
 # @cruglobal/cornerstone-components
 
+## 0.13.0
+
+### Added
+
+- [#373](https://github.com/CruGlobal/cornerstone-design-system/pull/373) [`1aacda3`](https://github.com/CruGlobal/cornerstone-design-system/commit/1aacda3b8dc62dec29f5a9574025bd238360b1c2) Thanks [@rguinee](https://github.com/rguinee)! - `cs-tag` has a `start` slot for an icon or avatar, sized to every tag size.
+
+### Changed
+
+- [#373](https://github.com/CruGlobal/cornerstone-design-system/pull/373) [`1c69f83`](https://github.com/CruGlobal/cornerstone-design-system/commit/1c69f83f9db2eac74fdfc47e94b0821df922d7ec) Thanks [@rguinee](https://github.com/rguinee)! - The default tags in `cs-combobox` and `cs-select` show an inert copy of each picked option's `start` content.
+
 ## 0.12.0
 
 ### Added

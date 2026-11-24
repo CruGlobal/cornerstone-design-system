@@ -1,5 +1,7 @@
 # @cruglobal/cornerstone-design-system
 
+## 0.13.0
+
 ## 0.12.0
 
 ### Added
