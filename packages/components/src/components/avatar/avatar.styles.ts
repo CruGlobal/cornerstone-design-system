@@ -10,6 +10,7 @@ export default css`
     height: var(--cs-avatar-size, 3rem);
     color: var(--cs-color-neutral-on-normal);
     font: inherit;
+    /* Load-bearing: cs-tag pins this 0.4 to size a slotted avatar (tag.styles.ts). */
     font-size: calc(var(--cs-avatar-size, 3rem) * 0.4);
     vertical-align: middle;
     background-color: var(--cs-color-neutral-fill-normal);

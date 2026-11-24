@@ -207,6 +207,34 @@ To let people choose more than one option, add the `multiple` attribute. Pair it
 Use the `max-options-visible` attribute to cap how many tags show at once before the rest collapse into a count.
 :::
 
+### Icons and Avatars in Tags
+
+When an option has an icon or avatar in its `start` slot, its tag shows a copy of it. The copy is display only: it is `inert`, so it can't be focused or clicked, and assistive technology is meant to skip it, because the tag's text already names the option. WebKit still exposes a `cs-avatar`'s initials; see [Known gaps](/resources/accessibility#known-gaps). The `+n` tag that stands for the rest shows no start content.
+
+```html {.example}
+<cs-select label="Contact by" multiple with-clear>
+  <cs-option value="email" selected>
+    <cs-icon slot="start" name="mail"></cs-icon>
+    Email
+  </cs-option>
+  <cs-option value="phone" selected>
+    <cs-icon slot="start" name="call" variant="fill"></cs-icon>
+    Phone
+  </cs-option>
+  <cs-option value="chat">
+    <cs-icon slot="start" name="chat_bubble"></cs-icon>
+    Chat
+  </cs-option>
+</cs-select>
+```
+
+:::caution
+<strong>The copy keeps only the styles it carries.</strong><br />
+Tags render inside the select's shadow root, where your page's CSS does not reach, but a `style` attribute comes along with the copy. Use content that styles itself, such as `<cs-icon>` or `<cs-avatar>`, and set anything else it needs, such as a color, in a `style` attribute. Content styled by class names, such as a Tailwind avatar, loses those styles in the tag. The copy also drops ids, and an id elsewhere on the page is out of the shadow root's reach, so inline SVG that refers to one, such as a sprite's `<use href="#icon">`, draws without it. That includes the SVG's own ids, so a gradient or clip path in its `<defs>` is gone too, and a `url(#gradient)` fill in the same SVG draws without it.
+:::
+
+The tag sizes an avatar's copy to fit. Size avatars in the list with your page's CSS, and leave size out of the `style` attribute, where it would come along and override the tag's size.
+
 ### Grouping Options
 
 Use `<cs-divider>` to separate groups of options visually. You can also add `<small>` labels, but note that most assistive technologies won't announce them.
@@ -251,24 +279,15 @@ Use the `start` and `end` slots to add presentational elements such as `<cs-icon
 
 ### Custom Tags
 
-When multiple options can be selected, supply custom tags by passing a function to the `getTag` property. The function runs for each selected option and can return a string of HTML, a [Lit template](https://lit.dev/docs/templates/overview/), or an [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement). Its first argument is the `<cs-option>` element and its second is the tag's index.
+When multiple options can be selected, supply custom tags by passing a function to the `getTag` property. The function runs for each selected option and can return a string of HTML, a [Lit template](https://lit.dev/docs/templates/overview/), or an [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement). Its first argument is the `<cs-option>` element and its second is the tag's index. A custom tag replaces the default one, copy of the option's `start` content included.
 
 Because custom tags render in a shadow root, style them with the `style` attribute in your template, or add your own [parts](/usage/#css-parts) and target them with [`::part()`](https://developer.mozilla.org/en-US/docs/Web/CSS/::part).
 
 ```html {.example}
 <cs-select placeholder="Select one" multiple with-clear class="custom-tag">
-  <cs-option value="email" selected>
-    <cs-icon slot="start" name="mail"></cs-icon>
-    Email
-  </cs-option>
-  <cs-option value="phone" selected>
-    <cs-icon slot="start" name="call" variant="fill"></cs-icon>
-    Phone
-  </cs-option>
-  <cs-option value="chat">
-    <cs-icon slot="start" name="chat_bubble"></cs-icon>
-    Chat
-  </cs-option>
+  <cs-option value="email" selected>Email</cs-option>
+  <cs-option value="phone" selected>Phone</cs-option>
+  <cs-option value="chat">Chat</cs-option>
 </cs-select>
 
 <script type="module">
@@ -277,14 +296,10 @@ Because custom tags render in a shadow root, style them with the `style` attribu
   await select.updateComplete;
 
   select.getTag = (option, index) => {
-    // Reuse the icon from the matching cs-option
-    const name = option.querySelector('cs-icon[slot="start"]').name;
-
     // Return a string, a Lit Template, or an HTMLElement.
     // Include data-value so the tag can be removed properly.
     return `
-      <cs-tag with-remove data-value="${option.value}">
-        <cs-icon name="${name}"></cs-icon>
+      <cs-tag variant="brand" appearance="accent" with-remove data-value="${option.value}">
         ${option.label}
       </cs-tag>
     `;

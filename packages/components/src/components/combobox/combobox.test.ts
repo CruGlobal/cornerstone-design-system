@@ -1,5 +1,5 @@
 import { expect, oneEvent, waitUntil } from '@open-wc/testing';
-import { emulateMedia, sendKeys } from '@web/test-runner-commands';
+import { a11ySnapshot, emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html, nothing, render } from 'lit';
 import sinon from 'sinon';
 import type { CsOptionsRequestEvent } from '../../events/options-request.js';
@@ -8,8 +8,10 @@ import { expectEvent } from '../../internal/test/expect-event.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
-import { clickOnElement } from '../../internal/test/pointer-utilities.js';
+import { clickOnElement, isWebkit } from '../../internal/test/pointer-utilities.js';
+import type CsAvatar from '../avatar/avatar.js';
 import type CsOption from '../option/option.js';
+import type CsTag from '../tag/tag.js';
 import type CsCombobox from './combobox.js';
 
 /** Focuses the text field and types into it, one key at a time, as a person would. */
@@ -967,6 +969,297 @@ describe('<cs-combobox>', () => {
           expect(tags).to.deep.equal(['Apple', '+2']);
         });
 
+        it("should show a copy of each option's start content in its tag", async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+              <cs-option value="cy">Cy Reed</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+          const tag = part(el, 'tag');
+          const copy = tag.querySelector('cs-avatar');
+
+          expect(copy, 'a copy in the tag').to.exist;
+          expect(copy === el.querySelector('cs-avatar'), 'the original moved into the tag').to.be.false;
+          expect(copy!.getAttribute('initials')).to.equal('AB');
+          expect(copy!.assignedSlot?.name).to.equal('start');
+          expect(tag.textContent?.trim()).to.equal('Ana Bell');
+        });
+
+        // The tag's text is the option's label, which already names it, so the copy is display only.
+        it("should make the copy of an option's start content inert", async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+
+          expect(part(el, 'tag').querySelector('cs-avatar')?.inert, 'inert').to.be.true;
+          await expect(el).to.be.accessible();
+        });
+
+        // The copy has none of the original's listeners, so focus on it would lead nowhere.
+        it('should keep a copy of focusable start content out of focus', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><button slot="start" type="button">i</button>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+          const copy = part(el, 'tag').querySelector('button')!;
+
+          copy.focus();
+
+          expect(el.shadowRoot!.activeElement === copy, 'the copy took focus').to.be.false;
+          await expect(el).to.be.accessible();
+        });
+
+        it('should show start content added to a picked option', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" multiple>
+              <cs-option value="apple" selected>Apple</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+          const icon = document.createElement('cs-icon');
+          icon.slot = 'start';
+          icon.library = 'system';
+          icon.name = 'check';
+
+          el.querySelector('cs-option')!.prepend(icon);
+
+          await waitUntil(() => part(el, 'tag').querySelector('cs-icon') !== null, 'the tag shows the new icon');
+        });
+
+        // Lit, React and Vue can set a property without writing its attribute, and the copy has to carry it.
+        it('should copy start content set through properties', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start"></cs-avatar>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          el.querySelector<CsAvatar>('cs-avatar')!.initials = 'AB';
+
+          el.requestUpdate();
+          await el.updateComplete;
+
+          expect(part(el, 'tag').querySelector<CsAvatar>('cs-avatar')?.initials).to.equal('AB');
+        });
+
+        // A copy's id would shadow the control's own: its tags come before the hint the field is described by.
+        it('should keep the ids of start content out of the shadow root', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" hint="Pick everyone who works on it" multiple>
+              <cs-option value="ana" selected><span slot="start" id="hint">A</span>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+
+          expect(el.shadowRoot!.getElementById('hint') === part(el, 'hint'), 'hint resolves to the hint').to.be.true;
+        });
+
+        // A per-person avatar colour and a label's colour dot are both set inline, and the copy has to keep them.
+        it('should keep inline colours on the copies', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected
+                ><cs-avatar
+                  slot="start"
+                  initials="AB"
+                  style="background-color: rgb(46, 107, 168); color: rgb(255, 255, 255)"
+                ></cs-avatar
+                >Ana Bell</cs-option
+              >
+              <cs-option value="bug" selected
+                ><span
+                  slot="start"
+                  style="display: inline-block; width: 0.5em; height: 0.5em; border-radius: 50%; background: rgb(229, 72, 77)"
+                ></span
+                >Bug</cs-option
+              >
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+          const [avatar, dot] = [...part(el, 'tags').querySelectorAll<HTMLElement>('[slot="start"]')];
+
+          expect(getComputedStyle(avatar).backgroundColor).to.equal('rgb(46, 107, 168)');
+          expect(getComputedStyle(avatar).color).to.equal('rgb(255, 255, 255)');
+          expect(getComputedStyle(dot).backgroundColor).to.equal('rgb(229, 72, 77)');
+          expect(getComputedStyle(dot).borderTopLeftRadius).to.equal('50%');
+          expect(dot.getBoundingClientRect().width).to.be.above(0);
+        });
+
+        // A copy has to land as the tag's own child, or the tag's sizing for a slotted avatar misses it.
+        for (const size of ['xs', 's', 'm', 'l', 'xl'] as const) {
+          it(`should size an avatar's copy to the tag when size="${size}"`, async () => {
+            const el = await fixture<CsCombobox>(html`
+              <cs-combobox label="People" size=${size} multiple>
+                <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+              </cs-combobox>
+            `);
+            await el.updateComplete;
+            const tag = part(el, 'tag');
+            const textSize = parseFloat(getComputedStyle(tag.shadowRoot!.querySelector('[part~="content"]')!).fontSize);
+
+            expect(tag.querySelector('cs-avatar')!.getBoundingClientRect().width).to.be.closeTo(textSize * 1.75, 0.5);
+          });
+        }
+
+        it('should truncate a long label to the same width with or without start content', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="jw" selected
+                ><cs-avatar slot="start" initials="JW"></cs-avatar>Jonah Whitfield-Abernathy</cs-option
+              >
+              <cs-option value="jx" selected>Jonah Whitfield-Abernathy</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+          const [withStart, without] = [...part(el, 'tags').querySelectorAll('cs-tag')].map((tag) =>
+            tag.shadowRoot!.querySelector<HTMLElement>('[part~="content"]')!,
+          );
+
+          expect(withStart.scrollWidth > withStart.clientWidth, 'the label is truncated').to.be.true;
+          expect(withStart.getBoundingClientRect().width).to.be.closeTo(without.getBoundingClientRect().width, 0.5);
+        });
+
+        // What a screen reader gets from a tag: its text, then one button named Remove. The inert copy adds neither.
+        // Checked in the DOM they come from: Playwright's accessibility snapshot of a tag is empty on Linux WebKit, and
+        // shows an inert avatar's initials on macOS WebKit.
+        it("should leave a tag's text and remove button as they were", async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+          const tag = part(el, 'tag') as CsTag;
+          await tag.updateComplete;
+          const copy = tag.querySelector<HTMLElement>('cs-avatar')!;
+          const text = [...tag.childNodes]
+            .filter((node) => node.nodeType === Node.TEXT_NODE)
+            .map((node) => node.textContent);
+          const buttons = [...tag.shadowRoot!.querySelectorAll('cs-button')];
+
+          expect(copy.inert, 'the copy is inert').to.be.true;
+          expect(text.join('').trim()).to.equal('Ana Bell');
+          expect(buttons.map((button) => button.querySelector('cs-icon')?.label)).to.deep.equal(['Remove']);
+        });
+
+        // The same, read from the accessibility tree. Playwright's snapshot of a tag is empty on Linux WebKit and shows an
+        // inert avatar's initials on macOS WebKit, so this runs where the tree is complete.
+        (isWebkit ? it.skip : it)("should leave a tag's accessible text and remove button as they were", async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+          type AccessibilityNode = { role: string; name?: string; children?: AccessibilityNode[] };
+          const nodes: AccessibilityNode[] = [];
+          const walk = (node: AccessibilityNode) => {
+            nodes.push(node);
+            node.children?.forEach(walk);
+          };
+
+          walk((await a11ySnapshot({})) as unknown as AccessibilityNode);
+
+          expect(
+            nodes.some((node) => node.name === 'Ana Bell'),
+            'Ana Bell',
+          ).to.be.true;
+          expect(nodes.filter((node) => node.role === 'button').map((node) => node.name)).to.deep.equal(['Remove']);
+          expect(nodes.filter((node) => node.name === 'AB').length, 'AB nodes').to.equal(0);
+        });
+
+        // A copy made fresh each render would fetch a broken image again every time, and its error would leave the
+        // control as if the page's own avatar had failed again.
+        it("should keep a failed image's copy, and its error, inside the tag as the control renders", async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected
+                ><cs-avatar slot="start" initials="AB" image="/no-such-image.png"></cs-avatar>Ana Bell</cs-option
+              >
+            </cs-combobox>
+          `);
+          const original = el.querySelector('cs-avatar')!;
+          const errors: EventTarget[] = [];
+          el.addEventListener('cs-error', (event) => errors.push(event.target!));
+          await el.updateComplete;
+          const copy = part(el, 'tag').querySelector('cs-avatar')!;
+          await waitUntil(() => copy.shadowRoot?.querySelector('.initials'), 'the copy falls back to its initials');
+
+          await type(el, 'a');
+
+          expect(part(el, 'tag').querySelector('cs-avatar') === copy, 'the same copy').to.be.true;
+          expect(errors.filter((target) => target !== original).length, 'errors from the copy').to.equal(0);
+        });
+
+        it('should leave start content out of the tag that counts the rest', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple max-options-visible="1">
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+              <cs-option value="cy" selected><cs-avatar slot="start" initials="CR"></cs-avatar>Cy Reed</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+          const tags = [...part(el, 'tags').querySelectorAll('cs-tag')];
+
+          expect(tags.map((tag) => tag.textContent?.trim())).to.deep.equal(['Ana Bell', '+1']);
+          expect(tags[1].querySelector('[slot="start"]')).to.be.null;
+        });
+
+        // Turbo's morph can re-create the option elements after a save. The tags have to come back whole.
+        it('should show the start content of re-created options', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+
+          el.querySelector('cs-option')!.replaceWith(
+            Object.assign(document.createElement('div'), {
+              innerHTML:
+                '<cs-option value="ana" selected><cs-avatar slot="start" initials="AC"></cs-avatar>Ana Bell</cs-option>',
+            }).firstElementChild!,
+          );
+
+          await waitUntil(
+            () => part(el, 'tag')?.querySelector('cs-avatar')?.getAttribute('initials') === 'AC',
+            'the tag shows the new option',
+          );
+          expect(el.value).to.deep.equal(['ana']);
+        });
+
+        it('should remove a custom tag through its data-value', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="Fruit" multiple>
+              <cs-option value="apple" selected>Apple</cs-option>
+              <cs-option value="banana" selected>Banana</cs-option>
+            </cs-combobox>
+          `);
+          el.getTag = (option) => {
+            const tag = document.createElement('cs-tag');
+            tag.withRemove = true;
+            tag.dataset.value = option.value;
+            tag.append(option.label);
+            return tag;
+          };
+          el.requestUpdate();
+          await el.updateComplete;
+          const tag = part(el, 'tags').querySelector<CsTag>('cs-tag[data-value="apple"]')!;
+          await tag.updateComplete;
+
+          await expectEvent(el, ['input', 'change'], async () => {
+            await clickOnElement(tag.shadowRoot!.querySelector('[part~="remove-button"]')!, 'center', 1, 1);
+            await el.updateComplete;
+          });
+          expect(el.value).to.deep.equal(['banana']);
+        });
+
         it('should render a string from getTag as text, never as HTML', async () => {
           const el = await fixture<CsCombobox>(html`
             <cs-combobox label="Fruit" multiple>
@@ -1811,6 +2104,44 @@ describe('<cs-combobox>', () => {
       });
 
       describe('server mode', () => {
+        // The combobox remembers the last option element it saw for each pick, and the tag copies from that.
+        it("should keep a pick's start content in its tag once its option leaves the list", async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          el.dataSource = () => [{ value: 'cy', label: 'Cy Reed' }];
+
+          await el.show();
+          await answered(el, ['Cy Reed']);
+
+          expect(part(el, 'tag').querySelector('cs-avatar')?.getAttribute('initials')).to.equal('AB');
+        });
+
+        // Option data carries no start content, so a server answer that should show some returns elements.
+        it('should show start content on options a dataSource returns as elements', async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          el.dataSource = () =>
+            [
+              ['ana', 'Ana Bell', 'AN'],
+              ['cy', 'Cy Reed', 'CR'],
+            ].map(([value, label, initials]) =>
+              Object.assign(document.createElement('div'), {
+                innerHTML: `<cs-option value="${value}"><cs-avatar slot="start" initials="${initials}"></cs-avatar>${label}</cs-option>`,
+              }).querySelector('cs-option')!,
+            );
+
+          await el.show();
+          await answered(el, ['Ana Bell', 'Cy Reed']);
+
+          expect(part(el, 'tag').querySelector('cs-avatar')?.getAttribute('initials')).to.equal('AN');
+        });
+
         it('should request right away on open, then debounce keystrokes into one request', async () => {
           const el = await fixture<CsCombobox>(html`<cs-combobox label="Fruit" filter-debounce="100"></cs-combobox>`);
           const dataSource = sinon.spy((query: string, signal: AbortSignal) =>
