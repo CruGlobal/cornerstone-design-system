@@ -1,11 +1,11 @@
 import { aTimeout, expect, oneEvent, waitUntil } from '@open-wc/testing';
-import { resetMouse, sendKeys, sendMouse } from '@web/test-runner-commands';
+import { a11ySnapshot, resetMouse, sendKeys, sendMouse } from '@web/test-runner-commands';
 import { html } from 'lit';
 import sinon from 'sinon';
 import { expectEvent } from '../../internal/test/expect-event.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
-import { clickOnElement } from '../../internal/test/pointer-utilities.js';
+import { clickOnElement, isWebkit } from '../../internal/test/pointer-utilities.js';
 import { serialize } from '../../utilities/form.js';
 import type CsAvatar from '../avatar/avatar.js';
 import type CsOption from '../option/option.js';
@@ -838,6 +838,52 @@ describe('<cs-select>', () => {
           expect(copy.inert, 'the copy is inert').to.be.true;
           expect(text.join('').trim()).to.equal('Ana Bell');
           expect(buttons.map((button) => button.querySelector('cs-icon')?.label)).to.deep.equal(['Remove']);
+        });
+
+        // The same, read from the accessibility tree. Playwright's snapshot of a tag is empty on Linux WebKit and shows an
+        // inert avatar's initials on macOS WebKit, so this runs where the tree is complete.
+        (isWebkit ? it.skip : it)("should leave a tag's accessible text and remove button as they were", async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+            </cs-select>
+          `);
+          await el.updateComplete;
+          type AccessibilityNode = { role: string; name?: string; children?: AccessibilityNode[] };
+          const nodes: AccessibilityNode[] = [];
+          const walk = (node: AccessibilityNode) => {
+            nodes.push(node);
+            node.children?.forEach(walk);
+          };
+
+          walk((await a11ySnapshot({})) as unknown as AccessibilityNode);
+
+          expect(
+            nodes.some((node) => node.name === 'Ana Bell'),
+            'Ana Bell',
+          ).to.be.true;
+          expect(nodes.filter((node) => node.role === 'button').map((node) => node.name)).to.deep.equal(['Remove']);
+          expect(nodes.filter((node) => node.name === 'AB').length, 'AB nodes').to.equal(0);
+        });
+
+        // A select lists an option among its tags without marking it selected when defaultValue names a disabled one.
+        it('should show start content added to a tag whose option is not marked selected', async () => {
+          const el = await fixture<CsSelect>(html`
+            <cs-select multiple>
+              <cs-option value="ana" disabled>Ana Bell</cs-option>
+            </cs-select>
+          `);
+          const option = el.querySelector('cs-option')!;
+          el.defaultValue = ['ana'];
+          el.selectionChanged();
+          await waitUntil(() => el.shadowRoot!.querySelector('[part~="tag"]'), 'a tag for the option');
+          expect(option.selected, 'marked selected').to.be.false;
+
+          option.prepend(
+            Object.assign(document.createElement('cs-icon'), { slot: 'start', library: 'system', name: 'check' }),
+          );
+
+          await waitUntil(() => el.shadowRoot!.querySelector('[part~="tag"] cs-icon'), 'the tag shows the new icon');
         });
 
         // A copy made fresh each render would fetch a broken image again every time, and its error would leave the

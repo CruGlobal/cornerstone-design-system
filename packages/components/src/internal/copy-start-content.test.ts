@@ -115,13 +115,35 @@ describe('copyStartContent (client-only)', () => {
     const host = await fixture(html`<div></div>`);
     host.append(copy);
     const heard: string[] = [];
-    host.addEventListener('cs-error', (event) => heard.push(event.type));
-    host.addEventListener('cs-load', (event) => heard.push(event.type));
-
-    copy.dispatchEvent(new Event('cs-error', { bubbles: true, composed: true }));
-    copy.dispatchEvent(new Event('cs-load', { bubbles: true, composed: true }));
+    const types = ['cs-error', 'cs-load', 'cs-include-error'];
+    for (const type of types) {
+      host.addEventListener(type, (event) => heard.push(event.type));
+      copy.dispatchEvent(new Event(type, { bubbles: true, composed: true }));
+    }
 
     expect(heard).to.deep.equal([]);
+  });
+
+  // NaN never equals itself, so a NaN property would make every call look like a change.
+  it('should return the same copy while a property holds NaN', async () => {
+    const option = await fixture(html`<div><cs-icon slot="start" library="system" name="check"></cs-icon>Done</div>`);
+    option.querySelector('cs-icon')!.rotate = NaN;
+
+    const first = copyStartContent(option);
+
+    expect(copyStartContent(option)[0] === first[0], 'the same copy').to.be.true;
+  });
+
+  // A component can forward content of its own into an option through a slot in the option's start slot.
+  it('should copy what a slot in the start slot forwards', async () => {
+    const host = await fixture(html`<div><cs-avatar slot="avatar" initials="AB"></cs-avatar></div>`);
+    host.attachShadow({ mode: 'open' }).innerHTML = '<div><slot name="avatar" slot="start"></slot>Ana Bell</div>';
+
+    const [copy] = copyStartContent(host.shadowRoot!.firstElementChild!);
+
+    expect(copy?.localName).to.equal('cs-avatar');
+    expect(copy.getAttribute('slot')).to.equal('start');
+    expect((copy as CsAvatar).initials).to.equal('AB');
   });
 
   // inert is an HTML attribute. On an SVG element it does nothing, so a focusable SVG copy stayed focusable.

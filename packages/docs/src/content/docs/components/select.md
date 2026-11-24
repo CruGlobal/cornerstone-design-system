@@ -230,7 +230,7 @@ When an option has an icon or avatar in its `start` slot, its tag shows a copy o
 
 :::caution
 <strong>The copy keeps only the styles it carries.</strong><br />
-Tags render inside the select's shadow root, where your page's CSS does not reach, but a `style` attribute comes along with the copy. Use content that styles itself, such as `<cs-icon>` or `<cs-avatar>`, and set anything else it needs, such as a color, in a `style` attribute. Content styled by class names, such as a Tailwind avatar, loses those styles in the tag. The copy also drops ids, and an id elsewhere on the page is out of the shadow root's reach, so inline SVG that refers to one, such as a sprite's `<use href="#icon">` or a `url(#gradient)` fill, draws without it.
+Tags render inside the select's shadow root, where your page's CSS does not reach, but a `style` attribute comes along with the copy. Use content that styles itself, such as `<cs-icon>` or `<cs-avatar>`, and set anything else it needs, such as a color, in a `style` attribute. Content styled by class names, such as a Tailwind avatar, loses those styles in the tag. The copy also drops ids, and an id elsewhere on the page is out of the shadow root's reach, so inline SVG that refers to one, such as a sprite's `<use href="#icon">`, draws without it. That includes the SVG's own ids, so a gradient or clip path in its `<defs>` is gone too, and a `url(#gradient)` fill in the same SVG draws without it.
 :::
 
 The tag sizes an avatar's copy to fit. Size avatars in the list with your page's CSS, and leave size out of the `style` attribute, where it would come along and override the tag's size.

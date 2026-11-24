@@ -135,9 +135,12 @@ export default class CsOption extends CornerstoneElement {
   }
 
   private handleStartSlotChange() {
-    // A picked option's tag shows a copy of its start content, so the tag has to render again.
-    const controller = this.selected ? this.closest<OptionParent>(PARENT_SELECTOR) : null;
-    if (controller) {
+    // A tag shows a copy of its option's start content, so the tag has to render again. A select also lists options
+    // it has not marked selected, such as a disabled one its defaultValue names.
+    const controller = this.closest<OptionParent>(PARENT_SELECTOR);
+    const listed =
+      this.selected || (controller && 'selectedOptions' in controller && controller.selectedOptions.includes(this));
+    if (controller && listed) {
       void customElements.whenDefined(controller.localName).then(() => controller.requestUpdate());
     }
   }

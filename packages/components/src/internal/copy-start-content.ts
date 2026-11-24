@@ -2,7 +2,7 @@ type LitClass = { elementProperties?: Map<PropertyKey, { state?: boolean }> };
 type Fields = Record<PropertyKey, unknown>;
 
 /** Events a copy fires on its own, such as an avatar's image failing. The page already heard them from the original. */
-const CONTAINED_EVENTS = ['cs-error', 'cs-load'];
+const CONTAINED_EVENTS = ['cs-error', 'cs-load', 'cs-include-error'];
 
 const copies = new WeakMap<Element, { source: unknown[]; copy: Element }>();
 
@@ -14,13 +14,22 @@ const copies = new WeakMap<Element, { source: unknown[]; copy: Element }>();
  * the option's label and already names it, and the copy has none of the original's listeners.
  *
  * Each copy is kept until its original's markup or properties change, so a render does not fetch an image again or
- * restart an animation.
+ * restart an animation. The trade-off: a copy whose own image load failed keeps showing its fallback until then, even
+ * if the image would load now.
  */
 export function copyStartContent(option: Element): Element[] {
-  return [...option.querySelectorAll(':scope > [slot="start"]')].map((original) => {
+  // A slot in the start slot forwards another component's content, which is what shows, so that is what gets copied.
+  const starts = [...option.querySelectorAll(':scope > [slot="start"]')].flatMap((element) =>
+    element instanceof HTMLSlotElement ? element.assignedElements({ flatten: true }) : [element],
+  );
+  return starts.map((original) => {
     const source = sourceOf(original);
     const kept = copies.get(original);
-    if (kept && kept.source.length === source.length && kept.source.every((value, index) => value === source[index])) {
+    if (
+      kept &&
+      kept.source.length === source.length &&
+      kept.source.every((value, index) => Object.is(value, source[index]))
+    ) {
       return kept.copy;
     }
     const copy = makeCopy(original);
@@ -72,11 +81,13 @@ function makeCopy(original: Element) {
   // inert is an HTML attribute and does nothing on SVG, so other content goes inside an HTML element that carries it.
   let copy = clone;
   if (!(clone instanceof HTMLElement)) {
-    copy = Object.assign(document.createElement('span'), { slot: 'start' });
+    copy = document.createElement('span');
     copy.setAttribute('style', 'display: contents');
     clone.removeAttribute('slot');
     copy.append(clone);
   }
+  // A forwarded element arrives under its own slot name.
+  copy.setAttribute('slot', 'start');
   copy.setAttribute('inert', '');
   for (const type of CONTAINED_EVENTS) {
     copy.addEventListener(type, (event) => event.stopPropagation());

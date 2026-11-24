@@ -1,5 +1,5 @@
 import { expect, oneEvent, waitUntil } from '@open-wc/testing';
-import { emulateMedia, sendKeys } from '@web/test-runner-commands';
+import { a11ySnapshot, emulateMedia, sendKeys } from '@web/test-runner-commands';
 import { html, nothing, render } from 'lit';
 import sinon from 'sinon';
 import type { CsOptionsRequestEvent } from '../../events/options-request.js';
@@ -8,7 +8,7 @@ import { expectEvent } from '../../internal/test/expect-event.js';
 import { settleAnimations } from '../../internal/test/finish-animations.js';
 import { fixtures } from '../../internal/test/fixture.js';
 import { runFormControlBaseTests } from '../../internal/test/form-control-base-tests.js';
-import { clickOnElement } from '../../internal/test/pointer-utilities.js';
+import { clickOnElement, isWebkit } from '../../internal/test/pointer-utilities.js';
 import type CsAvatar from '../avatar/avatar.js';
 import type CsOption from '../option/option.js';
 import type CsTag from '../tag/tag.js';
@@ -1146,6 +1146,32 @@ describe('<cs-combobox>', () => {
           expect(copy.inert, 'the copy is inert').to.be.true;
           expect(text.join('').trim()).to.equal('Ana Bell');
           expect(buttons.map((button) => button.querySelector('cs-icon')?.label)).to.deep.equal(['Remove']);
+        });
+
+        // The same, read from the accessibility tree. Playwright's snapshot of a tag is empty on Linux WebKit and shows an
+        // inert avatar's initials on macOS WebKit, so this runs where the tree is complete.
+        (isWebkit ? it.skip : it)("should leave a tag's accessible text and remove button as they were", async () => {
+          const el = await fixture<CsCombobox>(html`
+            <cs-combobox label="People" multiple>
+              <cs-option value="ana" selected><cs-avatar slot="start" initials="AB"></cs-avatar>Ana Bell</cs-option>
+            </cs-combobox>
+          `);
+          await el.updateComplete;
+          type AccessibilityNode = { role: string; name?: string; children?: AccessibilityNode[] };
+          const nodes: AccessibilityNode[] = [];
+          const walk = (node: AccessibilityNode) => {
+            nodes.push(node);
+            node.children?.forEach(walk);
+          };
+
+          walk((await a11ySnapshot({})) as unknown as AccessibilityNode);
+
+          expect(
+            nodes.some((node) => node.name === 'Ana Bell'),
+            'Ana Bell',
+          ).to.be.true;
+          expect(nodes.filter((node) => node.role === 'button').map((node) => node.name)).to.deep.equal(['Remove']);
+          expect(nodes.filter((node) => node.name === 'AB').length, 'AB nodes').to.equal(0);
         });
 
         // A copy made fresh each render would fetch a broken image again every time, and its error would leave the
