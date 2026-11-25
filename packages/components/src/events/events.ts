@@ -11,6 +11,7 @@ export type { CsAfterHideEvent } from './after-hide.js';
 export type { CsAfterPageChangeEvent } from './after-page-change.js';
 export type { CsAfterShowEvent } from './after-show.js';
 export type { CsCancelEvent } from './cancel.js';
+export type { CsChangeEvent } from './change.js';
 export type { CsClearEvent } from './clear.js';
 export type { CsCollapseEvent } from './collapse.js';
 export type { CsCompleteEvent } from './complete.js';

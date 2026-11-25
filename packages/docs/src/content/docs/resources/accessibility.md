@@ -105,7 +105,7 @@ unmentioned.
 
 **Automated.** Every component with an interactive surface runs [axe](https://github.com/dequelabs/axe-core) in
 its test suite, across Chromium, Firefox and WebKit, in both client-rendered and server-rendered-then-hydrated
-modes. 60 of the 71 components carry an axe assertion. The 11 that do not are utilities that render no
+modes. 61 of the 72 components carry an axe assertion. The 11 that do not are utilities that render no
 interactive surface — `cs-format-bytes`, `cs-format-date`, `cs-format-number`, `cs-relative-time`, `cs-include`,
 `cs-markdown`, `cs-animation`, `cs-zoomable-frame`, `cs-intersection-observer`, `cs-mutation-observer` and
 `cs-resize-observer` — where an axe run tests nothing. That exemption is a decision, not an omission.
