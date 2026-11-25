@@ -19,6 +19,8 @@ import styles from './tag.styles.js';
  * @dependency cs-button
  *
  * @slot - The tag's content.
+ * @slot start - An icon or avatar, such as `<cs-icon>` or `<cs-avatar>`, placed before the content and sized to the
+ *  tag. The tag's text already names it, so keep it decorative.
  *
  * @event cs-remove - Emitted when the remove button is activated.
  *
@@ -54,6 +56,7 @@ export default class CsTag extends CornerstoneElement {
 
   render() {
     return html`
+      <slot name="start" class="start"></slot>
       <slot part="content" class="content"></slot>
 
       ${

@@ -134,6 +134,17 @@ export default class CsOption extends CornerstoneElement {
     }
   }
 
+  private handleStartSlotChange() {
+    // A tag shows a copy of its option's start content, so the tag has to render again. A select also lists options
+    // it has not marked selected, such as a disabled one its defaultValue names.
+    const controller = this.closest<OptionParent>(PARENT_SELECTOR);
+    const listed =
+      this.selected || (controller && 'selectedOptions' in controller && controller.selectedOptions.includes(this));
+    if (controller && listed) {
+      void customElements.whenDefined(controller.localName).then(() => controller.requestUpdate());
+    }
+  }
+
   private handleHover = (event: Event) => {
     // We need this because Safari doesn't honor :hover styles while dragging
     // Test case: https://codepen.io/leaverou/pen/VYZOOjy
@@ -251,7 +262,7 @@ export default class CsOption extends CornerstoneElement {
           ? html`<cs-icon part="checked-icon" class="check" name="check" library="system" aria-hidden="true"></cs-icon>`
           : html`<span part="checked-icon" class="check" aria-hidden="true"></span>`
       }
-      <slot part="start" name="start" class="start"></slot>
+      <slot part="start" name="start" class="start" @slotchange=${this.handleStartSlotChange}></slot>
       <slot part="label" class="label" @slotchange=${this.handleDefaultSlotChange}></slot>
       <slot part="end" name="end" class="end"></slot>
     `;

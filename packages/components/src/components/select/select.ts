@@ -10,6 +10,7 @@ import { CsHideEvent } from '../../events/hide.js';
 import { CsRemoveEvent } from '../../events/remove.js';
 import { CsShowEvent } from '../../events/show.js';
 import { animateWithClass } from '../../internal/animate.js';
+import { copyStartContent } from '../../internal/copy-start-content.js';
 import { CornerstoneFormAssociatedElement } from '../../internal/cornerstone-form-associated-element.js';
 import { customElement } from '../../internal/custom-element.js';
 import { isTopDismissible, registerDismissible, unregisterDismissible } from '../../internal/dismissible-stack.js';
@@ -285,7 +286,9 @@ export default class CsSelect extends CornerstoneFormAssociatedElement {
   /**
    * A function that customizes the tags to be rendered when multiple=true. The first argument is the option, the second
    * is the current tag's index.  The function should return either a Lit TemplateResult or a string containing trusted
-   * HTML of the symbol to render at the specified value.
+   * HTML of the symbol to render at the specified value. The default tag shows the option's label and an inert,
+   * display-only copy of its `start` content. The copy renders in the select's shadow root, where page CSS does not
+   * reach.
    */
   @property({ attribute: false }) getTag: (option: CsOption, index: number) => TemplateResult | string | HTMLElement = (
     option,
@@ -304,7 +307,7 @@ export default class CsSelect extends CornerstoneFormAssociatedElement {
         data-value=${option.value}
         @cs-remove=${(event: CsRemoveEvent) => this.handleTagRemove(event, option)}
       >
-        ${option.label}
+        ${copyStartContent(option)} ${option.label}
       </cs-tag>
     `;
   };

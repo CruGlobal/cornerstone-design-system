@@ -134,6 +134,41 @@ Add the `multiple` attribute to let people pick more than one option. Picks beco
 Use the `max-options-visible` attribute to cap how many tags show before the rest collapse into a count.
 :::
 
+### Icons and Avatars in Tags
+
+When an option has an icon or avatar in its `start` slot, its tag shows a copy of it. The copy is display only: it is `inert`, so it can't be focused or clicked, and assistive technology is meant to skip it, because the tag's text already names the option. WebKit still exposes a `cs-avatar`'s initials; see [Known gaps](/resources/accessibility#known-gaps). The `+n` tag that stands for the rest shows no start content.
+
+```html {.example}
+<cs-combobox class="assignees" label="Assignees" placeholder="Add a person" multiple>
+  <cs-option value="ana" selected><cs-avatar slot="start" initials="AB" aria-hidden="true"></cs-avatar>Ana Bell</cs-option>
+  <cs-option value="cy" selected>
+    <cs-avatar
+      slot="start"
+      initials="CR"
+      aria-hidden="true"
+      style="background-color: var(--cs-color-success-fill-loud); color: var(--cs-color-success-on-loud)"
+    ></cs-avatar>
+    Cy Reed
+  </cs-option>
+  <cs-option value="mo"><cs-avatar slot="start" initials="MO" aria-hidden="true"></cs-avatar>Mo Ortiz</cs-option>
+</cs-combobox>
+
+<style>
+  .assignees cs-option > cs-avatar {
+    --cs-avatar-size: 1.5rem;
+  }
+</style>
+```
+
+:::caution
+<strong>The copy keeps only the styles it carries.</strong><br />
+Tags render inside the combobox's shadow root, where your page's CSS does not reach, but a `style` attribute comes along with the copy. Use content that styles itself, such as `<cs-icon>` or `<cs-avatar>`, and set anything else it needs, such as a color, in a `style` attribute. Content styled by class names, such as a Tailwind avatar, loses those styles in the tag. The copy also drops ids, and an id elsewhere on the page is out of the shadow root's reach, so inline SVG that refers to one, such as a sprite's `<use href="#icon">`, draws without it. That includes the SVG's own ids, so a gradient or clip path in its `<defs>` is gone too, and a `url(#gradient)` fill in the same SVG draws without it.
+:::
+
+The tag sizes an avatar's copy to fit. Size the avatars in the list with your page's CSS, as above, and leave size out of the `style` attribute, where it would come along and override the tag's size.
+
+Option data from a `dataSource` has no start content. To show icons or avatars in server mode, have the `dataSource` return `<cs-option>` elements.
+
 ### Custom Values
 
 Add `allow-custom-value` to keep typed text that matches no option as the value. Nothing is highlighted while typing, so Enter, Tab, leaving the field or closing the list keeps exactly what was typed. Escape throws it away. Text that equals an option's label picks that option. This works with a single value only, and is ignored when `multiple` is set.
@@ -275,7 +310,7 @@ When your framework renders the options itself, set the `server` attribute inste
 
 ### Custom Tags
 
-When `multiple` is set, pass a function to the `getTag` property to render each tag yourself. It receives the `<cs-option>` and the tag's index, and can return a Lit template, an `HTMLElement`, or a string. A string is shown as plain text. It is never parsed as HTML.
+When `multiple` is set, pass a function to the `getTag` property to render each tag yourself. It receives the `<cs-option>` and the tag's index, and can return a Lit template, an `HTMLElement`, or a string. A string is shown as plain text. It is never parsed as HTML. A custom tag replaces the default one, copy of the option's `start` content included.
 
 ```html {.example}
 <cs-combobox label="Contact by" multiple class="custom-tags">
