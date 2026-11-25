@@ -85,7 +85,7 @@ interface Constraints {
  * @summary Date pickers show a month as a grid of days, so people can browse the calendar and pick one date.
  * @documentation https://cruglobal.github.io/cornerstone-design-system/components/date-picker
  * @status experimental
- * @since 0.13
+ * @since 0.14
  *
  * @dependency cs-icon
  *
