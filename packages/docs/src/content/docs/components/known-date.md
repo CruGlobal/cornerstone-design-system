@@ -25,8 +25,8 @@ Known Date collects a date the user already knows — a birthday, a passport iss
 ```
 
 :::tip
-<strong>Need a calendar, ranges, or browsing?</strong><br />
-Known Date is intentionally simple: no popup calendar, no auto-advance between fields, and no clever parsing. For anything richer, pair a native `<input type="date">` with the field or reach for a dedicated date picker.
+<strong>Need a calendar?</strong><br />
+Known Date is intentionally simple: no popup calendar, no auto-advance between fields, and no clever parsing. For a date people pick from a calendar, use [Date Input](/components/date-input).
 :::
 
 ## Form Submission
