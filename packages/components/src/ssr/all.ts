@@ -19,6 +19,7 @@ export { default as CsColorPicker } from '../components/color-picker/color-picke
 export { default as CsCombobox } from '../components/combobox/combobox.js';
 export { default as CsComparison } from '../components/comparison/comparison.js';
 export { default as CsCopyButton } from '../components/copy-button/copy-button.js';
+export { default as CsDateInput } from '../components/date-input/date-input.js';
 export { default as CsDatePicker } from '../components/date-picker/date-picker.js';
 export { default as CsDetails } from '../components/details/details.js';
 export { default as CsDialog } from '../components/dialog/dialog.js';
