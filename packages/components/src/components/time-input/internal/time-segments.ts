@@ -1,7 +1,7 @@
 /**
  * Pure, DOM-free model for the **segmented** time input of `<cs-time-input>`. Plays the same role for time-input as
- * `date-input/internal/segments.ts` does for date-input — only this one is wired to the generic
- * `SegmentedFieldController` via the `timeSegmentRules()` factory below.
+ * `date-input/internal/date-segments.ts` does for date-input. Both are wired to the generic
+ * `SegmentedFieldController` through a rules factory, `timeSegmentRules()` below.
  *
  * A `<cs-time-input>` renders hour, minute, optional seconds, and optional AM/PM as discrete spinbutton segments in
  * the user's locale order, separated by inert literal text (`:`, NBSPs, locale-specific glyphs). Each segment is edited
@@ -12,6 +12,7 @@
  * `HH:mm:ss.sss` for fractional-second steps. The wire value is always 24-hour even when the UI is 12-hour.
  */
 
+import { typeNumericSegment } from '../../../internal/segmented-field/numeric-segment.js';
 import type {
   SegmentLayout,
   SegmentRules,
@@ -239,42 +240,6 @@ export function typeTimeDigit(field: TimeField, buffer: string, digit: string, h
   }
   // Minute and second: 0–59.
   return typeNumericSegment(buffer, digit, 0, 59);
-}
-
-/**
- * Shared digit logic for any two-digit `[min, max]` segment. Same algorithm as the date-input's month/day rule,
- * generalized to arbitrary bounds.
- */
-function typeNumericSegment(buffer: string, digit: string, min: number, max: number): TypeDigitResult {
-  const d = Number(digit);
-
-  if (buffer === '') {
-    // First digit. If no second digit could produce a value <= max, commit + advance.
-    if (d === 0 && min === 0) {
-      return { value: 0, buffer: '0', advance: false };
-    }
-    if (d === 0) {
-      return { value: null, buffer: '0', advance: false };
-    }
-    if (d * 10 > max) {
-      return { value: clamp(d, min, max), buffer: '', advance: true };
-    }
-    return { value: d, buffer: digit, advance: false };
-  }
-
-  const combined = Number(buffer + digit);
-  if (combined >= min && combined <= max) {
-    return { value: combined, buffer: '', advance: true };
-  }
-  if (buffer === '0' && d === 0) {
-    return { value: min === 0 ? 0 : null, buffer: '0', advance: false };
-  }
-  // Combination overflows — replace.
-  return typeNumericSegment('', digit, min, max);
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
 }
 
 /** Interpret a raw digit buffer as its numeric value. */

@@ -26,18 +26,8 @@ export default css`
     }
   }
 
-  /* Popup body — bordered card with the column listboxes. */
-  .popup-body {
-    display: inline-flex;
-    flex-direction: column;
-    background-color: var(--cs-color-surface-raised);
-    border: var(--cs-border-style) var(--cs-border-width-s) var(--cs-color-surface-border);
-    border-radius: var(--cs-border-radius-m);
-    box-shadow: var(--cs-shadow-m);
-    color: var(--cs-color-text-normal);
-    font-size: inherit;
-    padding: var(--cs-space-2xs);
-  }
+  /* The popup body's card, the input wrapper and the segments are shared with <cs-date-input> via
+     segmentedFieldStyles. See segmented-field.styles.ts. */
 
   .columns {
     display: inline-flex;
@@ -132,132 +122,6 @@ export default css`
   .now-button:focus-visible {
     outline: var(--cs-focus-ring-style) var(--cs-focus-ring-width) var(--cs-color-focus);
     outline-offset: 2px;
-  }
-
-  /* Input wrapper */
-  .input-wrapper {
-    flex: 1;
-    display: flex;
-    width: 100%;
-    min-width: 0;
-    align-items: center;
-    min-height: var(--cs-form-control-height);
-    background-color: var(--cs-form-control-background-color);
-    border-color: var(--cs-form-control-border-color);
-    border-radius: var(--cs-form-control-border-radius);
-    border-style: var(--cs-form-control-border-style);
-    border-width: var(--cs-form-control-border-width);
-    color: var(--cs-form-control-value-color);
-    cursor: text;
-    font-family: inherit;
-    font-weight: var(--cs-form-control-value-font-weight);
-    line-height: var(--cs-form-control-value-line-height);
-    padding: 0 var(--cs-form-control-padding-inline);
-    transition:
-      background-color var(--cs-transition-normal),
-      border-color var(--cs-transition-normal),
-      outline-color var(--cs-transition-fast);
-    transition-timing-function: var(--cs-transition-easing);
-    outline: var(--cs-focus-ring-style) var(--cs-focus-ring-width) transparent;
-    outline-offset: var(--cs-focus-ring-offset);
-  }
-
-  :host([pill]) .input-wrapper {
-    border-radius: var(--cs-border-radius-pill);
-  }
-
-  :host(:focus-within) .input-wrapper {
-    outline-color: var(--cs-color-focus);
-  }
-
-  :host(:state(disabled)) .input-wrapper {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Appearance variants */
-  :host([appearance='filled']) .input-wrapper,
-  :host([appearance='filled-outlined']) .input-wrapper {
-    background-color: var(--cs-color-surface-lowered);
-  }
-
-  :host([appearance='filled']) .input-wrapper {
-    border-color: transparent;
-  }
-
-  /* Segmented input — same patterns as cs-date-input. */
-  .segments {
-    flex: 1;
-    min-width: 0;
-    display: inline-flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    color: inherit;
-    font: inherit;
-    font-variant-numeric: tabular-nums;
-    caret-color: transparent;
-  }
-
-  .segment {
-    display: inline-block;
-    padding: 0 0.15em;
-    margin: 0;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: inherit;
-    font: inherit;
-    text-align: center;
-    cursor: text;
-    user-select: none;
-    white-space: nowrap;
-    border-radius: var(--cs-border-radius-s);
-    transition:
-      background-color var(--cs-transition-fast),
-      color var(--cs-transition-fast);
-  }
-
-  .segment.empty {
-    color: var(--cs-color-text-quiet);
-  }
-
-  /* Focus style — applies to keyboard *and* pointer focus so a click always shows the selection. Soft brand fill
-     reads as "selected" without competing with the popup's loud selected items. */
-  .segment:focus {
-    background-color: var(--cs-color-brand-fill-quiet);
-    color: var(--cs-color-brand-on-quiet);
-    outline: none;
-  }
-
-  .segment.empty:focus {
-    color: var(--cs-color-brand-on-quiet);
-  }
-
-  .segment-literal {
-    display: inline-block;
-    color: var(--cs-color-text-quiet);
-    white-space: pre;
-    user-select: none;
-  }
-
-  :host([disabled]) .segment,
-  :host([readonly]) .segment {
-    cursor: inherit;
-  }
-
-  /* Hidden form-value input (anchored under the wrapper for native validity tooltips). */
-  .value-input {
-    position: absolute;
-    inset-inline-start: var(--cs-form-control-padding-inline);
-    inset-block-start: 50%;
-    transform: translateY(-50%);
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
-    border: none;
-    padding: 0;
-    margin: 0;
   }
 
   /* Trailing buttons (.clear-button, .expand-button), the .expand-icon box, and the start/end
