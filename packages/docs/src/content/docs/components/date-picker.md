@@ -16,8 +16,9 @@ description: Date pickers show a month as a grid of days, so people can browse t
 ---
 
 Date Picker is an inline calendar. It always shows a month, and it is not a form control, so it does not submit
-with a form on its own (see [Submitting With a Form](#submitting-with-a-form)). For a date people already know, such
-as a birthday, use [Known Date](/components/known-date) instead.
+with a form on its own (see [Submitting With a Form](#submitting-with-a-form)). For a date field in a form, use
+[Date Input](/components/date-input), which holds this calendar in a popup. For a date people already know, such as a
+birthday, use [Known Date](/components/known-date) instead.
 
 ```html {.example}
 <cs-date-picker></cs-date-picker>
@@ -153,8 +154,8 @@ people can still browse the calendar with the keyboard.
 
 ## Submitting With a Form
 
-The picker is not form-associated. To send the date with a form, copy `value` into a hidden input when `cs-change`
-fires.
+The picker is not form-associated. [Date Input](/components/date-input) is the form control. To send the date from an
+inline picker with a form, copy `value` into a hidden input when `cs-change` fires.
 
 ```html {.example}
 <form class="date-picker-form cs-stack">
